@@ -25,7 +25,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
       <View style={styles.headerContent}>
 
         {/* Affichage de l'icône si définie dans l'identité (ex: 🚀) */}
-        {identity.header.emoji && (
+        {Boolean(identity.header.emoji) && (
           <Text style={styles.emoji}>{identity.header.emoji}</Text>
         )}
 
