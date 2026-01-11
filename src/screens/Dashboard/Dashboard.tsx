@@ -1,29 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, View, ActivityIndicator } from 'react-native';
-import { styles } from './styles/dashboardStyle';
+import React, { useEffect, useState, useMemo } from 'react';
+import { ScrollView, View, ActivityIndicator, Text } from 'react-native';
+import { useTheme } from '@/themes/ThemeContext';
+import { createStyles } from './styles/dashboardStyle';
 
-// 1. Tes briques visuelles
-import DashboardHeader from './components/dashboardHeader';
-import ContinueLearningCard from './components/continueLearning';
-import RevisionCard from './components/revisionCard';
-import AITutorCard from './components/aiTutorCard';
-import MetricsSection from './components/metricsSession';
-import LevelCard from './components/levelCard';
+// Composants Dashboard thématisés (TSX)
+import DashboardHeader from './components/DashboardHeader/DashboardHeader';
+import DashboardCard from './components/DashboardCard';
+import AIDiagnosticCard from './components/DashboardAiDiagnostic/AidiagnosticCard';
+import MetricsSection from './components/DashboardMetricsSession/metricsSession';
+import LevelCard from './components/DashboardLevel/levelCard';
 
-// 2. Ton moteur SQL (tes fichiers queries.ts)
-import { getModulesByAudience } from '../../database/queries';
-import { useUser } from '../../contexts/UserContext'; 
+// Database & Context
+import { getModulesByAudience } from '@/database/queries';
+import { useUser } from '@/contexts/UserContext';
 
 export default function Dashboard() {
-  const { user, db } = useUser(); // On récupère l'utilisateur et la base
+  const { user, db } = useUser();
+  const { identity } = useTheme();
+  const styles = useMemo(() => createStyles(identity), [identity]);
+
   const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // RÉCEPTEUR : On va chercher la vraie DATA
+  // Chargement des données Dashboard
   useEffect(() => {
     async function loadDashboardData() {
       if (db && user) {
-        // On interroge ton SQL selon l'audience (College, etc.)
         const data = await getModulesByAudience(db, user.audience);
         setModules(data);
         setLoading(false);
@@ -36,37 +38,98 @@ export default function Dashboard() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      
-      {/* 1. Header alimenté par le context User */}
+
+      {/* 1. Header personnalisé */}
       <DashboardHeader user={user} />
 
-      {/* 2. Hero Section (Logique de reprise) */}
+      {/* 2. Mot du jour */}
       <View style={styles.section}>
-        <ContinueLearningCard activity={user.lastActivity} />
+        <DashboardCard
+          title="Le mot du jour"
+          icon="📖"
+          subtitle="Nouveau vocabulaire"
+          variant="daily-word"
+        >
+          <Text style={{ fontSize: 24, fontWeight: '700', color: '#1F2937', marginTop: 8 }}>
+            Resilience
+          </Text>
+          <Text style={{ fontSize: 14, color: '#6B7280', marginTop: 4 }}>
+            La capacité à surmonter les difficultés
+          </Text>
+        </DashboardCard>
       </View>
 
-      {/* 3. Révision (Porte vers l'écran révision) */}
+      {/* 3. Reprendre le cours */}
       <View style={styles.section}>
-        <RevisionCard onPress={() => router.push('/revision')} />
+        <DashboardCard
+          title="Reprendre le cours"
+          icon="▶️"
+          subtitle="Tu y étais presque !"
+          variant="continue"
+          onPress={() => console.log('Continue learning')}
+        >
+          <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937', marginTop: 8 }}>
+            Module 3 - Leçon 5
+          </Text>
+          <Text style={{ fontSize: 14, color: '#6B7280', marginTop: 4 }}>
+            Progression : 78%
+          </Text>
+        </DashboardCard>
       </View>
 
-      {/* 4. AI Tutor (Conditionnel selon ton schéma audience) */}
+      {/* 4. Révisions */}
+      <View style={styles.section}>
+        <DashboardCard
+          title="Révisions"
+          icon="🔄"
+          subtitle="12 mots à revoir"
+          variant="revision"
+          onPress={() => console.log('Go to revision')}
+        >
+          <Text style={{ fontSize: 14, color: '#6B7280', marginTop: 8 }}>
+            Renforce ta mémoire avec une session rapide
+          </Text>
+        </DashboardCard>
+      </View>
+
+      {/* 5. AI Diagnostic (Conditionnel selon audience) */}
       {user.audience !== 'primary' && (
         <View style={styles.section}>
-          <AITutorCard />
+          <AIDiagnosticCard
+            errorPatterns={{
+              verb_conjugation: { count: 8, severity: 2 },
+              adjective_agreement: { count: 5, severity: 1 },
+            }}
+            challenge={{
+              userMessage: "Concentre-toi sur les verbes irréguliers avec 10 exercices ciblés"
+            }}
+            onTakeChallenge={() => console.log('Challenge accepted')}
+          />
         </View>
       )}
 
-      {/* 5. Metrics (Récupérées de tes hooks de stats) */}
-      <View style={styles.section}>
-        <MetricsSection />
-      </View>
+      {/* 6. Metrics Section */}
+      <MetricsSection
+        metrics={{
+          wordsLearned: 127,
+          badges: 3,
+          streak: 7
+        }}
+        theme="light"
+      />
 
-      {/* 6. Grille des Niveaux (Dynamique via SQL) */}
+      {/* 7. Grille des Niveaux */}
       <View style={styles.sectionHeader}>
+        <Text style={{ fontSize: 20, fontWeight: '700', color: '#1F2937', marginBottom: 12 }}>
+          Parcours
+        </Text>
         <View style={styles.levelsGrid}>
           {modules.map((module) => (
-            <LevelCard key={module.id} level={module} />
+            <LevelCard
+              key={module.id}
+              level={module}
+              onPress={() => console.log('Navigate to level', module.id)}
+            />
           ))}
         </View>
       </View>
