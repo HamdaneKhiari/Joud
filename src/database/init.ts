@@ -46,6 +46,17 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
         last_accessed TEXT,
         FOREIGN KEY (family_id) REFERENCES families(id)
       );
+
+      CREATE TABLE IF NOT EXISTS levels (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        level INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        icon TEXT NOT NULL,
+        description TEXT NOT NULL,
+        badge TEXT NOT NULL,
+        target_audience TEXT DEFAULT 'all',
+        difficulty TEXT
+      );
     `);
 
     // Insertion des modules de base
@@ -63,6 +74,18 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
 
     for (const mod of modulesSeed) {
       await db.runAsync(`INSERT OR IGNORE INTO modules VALUES (?, ?, ?, ?, ?, ?, ?)`, mod);
+    }
+
+    // Insertion des niveaux pour College
+    const levelsSeed = [
+      [1, 1, 'Les Bases', '🌱', 'Démarre ton apprentissage', 'Niveau 1', 'college', 'easy'],
+      [2, 2, "L'Essentiel", '🎯', 'Développe tes compétences', 'Niveau 2', 'college', 'medium'],
+      [3, 3, "L'Avancé", '⚡', 'Renforce ton niveau', 'Niveau 3', 'college', 'medium'],
+      [4, 4, "L'Expert", '🏆', "Maîtrise l'anglais", 'Niveau 4', 'college', 'hard']
+    ];
+
+    for (const lvl of levelsSeed) {
+      await db.runAsync(`INSERT OR IGNORE INTO levels VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, lvl);
     }
 
     console.log('✅ JanaCore Engine Initialized');

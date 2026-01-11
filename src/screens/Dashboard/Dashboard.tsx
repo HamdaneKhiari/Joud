@@ -9,23 +9,23 @@ import AIDiagnosticCard from './components/DashboardAiDiagnostic/AidiagnosticCar
 import MetricsSection from './components/DashboardMetricsSession/metricsSession';
 import LevelCard from './components/DashboardLevel/levelCard';
 
-import { getModulesByAudience } from '@/database/queries';
+import { getLevelsByAudience } from '@/database/queries';
 import { useUser } from '@/contexts/UserContext';
-import { Module } from '@/database/schema';
+import { Level } from '@/database/schema';
 
 export default function Dashboard() {
   const { user, db, loading: userLoading } = useUser();
   const { identity } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
 
-  const [modules, setModules] = useState<Module[]>([]);
+  const [levels, setLevels] = useState<Level[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     async function loadDashboardData() {
       if (db && user) {
-        const data = await getModulesByAudience(db, user.audience);
-        setModules(data);
+        const data = await getLevelsByAudience(db, user.audience);
+        setLevels(data);
         setDataLoading(false);
       }
     }
@@ -48,8 +48,8 @@ export default function Dashboard() {
 
       <View style={styles.section}>
         <DashboardCard title="Le mot du jour" icon="📖" variant="daily-word">
-          <Text style={{ fontSize: 24, fontWeight: '700', color: '#1F2937', marginTop: 8 }}>Resilience</Text>
-          <Text style={{ fontSize: 14, color: '#6B7280', marginTop: 4 }}>La capacité à surmonter les difficultés</Text>
+          <Text style={{ fontSize: 28, fontWeight: '800', color: '#1F2937', marginTop: 8 }}>Resilience</Text>
+          <Text style={{ fontSize: 16, color: '#6B7280', marginTop: 4, fontStyle: 'italic' }}>Résilience</Text>
         </DashboardCard>
       </View>
 
@@ -74,18 +74,17 @@ export default function Dashboard() {
       <View style={styles.sectionHeader}>
         <Text style={{ fontSize: 20, fontWeight: '700', color: '#1F2937', marginBottom: 12 }}>Parcours</Text>
         <View style={styles.levelsGrid}>
-          {modules.map((module) => (
+          {levels.map((level) => (
             <LevelCard
-              key={module.id}
-              /* FIX 2 : On transforme l'objet Module (SQL) en objet Level (UI) */
-              level={{
-                id: module.id,
-                title: module.name,        // module.name devient title
-                status: 'in_progress',     // Valeur par défaut (tous les niveaux accessibles)
-                completion: 0,             // Valeur par défaut
-                icon: module.icon
+              key={level.id}
+              data={{
+                id: level.id || 0,
+                level: level.level,
+                title: level.title,
+                difficulty: level.difficulty,
+                status: 'in_progress'
               }}
-              onPress={() => console.log('Navigate to level', module.id)}
+              onPress={() => console.log('Navigate to level', level.id)}
             />
           ))}
         </View>

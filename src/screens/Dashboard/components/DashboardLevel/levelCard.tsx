@@ -2,111 +2,64 @@ import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import { createStyles } from './levelCardStyle';
-import { withOpacity } from '@/themes/tokens';
 
-interface Level {
+interface LevelData {
   id: number;
-  title: string;
-  badge?: string;
-  icon: string;
-  status: 'completed' | 'in_progress';
-  completion: number;
+  level: number;
+  difficulty?: string;
+  status?: 'completed' | 'in_progress';
+  title?: string; // Optionnel pour compatibilité
 }
 
 interface LevelCardProps {
-  level: Level;
+  data: LevelData;
   onPress: () => void;
-  theme?: 'light' | 'dark';
 }
 
-/**
- * LevelCard - Version "Libre" avec thématisation complète
- * Tous les niveaux sont accessibles
- */
-const LevelCard: React.FC<LevelCardProps> = ({ level, onPress, theme = 'light' }) => {
+const LevelCard: React.FC<LevelCardProps> = ({ data, onPress }) => {
   const { identity } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
-  const isDark = theme === 'dark';
-  const isCompleted = level.status === 'completed';
 
-  // Utilise la couleur principale de l'identité pour la structure
-  const bgColor = identity.branding.main;
+  // Sécurité anti-crash : si data est undefined, on ne rend rien
+  if (!data) return null;
 
-  // Messages d'encouragement adaptés à une progression libre
-  const getEncouragement = (status: string, completion: number): string => {
-    if (status === 'completed') return 'Niveau complété ⭐';
-    if (completion >= 80) return 'Bientôt terminé !';
-    if (completion >= 50) return 'À mi-parcours';
-    if (completion > 0) return 'En cours';
-    return 'Prêt à commencer ?';
-  };
-
-  const encouragement = getEncouragement(level.status, level.completion);
+  const isCompleted = data?.status === 'completed';
 
   return (
-    <TouchableOpacity
-      testID={`level-card-${level.id}`}
-      onPress={onPress}
-      activeOpacity={0.8}
-      style={[
-        styles.card,
-        isDark && styles.cardDark,
-        {
-          backgroundColor: bgColor,
-          borderColor: bgColor,
-        },
-      ]}
+    <TouchableOpacity 
+      onPress={onPress} 
+      activeOpacity={0.8} 
+      style={styles.card}
     >
-      {/* Éléments décoratifs (si activés dans l'identité) */}
       {identity.ui.showDecorativeShapes && (
-        <>
-          <View style={styles.decorativeAccent} />
-          <View style={styles.decorativeAccentSmall} />
-        </>
+        <View style={styles.decorativeCircle} />
       )}
 
-      {/* Section Gauche - Icône & Textes */}
-      <View style={styles.leftSection}>
-        <Text style={styles.icon}>{level.icon}</Text>
-        <View style={styles.infoSection}>
-          <Text style={[styles.title, styles.titleLight]}>
-            {level.title}
+      <View style={styles.mainContainer}>
+        {/* Badge circulaire avec le numéro de niveau */}
+        <View style={styles.levelBadge}>
+          <Text style={styles.levelNumber}>{data.level || '?'}</Text>
+        </View>
+
+        <View style={styles.infoContainer}>
+          <Text style={styles.levelTitle}>
+            {data.title || `Niveau ${data.level}`}
           </Text>
-          {level.badge && (
-            <Text style={[styles.badge, styles.badgeLight]}>
-              {level.badge}
-            </Text>
+          
+          {data.difficulty && (
+            <View style={styles.difficultyTag}>
+              <Text style={styles.difficultyText}>
+                {data.difficulty.toUpperCase()}
+              </Text>
+            </View>
           )}
-          <Text style={styles.encouragement}>
-            {encouragement}
+        </View>
+
+        <View style={styles.statusContainer}>
+          <Text style={isCompleted ? styles.checkIcon : styles.playIcon}>
+            {isCompleted ? "✅" : "▶️"}
           </Text>
         </View>
-      </View>
-
-      {/* Section Droite - Statut ou Progression */}
-      <View style={styles.rightSection}>
-        {isCompleted ? (
-          <Text style={styles.statusIcon}>✅</Text>
-        ) : (
-          <View style={styles.progressSection}>
-            <Text style={[styles.progressText, styles.titleLight]}>
-              {level.completion}%
-            </Text>
-            <View
-              style={[
-                styles.progressBar,
-                isDark && styles.progressBarDark,
-              ]}
-            >
-              <View
-                style={[
-                  styles.progressFill,
-                  { width: `${level.completion}%` },
-                ]}
-              />
-            </View>
-          </View>
-        )}
       </View>
     </TouchableOpacity>
   );

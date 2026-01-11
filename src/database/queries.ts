@@ -1,11 +1,19 @@
 // src/database/queries.ts
 import { SQLiteDatabase } from 'expo-sqlite';
-import { Module, Family, Content, Progress } from './schema';
+import { Module, Family, Content, Progress, Level } from './schema';
 
 // --- QUERIES MODULES ---
 export const getModulesByAudience = async (db: SQLiteDatabase, audience: string): Promise<Module[]> => {
   return await db.getAllAsync<Module>(
     `SELECT * FROM modules WHERE target_audience = ? OR target_audience = 'all' ORDER BY order_index`,
+    [audience]
+  );
+};
+
+// --- QUERIES LEVELS ---
+export const getLevelsByAudience = async (db: SQLiteDatabase, audience: string): Promise<Level[]> => {
+  return await db.getAllAsync<Level>(
+    `SELECT * FROM levels WHERE target_audience = ? OR target_audience = 'all' ORDER BY level`,
     [audience]
   );
 };

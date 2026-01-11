@@ -39,3 +39,14 @@ export interface Progress {
   score: number;
   last_accessed?: string;
 }
+
+export interface Level {
+  id?: number;
+  level: number;
+  title: string;
+  icon: string;
+  description: string;
+  badge: string;
+  target_audience: 'primary' | 'college' | 'lycee' | 'adult' | 'all';
+  difficulty?: 'easy' | 'medium' | 'hard';
+}
