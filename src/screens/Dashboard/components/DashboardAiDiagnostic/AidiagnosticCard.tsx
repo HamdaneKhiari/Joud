@@ -2,7 +2,8 @@ import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { styles } from './aiDiagnosticStyle';
+import { useTheme } from '@/themes/ThemeContext';
+import { createStyles } from './AidiagnosticCardStyles';
 
 interface ErrorPattern {
   count: number;
@@ -17,12 +18,14 @@ interface AIDiagnosticCardProps {
   onTakeChallenge: () => void;
 }
 
-const AIDiagnosticCard: React.FC<AIDiagnosticCardProps> = ({ 
-  errorPatterns, 
-  challenge, 
-  onTakeChallenge 
+const AIDiagnosticCard: React.FC<AIDiagnosticCardProps> = ({
+  errorPatterns,
+  challenge,
+  onTakeChallenge
 }) => {
-  
+  const { identity } = useTheme();
+  const styles = useMemo(() => createStyles(identity), [identity]);
+
   const diagnostic = useMemo(() => {
     const patterns = Object.entries(errorPatterns || {}).map(([key, val]) => ({
       id: key,
@@ -45,7 +48,7 @@ const AIDiagnosticCard: React.FC<AIDiagnosticCardProps> = ({
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.titleRow}>
-          <MaterialCommunityIcons name="brain" size={24} color="#6366F1" />
+          <MaterialCommunityIcons name="brain" size={24} color={identity.ai.accent} />
           <Text style={styles.title}>Analyse Coach IA</Text>
         </View>
         <View style={styles.masteryBadge}>
@@ -56,7 +59,7 @@ const AIDiagnosticCard: React.FC<AIDiagnosticCardProps> = ({
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>CONSTAT</Text>
         <View style={styles.bubble}>
-          <MaterialCommunityIcons name="alert-circle-outline" size={18} color="#EF4444" />
+          <MaterialCommunityIcons name="alert-circle-outline" size={18} color={identity.ai.error} />
           <Text style={styles.bubbleText} numberOfLines={1}>
             Difficulté : <Text style={styles.bold}>{diagnostic?.topWeakness?.name || 'Analyse...'}</Text>
           </Text>
@@ -64,10 +67,13 @@ const AIDiagnosticCard: React.FC<AIDiagnosticCardProps> = ({
       </View>
 
       {challenge && (
-        <LinearGradient colors={['#F5F3FF', '#EDE9FE']} style={styles.solutionBox}>
+        <LinearGradient
+          colors={identity.ai.solutionBg as [string, string, ...string[]]}
+          style={styles.solutionBox}
+        >
           <Text style={styles.sectionLabel}>SOLUTION</Text>
           <Text style={styles.coachMessage}>"{challenge.userMessage}"</Text>
-          
+
           <TouchableOpacity style={styles.ctaButton} onPress={onTakeChallenge} activeOpacity={0.8}>
             <Text style={styles.ctaText}>Relever le défi</Text>
             <MaterialCommunityIcons name="arrow-right" size={18} color="#FFF" />

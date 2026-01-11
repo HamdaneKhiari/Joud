@@ -20,8 +20,8 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
-      <ThemeContainer 
-        identity={identity} 
+      <ThemeContainer
+        identity={identity}
         style={[styles.card, { borderRadius: identity.ui.cardRadius }]}
       >
         {/* Header commun */}
@@ -30,7 +30,9 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
             <Text style={styles.exerciseIcon}>{icon}</Text>
             <View>
               <Text style={styles.exerciseTitle}>{title}</Text>
-              {subtitle && <Text style={{color: '#FFA500'}}>{subtitle}</Text>}
+              {subtitle && (
+                <Text style={{ color: identity.branding.accent }}>{subtitle}</Text>
+              )}
             </View>
           </View>
         </View>

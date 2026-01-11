@@ -23,19 +23,19 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
   return (
     <ThemeContainer identity={identity} style={styles.header} rounded>
       <View style={styles.headerContent}>
-        
+
         {/* Affichage de l'icône si définie dans l'identité (ex: 🚀) */}
-        {identity.content.icon && (
-          <Text style={styles.emoji}>{identity.content.icon}</Text>
+        {identity.header.emoji && (
+          <Text style={styles.emoji}>{identity.header.emoji}</Text>
         )}
 
         <View style={styles.textSection}>
-          <Text 
+          <Text
             style={[styles.welcomeText, { color: identity.text.onMain }]}
             numberOfLines={1}
             adjustsFontSizeToFit
           >
-            {identity.content.welcome}{' '}
+            {identity.header.welcomeText}{' '}
             <Text style={[styles.userName, { color: identity.text.onMain }]}>
               {user.name}!
             </Text>
