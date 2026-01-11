@@ -1,15 +1,25 @@
 import React, { createContext, useContext, useMemo, useState, ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
-// On importe nos identités et nos tokens
-import { Identity, collegeIdentity, lyceeIdentity } from '@/themes/identities';
+
+// Import des identités (Fichiers à créer/mettre à jour dans @/themes/identities)
+import { 
+  Identity, 
+  primaryIdentity, 
+  collegeIdentity, 
+  lyceeIdentity, 
+  adultIdentity 
+} from '@/themes/identities';
 import { tokens } from '@/themes/tokens';
 
-// Le contrat de ce que le Context fournit à toute l'app
+// Typage des applications disponibles
+export type AppId = 'primary' | 'college' | 'lycee' | 'adult';
+
 interface ThemeContextType {
-  identity: Identity;       // L'identité active (College, Lycee, etc.)
-  tokens: typeof tokens;    // Les mesures (spacing, fontSize)
-  isDark: boolean;
-  setAppIdentity: (id: 'college' | 'lycee') => void; // Pour switcher d'app à la volée
+  identity: Identity;       // L'identité visuelle active
+  tokens: typeof tokens;    // Les espacements et tailles fixes
+  currentApp: AppId;        // L'ID de l'app actuelle
+  isDark: boolean;          // État du mode sombre
+  setAppIdentity: (id: AppId) => void; // Fonction pour switcher
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -17,23 +27,35 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const systemColorScheme = useColorScheme();
   
-  // 1. État pour savoir quelle application est active
-  const [currentApp, setCurrentApp] = useState<'college' | 'lycee'>('college');
+  // 1. État pour l'application active (College par défaut)
+  const [currentApp, setCurrentApp] = useState<AppId>('college');
 
-  // 2. Déterminer l'identité selon l'app choisie
+  // 2. Détermination de l'identité selon l'AppId
   const identity = useMemo(() => {
-    return currentApp === 'college' ? collegeIdentity : lyceeIdentity;
+    switch (currentApp) {
+      case 'primary':
+        return primaryIdentity;
+      case 'lycee':
+        return lyceeIdentity;
+      case 'adult':
+        return adultIdentity;
+      case 'college':
+      default:
+        return collegeIdentity;
+    }
   }, [currentApp]);
 
-  // 3. Gestion du Dark Mode (on pourra l'affiner plus tard)
+  // 3. Mode sombre
   const isDark = systemColorScheme === 'dark';
 
+  // 4. Objet de valeur mémorisé pour éviter les re-renders inutiles
   const value = useMemo(() => ({
     identity,
     tokens,
+    currentApp,
     isDark,
-    setAppIdentity: (id: 'college' | 'lycee') => setCurrentApp(id),
-  }), [identity, isDark]);
+    setAppIdentity: (id: AppId) => setCurrentApp(id),
+  }), [identity, currentApp, isDark]);
 
   return (
     <ThemeContext.Provider value={value}>
@@ -42,11 +64,11 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Hook pour utiliser le thème partout
+// Hook personnalisé pour consommer le thème
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error('useTheme doit être utilisé à l\'intérieur d\'un ThemeProvider');
   }
   return context;
 };
