@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
-import ThemeContainer from '@/components/common/ThemeContainer';
+import ThemeContainer from '@/themes/ThemeContainer';
 import { styles } from './headerStyles';
 
 interface DashboardHeaderProps {
