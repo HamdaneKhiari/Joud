@@ -4,6 +4,7 @@
  */
 
 import type { Identity } from '@/themes/identities';
+import { BASE_MODULES } from './moduleHelper';
 
 // ============================================
 // TYPES
@@ -284,17 +285,6 @@ export const getAvailableModules = (
   identity: Identity,
   levelId: number
 ): ModuleId[] => {
-  // Modules communs à tous (7 modules de base)
-  const baseModules: ModuleId[] = [
-    'vocab',
-    'grammar',
-    'phrase_types',
-    'reading',
-    'dialogues',
-    'word_games',
-    'assessment'
-  ];
-
   // LYCÉE : Ajoute "The Connector" (8 modules)
   if (identity.id === 'lycee') {
     return [
@@ -328,7 +318,7 @@ export const getAvailableModules = (
   }
 
   // PRIMARY et COLLEGE : 7 modules standard
-  return baseModules;
+  return BASE_MODULES;
 };
 
 /**

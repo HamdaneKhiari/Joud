@@ -41,6 +41,46 @@ export const BASE_MODULES: ModuleId[] = [
 // HELPERS
 // ============================================
 
+// Palettes de couleurs définies par identité
+const IDENTITY_PALETTES: Record<string, string[]> = {
+  primary: [
+    '#FF5722', // Rouge-orange
+    '#FFCE00', // Jaune
+    '#4CAF50', // Vert
+    '#2196F3', // Bleu
+    '#9C27B0', // Violet
+    '#FF9800', // Orange
+    '#E91E63'  // Rose
+  ],
+  college: [
+    '#34495E', // Bleu nuit
+    '#FFD700', // Or
+    '#3498DB', // Bleu
+    '#E74C3C', // Rouge
+    '#9B59B6', // Violet
+    '#F39C12', // Orange
+    '#1ABC9C'  // Turquoise
+  ],
+  lycee: [
+    '#00E5FF', // Cyan
+    '#1A1A1A', // Noir
+    '#2C3E50', // Gris foncé
+    '#00BCD4', // Cyan clair
+    '#0097A7', // Cyan foncé
+    '#006064', // Cyan très foncé
+    '#00ACC1'  // Cyan moyen
+  ],
+  adult: [
+    '#111827', // Noir
+    '#374151', // Gris foncé
+    '#4B5563', // Gris
+    '#6B7280', // Gris moyen
+    '#9CA3AF', // Gris clair
+    '#D1D5DB', // Gris très clair
+    '#1F2937'  // Gris très foncé
+  ]
+};
+
 /**
  * Vérifie si un module est exclusif à une identité
  */
@@ -72,46 +112,6 @@ export const getModuleColor = (
   moduleId: ModuleId | string,
   identity: Identity
 ): string => {
-  // Palette de couleurs selon l'identité
-  const colorPalettes: Record<Identity['id'], string[]> = {
-    primary: [
-      '#FF5722', // Rouge-orange
-      '#FFCE00', // Jaune
-      '#4CAF50', // Vert
-      '#2196F3', // Bleu
-      '#9C27B0', // Violet
-      '#FF9800', // Orange
-      '#E91E63'  // Rose
-    ],
-    college: [
-      '#34495E', // Bleu nuit
-      '#FFD700', // Or
-      '#3498DB', // Bleu
-      '#E74C3C', // Rouge
-      '#9B59B6', // Violet
-      '#F39C12', // Orange
-      '#1ABC9C'  // Turquoise
-    ],
-    lycee: [
-      '#00E5FF', // Cyan
-      '#1A1A1A', // Noir
-      '#2C3E50', // Gris foncé
-      '#00BCD4', // Cyan clair
-      '#0097A7', // Cyan foncé
-      '#006064', // Cyan très foncé
-      '#00ACC1'  // Cyan moyen
-    ],
-    adult: [
-      '#111827', // Noir
-      '#374151', // Gris foncé
-      '#4B5563', // Gris
-      '#6B7280', // Gris moyen
-      '#9CA3AF', // Gris clair
-      '#D1D5DB', // Gris très clair
-      '#1F2937'  // Gris très foncé
-    ]
-  };
-
   // Mapping des modules vers un index
   const moduleIndex: Record<string, number> = {
     vocab: 0,
@@ -126,7 +126,7 @@ export const getModuleColor = (
     assessment: 6
   };
 
-  const colors = colorPalettes[identity.id];
+  const colors = IDENTITY_PALETTES[identity.id];
   const index = moduleIndex[moduleId] ?? 0;
 
   return colors[index] || identity.branding.main;
