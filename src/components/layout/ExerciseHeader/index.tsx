@@ -8,7 +8,7 @@ import React, { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/themes/ThemeContext';
-import type { Identity } from '@/themes/identities';
+import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 
 // Sous-composants

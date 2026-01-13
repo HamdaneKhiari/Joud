@@ -12,7 +12,7 @@
 import React, { useMemo } from 'react';
 import { View, Image, Text, StyleSheet, ImageSourcePropType } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
-import type { Identity } from '@/themes/identities';
+import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 
 // ============================================

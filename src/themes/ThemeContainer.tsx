@@ -2,7 +2,7 @@ import React from 'react';
 import { View, ViewStyle, StyleProp } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 // Import de l'interface Identity depuis ton fichier de thèmes
-import { Identity } from '@/themes/identities';
+import type { Identity } from '@/themes/ThemeContext';
 
 interface ThemeContainerProps {
   identity: Identity;

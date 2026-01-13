@@ -15,7 +15,7 @@ import ExerciseProgressBar from '@/components/common/ExerciseProgressBar';
 
 // Theme
 import { useTheme } from '@/themes/ThemeContext';
-import type { Identity } from '@/themes/identities';
+import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 
 // ============================================

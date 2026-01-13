@@ -3,7 +3,7 @@
  * Migration TypeScript FIDÈLE au code JS original
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { View, ScrollView, StatusBar, Text, ActivityIndicator } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -14,11 +14,12 @@ import FlowCard from '@/components/flow/FlowCard';
 
 // Hooks & Contexts
 import { useTheme } from '@/themes/ThemeContext';
+import { useUser } from '@/contexts/UserContext';
 import { useProgress } from '@/contexts/ProgressContext';
 import useSafeAction from '@/hooks/useSafeAction';
 import useGetFamiliesByModule from '@/hooks/useGetFamiliesByModule';
 
-// Utils (nouveaux remplacements des constants)
+// Utils
 import { getModuleLabel, getLevelLabel, getAvailableModules } from '@/utils/labelMapper';
 import { getBadgeByProgress, getBadgeLabel } from '@/utils/badgeHelper';
 import { navigateToExercise } from '@/utils/navigationHelper';
@@ -73,12 +74,30 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({
   onPress
 }) => {
   const { getExerciseProgress } = useProgress();
+  const { db } = useUser();
+  const [moduleColor, setModuleColor] = useState<string>(identity.branding.main);
 
   // Récupération des familles pour ce module (SQLite)
   const { familyIds, isLoading: loadingFamilies } = useGetFamiliesByModule(
     exercise.id,
     levelId
   );
+
+  // Chargement de la couleur du module
+  useEffect(() => {
+    const loadColor = async () => {
+      if (!db) return;
+      try {
+        const { getAvailableModules } = await import('@/utils/labelMapper');
+        const availableModules = await getAvailableModules(identity.id, levelId, db);
+        const color = await getModuleColor(exercise.id, identity.id, db, availableModules);
+        setModuleColor(color);
+      } catch (error) {
+        console.error('Error loading module color:', error);
+      }
+    };
+    loadColor();
+  }, [db, exercise.id, identity.id, levelId]);
 
   // Calcul RÉEL de la progression
   const progress = useMemo(() => {
@@ -91,10 +110,10 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({
 
   return (
     <FlowCard
-      icon={exercise.icon} // Délégué à FlowCard (emoji, string, element)
+      icon={exercise.icon}
       title={exercise.title}
       subtitle={exercise.description}
-      color={getModuleColor(exercise.id, identity)}
+      color={moduleColor}
       badge={badge}
       onPress={onPress}
     />
@@ -112,6 +131,7 @@ const ExerciseSelectionScreen: React.FC<ExerciseSelectionScreenProps> = ({
   const router = useRouter();
   const expoParams = useLocalSearchParams<RouteParams>();
   const { identity } = useTheme();
+  const { db } = useUser();
   const { isLoading } = useProgress();
   const safeNavigate = useSafeAction();
 
@@ -122,9 +142,52 @@ const ExerciseSelectionScreen: React.FC<ExerciseSelectionScreenProps> = ({
 
   // =================== HOOKS & DATA ===================
   const styles = useMemo(() => createStyles(identity), [identity]);
+  const [levelLabel, setLevelLabel] = useState<{ title: string; badge: string; description: string }>({
+    title: `Niveau ${numLevelId}`,
+    badge: `N${numLevelId}`,
+    description: 'Niveau'
+  });
+  const [exercises, setExercises] = useState<Array<{ id: string; icon: string; title: string; description: string }>>([]);
+  const [loadingData, setLoadingData] = useState(true);
 
-  // Labels du niveau (remplace getLevelData)
-  const levelLabel = useMemo(() => getLevelLabel(numLevelId, identity), [numLevelId, identity]);
+  // Chargement des données depuis la DB
+  useEffect(() => {
+    const loadData = async () => {
+      if (!db) return;
+
+      try {
+        setLoadingData(true);
+
+        // Charger le label du niveau
+        const levelLabelData = await getLevelLabel(numLevelId, identity.id, db);
+        setLevelLabel(levelLabelData);
+
+        // Charger les modules disponibles
+        const moduleIds = await getAvailableModules(identity.id, numLevelId, db);
+
+        // Charger les labels de chaque module
+        const exercisesData = await Promise.all(
+          moduleIds.map(async (moduleId) => {
+            const moduleLabel = await getModuleLabel(moduleId, identity.id, db);
+            return {
+              id: moduleId,
+              icon: moduleLabel.icon,
+              title: moduleLabel.title,
+              description: moduleLabel.description
+            };
+          })
+        );
+
+        setExercises(exercisesData);
+      } catch (error) {
+        console.error('Error loading exercise data:', error);
+      } finally {
+        setLoadingData(false);
+      }
+    };
+
+    loadData();
+  }, [db, numLevelId, identity.id]);
 
   // Couleur du niveau (remplace getLevelColor)
   const levelColor = identity.branding.main;
@@ -136,21 +199,6 @@ const ExerciseSelectionScreen: React.FC<ExerciseSelectionScreenProps> = ({
     }
     return [levelColor, levelColor];
   }, [identity, levelColor]);
-
-  // Modules disponibles (remplace EXERCISES + LEVEL_PROGRESSION_MAP)
-  const exercises = useMemo(() => {
-    const moduleIds = getAvailableModules(identity, numLevelId);
-
-    return moduleIds.map(moduleId => {
-      const moduleLabel = getModuleLabel(moduleId, identity);
-      return {
-        id: moduleId,
-        icon: moduleLabel.icon, // Délégué à FlowCard
-        title: moduleLabel.title,
-        description: moduleLabel.description
-      };
-    });
-  }, [numLevelId, identity]);
 
   // =================== HANDLERS ===================
 
@@ -219,11 +267,11 @@ const ExerciseSelectionScreen: React.FC<ExerciseSelectionScreenProps> = ({
           contentContainerStyle={styles.scrollViewContent}
           showsVerticalScrollIndicator={false}
         >
-          {isLoading ? (
+          {(isLoading || loadingData) ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={levelColor} />
               <Text style={styles.loadingText}>
-                {identity.id === 'lycee' ? 'Loading progress...' : 'Calcul de tes progrès...'}
+                {identity.id === 'lycee' ? 'Loading...' : 'Chargement...'}
               </Text>
             </View>
           ) : (

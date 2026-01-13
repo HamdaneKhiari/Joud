@@ -1,170 +1,143 @@
 /**
- * Module Helper - Gestion des modules spéciaux et logique métier
+ * Module Helper - Gestion des modules via la base de données
+ * 100% White Label - Plus aucun hardcoding
  */
 
-import type { Identity } from '@/themes/identities';
-import type { ModuleId } from './labelMapper';
+import { useUser } from '@/contexts/UserContext';
+import { useTheme } from '@/themes/ThemeContext';
+import { getIdentityPalette } from '@/database/queries';
+import { useState, useEffect } from 'react';
 
 // ============================================
-// MODULES SPÉCIAUX
+// HOOKS POUR RÉCUPÉRER LES DONNÉES (DB)
 // ============================================
 
 /**
- * Modules exclusifs au Lycée
+ * Hook pour récupérer la palette de couleurs d'une identité
  */
-export const LYCEE_EXCLUSIVE_MODULES: ModuleId[] = ['connector'];
+export const useIdentityPalette = (): string[] => {
+  const { db } = useUser();
+  const { currentApp } = useTheme();
+  const [palette, setPalette] = useState<string[]>([]);
 
-/**
- * Modules exclusifs à Adult
- */
-export const ADULT_EXCLUSIVE_MODULES: ModuleId[] = ['fast_vocab', 'expressions'];
+  useEffect(() => {
+    const loadPalette = async () => {
+      if (!db) return;
 
-/**
- * Modules disponibles uniquement pour le niveau Bonus Adult (niveau 7)
- */
-export const ADULT_BONUS_MODULES: ModuleId[] = ['vocab', 'phrase_types'];
+      try {
+        const colors = await getIdentityPalette(db, currentApp);
+        setPalette(colors);
+      } catch (error) {
+        console.error('Error loading identity palette:', error);
+        setPalette([]);
+      }
+    };
 
-/**
- * Modules de base disponibles pour toutes les identités
- */
-export const BASE_MODULES: ModuleId[] = [
-  'vocab',
-  'grammar',
-  'phrase_types',
-  'reading',
-  'dialogues',
-  'word_games',
-  'assessment'
-];
+    loadPalette();
+  }, [db, currentApp]);
 
-// ============================================
-// HELPERS
-// ============================================
-
-// Palettes de couleurs définies par identité
-const IDENTITY_PALETTES: Record<string, string[]> = {
-  primary: [
-    '#FF5722', // Rouge-orange
-    '#FFCE00', // Jaune
-    '#4CAF50', // Vert
-    '#2196F3', // Bleu
-    '#9C27B0', // Violet
-    '#FF9800', // Orange
-    '#E91E63'  // Rose
-  ],
-  college: [
-    '#34495E', // Bleu nuit
-    '#FFD700', // Or
-    '#3498DB', // Bleu
-    '#E74C3C', // Rouge
-    '#9B59B6', // Violet
-    '#F39C12', // Orange
-    '#1ABC9C'  // Turquoise
-  ],
-  lycee: [
-    '#00E5FF', // Cyan
-    '#1A1A1A', // Noir
-    '#2C3E50', // Gris foncé
-    '#00BCD4', // Cyan clair
-    '#0097A7', // Cyan foncé
-    '#006064', // Cyan très foncé
-    '#00ACC1'  // Cyan moyen
-  ],
-  adult: [
-    '#111827', // Noir
-    '#374151', // Gris foncé
-    '#4B5563', // Gris
-    '#6B7280', // Gris moyen
-    '#9CA3AF', // Gris clair
-    '#D1D5DB', // Gris très clair
-    '#1F2937'  // Gris très foncé
-  ]
-};
-
-/**
- * Vérifie si un module est exclusif à une identité
- */
-export const isModuleExclusive = (
-  moduleId: string,
-  identity: Identity
-): boolean => {
-  if (identity.id === 'lycee') {
-    return LYCEE_EXCLUSIVE_MODULES.includes(moduleId as ModuleId);
-  }
-  if (identity.id === 'adult') {
-    return ADULT_EXCLUSIVE_MODULES.includes(moduleId as ModuleId);
-  }
-  return false;
-};
-
-/**
- * Vérifie si c'est le niveau bonus Adult
- */
-export const isAdultBonusLevel = (identity: Identity, levelId: number): boolean => {
-  return identity.id === 'adult' && levelId === 7;
+  return palette;
 };
 
 /**
  * Récupère la couleur d'un module selon l'identité
- * (Basé sur l'ordre des modules dans la liste)
+ * Utilise la palette de couleurs de la DB basée sur l'ordre du module
  */
-export const getModuleColor = (
-  moduleId: string,
-  identity: Identity
-): string => {
-  // Mapping des modules vers un index
-  const moduleIndex: Record<string, number> = {
-    vocab: 0,
-    fast_vocab: 0,
-    grammar: 1,
-    phrase_types: 2,
-    connector: 2,
-    expressions: 2,
-    reading: 3,
-    dialogues: 4,
-    word_games: 5,
-    assessment: 6
-  };
+export const getModuleColor = async (
+  moduleSlug: string,
+  identityId: string,
+  db: any,
+  availableModules: string[]
+): Promise<string> => {
+  if (!db) {
+    return '#34495E'; // Fallback
+  }
 
-  const colors = IDENTITY_PALETTES[identity.id];
-  const index = moduleIndex[moduleId] ?? 0;
+  try {
+    const palette = await getIdentityPalette(db, identityId);
+    
+    if (palette.length === 0) {
+      return '#34495E'; // Fallback
+    }
 
-  return colors[index] || identity.branding.main;
+    // Mapping des modules vers un index basé sur leur ordre dans availableModules
+    const moduleIndex = availableModules.indexOf(moduleSlug);
+    const colorIndex = moduleIndex >= 0 ? moduleIndex % palette.length : 0;
+
+    return palette[colorIndex] || palette[0];
+  } catch (error) {
+    console.error('Error in getModuleColor:', error);
+    return '#34495E';
+  }
 };
 
 /**
- * Récupère l'icône d'un module
+ * Récupère l'icône d'un module depuis la DB
+ * Utilise module_labels ou fallback vers modules.icon_name
  */
-export const getModuleIcon = (moduleId: string): string => {
-  const icons: Record<string, string> = {
-    vocab: 'book-alphabet',
-    fast_vocab: 'flash',
-    grammar: 'format-list-bulleted',
-    phrase_types: 'format-quote-close',
-    reading: 'text-box',
-    dialogues: 'chat',
-    word_games: 'gamepad-variant',
-    connector: 'connection',
-    expressions: 'format-quote-open',
-    assessment: 'clipboard-check'
-  };
+export const getModuleIcon = async (
+  moduleSlug: string,
+  identityId: string,
+  db: any
+): Promise<string> => {
+  if (!db) {
+    return 'book';
+  }
 
-  return icons[moduleId] || 'book';
+  try {
+    const { getModuleLabelWithFallback } = await import('@/database/queries');
+    const moduleLabel = await getModuleLabelWithFallback(db, moduleSlug, identityId);
+    return moduleLabel.icon_name;
+  } catch (error) {
+    console.error('Error in getModuleIcon:', error);
+    return 'book';
+  }
 };
 
 /**
  * Vérifie si un niveau existe pour une identité
+ * Basé sur les niveaux dans la table levels avec target_audience
  */
-export const isValidLevel = (identity: Identity, levelId: number): boolean => {
-  if (identity.id === 'adult') {
-    return levelId >= 1 && levelId <= 7; // Adult a 7 niveaux
+export const isValidLevel = async (
+  levelNumber: number,
+  identityId: string,
+  db: any
+): Promise<boolean> => {
+  if (!db) {
+    return levelNumber >= 1 && levelNumber <= 4; // Fallback conservateur
   }
-  return levelId >= 1 && levelId <= 4; // Autres ont 4 niveaux
+
+  try {
+    const levels = await db.getAllAsync<{ level: number }>(
+      `SELECT level FROM levels WHERE level = ? AND (target_audience = ? OR target_audience = 'all')`,
+      [levelNumber, identityId]
+    );
+    return levels.length > 0;
+  } catch (error) {
+    console.error('Error in isValidLevel:', error);
+    return levelNumber >= 1 && levelNumber <= 4;
+  }
 };
 
 /**
  * Récupère le nombre maximum de niveaux pour une identité
  */
-export const getMaxLevels = (identity: Identity): number => {
-  return identity.id === 'adult' ? 7 : 4;
+export const getMaxLevels = async (
+  identityId: string,
+  db: any
+): Promise<number> => {
+  if (!db) {
+    return 4; // Fallback
+  }
+
+  try {
+    const levels = await db.getAllAsync<{ level: number }>(
+      `SELECT DISTINCT level FROM levels WHERE target_audience = ? OR target_audience = 'all' ORDER BY level DESC LIMIT 1`,
+      [identityId]
+    );
+    return levels.length > 0 ? levels[0].level : 4;
+  } catch (error) {
+    console.error('Error in getMaxLevels:', error);
+    return 4;
+  }
 };

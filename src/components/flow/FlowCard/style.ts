@@ -3,7 +3,7 @@
  */
 
 import { StyleSheet } from 'react-native';
-import type { Identity } from '@/themes/identities';
+import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 
 const baseColors = {

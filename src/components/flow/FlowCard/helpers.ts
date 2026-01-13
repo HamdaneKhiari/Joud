@@ -2,7 +2,7 @@
  * FlowCard Helpers - Couleurs dynamiques des badges
  */
 
-import type { Identity } from '@/themes/identities';
+import type { Identity } from '@/themes/ThemeContext';
 import type { BadgeType } from '@/utils/badgeHelper';
 
 /**

@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import { SQLiteDatabase } from 'expo-sqlite';
 import { initDatabase } from '@/database/init';
-import { useTheme } from '@/themes/ThemeContext';
 
 // Typage de l'utilisateur basé sur tes besoins Dashboard
 interface User {
@@ -23,7 +22,6 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [db, setDb] = useState<SQLiteDatabase | null>(null);
   const [loading, setLoading] = useState(true);
-  const { setAppIdentity } = useTheme();
 
   // 1. Utilisateur simulé (à remplacer plus tard par un vrai système d'auth)
   const [user, setUser] = useState<User | null>({
@@ -47,12 +45,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setup();
   }, []);
 
-  // 3. Synchronisation automatique du thème quand l'audience change
-  useEffect(() => {
-    if (user?.audience) {
-      setAppIdentity(user.audience);
-    }
-  }, [user?.audience]);
+  // Note: La synchronisation du thème se fait maintenant dans ThemeContext
 
   // Fonction pour changer l'audience (utile pour tes tests)
   const updateAudience = (newAudience: User['audience']) => {

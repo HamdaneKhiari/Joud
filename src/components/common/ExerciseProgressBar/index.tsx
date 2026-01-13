@@ -7,7 +7,7 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { View, Text, Animated, StyleSheet } from 'react';
 import { useTheme } from '@/themes/ThemeContext';
-import type { Identity } from '@/themes/identities';
+import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 
 // ============================================

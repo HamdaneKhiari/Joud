@@ -2,7 +2,7 @@
  * Badge Helper - Gestion des badges de progression
  */
 
-import type { Identity } from '@/themes/identities';
+import type { Identity } from '@/themes/ThemeContext';
 
 // ============================================
 // TYPES

@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { Identity } from '@/themes/identities';
+import type { Identity } from '@/themes/ThemeContext';
 import { tokens, withOpacity } from '@/themes/tokens';
 
 export const createStyles = (identity: Identity) =>
