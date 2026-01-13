@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { ScrollView, View, ActivityIndicator, Text } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useTheme } from '@/themes/ThemeContext';
 import { createStyles } from './styles/dashboardStyle';
 
@@ -11,11 +12,16 @@ import LevelCard from './components/DashboardLevel/levelCard';
 
 import { getLevelsByAudience } from '@/database/queries';
 import { useUser } from '@/contexts/UserContext';
+import { useProgress } from '@/contexts/ProgressContext';
 import { Level } from '@/database/schema';
+import { getLevelLabel } from '@/utils/labelMapper';
+import { navigateToExerciseSelection } from '@/utils/navigationHelper';
 
 export default function Dashboard() {
   const { user, db, loading: userLoading } = useUser();
   const { identity } = useTheme();
+  const router = useRouter();
+  const { getLevelProgress } = useProgress();
   const styles = useMemo(() => createStyles(identity), [identity]);
 
   const [levels, setLevels] = useState<Level[]>([]);
@@ -74,19 +80,27 @@ export default function Dashboard() {
       <View style={styles.sectionHeader}>
         <Text style={{ fontSize: 20, fontWeight: '700', color: '#1F2937', marginBottom: 12 }}>Parcours</Text>
         <View style={styles.levelsGrid}>
-          {levels.map((level) => (
-            <LevelCard
-              key={level.id}
-              data={{
-                id: level.id || 0,
-                level: level.level,
-                title: level.title,
-                difficulty: level.difficulty,
-                status: 'in_progress'
-              }}
-              onPress={() => console.log('Navigate to level', level.id)}
-            />
-          ))}
+          {levels.map((level) => {
+            // Récupération du label dynamique selon l'identité
+            const levelLabel = getLevelLabel(level.level, identity);
+
+            // Calcul du status selon la progression
+            const progress = getLevelProgress(level.level);
+            const status = progress === 100 ? 'completed' : 'in_progress';
+
+            return (
+              <LevelCard
+                key={level.id}
+                data={{
+                  id: level.id || 0,
+                  level: level.level,
+                  title: levelLabel.title,
+                  status
+                }}
+                onPress={() => navigateToExerciseSelection(router, level.level)}
+              />
+            );
+          })}
         </View>
       </View>
     </ScrollView>

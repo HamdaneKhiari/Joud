@@ -104,6 +104,14 @@ const FlowCard: React.FC<FlowCardProps> = ({
     onPress();
   };
 
+  // Helper: Détecte si une string est un emoji ou un nom d'icône
+  const isEmoji = (str: string): boolean => {
+    // Un emoji a généralement des caractères spéciaux ou une longueur > 1 en UTF-16
+    // Un nom d'icône MaterialCommunityIcons contient des lettres et tirets uniquement
+    const iconNamePattern = /^[a-z0-9-]+$/;
+    return !iconNamePattern.test(str);
+  };
+
   // Icône à afficher
   const displayIcon = () => {
     if (locked) {
@@ -117,9 +125,21 @@ const FlowCard: React.FC<FlowCardProps> = ({
       );
     }
 
-    // Emoji ou texte
+    // Si c'est une string
     if (typeof icon === 'string') {
-      return <Text style={styles.iconText}>{icon}</Text>;
+      // Emoji ou texte → afficher tel quel
+      if (isEmoji(icon)) {
+        return <Text style={styles.iconText}>{icon}</Text>;
+      }
+
+      // Nom d'icône MaterialCommunityIcons → rendre l'icône
+      return (
+        <MaterialCommunityIcons
+          name={icon as any}
+          size={32}
+          color="#FFFFFF"
+        />
+      );
     }
 
     // React Element (icône)

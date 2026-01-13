@@ -5,61 +5,46 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
   try {
     const db = await SQLite.openDatabaseAsync('janacore.db');
 
-    // Activation des clés étrangères
+    // Activation des contraintes d'intégrité
     await db.execAsync(`PRAGMA foreign_keys = ON;`);
 
-    // Création des tables en un seul bloc (plus rapide)
+    // 1. CRÉATION DES TABLES (Structure propre sans 'difficulty')
     await db.execAsync(`
+      DROP TABLE IF EXISTS levels; -- On drop pour être sûr de repartir sur 7 colonnes
+      
       CREATE TABLE IF NOT EXISTS modules (
         id INTEGER PRIMARY KEY,
         name TEXT NOT NULL UNIQUE,
         is_core INTEGER DEFAULT 1,
         target_audience TEXT DEFAULT 'all',
-        icon TEXT, order_index INTEGER, description TEXT
+        icon TEXT, 
+        order_index INTEGER, 
+        description TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS levels (
+        id INTEGER PRIMARY KEY,
+        level INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        icon TEXT NOT NULL,
+        description TEXT NOT NULL,
+        badge TEXT NOT NULL,
+        target_audience TEXT NOT NULL
       );
 
       CREATE TABLE IF NOT EXISTS families (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         module_id INTEGER NOT NULL,
         name TEXT NOT NULL,
-        icon TEXT, emoji TEXT, description TEXT, order_index INTEGER,
+        icon TEXT, 
+        emoji TEXT, 
+        description TEXT, 
+        order_index INTEGER,
         FOREIGN KEY (module_id) REFERENCES modules(id)
-      );
-
-      CREATE TABLE IF NOT EXISTS content (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        family_id INTEGER NOT NULL,
-        level INTEGER NOT NULL,
-        content_type TEXT NOT NULL,
-        data TEXT NOT NULL,
-        difficulty TEXT, tags TEXT,
-        FOREIGN KEY (family_id) REFERENCES families(id)
-      );
-
-      CREATE TABLE IF NOT EXISTS progress (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT NOT NULL,
-        family_id INTEGER NOT NULL,
-        level INTEGER NOT NULL,
-        completed INTEGER DEFAULT 0,
-        score INTEGER DEFAULT 0,
-        last_accessed TEXT,
-        FOREIGN KEY (family_id) REFERENCES families(id)
-      );
-
-      CREATE TABLE IF NOT EXISTS levels (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        level INTEGER NOT NULL,
-        title TEXT NOT NULL,
-        icon TEXT NOT NULL,
-        description TEXT NOT NULL,
-        badge TEXT NOT NULL,
-        target_audience TEXT DEFAULT 'all',
-        difficulty TEXT
       );
     `);
 
-    // Insertion des modules de base
+    // 2. SEED DES MODULES (7 colonnes)
     const modulesSeed = [
       [1, 'Vocabulary', 1, 'all', 'book', 1, 'Enrichis ton vocabulaire'],
       [2, 'Grammar', 1, 'all', 'lightbulb', 2, 'Maîtrise les règles'],
@@ -67,7 +52,6 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
       [4, 'Reading', 1, 'all', 'file-text', 4, 'Analyse de textes'],
       [5, 'Conversation', 1, 'all', 'message-circle', 5, 'Pratique dialogues'],
       [6, 'Games', 1, 'all', 'gamepad', 6, 'Exercices ludiques'],
-      [7, 'Assessment', 1, 'all', 'check-circle', 7, 'Bilan'],
       [8, 'FastVocab', 0, 'adult', 'zap', 8, '500 mots essentiels'],
       [9, 'Connector', 0, 'lycee', 'link', 9, 'Mots de liaison']
     ];
@@ -76,16 +60,33 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
       await db.runAsync(`INSERT OR IGNORE INTO modules VALUES (?, ?, ?, ?, ?, ?, ?)`, mod);
     }
 
-    // Insertion des niveaux pour College
+    // 3. SEED DES NIVEAUX (7 colonnes exactement)
     const levelsSeed = [
-      [1, 1, 'Les Bases', '🌱', 'Démarre ton apprentissage', 'Niveau 1', 'college', 'easy'],
-      [2, 2, "L'Essentiel", '🎯', 'Développe tes compétences', 'Niveau 2', 'college', 'medium'],
-      [3, 3, "L'Avancé", '⚡', 'Renforce ton niveau', 'Niveau 3', 'college', 'medium'],
-      [4, 4, "L'Expert", '🏆', "Maîtrise l'anglais", 'Niveau 4', 'college', 'hard']
+      // [ID, LEVEL, TITLE, ICON, DESCRIPTION, BADGE, AUDIENCE]
+      [101, 1, 'Découverte', '🎨', 'Mes premiers pas', 'LVL 1', 'primary'],
+      [102, 2, 'Apprentissage', '🚀', 'Je commence à parler', 'LVL 2', 'primary'],
+      [103, 3, 'Exploration', '🔍', 'Je découvre le monde', 'LVL 3', 'primary'],
+      [104, 4, 'Maîtrise', '🌟', 'Je parle comme un grand', 'LVL 4', 'primary'],
+
+      [201, 1, 'Les Bases', '🌱', 'Démarre ton apprentissage', 'LVL 1', 'college'],
+      [202, 2, "L'Essentiel", '🎯', 'Développe tes compétences', 'LVL 2', 'college'],
+      [203, 3, "L'Avancé", '⚡', 'Renforce ton niveau', 'LVL 3', 'college'],
+      [204, 4, "L'Expert", '🏆', "Maîtrise l'anglais", 'LVL 4', 'college'],
+
+      [301, 1, 'Foundations', '📚', 'Core grammar and vocab', 'LVL 1', 'lycee'],
+      [302, 2, 'Skills', '🛠️', 'Practical application', 'LVL 2', 'lycee'],
+      [303, 3, 'Expertise', '🧪', 'Advanced structures', 'LVL 3', 'lycee'],
+      [304, 4, 'Mastery', '🎓', 'Academic excellence', 'LVL 4', 'lycee'],
+
+      [401, 1, 'Niveau 1', '🌱', 'Les bases essentielles', 'NIVEAU 1', 'adult'],
+      [402, 2, 'Niveau 2', '🎯', 'Pratique et quotidien', 'NIVEAU 2', 'adult'],
+      [403, 3, 'Niveau 3', '⚡', 'Approfondissement', 'NIVEAU 3', 'adult'],
+      [404, 4, 'Niveau 4', '🏆', 'Maîtrise complète', 'NIVEAU 4', 'adult'],
+      [405, 5, 'Slang', '🔥', 'Anglais familier et films', 'SPECIAL', 'adult']
     ];
 
     for (const lvl of levelsSeed) {
-      await db.runAsync(`INSERT OR IGNORE INTO levels VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, lvl);
+      await db.runAsync(`INSERT OR IGNORE INTO levels VALUES (?, ?, ?, ?, ?, ?, ?)`, lvl);
     }
 
     console.log('✅ JanaCore Engine Initialized');

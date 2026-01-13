@@ -208,7 +208,7 @@ const ExerciseSelectionScreen: React.FC<ExerciseSelectionScreenProps> = ({
           onBack={handleBackPress}
           rightIcon="📚" // Icon par défaut (SCREEN_ICONS.EXERCISE_SELECTION remplacé)
           showLevelBadge
-          levelTitle={levelLabel.badge}
+          levelTitle={numLevelId.toString()}
           levelColor={levelColor}
           exerciseTitle={levelLabel.title}
           gradientColors={levelGradient}

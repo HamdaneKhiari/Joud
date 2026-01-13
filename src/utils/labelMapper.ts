@@ -238,7 +238,7 @@ const ADULT_LEVELS: Record<number, LevelLabel> = {
  * Récupère le label d'un module selon l'identité
  */
 export const getModuleLabel = (
-  moduleId: ModuleId | string,
+  moduleId: string,
   identity: Identity
 ): ModuleLabel => {
   const maps = {
@@ -325,7 +325,7 @@ export const getAvailableModules = (
  * Vérifie si un module est disponible pour une identité/niveau
  */
 export const isModuleAvailable = (
-  moduleId: ModuleId | string,
+  moduleId: string,
   identity: Identity,
   levelId: number
 ): boolean => {

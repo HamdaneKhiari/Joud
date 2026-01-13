@@ -1,12 +1,14 @@
 import { Stack } from 'expo-router';
 import { ThemeProvider } from '../src/themes/ThemeContext';
 import { UserProvider } from '../src/contexts/UserContext';
+import { ProgressProvider } from '../src/contexts/ProgressContext';
 
 export default function RootLayout() {
   return (
     <ThemeProvider>
       <UserProvider>
-        <Stack screenOptions={{ headerShown: false }}>
+        <ProgressProvider>
+          <Stack screenOptions={{ headerShown: false }}>
           {/* Tabs (Accueil + Settings) */}
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 
@@ -14,16 +16,14 @@ export default function RootLayout() {
           <Stack.Screen
             name="level/[levelId]"
             options={{
-              headerShown: true,
-              title: 'Choisis ta famille',
+              headerShown: false,
               presentation: 'card'
             }}
           />
           <Stack.Screen
             name="family/[familyId]"
             options={{
-              headerShown: true,
-              title: 'Exercices',
+              headerShown: false,
               presentation: 'card'
             }}
           />
@@ -50,7 +50,8 @@ export default function RootLayout() {
               presentation: 'fullScreenModal'
             }}
           />
-        </Stack>
+          </Stack>
+        </ProgressProvider>
       </UserProvider>
     </ThemeProvider>
   );

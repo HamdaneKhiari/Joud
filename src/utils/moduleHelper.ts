@@ -85,7 +85,7 @@ const IDENTITY_PALETTES: Record<string, string[]> = {
  * Vérifie si un module est exclusif à une identité
  */
 export const isModuleExclusive = (
-  moduleId: ModuleId | string,
+  moduleId: string,
   identity: Identity
 ): boolean => {
   if (identity.id === 'lycee') {
@@ -109,7 +109,7 @@ export const isAdultBonusLevel = (identity: Identity, levelId: number): boolean 
  * (Basé sur l'ordre des modules dans la liste)
  */
 export const getModuleColor = (
-  moduleId: ModuleId | string,
+  moduleId: string,
   identity: Identity
 ): string => {
   // Mapping des modules vers un index
@@ -135,7 +135,7 @@ export const getModuleColor = (
 /**
  * Récupère l'icône d'un module
  */
-export const getModuleIcon = (moduleId: ModuleId | string): string => {
+export const getModuleIcon = (moduleId: string): string => {
   const icons: Record<string, string> = {
     vocab: 'book-alphabet',
     fast_vocab: 'flash',

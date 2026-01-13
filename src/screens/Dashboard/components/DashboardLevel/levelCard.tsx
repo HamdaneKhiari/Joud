@@ -6,9 +6,8 @@ import { createStyles } from './levelCardStyle';
 interface LevelData {
   id: number;
   level: number;
-  difficulty?: string;
   status?: 'completed' | 'in_progress';
-  title?: string; // Optionnel pour compatibilité
+  title?: string;
 }
 
 interface LevelCardProps {
@@ -45,14 +44,6 @@ const LevelCard: React.FC<LevelCardProps> = ({ data, onPress }) => {
           <Text style={styles.levelTitle}>
             {data.title || `Niveau ${data.level}`}
           </Text>
-          
-          {data.difficulty && (
-            <View style={styles.difficultyTag}>
-              <Text style={styles.difficultyText}>
-                {data.difficulty.toUpperCase()}
-              </Text>
-            </View>
-          )}
         </View>
 
         <View style={styles.statusContainer}>
