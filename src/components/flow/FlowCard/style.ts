@@ -46,8 +46,23 @@ export const createStyles = (identity: Identity) => {
     }
   };
 
+  // Couleur de l'icône locked selon l'identité
+  const getLockedIconColor = () => {
+    switch (identity.id) {
+      case 'lycee':
+        return '#607D8B'; // Gris bleuté moyen
+      case 'adult':
+        return '#9CA3AF'; // Gris moyen professionnel
+      case 'college':
+        return '#94A3B8'; // Gris moyen
+      case 'primary':
+        return '#B8C1CC'; // Gris doux
+    }
+  };
+
   const cardSpacing = getCardSpacing();
   const iconSize = getIconSize();
+  const lockedIconColor = getLockedIconColor();
 
   return StyleSheet.create({
     // =================== CARD PRINCIPALE ===================
@@ -57,10 +72,21 @@ export const createStyles = (identity: Identity) => {
       padding: cardSpacing,
       marginBottom: tokens.spacing.lg,
       shadowColor: baseColors.black,
-      shadowOffset: { width: 0, height: identity.id === 'primary' ? 4 : 2 },
-      shadowOpacity: identity.id === 'primary' ? 0.15 : identity.id === 'college' ? 0.12 : 0.08,
-      shadowRadius: identity.id === 'primary' ? 8 : identity.id === 'college' ? 6 : 4,
-      elevation: identity.id === 'primary' ? 6 : identity.id === 'college' ? 4 : 2,
+      shadowOffset: {
+        width: 0,
+        height: identity.id === 'primary' ? 4 :
+                identity.id === 'college' ? 2 :
+                identity.id === 'adult' ? 1 : 2
+      },
+      shadowOpacity: identity.id === 'primary' ? 0.15 :
+                      identity.id === 'college' ? 0.12 :
+                      identity.id === 'adult' ? 0.04 : 0.08,
+      shadowRadius: identity.id === 'primary' ? 8 :
+                     identity.id === 'college' ? 6 :
+                     identity.id === 'adult' ? 3 : 4,
+      elevation: identity.id === 'primary' ? 6 :
+                  identity.id === 'college' ? 4 :
+                  identity.id === 'adult' ? 1 : 2,
       position: 'relative',
       overflow: 'hidden',
       borderWidth: 0
@@ -99,10 +125,18 @@ export const createStyles = (identity: Identity) => {
       alignItems: 'center',
       marginRight: tokens.spacing.lg,
       shadowColor: baseColors.black,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.15,
-      shadowRadius: 4,
-      elevation: 3
+      shadowOffset: {
+        width: 0,
+        height: identity.id === 'primary' ? 2 :
+                identity.id === 'adult' ? 1 : 2
+      },
+      shadowOpacity: identity.id === 'primary' ? 0.15 :
+                      identity.id === 'college' ? 0.12 :
+                      identity.id === 'adult' ? 0.05 : 0.1,
+      shadowRadius: identity.id === 'primary' ? 4 :
+                     identity.id === 'adult' ? 2 : 4,
+      elevation: identity.id === 'primary' ? 3 :
+                  identity.id === 'adult' ? 1 : 2
     },
 
     iconText: {
@@ -113,7 +147,7 @@ export const createStyles = (identity: Identity) => {
     },
 
     lockIconText: {
-      color: baseColors.gray400,
+      color: lockedIconColor,
       fontSize: 32
     },
 
@@ -162,10 +196,18 @@ export const createStyles = (identity: Identity) => {
                      identity.id === 'college' ? tokens.borderRadius.md :
                      tokens.borderRadius.sm,
       shadowColor: baseColors.black,
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.2,
-      shadowRadius: 2,
-      elevation: 2
+      shadowOffset: {
+        width: 0,
+        height: identity.id === 'primary' ? 2 :
+                identity.id === 'adult' ? 0 : 1
+      },
+      shadowOpacity: identity.id === 'primary' ? 0.2 :
+                      identity.id === 'college' ? 0.15 :
+                      identity.id === 'adult' ? 0.05 : 0.1,
+      shadowRadius: identity.id === 'primary' ? 3 :
+                     identity.id === 'adult' ? 1 : 2,
+      elevation: identity.id === 'primary' ? 2 :
+                  identity.id === 'adult' ? 0 : 1
     },
 
     badgeText: {

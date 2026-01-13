@@ -1,13 +1,12 @@
 /**
  * ExerciceSelectionScreen - Sélection des exercices d'un niveau
- * Version TypeScript avec système dynamique
+ * Migration TypeScript FIDÈLE au code JS original
  */
 
 import React, { useMemo } from 'react';
 import { View, ScrollView, StatusBar, Text, ActivityIndicator } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 // Composants
 import ExerciseHeader from '@/components/layout/ExerciseHeader';
@@ -17,12 +16,15 @@ import FlowCard from '@/components/flow/FlowCard';
 import { useTheme } from '@/themes/ThemeContext';
 import { useProgress } from '@/contexts/ProgressContext';
 import useSafeAction from '@/hooks/useSafeAction';
+import useGetFamiliesByModule from '@/hooks/useGetFamiliesByModule';
 
-// Utils
+// Utils (nouveaux remplacements des constants)
 import { getModuleLabel, getLevelLabel, getAvailableModules } from '@/utils/labelMapper';
-import { getBadgeByProgress } from '@/utils/badgeHelper';
+import { getBadgeByProgress, getBadgeLabel } from '@/utils/badgeHelper';
 import { navigateToExercise } from '@/utils/navigationHelper';
 import { getModuleColor } from '@/utils/moduleHelper';
+
+// Styles
 import { createStyles } from './style';
 
 // ============================================
@@ -33,63 +35,157 @@ interface RouteParams {
   levelId?: string;
 }
 
+interface NavigationProp {
+  navigate: (screen: string, params: any) => void;
+  goBack: () => void;
+}
+
+// Props pour compatibilité React Navigation (si utilisé)
+interface ExerciseSelectionScreenProps {
+  navigation?: NavigationProp;
+  route?: {
+    params?: {
+      levelId?: string | number;
+    };
+  };
+}
+
 // ============================================
-// COMPOSANT
+// COMPOSANT HELPER POUR CHAQUE EXERCICE
 // ============================================
 
-const ExerciseSelectionScreen: React.FC = () => {
-  const router = useRouter();
-  const params = useLocalSearchParams<RouteParams>();
-  const { identity } = useTheme();
-  const { getExerciseProgress, isLoading } = useProgress();
-  const safeNavigate = useSafeAction();
+interface ExerciseItemProps {
+  exercise: {
+    id: string;
+    icon: string;
+    title: string;
+    description: string;
+  };
+  levelId: number;
+  identity: any;
+  onPress: () => void;
+}
 
-  // Styles dynamiques
-  const styles = useMemo(() => createStyles(identity), [identity]);
+const ExerciseItem: React.FC<ExerciseItemProps> = ({
+  exercise,
+  levelId,
+  identity,
+  onPress
+}) => {
+  const { getExerciseProgress } = useProgress();
 
-  // Paramètres
-  const levelId = Number.parseInt(params.levelId || '1', 10);
-
-  // Labels du niveau
-  const levelLabel = useMemo(() => getLevelLabel(levelId, identity), [levelId, identity]);
-
-  // Modules disponibles pour cette identité et ce niveau
-  const availableModules = useMemo(
-    () => getAvailableModules(identity, levelId),
-    [identity, levelId]
+  // Récupération des familles pour ce module (SQLite)
+  const { familyIds, isLoading: loadingFamilies } = useGetFamiliesByModule(
+    exercise.id,
+    levelId
   );
 
-  // Gradient pour le header
-  const headerGradient = useMemo(() => {
+  // Calcul RÉEL de la progression
+  const progress = useMemo(() => {
+    if (loadingFamilies) return 0;
+    return getExerciseProgress(levelId, exercise.id, familyIds) || 0;
+  }, [loadingFamilies, familyIds, levelId, exercise.id, getExerciseProgress]);
+
+  const badgeType = getBadgeByProgress(progress);
+  const badge = getBadgeLabel(badgeType, identity);
+
+  return (
+    <FlowCard
+      icon={exercise.icon} // Délégué à FlowCard (emoji, string, element)
+      title={exercise.title}
+      subtitle={exercise.description}
+      color={getModuleColor(exercise.id, identity)}
+      badge={badge}
+      onPress={onPress}
+    />
+  );
+};
+
+// ============================================
+// COMPOSANT PRINCIPAL
+// ============================================
+
+const ExerciseSelectionScreen: React.FC<ExerciseSelectionScreenProps> = ({
+  navigation,
+  route
+}) => {
+  const router = useRouter();
+  const expoParams = useLocalSearchParams<RouteParams>();
+  const { identity } = useTheme();
+  const { isLoading } = useProgress();
+  const safeNavigate = useSafeAction();
+
+  // =================== PARAMÈTRES ===================
+  // Support React Navigation ET Expo Router
+  const levelId = route?.params?.levelId || expoParams.levelId || '1';
+  const numLevelId = Number.parseInt(levelId.toString(), 10);
+
+  // =================== HOOKS & DATA ===================
+  const styles = useMemo(() => createStyles(identity), [identity]);
+
+  // Labels du niveau (remplace getLevelData)
+  const levelLabel = useMemo(() => getLevelLabel(numLevelId, identity), [numLevelId, identity]);
+
+  // Couleur du niveau (remplace getLevelColor)
+  const levelColor = identity.branding.main;
+
+  // Gradient du niveau (remplace getLevelGradient)
+  const levelGradient = useMemo(() => {
     if (identity.ui.hasGradient && identity.ui.gradientColors) {
       return identity.ui.gradientColors;
     }
-    return [identity.branding.main, identity.branding.main];
-  }, [identity]);
+    return [levelColor, levelColor];
+  }, [identity, levelColor]);
+
+  // Modules disponibles (remplace EXERCISES + LEVEL_PROGRESSION_MAP)
+  const exercises = useMemo(() => {
+    const moduleIds = getAvailableModules(identity, numLevelId);
+
+    return moduleIds.map(moduleId => {
+      const moduleLabel = getModuleLabel(moduleId, identity);
+      return {
+        id: moduleId,
+        icon: moduleLabel.icon, // Délégué à FlowCard
+        title: moduleLabel.title,
+        description: moduleLabel.description
+      };
+    });
+  }, [numLevelId, identity]);
 
   // =================== HANDLERS ===================
 
-  const handleExercisePress = (moduleId: string) => {
+  const handleExercisePress = (exercise: typeof exercises[0]) => {
     safeNavigate.execute(() => {
-      if (moduleId === 'assessment') {
+      if (exercise.id === 'assessment') {
         // Évaluation (quiz)
         navigateToExercise(router, {
           type: 'quiz',
-          levelId
+          levelId: numLevelId
         });
       } else {
-        // Navigation vers la sélection des familles
-        navigateToExercise(router, {
-          type: moduleId,
-          levelId
-        });
+        // Navigation vers FamilySelection
+        // Support React Navigation SI disponible
+        if (navigation) {
+          navigation.navigate('FamilySelection', {
+            moduleId: exercise.id,
+            levelId: numLevelId
+          });
+        } else {
+          // Sinon Expo Router
+          navigateToExercise(router, {
+            type: exercise.id,
+            levelId: numLevelId
+          });
+        }
       }
     });
   };
 
   const handleBackPress = () => {
     safeNavigate.execute(() => {
-      if (router.canGoBack()) {
+      if (navigation) {
+        navigation.goBack();
+      } else if (router.canGoBack()) {
         router.back();
       } else {
         router.replace('/');
@@ -97,30 +193,25 @@ const ExerciseSelectionScreen: React.FC = () => {
     });
   };
 
+  // =================== RENDER ===================
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
         <StatusBar
           barStyle={identity.id === 'lycee' || identity.id === 'college' ? 'light-content' : 'dark-content'}
-          backgroundColor={identity.branding.main}
+          backgroundColor={levelColor}
         />
 
         <ExerciseHeader
           variant="simple"
           onBack={handleBackPress}
-          rightIcon={
-            <MaterialCommunityIcons
-              name="school"
-              size={24}
-              color={identity.id === 'adult' ? '#1F2937' : '#FFFFFF'}
-            />
-          }
+          rightIcon="📚" // Icon par défaut (SCREEN_ICONS.EXERCISE_SELECTION remplacé)
           showLevelBadge
           levelTitle={levelLabel.badge}
-          levelColor={identity.branding.main}
+          levelColor={levelColor}
           exerciseTitle={levelLabel.title}
-          subtitle={levelLabel.description}
-          gradientColors={headerGradient}
+          gradientColors={levelGradient}
         />
 
         <ScrollView
@@ -130,40 +221,22 @@ const ExerciseSelectionScreen: React.FC = () => {
         >
           {isLoading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={identity.branding.main} />
+              <ActivityIndicator size="large" color={levelColor} />
               <Text style={styles.loadingText}>
-                {identity.id === 'lycee' ? 'Loading...' : 'Calcul de tes progrès...'}
+                {identity.id === 'lycee' ? 'Loading progress...' : 'Calcul de tes progrès...'}
               </Text>
             </View>
           ) : (
             <View style={styles.listContainer}>
-              {availableModules.map(moduleId => {
-                const moduleLabel = getModuleLabel(moduleId, identity);
-                const moduleColor = getModuleColor(moduleId, identity);
-
-                // Calcul progression (TODO: remplacer par données SQLite réelles)
-                const progress = 0; // getExerciseProgress(levelId, moduleId, allFamilyIds);
-                const badge = getBadgeByProgress(progress);
-
-                return (
-                  <View key={moduleId} style={styles.flowCardWrapper}>
-                    <FlowCard
-                      icon={
-                        <MaterialCommunityIcons
-                          name={moduleLabel.icon as any}
-                          size={32}
-                          color="#FFFFFF"
-                        />
-                      }
-                      title={moduleLabel.title}
-                      subtitle={moduleLabel.description}
-                      color={moduleColor}
-                      badge={badge}
-                      onPress={() => handleExercisePress(moduleId)}
-                    />
-                  </View>
-                );
-              })}
+              {exercises.map(exercise => (
+                <ExerciseItem
+                  key={exercise.id}
+                  exercise={exercise}
+                  levelId={numLevelId}
+                  identity={identity}
+                  onPress={() => handleExercisePress(exercise)}
+                />
+              ))}
             </View>
           )}
 

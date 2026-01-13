@@ -46,9 +46,38 @@ const FlowCard: React.FC<FlowCardProps> = ({
   const { identity } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
 
+  // Couleur de verrouillage dynamique selon l'identité
+  const getLockedColor = () => {
+    switch (identity.id) {
+      case 'lycee':
+        return '#2C3E50'; // Gris bleuté sombre
+      case 'adult':
+        return '#D1D5DB'; // Gris clair professionnel
+      case 'college':
+        return '#94A3B8'; // Gris moyen
+      case 'primary':
+        return '#B8C1CC'; // Gris doux
+    }
+  };
+
+  // Couleur de l'icône locked dynamique selon l'identité
+  const getLockedIconColor = () => {
+    switch (identity.id) {
+      case 'lycee':
+        return '#607D8B'; // Gris bleuté moyen
+      case 'adult':
+        return '#9CA3AF'; // Gris moyen professionnel
+      case 'college':
+        return '#94A3B8'; // Gris moyen
+      case 'primary':
+        return '#B8C1CC'; // Gris doux
+    }
+  };
+
   // Couleurs
   const badgeColor = getBadgeColor(badge, identity);
-  const cardColor = locked ? '#9CA3AF' : (color || identity.branding.main);
+  const cardColor = locked ? getLockedColor() : (color || identity.branding.main);
+  const lockedIconColor = getLockedIconColor();
 
   // Animation simple (pas besoin de hook custom ici)
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
@@ -82,7 +111,7 @@ const FlowCard: React.FC<FlowCardProps> = ({
         <MaterialCommunityIcons
           name="lock"
           size={32}
-          color="#9CA3AF"
+          color={lockedIconColor}
           testID="lock-icon"
         />
       );
