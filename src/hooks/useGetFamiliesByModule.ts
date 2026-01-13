@@ -1,20 +1,16 @@
 /**
  * useGetFamiliesByModule - Hook pour récupérer les familles d'un module depuis SQLite
+ * Utilise le slug du module et filtre par niveau via INNER JOIN avec content
  */
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
+import { getModuleBySlug, getFamiliesByModuleAndLevel } from '@/database/queries';
+import type { Family } from '@/database/schema';
 
 // ============================================
 // TYPES
 // ============================================
-
-interface Family {
-  id: string;
-  name: string;
-  module_id: string;
-  level_id: number;
-}
 
 interface UseGetFamiliesByModuleReturn {
   familyIds: string[];
@@ -29,10 +25,12 @@ interface UseGetFamiliesByModuleReturn {
 
 /**
  * Récupère les familles d'un module pour un niveau depuis SQLite
+ * @param moduleSlug - Slug du module (ex: 'vocab', 'grammar')
+ * @param level - Numéro du niveau (ex: 1, 2, 3, 4)
  */
 export const useGetFamiliesByModule = (
-  moduleId: string,
-  levelId: number
+  moduleSlug: string,
+  level: number
 ): UseGetFamiliesByModuleReturn => {
   const { db } = useUser();
   const [familyIds, setFamilyIds] = useState<string[]>([]);
@@ -42,7 +40,7 @@ export const useGetFamiliesByModule = (
 
   useEffect(() => {
     const fetchFamilies = async () => {
-      if (!db || !moduleId) {
+      if (!db || !moduleSlug) {
         setIsLoading(false);
         return;
       }
@@ -51,18 +49,21 @@ export const useGetFamiliesByModule = (
         setIsLoading(true);
         setError(null);
 
-        // Requête SQL pour récupérer les familles d'un module pour un niveau
-        // Ajuste la requête selon ta structure de DB
-        const result = await db.getAllAsync<Family>(
-          `SELECT id, name, module_id, level_id
-           FROM families
-           WHERE module_id = ? AND (level_id = ? OR level_id IS NULL)
-           ORDER BY id`,
-          [moduleId, levelId]
-        );
+        // 1. Récupérer le module par son slug
+        const module = await getModuleBySlug(db, moduleSlug);
+        
+        if (!module) {
+          console.warn(`Module avec slug "${moduleSlug}" non trouvé`);
+          setFamilies([]);
+          setFamilyIds([]);
+          return;
+        }
+
+        // 2. Récupérer les familles qui ont du contenu pour ce niveau
+        const result = await getFamiliesByModuleAndLevel(db, module.id, level);
 
         setFamilies(result || []);
-        setFamilyIds((result || []).map(f => f.id));
+        setFamilyIds((result || []).map(f => f.id?.toString() || ''));
       } catch (err) {
         console.error('Erreur useGetFamiliesByModule:', err);
         setError(err as Error);
@@ -74,7 +75,7 @@ export const useGetFamiliesByModule = (
     };
 
     fetchFamilies();
-  }, [db, moduleId, levelId]);
+  }, [db, moduleSlug, level]);
 
   return {
     familyIds,

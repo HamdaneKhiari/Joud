@@ -3,6 +3,7 @@
 export interface Module {
   id: number;
   name: string;
+  slug: string;
   is_core: number; // 0 ou 1 (SQLite)
   target_audience: 'primary' | 'college' | 'lycee' | 'adult' | 'all';
   icon: string;

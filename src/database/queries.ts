@@ -10,6 +10,13 @@ export const getModulesByAudience = async (db: SQLiteDatabase, audience: string)
   );
 };
 
+export const getModuleBySlug = async (db: SQLiteDatabase, slug: string): Promise<Module | null> => {
+  return await db.getFirstAsync<Module>(
+    `SELECT * FROM modules WHERE slug = ?`,
+    [slug]
+  );
+};
+
 // --- QUERIES LEVELS ---
 export const getLevelsByAudience = async (db: SQLiteDatabase, audience: string): Promise<Level[]> => {
   return await db.getAllAsync<Level>(
@@ -23,6 +30,21 @@ export const getFamiliesForModule = async (db: SQLiteDatabase, moduleId: number)
   return await db.getAllAsync<Family>(
     `SELECT * FROM families WHERE module_id = ? ORDER BY order_index`,
     [moduleId]
+  );
+};
+
+export const getFamiliesByModuleAndLevel = async (
+  db: SQLiteDatabase,
+  moduleId: number,
+  level: number
+): Promise<Family[]> => {
+  return await db.getAllAsync<Family>(
+    `SELECT DISTINCT f.* 
+     FROM families f
+     INNER JOIN content c ON f.id = c.family_id
+     WHERE f.module_id = ? AND c.level = ?
+     ORDER BY f.order_index`,
+    [moduleId, level]
   );
 };
 

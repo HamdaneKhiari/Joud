@@ -15,6 +15,7 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
       CREATE TABLE IF NOT EXISTS modules (
         id INTEGER PRIMARY KEY,
         name TEXT NOT NULL UNIQUE,
+        slug TEXT NOT NULL UNIQUE,
         is_core INTEGER DEFAULT 1,
         target_audience TEXT DEFAULT 'all',
         icon TEXT, 
@@ -42,22 +43,33 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
         order_index INTEGER,
         FOREIGN KEY (module_id) REFERENCES modules(id)
       );
+
+      CREATE TABLE IF NOT EXISTS content (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        family_id INTEGER NOT NULL,
+        level INTEGER NOT NULL,
+        content_type TEXT NOT NULL,
+        data TEXT NOT NULL,
+        difficulty TEXT,
+        tags TEXT,
+        FOREIGN KEY (family_id) REFERENCES families(id)
+      );
     `);
 
-    // 2. SEED DES MODULES (7 colonnes)
+    // 2. SEED DES MODULES (8 colonnes : id, name, slug, is_core, target_audience, icon, order_index, description)
     const modulesSeed = [
-      [1, 'Vocabulary', 1, 'all', 'book', 1, 'Enrichis ton vocabulaire'],
-      [2, 'Grammar', 1, 'all', 'lightbulb', 2, 'Maîtrise les règles'],
-      [3, 'Sentences', 1, 'all', 'message-square', 3, 'Structure et syntaxe'],
-      [4, 'Reading', 1, 'all', 'file-text', 4, 'Analyse de textes'],
-      [5, 'Conversation', 1, 'all', 'message-circle', 5, 'Pratique dialogues'],
-      [6, 'Games', 1, 'all', 'gamepad', 6, 'Exercices ludiques'],
-      [8, 'FastVocab', 0, 'adult', 'zap', 8, '500 mots essentiels'],
-      [9, 'Connector', 0, 'lycee', 'link', 9, 'Mots de liaison']
+      [1, 'Vocabulary', 'vocab', 1, 'all', 'book', 1, 'Enrichis ton vocabulaire'],
+      [2, 'Grammar', 'grammar', 1, 'all', 'lightbulb', 2, 'Maîtrise les règles'],
+      [3, 'Sentences', 'phrases', 1, 'all', 'message-square', 3, 'Structure et syntaxe'],
+      [4, 'Reading', 'reading', 1, 'all', 'file-text', 4, 'Analyse de textes'],
+      [5, 'Conversation', 'conversation', 1, 'all', 'message-circle', 5, 'Pratique dialogues'],
+      [6, 'Games', 'games', 1, 'all', 'gamepad', 6, 'Exercices ludiques'],
+      [8, 'FastVocab', 'fastvocab', 0, 'adult', 'zap', 8, '500 mots essentiels'],
+      [9, 'Connector', 'connector', 0, 'lycee', 'link', 9, 'Mots de liaison']
     ];
 
     for (const mod of modulesSeed) {
-      await db.runAsync(`INSERT OR IGNORE INTO modules VALUES (?, ?, ?, ?, ?, ?, ?)`, mod);
+      await db.runAsync(`INSERT OR IGNORE INTO modules VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, mod);
     }
 
     // 3. SEED DES NIVEAUX (7 colonnes exactement)
@@ -87,6 +99,29 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
 
     for (const lvl of levelsSeed) {
       await db.runAsync(`INSERT OR IGNORE INTO levels VALUES (?, ?, ?, ?, ?, ?, ?)`, lvl);
+    }
+
+    // 4. DONNÉE DE TEST DANS CONTENT
+    // Récupérer la première famille de Vocabulaire (module_id = 1)
+    const firstVocabFamily = await db.getFirstAsync<{ id: number }>(
+      `SELECT id FROM families WHERE module_id = 1 ORDER BY id LIMIT 1`
+    );
+
+    // Si une famille existe, ajouter une donnée de test pour le niveau 1
+    if (firstVocabFamily) {
+      const testContent = {
+        family_id: firstVocabFamily.id,
+        level: 1,
+        content_type: 'word',
+        data: JSON.stringify({ word: 'hello', translation: 'bonjour', example: 'Hello, how are you?' }),
+        difficulty: 'easy',
+        tags: 'test,greeting'
+      };
+
+      await db.runAsync(
+        `INSERT OR IGNORE INTO content (family_id, level, content_type, data, difficulty, tags) VALUES (?, ?, ?, ?, ?, ?)`,
+        [testContent.family_id, testContent.level, testContent.content_type, testContent.data, testContent.difficulty, testContent.tags]
+      );
     }
 
     console.log('✅ JanaCore Engine Initialized');
