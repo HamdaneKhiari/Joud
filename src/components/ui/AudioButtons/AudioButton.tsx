@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { TouchableOpacity, Text, View, Animated } from 'react-native';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from '@/themes/ThemeContext';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { styles } from './styles/audioButtonStyle';
 
@@ -12,6 +12,7 @@ interface AudioButtonProps {
   icon?: string;
   idleText?: string;
   playingText?: string;
+  audioUrl?: string;
 }
 
 const AudioButton: React.FC<AudioButtonProps> = ({
@@ -22,6 +23,7 @@ const AudioButton: React.FC<AudioButtonProps> = ({
   icon = '🔊',
   idleText = 'Écouter',
   playingText = 'Lecture...',
+  audioUrl,
 }) => {
   const { identity, tokens } = useTheme();
   const { speakText, isPlayingAudio } = useAudioPlayer();
@@ -49,11 +51,12 @@ const AudioButton: React.FC<AudioButtonProps> = ({
           styles.shadow,
           { 
             backgroundColor: dynamicColors.bg,
+            borderRadius: identity.ui.cardRadius,
             paddingVertical: currentSize.paddingVertical,
             paddingHorizontal: tokens.spacing.xl 
           }
         ]} 
-        onPress={() => speakText(text, { language })}
+        onPress={() => speakText(text, { language, audioUrl })}
         disabled={isPlayingAudio}
         activeOpacity={0.9}
       >
