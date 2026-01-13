@@ -69,6 +69,22 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
         FOREIGN KEY (family_id) REFERENCES families(id)
       );
 
+-- ============================================
+-- TABLE DE SUIVI D'ACTIVITÉ (Pour le Dashboard)
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS activity_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  module_slug TEXT NOT NULL,
+  family_id TEXT NOT NULL,
+  level INTEGER NOT NULL,
+  family_name TEXT NOT NULL,
+  icon TEXT,
+  progress REAL DEFAULT 0,
+  timestamp INTEGER NOT NULL,
+  UNIQUE(module_slug, family_id) -- Permet d'écraser la progression pour la même famille
+);
+
       -- ============================================
       -- TABLES WHITE LABEL
       -- ============================================

@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { ScrollView, View, ActivityIndicator, Text } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useTheme } from '@/themes/ThemeContext';
 import { createStyles } from './styles/dashboardStyle';
 
@@ -16,6 +16,7 @@ import { useProgress } from '@/contexts/ProgressContext';
 import { Level } from '@/database/schema';
 import { getLevelLabel } from '@/utils/labelMapper';
 import { navigateToExerciseSelection } from '@/utils/navigationHelper';
+import { useLastActivity } from './hooks/useLastActivity';
 
 export default function Dashboard() {
   const { user, db, loading: userLoading } = useUser();
@@ -23,6 +24,7 @@ export default function Dashboard() {
   const router = useRouter();
   const { getLevelProgress } = useProgress();
   const styles = useMemo(() => createStyles(identity), [identity]);
+  const { lastActivity, fetchLastActivity } = useLastActivity();
 
   const [levels, setLevels] = useState<Level[]>([]);
   const [levelLabels, setLevelLabels] = useState<Record<number, { title: string; badge: string; description: string }>>({});
@@ -52,6 +54,12 @@ export default function Dashboard() {
     loadDashboardData();
   }, [db, user, identity.id]);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchLastActivity();
+    }, [fetchLastActivity])
+  );
+
   if (userLoading || dataLoading || !user) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -73,11 +81,25 @@ export default function Dashboard() {
         </DashboardCard>
       </View>
 
-      <View style={styles.section}>
-        <DashboardCard title="Reprendre le cours" icon="▶️" variant="continue">
-          <Text style={{ fontSize: 16, fontWeight: '600', color: '#1F2937', marginTop: 8 }}>Module 3 - Leçon 5</Text>
-        </DashboardCard>
-      </View>
+      {lastActivity && (
+        <View style={styles.section}>
+          <DashboardCard title="Reprendre le cours" icon="▶️" variant="continue">
+            <View style={{ marginTop: 12 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                <Text style={{ fontSize: 28, marginRight: 12 }}>{lastActivity.icon}</Text>
+                <View>
+                  <Text style={{ fontSize: 18, fontWeight: '700', color: '#1F2937' }}>{lastActivity.familyName}</Text>
+                  <Text style={{ fontSize: 13, color: '#6B7280' }}>Niveau {lastActivity.level}</Text>
+                </View>
+              </View>
+              
+              <View style={{ height: 8, backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: identity.ui.cardRadius, overflow: 'hidden' }}>
+                <View style={{ width: `${lastActivity.progress}%`, height: '100%', backgroundColor: identity.branding.dashboard_level_progress_color, borderRadius: identity.ui.cardRadius }} />
+              </View>
+            </View>
+          </DashboardCard>
+        </View>
+      )}
 
       {user.audience !== 'primary' && (
         <View style={styles.section}>
