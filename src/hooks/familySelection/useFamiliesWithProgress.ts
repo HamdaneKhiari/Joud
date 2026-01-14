@@ -1,119 +1,78 @@
-/**
- * useFamiliesWithProgress - Hook pour charger les familles avec progression
- * Version TypeScript
- */
+// c:\Users\khi_h\Desktop\Projets\JanaArchitect\Joud\src\hooks\familySelection\useFamiliesWithProgress.ts
 
-import { useState, useEffect, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  getCompletedWordsForLevel,
-  enrichFamiliesWithProgress,
-  saveFamilyProgress
-} from '@/utils/familySelection/familySelectionHelper';
+import { useState, useCallback } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useUser } from '@/contexts/UserContext';
 
-// ============================================
-// TYPES
-// ============================================
-
-interface Family {
-  id: string;
-  name?: string;
-  title?: string;
-  subtitle?: string;
-  icon?: string;
+export interface FamilyWithProgress {
+  id: number;
+  module_id: number;
+  name: string;
+  icon: string;
+  emoji: string;
+  description: string;
+  order_index: number;
+  score: number | null;
+  completed: number | null;
+  // Champs UI optionnels
   color?: string;
-  words?: any[];
-  totalWords?: number;
+  badge?: string;
 }
 
-interface EnrichedFamily extends Family {
-  progress: number;
-  completed: number;
-  badge: string | null;
-}
-
-interface UseFamiliesWithProgressReturn {
-  families: EnrichedFamily[];
-  isLoading: boolean;
-  refresh: () => Promise<void>;
-}
-
-// ============================================
-// STORAGE KEYS (Temporaire - à remplacer par import si existe)
-// ============================================
-
-const STORAGE_KEYS = {
-  PROGRESS: 'JOUDPRIMARY_PROGRESS',
-  FAMILY_PROGRESS: 'FAMILY_PROGRESS_CACHE'
-};
-
-// ============================================
-// HOOK
-// ============================================
-
-const useFamiliesWithProgress = (
-  moduleId: string,
-  levelId: number
-): UseFamiliesWithProgressReturn => {
-  const [families, setFamilies] = useState<EnrichedFamily[]>([]);
+export default function useFamiliesWithProgress(moduleId: string | number, levelId: number) {
+  const { db } = useUser();
+  const [families, setFamilies] = useState<FamilyWithProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadFamiliesWithProgress = useCallback(async () => {
+  const fetchFamilies = useCallback(async () => {
+    // Si pas de DB ou pas de module, on ne fait rien
+    if (!db || !moduleId) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      setIsLoading(true);
+      // 💡 MAGIE SQL : Cette requête fonctionne que moduleId soit "1" (ID) ou "vocab" (Slug)
+      // Elle cherche d'abord l'ID du module correspondant, puis charge les familles.
+      const query = `
+        SELECT 
+          f.*, 
+          p.score, 
+          p.completed 
+        FROM families f
+        LEFT JOIN progress p ON f.id = p.family_id AND p.level = ?
+        WHERE f.module_id = (
+          SELECT id FROM modules WHERE CAST(id AS TEXT) = ? OR slug = ? LIMIT 1
+        )
+        ORDER BY f.order_index ASC;
+      `;
 
-      // TODO: Remplacer par getFamiliesByModule depuis SQLite
-      // Pour l'instant, retourne un tableau vide
-      const staticFamilies: Family[] = [];
+      // On passe moduleId.toString() deux fois : une pour comparer à l'ID, une pour le slug
+      const results = await db.getAllAsync<FamilyWithProgress>(query, [
+        levelId, 
+        moduleId.toString(), 
+        moduleId.toString()
+      ]);
 
-      if (!staticFamilies || staticFamilies.length === 0) {
-        setFamilies([]);
-        return;
-      }
-
-      // 1. Récupération des mots complétés
-      const completedWords = await getCompletedWordsForLevel({
-        asyncStorage: AsyncStorage,
-        levelId,
-        mode: 'classic',
-        STORAGE_KEYS
-      });
-
-      // 2. Enrichissement (Badge + % + Completed)
-      const enrichedFamilies = enrichFamiliesWithProgress(staticFamilies, completedWords);
-      setFamilies(enrichedFamilies);
-
-      // 3. Sauvegarde automatique du cache de progression
-      const familyProgressMap = enrichedFamilies.reduce((acc, family) => {
-        acc[`${family.id}_L${levelId}`] = {
-          progress: family.progress,
-          completed: family.completed,
-          totalWords: family.totalWords || family.words?.length || 0
-        };
-        return acc;
-      }, {} as Record<string, any>);
-
-      await saveFamilyProgress({
-        familyProgress: familyProgressMap,
-        asyncStorage: AsyncStorage,
-        STORAGE_KEYS
-      });
+      console.log(`[useFamilies] Chargé ${results.length} familles pour module '${moduleId}' niveau ${levelId}`);
+      setFamilies(results);
     } catch (error) {
-      console.error('[Hook] Erreur chargement families:', error);
+      console.error('❌ Error fetching families:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [moduleId, levelId]);
+  }, [db, moduleId, levelId]);
 
-  useEffect(() => {
-    loadFamiliesWithProgress();
-  }, [loadFamiliesWithProgress]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchFamilies();
+    }, [fetchFamilies])
+  );
 
   return {
     families,
     isLoading,
-    refresh: loadFamiliesWithProgress
+    refresh: fetchFamilies
   };
-};
-
-export default useFamiliesWithProgress;
+}

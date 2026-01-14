@@ -7,12 +7,12 @@ import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { View, ScrollView, StatusBar, Text, ActivityIndicator } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 
 // Composants
 import ExerciseHeader from '@/components/layout/ExerciseHeader';
 import FlowCard from '@/components/flow/FlowCard';
+import { DynamicIcon } from '@/components/ui/DynamicIcon';
 
 // Hooks & Contexts
 import { useTheme } from '@/themes/ThemeContext';
@@ -22,7 +22,6 @@ import useFamiliesWithProgress from '@/hooks/familySelection/useFamiliesWithProg
 
 // Utils (nouveaux remplacements des constants)
 import { getModuleLabel, getLevelLabel, getAvailableModules } from '@/utils/labelMapper';
-import { navigateToExercise } from '@/utils/navigationHelper';
 import { getModuleColor } from '@/utils/moduleHelper';
 
 // Styles
@@ -68,11 +67,13 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
 
   // =================== PARAMÈTRES ===================
   // Support React Navigation ET Expo Router
-  const moduleId = route?.params?.moduleId || expoParams.moduleId || expoParams.familyId || '';
+  const rawModuleId = route?.params?.moduleId || expoParams.moduleId || expoParams.familyId || '';
+  const moduleId = Array.isArray(rawModuleId) ? rawModuleId[0] : rawModuleId.toString();
   const levelId = route?.params?.levelId || expoParams.levelId || '1';
   const numLevelId = Number.parseInt(levelId.toString(), 10);
 
   // =================== HOOKS & DATA ===================
+  // Le hook gère maintenant la résolution ID/Slug en interne via SQL
   const { families, isLoading, refresh } = useFamiliesWithProgress(moduleId, numLevelId);
 
   const styles = useMemo(() => createStyles(identity), [identity]);
@@ -151,9 +152,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
           variant="simple"
           onBack={() => safeGoBack.navigate()}
           rightIcon={
-            moduleLabel.icon ? (
-              <MaterialCommunityIcons name={moduleLabel.icon as any} size={28} color={identity.branding.headerAccent} />
-            ) : null
+            <DynamicIcon name={moduleLabel.icon} size={28} color={identity.branding.headerAccent} fallback="book" />
           }
           showLevelBadge
           levelTitle={levelLabel.badge}
@@ -184,11 +183,9 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
                 color={family.color || moduleColor}
                 badge={family.badge || null}
                 onPress={() =>
-                  navigateToExercise(router, {
-                    type: moduleId,
-                    levelId: numLevelId,
-                    familyId: family.id,
-                    moduleId: moduleId
+                  router.push({
+                    pathname: '/exercise/[exerciseId]',
+                    params: { exerciseId: moduleId, familyId: family.id, levelId: numLevelId }
                   })
                 }
               />

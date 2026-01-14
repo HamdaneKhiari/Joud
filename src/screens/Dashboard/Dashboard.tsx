@@ -16,7 +16,7 @@ import { useProgress } from '@/contexts/ProgressContext';
 import { Level } from '@/database/schema';
 import { getLevelLabel } from '@/utils/labelMapper';
 import { navigateToExerciseSelection } from '@/utils/navigationHelper';
-import { useLastActivity } from './hooks/useLastActivity';
+import { useLastActivity } from '../../hooks/useLastActivity';
 
 export default function Dashboard() {
   const { user, db, loading: userLoading } = useUser();

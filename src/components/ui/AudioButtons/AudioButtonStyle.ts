@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
-import { borderRadius, spacing, fontSize, fontWeight, shadows } from '@/themes/tokens';
+import { spacing, fontSize, fontWeight, shadows } from '@/themes/tokens';
+import type { Identity } from '@/themes/ThemeContext';
 
-export const styles = StyleSheet.create({
+export const createStyles = (identity: Identity) => StyleSheet.create({
   audioButton: {
-    borderRadius: borderRadius.lg, // 16px via tes tokens
+    borderRadius: identity.ui.cardRadius, // ✅ Radius dynamique selon l'identité
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -28,7 +29,8 @@ export const styles = StyleSheet.create({
     left: '-50%',
     width: '200%',
     height: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    // ✅ Effet subtil adapté au mode sombre/clair
+    backgroundColor: identity.branding.themeMode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.3)',
     transform: [{ skewX: '-20deg' }],
   },
   // On utilise tes shadows définis dans tokens.ts

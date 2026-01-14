@@ -1,8 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { TouchableOpacity, Text, View, Animated } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
-import { useAudioPlayer } from '@/hooks/useAudioPlayer';
-import { styles } from './styles/audioButtonStyle';
+import { useAudioPlayer } from '../AudioButtons/hooks/useAudioPlayer';
+import { createStyles } from './AudioButtonStyle';
 
 interface AudioButtonProps {
   text: string;
@@ -26,6 +26,7 @@ const AudioButton: React.FC<AudioButtonProps> = ({
   audioUrl,
 }) => {
   const { identity, tokens } = useTheme();
+  const styles = useMemo(() => createStyles(identity), [identity]);
   const { speakText, isPlayingAudio } = useAudioPlayer();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 

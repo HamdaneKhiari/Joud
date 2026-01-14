@@ -587,29 +587,6 @@ CREATE TABLE IF NOT EXISTS activity_log (
       ['phrases', 'adult', 7, 1]
     );
 
-    // ============================================
-    // 9. DONNÉE DE TEST DANS CONTENT
-    // ============================================
-    const firstVocabFamily = await db.getFirstAsync<{ id: number }>(
-      `SELECT id FROM families WHERE module_id = 1 ORDER BY id LIMIT 1`
-    );
-
-    if (firstVocabFamily) {
-      const testContent = {
-        family_id: firstVocabFamily.id,
-        level: 1,
-        content_type: 'word',
-        data: JSON.stringify({ word: 'hello', translation: 'bonjour', example: 'Hello, how are you?' }),
-        difficulty: 'easy',
-        tags: 'test,greeting'
-      };
-
-      await db.runAsync(
-        `INSERT OR IGNORE INTO content (family_id, level, content_type, data, difficulty, tags) VALUES (?, ?, ?, ?, ?, ?)`,
-        [testContent.family_id, testContent.level, testContent.content_type, testContent.data, testContent.difficulty, testContent.tags]
-      );
-    }
-
     console.log('✅ JanaCore Engine Initialized - White Label Architecture');
     return db;
   } catch (error) {

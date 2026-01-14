@@ -1,3 +1,5 @@
+import { StyleSheet } from 'react-native';
+
 /**
  * 🎯 SPACING & SIZING
  */
@@ -30,6 +32,12 @@ export const fontWeight = {
  */
 export const borderRadius = {
   none: 0, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, round: 999,
+};
+
+export const borderWidth = {
+  none: 0,
+  thin: StyleSheet.hairlineWidth,
+  thick: 2,
 };
 
 export const shadows = {
@@ -66,5 +74,6 @@ export const tokens = {
   fontWeight,
   emojiSize,
   borderRadius,
+  borderWidth,
   shadows,
 };

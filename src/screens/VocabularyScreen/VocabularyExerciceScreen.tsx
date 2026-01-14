@@ -7,22 +7,22 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 // Composants
-import ExerciseLayout from '../../../components/layout/ExerciseLayout';
-import WordCard from './WordCard';
-import NavigationButtons from '../../../components/exercise-common/NavigationButtons';
+import ExerciseLayout from '../../components/layout/ExerciceLayout/ExerciseLayout';
+import WordCard from './WordCard/WordCard';
+import NavigationButtons from '../../components/common/NavigationButtons';
+import { DynamicIcon } from '../../components/ui/DynamicIcon';
 
 // Helpers & Hooks
-import { useTheme } from '../../../themes/ThemeContext';
-import { useProgress } from '../../../contexts/ProgressContext';
-import useSafeNavigation from '../../../hooks/useSafeNavigation';
+import { useTheme } from '../../themes/ThemeContext';
+import { useProgress } from '../../contexts/ProgressContext';
+import useSafeNavigation from '../../hooks/useSafeNavigation';
 import { useFirstIncompleteIndex } from '../../hooks/exercises/useFirstIncompleteIndex';
 import { useExerciseActivity } from './hooks/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '../../hooks/exercises/useExerciseSaveOnUnmount';
-import { useExerciseContent, ContentItem } from './useExerciseContent';
-import { useLevelLabel } from '../../../utils/labelMapper';
+import { useExerciseContent, ContentItem } from './hooks/useExerciseContent';
+import { useLevelLabel } from '../../utils/labelMapper';
 
 const EXERCISE_TYPE = 'vocab';
 
@@ -132,11 +132,7 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
       headerProps={{
         variant: "exercise",
         onBack: safeGoBack.navigate,
-        rightIcon: module?.icon ? (
-          <MaterialCommunityIcons name={module.icon as any} size={28} color={identity.branding.headerAccent} />
-        ) : (
-          <MaterialCommunityIcons name="book" size={28} color={identity.branding.headerAccent} />
-        ),
+        rightIcon: <DynamicIcon name={module?.icon} size={28} color={identity.branding.headerAccent} fallback="book" />,
         showLevelBadge: true,
         levelTitle: levelLabel.badge,
         levelColor: identity.branding.accent, // ✅ Couleur d'accent dynamique
