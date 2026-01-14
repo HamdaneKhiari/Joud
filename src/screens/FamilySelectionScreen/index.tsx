@@ -3,10 +3,11 @@
  * Migration TypeScript FIDÈLE au code JS original
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { View, ScrollView, StatusBar, Text, ActivityIndicator } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 
 // Composants
@@ -15,11 +16,12 @@ import FlowCard from '@/components/flow/FlowCard';
 
 // Hooks & Contexts
 import { useTheme } from '@/themes/ThemeContext';
+import { useUser } from '@/contexts/UserContext';
 import useSafeNavigation from '@/hooks/useSafeNavigation';
 import useFamiliesWithProgress from '@/hooks/familySelection/useFamiliesWithProgress';
 
 // Utils (nouveaux remplacements des constants)
-import { getModuleLabel, getLevelLabel } from '@/utils/labelMapper';
+import { getModuleLabel, getLevelLabel, getAvailableModules } from '@/utils/labelMapper';
 import { navigateToExercise } from '@/utils/navigationHelper';
 import { getModuleColor } from '@/utils/moduleHelper';
 
@@ -62,6 +64,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   const router = useRouter();
   const expoParams = useLocalSearchParams<RouteParams>();
   const { identity } = useTheme();
+  const { db } = useUser();
 
   // =================== PARAMÈTRES ===================
   // Support React Navigation ET Expo Router
@@ -95,8 +98,31 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   );
 
   // Labels (remplace getLevelData, getExerciseData, getModuleMetadata)
-  const levelLabel = useMemo(() => getLevelLabel(numLevelId, identity), [numLevelId, identity]);
-  const moduleLabel = useMemo(() => getModuleLabel(moduleId, identity), [moduleId, identity]);
+  const [levelLabel, setLevelLabel] = useState({ badge: '', title: '', description: '' });
+  const [moduleLabel, setModuleLabel] = useState({ title: '', icon: '', description: '' });
+  const [moduleColor, setModuleColor] = useState(identity.branding.main || '#000000');
+
+  useEffect(() => {
+    const loadLabels = async () => {
+      if (db && moduleId) {
+        const lLabel = await getLevelLabel(numLevelId, identity.id, db);
+        setLevelLabel(lLabel);
+        
+        const mLabel = await getModuleLabel(moduleId, identity.id, db);
+        setModuleLabel(mLabel);
+
+        // Récupération des modules pour calculer l'index de couleur (évite le crash indexOf undefined)
+        const availableModules = await getAvailableModules(identity.id, numLevelId, db);
+        const slugs = Array.isArray(availableModules) 
+          ? availableModules.map((m: any) => (typeof m === 'string' ? m : m.slug)) 
+          : [];
+          
+        const mColor = await getModuleColor(moduleId, identity.id, db, slugs);
+        if (mColor) setModuleColor(mColor);
+      }
+    };
+    loadLabels();
+  }, [db, moduleId, numLevelId, identity.id]);
 
   // Couleurs (remplace getLevelColor, getLevelGradient)
   const levelColor = identity.branding.main;
@@ -123,7 +149,11 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
         <ExerciseHeader
           variant="simple"
           onBack={() => safeGoBack.navigate()}
-          rightIcon={moduleLabel.icon} // Délégué (icon string, emoji, ou element)
+          rightIcon={
+            moduleLabel.icon ? (
+              <MaterialCommunityIcons name={moduleLabel.icon as any} size={28} color={identity.branding.headerAccent} />
+            ) : null
+          }
           showLevelBadge
           levelTitle={levelLabel.badge}
           levelColor={levelColor}
@@ -150,7 +180,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
                 icon={family.icon} // Délégué à FlowCard (emoji, string, element)
                 title={family.name || family.title || family.id}
                 subtitle={family.subtitle || ''}
-                color={family.color || getModuleColor(moduleId, identity)}
+                color={family.color || moduleColor}
                 badge={family.badge || null}
                 onPress={() =>
                   navigateToExercise(router, {

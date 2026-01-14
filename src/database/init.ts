@@ -13,11 +13,19 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
     // ============================================
     
     await db.execAsync(`
-      DROP TABLE IF EXISTS levels;
+      -- Nettoyage complet pour forcer la mise à jour du schéma (Ordre important pour les FK)
+      DROP TABLE IF EXISTS content;
+      DROP TABLE IF EXISTS progress;
+      DROP TABLE IF EXISTS families;
+      DROP TABLE IF EXISTS activity_log;
+      -- Tables dépendantes (à supprimer AVANT les parents)
       DROP TABLE IF EXISTS module_availability;
-      DROP TABLE IF EXISTS identity_palettes;
       DROP TABLE IF EXISTS level_labels;
       DROP TABLE IF EXISTS module_labels;
+      DROP TABLE IF EXISTS identity_palettes;
+      -- Tables parents
+      DROP TABLE IF EXISTS modules;
+      DROP TABLE IF EXISTS levels;
       DROP TABLE IF EXISTS branding;
       
       CREATE TABLE IF NOT EXISTS modules (
@@ -69,6 +77,21 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
         FOREIGN KEY (family_id) REFERENCES families(id)
       );
 
+      -- ============================================
+      -- TABLE PROGRESSION (Manquante précédemment)
+      -- ============================================
+      CREATE TABLE IF NOT EXISTS progress (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        family_id INTEGER NOT NULL,
+        level INTEGER NOT NULL,
+        completed INTEGER DEFAULT 0,
+        score INTEGER DEFAULT 0,
+        last_accessed TEXT,
+        UNIQUE(user_id, family_id, level),
+        FOREIGN KEY (family_id) REFERENCES families(id)
+      );
+
 -- ============================================
 -- TABLE DE SUIVI D'ACTIVITÉ (Pour le Dashboard)
 -- ============================================
@@ -76,7 +99,7 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
 CREATE TABLE IF NOT EXISTS activity_log (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   module_slug TEXT NOT NULL,
-  family_id TEXT NOT NULL,
+  family_id INTEGER NOT NULL,
   level INTEGER NOT NULL,
   family_name TEXT NOT NULL,
   icon TEXT,
@@ -195,6 +218,25 @@ CREATE TABLE IF NOT EXISTS activity_log (
     }
 
     // ============================================
+    // 2.5 SEED FAMILIES (Ajout manquant)
+    // ============================================
+    const familiesSeed = [
+      // [module_id, name, icon, emoji, description, order_index]
+      [1, 'Salutations', 'hand-wave', '👋', 'Apprends à dire bonjour', 1],
+      [1, 'Famille', 'account-group', '👨‍👩‍👧‍👦', 'Les membres de la famille', 2],
+      [1, 'Couleurs', 'palette', '🎨', 'Toutes les couleurs', 3],
+      [2, 'Présent', 'clock-outline', '⏰', 'Le temps présent', 1],
+      [2, 'Futur', 'rocket', '🚀', 'Parler de l\'avenir', 2]
+    ];
+
+    for (const fam of familiesSeed) {
+      await db.runAsync(
+        `INSERT OR IGNORE INTO families (module_id, name, icon, emoji, description, order_index) VALUES (?, ?, ?, ?, ?, ?)`,
+        fam
+      );
+    }
+
+    // ============================================
     // 3. SEED DES NIVEAUX (avec colonnes par défaut)
     // ============================================
     const levelsSeed = [
@@ -243,7 +285,7 @@ CREATE TABLE IF NOT EXISTS activity_log (
         header_bg_color, header_accent_color, header_emoji, header_welcome_text,
         daily_word_bg_color, daily_word_gradient, daily_word_decoration,
         dashboard_level_progress_color, text_on_main_color
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       'primary',
       '#FFCE00', '#FF5722', '#FFF9E6', 'book', 'light',
@@ -263,7 +305,7 @@ CREATE TABLE IF NOT EXISTS activity_log (
         header_bg_color, header_accent_color, header_emoji, header_welcome_text,
         daily_word_bg_color, daily_word_gradient, daily_word_decoration,
         dashboard_level_progress_color, text_on_main_color
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       'college',
       '#34495E', '#FFD700', '#F5F7FA', 'rocket', 'light',
@@ -283,7 +325,7 @@ CREATE TABLE IF NOT EXISTS activity_log (
         header_bg_color, header_accent_color, header_emoji, header_welcome_text,
         daily_word_bg_color, daily_word_gradient, daily_word_decoration,
         dashboard_level_progress_color, text_on_main_color
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       'lycee',
       '#1A1A1A', '#00E5FF', '#0F172A', 'graduation-cap', 'dark',
@@ -303,7 +345,7 @@ CREATE TABLE IF NOT EXISTS activity_log (
         header_bg_color, header_accent_color, header_emoji, header_welcome_text,
         daily_word_bg_color, daily_word_gradient, daily_word_decoration,
         dashboard_level_progress_color, text_on_main_color
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       'adult',
       '#F3F4F6', '#111827', '#FFFFFF', 'briefcase', 'light',

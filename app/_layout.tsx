@@ -5,8 +5,8 @@ import { ProgressProvider } from '../src/contexts/ProgressContext';
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <UserProvider>
+    <UserProvider>
+      <ThemeProvider>
         <ProgressProvider>
           <Stack screenOptions={{ headerShown: false }}>
           {/* Tabs (Accueil + Settings) */}
@@ -16,7 +16,7 @@ export default function RootLayout() {
           <Stack.Screen
             name="level/[levelId]"
             options={{
-              headerShown: false,
+              headerShown: false, 
               presentation: 'card'
             }}
           />
@@ -52,7 +52,7 @@ export default function RootLayout() {
           />
           </Stack>
         </ProgressProvider>
-      </UserProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </UserProvider>
   );
 }
