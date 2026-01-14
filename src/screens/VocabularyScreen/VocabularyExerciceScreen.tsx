@@ -7,6 +7,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 // Composants
 import ExerciseLayout from '../../../components/layout/ExerciseLayout';
@@ -131,7 +132,11 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
       headerProps={{
         variant: "exercise",
         onBack: safeGoBack.navigate,
-        rightIcon: module?.icon || 'book',
+        rightIcon: module?.icon ? (
+          <MaterialCommunityIcons name={module.icon as any} size={28} color={identity.branding.headerAccent} />
+        ) : (
+          <MaterialCommunityIcons name="book" size={28} color={identity.branding.headerAccent} />
+        ),
         showLevelBadge: true,
         levelTitle: levelLabel.badge,
         levelColor: identity.branding.accent, // ✅ Couleur d'accent dynamique
