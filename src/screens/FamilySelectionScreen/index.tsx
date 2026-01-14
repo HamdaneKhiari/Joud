@@ -142,7 +142,8 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
         <StatusBar
-          barStyle={identity.id === 'lycee' || identity.id === 'college' ? 'light-content' : 'dark-content'}
+          // Utilise la config de la DB (theme_mode) au lieu de vérifier les IDs
+          barStyle={identity.branding.themeMode === 'dark' ? 'light-content' : 'dark-content'}
           backgroundColor={levelColor}
         />
 
@@ -170,7 +171,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={levelColor} />
               <Text style={styles.loadingText}>
-                {identity.id === 'lycee' ? 'Loading...' : 'Chargement...'}
+                Chargement...
               </Text>
             </View>
           ) : families && families.length > 0 ? (
@@ -195,11 +196,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
           ) : (
             <View style={styles.errorContainer}>
               <Text style={styles.errorText}>
-                {identity.id === 'lycee'
-                  ? 'No content available yet.'
-                  : identity.id === 'adult'
-                  ? 'Aucun contenu disponible.'
-                  : 'Aucun contenu disponible pour le moment.'}
+                Aucun contenu disponible pour le moment.
               </Text>
             </View>
           )}
