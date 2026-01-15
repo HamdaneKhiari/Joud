@@ -7,10 +7,6 @@ import { StyleSheet } from 'react-native';
 import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 
-const baseColors = {
-  gray600: '#4B5563'
-};
-
 export const createStyles = (identity: Identity) => {
   // Espacement du container selon l'identité
   const getContainerPadding = () => {
@@ -31,13 +27,7 @@ export const createStyles = (identity: Identity) => {
     // =================== LAYOUT ===================
     safeArea: {
       flex: 1,
-      backgroundColor: identity.id === 'lycee'
-        ? '#0A0A0A'
-        : identity.id === 'adult'
-        ? '#F9FAFB'
-        : identity.id === 'college'
-        ? '#F3F4F6'
-        : '#FFFFFF'
+      backgroundColor: identity.branding.surface || '#FFFFFF', // ✅ White Label
     },
 
     scrollView: {
@@ -63,7 +53,7 @@ export const createStyles = (identity: Identity) => {
     loadingText: {
       fontSize: tokens.fontSize.base,
       fontWeight: tokens.fontWeight.bold,
-      color: baseColors.gray600,
+      color: identity.text.secondary, // ✅ White Label
       marginTop: tokens.spacing.md,
       letterSpacing: 0.2
     },

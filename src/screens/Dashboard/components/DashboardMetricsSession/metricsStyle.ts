@@ -45,27 +45,20 @@ export const createStyles = (identity: Identity) =>
     },
 
     // ========== ÉLÉMENTS DÉCORATIFS ==========
-    decorativeShape: {
-      position: 'absolute',
-      width: 60,
-      height: 60,
-      borderRadius: 30,
-      backgroundColor: 'rgba(255, 255, 255, 0.15)',
-      top: -20,
-      right: -20,
+    // ✅ Supprimés (No-Media Premium)
+
+    // ========== BADGE TYPOGRAPHIQUE (No-Media) ==========
+    badgeLabel: {
+      fontSize: tokens.fontSize.xs,
+      fontWeight: tokens.fontWeight.extrabold,
+      color: 'rgba(255, 255, 255, 0.5)',
+      letterSpacing: 2,
+      marginBottom: tokens.spacing.sm,
+      textAlign: 'center',
+      zIndex: 2,
     },
 
-    decorativeShapeSmall: {
-      position: 'absolute',
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-      bottom: -10,
-      left: -10,
-    },
-
-    // ========== EMOJI ICON ==========
+    // ========== EMOJI ICON (Fallback) ==========
     emoji: {
       fontSize: 48,
       marginBottom: tokens.spacing.md,

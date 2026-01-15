@@ -11,6 +11,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 // Composants
 import ExerciseHeader from '@/components/layout/ExerciseHeader';
 import FlowCard from '@/components/flow/FlowCard';
+import { DynamicIcon } from '@/components/ui/DynamicIcon';
 
 // Hooks & Contexts
 import { useTheme } from '@/themes/ThemeContext';
@@ -254,7 +255,14 @@ const ExerciseSelectionScreen: React.FC<ExerciseSelectionScreenProps> = ({
         <ExerciseHeader
           variant="simple"
           onBack={handleBackPress}
-          rightIcon="📚" // Icon par défaut (SCREEN_ICONS.EXERCISE_SELECTION remplacé)
+          rightIcon={
+            <DynamicIcon
+              name="book-open"
+              size={28}
+              color={identity.branding.headerAccent}
+              fallback="book"
+            />
+          }
           showLevelBadge
           levelTitle={numLevelId.toString()}
           levelColor={levelColor}

@@ -6,7 +6,7 @@ import { styles } from './styles';
 
 interface DashboardCardProps {
   title: string;
-  icon: string;
+  icon?: string; // ✅ Optionnel (No-Media)
   subtitle?: string;
   onPress?: () => void;
   children: React.ReactNode;
@@ -27,7 +27,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
         {/* Header commun */}
         <View style={styles.cardHeader}>
           <View style={styles.exerciseInfo}>
-            <Text style={styles.exerciseIcon}>{icon}</Text>
+            {icon && <Text style={styles.exerciseIcon}>{icon}</Text>}
             <View>
               <Text style={styles.exerciseTitle}>{title}</Text>
               {subtitle && (

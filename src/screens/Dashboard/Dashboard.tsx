@@ -74,48 +74,62 @@ export default function Dashboard() {
       {/* FIX 1 : On passe firstName dans la propriété name attendue */}
       <DashboardHeader user={{ name: user.firstName }} />
 
+      {/* 1. MOT DU JOUR */}
       <View style={styles.section}>
-        <DashboardCard title="Le mot du jour" icon="📖" variant="daily-word">
-          <Text style={{ fontSize: 28, fontWeight: '800', color: '#1F2937', marginTop: 8 }}>Resilience</Text>
-          <Text style={{ fontSize: 16, color: '#6B7280', marginTop: 4, fontStyle: 'italic' }}>Résilience</Text>
+        <DashboardCard title="Le mot du jour" variant="daily-word">
+          <Text style={styles.dailyWordTitle}>Resilience</Text>
+          <Text style={styles.dailyWordSubtitle}>Résilience</Text>
         </DashboardCard>
       </View>
 
+      {/* 2. RÉVISION */}
+      <View style={styles.section}>
+        <DashboardCard
+          title="Révisions"
+          variant="revision"
+          onPress={() => router.push('/revision' as any)}
+        >
+          <Text style={styles.revisionTitle}>12 mots à réviser</Text>
+          <Text style={styles.revisionSubtitle}>Renforce ta mémoire avec la répétition espacée</Text>
+        </DashboardCard>
+      </View>
+
+      {/* 3. AI DIAGNOSTIC */}
+      {user.audience !== 'primary' && (
+        <View style={styles.section}>
+          <AIDiagnosticCard
+            errorPatterns={{ verb_conjugation: { count: 8, severity: 2 } }}
+            challenge={{ userMessage: "Concentre-toi sur les verbes" }}
+            onTakeChallenge={() => console.log('Challenge accepted')}
+          />
+        </View>
+      )}
+
+      {/* 4. METRICS */}
+      <MetricsSection metrics={{ wordsLearned: 127, badges: 3, streak: 7 }} theme="light" />
+
+      {/* REPRENDRE LE COURS (optionnel) */}
       {lastActivity && (
         <View style={styles.section}>
-          <DashboardCard title="Reprendre le cours" icon="▶️" variant="continue">
-            <View style={{ marginTop: 12 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                <Text style={{ fontSize: 28, marginRight: 12 }}>{lastActivity.icon}</Text>
-                <View>
-                  <Text style={{ fontSize: 18, fontWeight: '700', color: '#1F2937' }}>{lastActivity.familyName}</Text>
-                  <Text style={{ fontSize: 13, color: '#6B7280' }}>Niveau {lastActivity.level}</Text>
-                </View>
-              </View>
-              
-              <View style={{ height: 8, backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: identity.ui.cardRadius, overflow: 'hidden' }}>
-                <View style={{ width: `${lastActivity.progress}%`, height: '100%', backgroundColor: identity.branding.dashboard_level_progress_color, borderRadius: identity.ui.cardRadius }} />
-              </View>
+          <DashboardCard title="Reprendre le cours" variant="continue">
+            <View style={styles.resumeContainer}>
+              <Text style={styles.resumeFamilyName}>{lastActivity.familyName}</Text>
+              <Text style={styles.resumeLevelText}>Niveau {lastActivity.level}</Text>
+            </View>
+
+            <View style={styles.progressBarContainer}>
+              <View style={[styles.progressBarFill, { width: `${lastActivity.progress}%` }]} />
             </View>
           </DashboardCard>
         </View>
       )}
 
-      {user.audience !== 'primary' && (
-        <View style={styles.section}>
-          <AIDiagnosticCard
-             errorPatterns={{ verb_conjugation: { count: 8, severity: 2 } }}
-             challenge={{ userMessage: "Concentre-toi sur les verbes" }}
-             onTakeChallenge={() => console.log('Challenge accepted')}
-          />
-        </View>
-      )}
-
-      <MetricsSection metrics={{ wordsLearned: 127, badges: 3, streak: 7 }} theme="light" />
-
       <View style={styles.sectionHeader}>
-        <Text style={{ fontSize: 20, fontWeight: '700', color: '#1F2937', marginBottom: 12 }}>Parcours</Text>
+        <Text style={styles.sectionTitle}>Parcours</Text>
         <View style={styles.levelsGrid}>
+          {/* ✅ Timeline verticale */}
+          {levels.length > 1 && <View style={styles.timelineLine} />}
+
           {levels.map((level) => {
             // Récupération du label depuis le state
             const levelLabel = levelLabels[level.level] || {

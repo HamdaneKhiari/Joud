@@ -20,29 +20,29 @@ const baseColors = {
 };
 
 export const createStyles = (identity: Identity) => {
-  // Espacement selon l'identité
+  // Espacement selon l'identité (✅ OPTIMISÉ pour 70-80px height)
   const getCardSpacing = () => {
     switch (identity.id) {
       case 'primary':
-        return tokens.spacing.xl; // Très espacé, ludique
+        return tokens.spacing.md; // ✅ 12px (au lieu de 20px)
       case 'college':
-        return tokens.spacing.lg; // Équilibré
+        return tokens.spacing.sm + 2; // ✅ 10px (au lieu de 16px)
       case 'lycee':
       case 'adult':
-        return tokens.spacing.md; // Compact
+        return tokens.spacing.sm; // ✅ 8px (au lieu de 12px)
     }
   };
 
-  // Taille de l'icône selon l'identité
+  // Taille de l'icône selon l'identité (✅ RÉDUIT pour compacité)
   const getIconSize = () => {
     switch (identity.id) {
       case 'primary':
-        return 68; // Plus grand pour Primary
+        return 48; // ✅ 48px (au lieu de 68px) = -29%
       case 'college':
-        return 64;
+        return 44; // ✅ 44px (au lieu de 64px) = -31%
       case 'lycee':
       case 'adult':
-        return 60; // Plus compact
+        return 40; // ✅ 40px (au lieu de 60px) = -33%
     }
   };
 
@@ -70,7 +70,7 @@ export const createStyles = (identity: Identity) => {
       backgroundColor: baseColors.white,
       borderRadius: identity.ui.cardRadius,
       padding: cardSpacing,
-      marginBottom: tokens.spacing.lg,
+      marginBottom: tokens.spacing.sm, // ✅ 8px (au lieu de 16px) pour compacité
       shadowColor: baseColors.black,
       shadowOffset: {
         width: 0,
@@ -123,7 +123,7 @@ export const createStyles = (identity: Identity) => {
                      tokens.borderRadius.md,
       justifyContent: 'center',
       alignItems: 'center',
-      marginRight: tokens.spacing.lg,
+      marginRight: tokens.spacing.md, // ✅ 12px (au lieu de 16px) pour compacité
       shadowColor: baseColors.black,
       shadowOffset: {
         width: 0,
@@ -140,7 +140,7 @@ export const createStyles = (identity: Identity) => {
     },
 
     iconText: {
-      fontSize: identity.id === 'primary' ? 40 : 36,
+      fontSize: identity.id === 'primary' ? 32 : 28, // ✅ Réduit (au lieu de 40/36)
       textShadowColor: 'rgba(0, 0, 0, 0.15)',
       textShadowOffset: { width: 0, height: 1 },
       textShadowRadius: 2

@@ -4,7 +4,8 @@ import { useTheme } from '@/themes/ThemeContext';
 import { createStyles } from './metricsStyle';
 
 interface MetricCardProps {
-  emoji: string;
+  emoji?: string; // ✅ Optionnel (No-Media)
+  badgeLabel?: string; // ✅ Label typographique premium
   value: string | number;
   label: string;
   encouragement?: string;
@@ -17,6 +18,7 @@ interface MetricCardProps {
  */
 const MetricCard: React.FC<MetricCardProps> = ({
   emoji,
+  badgeLabel,
   value,
   label,
   encouragement,
@@ -40,15 +42,11 @@ const MetricCard: React.FC<MetricCardProps> = ({
       isDark && styles.cardDark,
       cardStyle,
     ]}>
-      {/* Éléments décoratifs modernes */}
-      {hasVariant && identity.ui.showDecorativeShapes && (
-        <>
-          <View style={styles.decorativeShape} />
-          <View style={styles.decorativeShapeSmall} />
-        </>
-      )}
+      {/* ✅ Formes décoratives supprimées (No-Media Premium) */}
 
-      <Text style={styles.emoji}>{emoji}</Text>
+      {/* ✅ Badge typographique au lieu d'emoji */}
+      {badgeLabel && <Text style={styles.badgeLabel}>{badgeLabel}</Text>}
+      {emoji && !badgeLabel && <Text style={styles.emoji}>{emoji}</Text>}
       <Text style={[
         styles.value,
         isDark && styles.valueDark,
@@ -110,9 +108,9 @@ const MetricsSection: React.FC<MetricsSectionProps> = ({
       { threshold: 0, text: 'Bon départ' }
     ],
     badges: [
-      { threshold: 5, text: '🏆 Excellents résultats' },
-      { threshold: 3, text: '⭐ Bonne progression' },
-      { threshold: 1, text: '🎯 Premiers acquis' }
+      { threshold: 5, text: 'Excellents résultats' },
+      { threshold: 3, text: 'Bonne progression' },
+      { threshold: 1, text: 'Premiers acquis' }
     ],
     streak: [
       { threshold: 30, text: 'Régularité exemplaire' },
@@ -136,7 +134,7 @@ const MetricsSection: React.FC<MetricsSectionProps> = ({
   return (
     <View style={styles.container}>
       <MetricCard
-        emoji="📚"
+        badgeLabel="WORDS"
         value={metrics.wordsLearned}
         label="Mots appris"
         encouragement={getEncouragement(metrics.wordsLearned, 'wordsLearned')}
@@ -147,7 +145,7 @@ const MetricsSection: React.FC<MetricsSectionProps> = ({
       {/* Badges uniquement pour Primary et College */}
       {isStudent && (
         <MetricCard
-          emoji="🏆"
+          badgeLabel="AWARDS"
           value={metrics.badges}
           label="Badges"
           encouragement={getEncouragement(metrics.badges, 'badges')}
@@ -157,7 +155,7 @@ const MetricsSection: React.FC<MetricsSectionProps> = ({
       )}
 
       <MetricCard
-        emoji="🔥"
+        badgeLabel="STREAK"
         value={metrics.streak}
         label="Jours"
         encouragement={getEncouragement(metrics.streak, 'streak')}

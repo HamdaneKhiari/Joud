@@ -5,16 +5,19 @@ import { tokens } from '@/themes/tokens';
 export const createStyles = (identity: Identity) =>
   StyleSheet.create({
     card: {
-      backgroundColor: identity.branding.main, // Utilise la couleur de l'identité
-      borderRadius: identity.ui.cardRadius || tokens.borderRadius.lg,
-      padding: tokens.spacing.lg,
-      marginBottom: tokens.spacing.md,
+      backgroundColor: identity.branding.main,
+      borderRadius: tokens.borderRadius.md, // ✅ Réduit pour look plus compact
+      paddingVertical: tokens.spacing.sm, // ✅ 8px au lieu de 16px
+      paddingHorizontal: tokens.spacing.md, // ✅ 12px
+      marginBottom: tokens.spacing.xs, // ✅ 4px au lieu de 12px (Timeline serrée)
       position: 'relative',
       overflow: 'hidden',
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      ...tokens.shadows.elevated,
+      minHeight: 48, // ✅ Hauteur minimale garantie
+      // ✅ Ombre subtile pour affordance
+      ...tokens.shadows.sm,
     },
 
     cardDark: {
@@ -23,15 +26,7 @@ export const createStyles = (identity: Identity) =>
     },
 
     // ========== ÉLÉMENTS DÉCORATIFS ==========
-    decorativeCircle: {
-      position: 'absolute',
-      width: 100,
-      height: 100,
-      borderRadius: 50,
-      backgroundColor: 'rgba(255, 255, 255, 0.15)',
-      top: -30,
-      right: -30,
-    },
+    // ✅ decorativeCircle supprimé (No-Media Premium)
 
     // ========== STRUCTURE PRINCIPALE ==========
     mainContainer: {
@@ -41,9 +36,9 @@ export const createStyles = (identity: Identity) =>
     },
 
     levelBadge: {
-      width: 54,
-      height: 54,
-      borderRadius: 27,
+      width: 32, // ✅ 32px au lieu de 54px
+      height: 32,
+      borderRadius: 16,
       backgroundColor: 'rgba(255, 255, 255, 0.2)',
       justifyContent: 'center',
       alignItems: 'center',
@@ -52,8 +47,8 @@ export const createStyles = (identity: Identity) =>
 
     levelNumber: {
       color: '#FFFFFF',
-      fontSize: 24,
-      fontWeight: tokens.fontWeight.black,
+      fontSize: 16, // ✅ 16px au lieu de 24px (proportionnel au badge)
+      fontWeight: tokens.fontWeight.extrabold,
       textShadowColor: 'rgba(0, 0, 0, 0.2)',
       textShadowOffset: { width: 0, height: 1 },
       textShadowRadius: 2,
@@ -61,12 +56,12 @@ export const createStyles = (identity: Identity) =>
 
     infoContainer: {
       flex: 1,
-      marginLeft: tokens.spacing.lg,
+      marginLeft: tokens.spacing.md, // ✅ 12px au lieu de 16px
       justifyContent: 'center',
     },
 
     levelTitle: {
-      fontSize: tokens.fontSize.lg,
+      fontSize: tokens.fontSize.md, // ✅ 14px au lieu de 18px (compact)
       fontWeight: tokens.fontWeight.bold,
       color: '#FFFFFF',
       textShadowColor: 'rgba(0, 0, 0, 0.1)',
@@ -97,12 +92,39 @@ export const createStyles = (identity: Identity) =>
       alignItems: 'center',
     },
 
-    checkIcon: {
-      fontSize: 28,
+    // ✅ Badges typographiques (No-Media Premium)
+    statusTextCompleted: {
+      fontSize: tokens.fontSize.xs,
+      fontWeight: tokens.fontWeight.bold,
+      color: '#FFFFFF',
+      letterSpacing: 1,
+      opacity: 0.9,
     },
 
-    playIcon: {
-      fontSize: 24,
-      opacity: 0.9,
+    statusTextProgress: {
+      fontSize: tokens.fontSize.xs,
+      fontWeight: tokens.fontWeight.bold,
+      color: 'rgba(255, 255, 255, 0.7)',
+      letterSpacing: 1,
+    },
+
+    // ========== TIMELINE (Ligne verticale) ==========
+    timelineContainer: {
+      position: 'relative',
+    },
+
+    timelineLine: {
+      position: 'absolute',
+      left: 16, // ✅ Aligné avec le centre du badge (16px + 16px badge center)
+      top: 48, // ✅ Commence après la première card
+      bottom: 0,
+      width: 2, // ✅ Ligne fine et élégante
+      backgroundColor: 'rgba(0, 0, 0, 0.1)', // ✅ Subtile
+    },
+
+    // ========== AFFORDANCE (État pressed) ==========
+    cardPressed: {
+      opacity: 0.85,
+      transform: [{ scale: 0.98 }], // ✅ Léger shrink au tap
     },
   });

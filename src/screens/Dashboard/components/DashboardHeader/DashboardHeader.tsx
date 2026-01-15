@@ -11,8 +11,8 @@ interface DashboardHeaderProps {
 }
 
 /**
- * DashboardHeader - Version TypeScript Core
- * Utilise ThemeContainer pour gérer l'identité visuelle (Gradient/Couleur/Radius)
+ * DashboardHeader - Premium No-Media Edition
+ * Design sobre et typographique inspiré Apple
  */
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
   const { identity } = useTheme();
@@ -23,25 +23,15 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
   return (
     <ThemeContainer identity={identity} style={styles.header} rounded>
       <View style={styles.headerContent}>
-
-        {/* Affichage de l'icône si définie dans l'identité (ex: 🚀) */}
-        {Boolean(identity.header.emoji) && (
-          <Text style={styles.emoji}>{identity.header.emoji}</Text>
-        )}
-
+        {/* ✅ No-Media: Pas d'emoji, focus sur la typographie */}
         <View style={styles.textSection}>
-          <Text
-            style={[styles.welcomeText, { color: identity.text.onMain }]}
-            numberOfLines={1}
-            adjustsFontSizeToFit
-          >
-            {identity.header.welcomeText}{' '}
-            <Text style={[styles.userName, { color: identity.text.onMain }]}>
-              {user.name}!
-            </Text>
+          <Text style={[styles.greeting, { color: identity.text.onMain }]}>
+            {identity.header.welcomeText}
+          </Text>
+          <Text style={[styles.userName, { color: identity.text.onMain }]}>
+            {user.name}
           </Text>
         </View>
-
       </View>
     </ThemeContainer>
   );

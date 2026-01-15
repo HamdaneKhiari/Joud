@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import { createStyles } from './levelCardStyle';
@@ -18,6 +18,7 @@ interface LevelCardProps {
 const LevelCard: React.FC<LevelCardProps> = ({ data, onPress }) => {
   const { identity } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
+  const [isPressed, setIsPressed] = useState(false);
 
   // Sécurité anti-crash : si data est undefined, on ne rend rien
   if (!data) return null;
@@ -25,15 +26,13 @@ const LevelCard: React.FC<LevelCardProps> = ({ data, onPress }) => {
   const isCompleted = data?.status === 'completed';
 
   return (
-    <TouchableOpacity 
-      onPress={onPress} 
-      activeOpacity={0.8} 
-      style={styles.card}
+    <TouchableOpacity
+      onPress={onPress}
+      onPressIn={() => setIsPressed(true)}
+      onPressOut={() => setIsPressed(false)}
+      activeOpacity={1} // ✅ Désactivé pour utiliser notre propre feedback
+      style={[styles.card, isPressed && styles.cardPressed]}
     >
-      {identity.ui.showDecorativeShapes && (
-        <View style={styles.decorativeCircle} />
-      )}
-
       <View style={styles.mainContainer}>
         {/* Badge circulaire avec le numéro de niveau */}
         <View style={styles.levelBadge}>
@@ -47,8 +46,8 @@ const LevelCard: React.FC<LevelCardProps> = ({ data, onPress }) => {
         </View>
 
         <View style={styles.statusContainer}>
-          <Text style={isCompleted ? styles.checkIcon : styles.playIcon}>
-            {isCompleted ? "✅" : "▶️"}
+          <Text style={isCompleted ? styles.statusTextCompleted : styles.statusTextProgress}>
+            {isCompleted ? "DONE" : "START"}
           </Text>
         </View>
       </View>

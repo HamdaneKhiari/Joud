@@ -9,7 +9,7 @@ import React, { createContext, useContext, useMemo, useState, useEffect, ReactNo
 import { useColorScheme } from 'react-native';
 import { useUser } from '@/contexts/UserContext';
 import { getBrandingById, type Branding } from '@/database/queries';
-import { tokens } from '@/themes/tokens';
+import { tokens, withOpacity } from '@/themes/tokens';
 
 // ============================================
 // TYPES
@@ -75,9 +75,13 @@ export interface Identity {
     levelProgress: string;
   };
 
-  // ✅ TEXT (Couleurs de texte globales)
+  // ✅ TEXT (Couleurs de texte sémantiques - 100% White Label)
   text: {
-    onMain: string;
+    primary: string;    // Texte principal (headings, titres)
+    secondary: string;  // Texte secondaire (descriptions, labels)
+    tertiary: string;   // Texte tertiaire (hints, placeholders)
+    onMain: string;     // Texte sur fond main
+    onAccent: string;   // Texte sur fond accent
   };
 
   // ✅ THEME MODE (Mode global)
@@ -171,7 +175,12 @@ const brandingToIdentity = (branding: Branding): Identity => {
     },
 
     text: {
+      // ✅ Couleurs sémantiques dérivées de primary_color (100% White Label)
+      primary: branding.primary_color,
+      secondary: withOpacity(branding.primary_color, 0.6),
+      tertiary: withOpacity(branding.primary_color, 0.4),
       onMain: branding.text_on_main_color,
+      onAccent: branding.text_on_main_color, // Assume même couleur pour texte sur accent
     },
 
     themeMode: branding.theme_mode,
@@ -219,7 +228,11 @@ const defaultIdentity: Identity = {
     levelProgress: '#FFD700',
   },
   text: {
+    primary: '#34495E',
+    secondary: withOpacity('#34495E', 0.6),
+    tertiary: withOpacity('#34495E', 0.4),
     onMain: '#FFFFFF',
+    onAccent: '#FFFFFF',
   },
   themeMode: 'light',
 };

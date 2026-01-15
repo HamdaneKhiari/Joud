@@ -30,15 +30,15 @@ export const getBadgeConfig = (
 
   const configs: Record<BadgeType, BadgeConfig> = {
     or: {
-      label: identity.id === 'lycee' ? '⭐ GOLD' : '⭐ OR',
+      label: identity.id === 'lycee' ? 'GOLD' : 'OR', // ✅ No-Media Premium
       color: '#10B981' // Vert succès
     },
     argent: {
-      label: identity.id === 'lycee' ? '🥈 SILVER' : '🥈 ARGENT',
+      label: identity.id === 'lycee' ? 'SILVER' : 'ARGENT', // ✅ No-Media Premium
       color: identity.branding.accent // Couleur accent de l'identité
     },
     bronze: {
-      label: identity.id === 'lycee' ? '🥉 BRONZE' : '🥉 BRONZE',
+      label: 'BRONZE', // ✅ No-Media Premium (identique FR/EN)
       color: '#F59E0B' // Orange
     },
     nouveau: {
