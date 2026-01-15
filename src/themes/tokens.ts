@@ -219,9 +219,9 @@ export const animation = {
    * Compatible avec Animated.timing({ easing })
    */
   easing: {
-    standard: [0.4, 0.0, 0.2, 1],    // Material easing
-    decelerate: [0.0, 0.0, 0.2, 1],  // Entrée (slow → fast)
-    accelerate: [0.4, 0.0, 1, 1],    // Sortie (fast → slow)
+    standard: [0.4, 0, 0.2, 1],    // Material easing
+    decelerate: [0, 0, 0.2, 1],  // Entrée (slow → fast)
+    accelerate: [0.4, 0, 1, 1],    // Sortie (fast → slow)
   },
 };
 
@@ -250,9 +250,9 @@ export const opacity = {
  * @param opacityValue - Valeur entre 0 et 1
  */
 export const withOpacity = (hexColor: string, opacityValue: number) => {
-  const r = parseInt(hexColor.slice(1, 3), 16);
-  const g = parseInt(hexColor.slice(3, 5), 16);
-  const b = parseInt(hexColor.slice(5, 7), 16);
+const r = Number.parseInt(hexColor.slice(1, 3), 16);
+  const g = Number.parseInt(hexColor.slice(3, 5), 16);
+  const b = Number.parseInt(hexColor.slice(5, 7), 16);
   return `rgba(${r}, ${g}, ${b}, ${opacityValue})`;
 };
 

@@ -55,7 +55,9 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
   );
 
   // --- DATA DRIVEN (Phase 1 & 2) ---
+  // ✅ FULL SQL MODE - Données exclusivement depuis la DB
   const { module, family, contentItems, isLoading, error } = useExerciseContent(familyId, numLevelId);
+
   const levelLabel = useLevelLabel(numLevelId);
 
   // =================== PROGRESSION LOGIC ===================

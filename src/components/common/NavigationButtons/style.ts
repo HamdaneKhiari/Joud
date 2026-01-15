@@ -11,9 +11,9 @@ import type { Identity } from '@/themes/ThemeContext';
 
 /**
  * Taille des boutons de navigation
- * Basée sur l'échelle de spacing pour cohérence
+ * ✅ 72px pour élégance et impact visuel
  */
-const BUTTON_SIZE = tokens.spacing.xxxl * 2; // 64px (plus généreux que 56px)
+const BUTTON_SIZE = 72;
 
 export const createStyles = (identity: Identity) => {
   // Dérivation dynamique des couleurs neutres (White Label Rigor)
@@ -30,10 +30,10 @@ export const createStyles = (identity: Identity) => {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      // ✅ Breathing room amélioré
-      paddingHorizontal: tokens.spacing.xxl,
-      paddingVertical: tokens.spacing.xl,
-      paddingBottom: tokens.spacing.xxl, // Extra padding en bas pour détacher du bord
+      // ✅ Breathing room généreux (32px)
+      paddingHorizontal: tokens.spacing.xxxl,
+      paddingVertical: tokens.spacing.xxl,
+      paddingBottom: tokens.spacing.xxxl, // Extra padding en bas pour détacher du bord
       backgroundColor: identity.branding.surface,
       borderTopWidth: tokens.borderWidth.thin,
       borderTopColor: neutralBorder,
@@ -50,8 +50,8 @@ export const createStyles = (identity: Identity) => {
       borderRadius: tokens.borderRadius.round,
       alignItems: 'center',
       justifyContent: 'center',
-      // ✅ Ombre premium pour effet "floating"
-      ...tokens.shadows.md,
+      // ✅ Ombre ultra-premium (XL pour impact maximal)
+      ...tokens.shadows.xl,
     },
     navButtonPrev: {
       backgroundColor: neutralBg,
@@ -61,6 +61,15 @@ export const createStyles = (identity: Identity) => {
     navButtonNext: {
       // Utilise primary si disponible, sinon main
       backgroundColor: identity.branding.primary || identity.branding.main,
+      // ✅ Bordure neutre pour look premium
+      borderWidth: tokens.borderWidth.thin,
+      borderColor: isDark ? withOpacity('#FFFFFF', 0.3) : withOpacity('#000000', 0.15),
+      // ✅ Glow accent pour effet dynamique
+      shadowColor: identity.branding.accent,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.35,
+      shadowRadius: 16,
+      elevation: 8,
     },
     navButtonFinish: {
       backgroundColor: identity.branding.accent,

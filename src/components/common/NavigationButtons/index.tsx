@@ -33,15 +33,15 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
           onPress={onPrevious}
           disabled={isLoading}
         >
-          <MaterialCommunityIcons 
-            name="arrow-left" 
-            size={24} 
-            color={identity.branding.textOnMain} 
+          <MaterialCommunityIcons
+            name="chevron-left"
+            size={32}
+            color={identity.branding.textOnMain}
           />
         </TouchableOpacity>
       ) : (
         // Placeholder pour garder l'alignement à droite du bouton Suivant
-        <View style={{ width: 56 }} />
+        <View style={{ width: 72 }} />
       )}
 
       {/* Espaceur flexible */}
@@ -66,10 +66,10 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
           onPress={onNext}
           disabled={isLoading}
         >
-            <MaterialCommunityIcons 
-              name="arrow-right" 
-              size={24} 
-              color={identity.branding.textOnMain} 
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={32}
+              color={identity.branding.textOnMain}
             />
         </TouchableOpacity>
       )}

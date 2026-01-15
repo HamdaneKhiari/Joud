@@ -5,7 +5,7 @@
  * ============================================
  */
 
-import { StyleSheet, TextStyle, ViewStyle, ImageStyle } from 'react-native';
+import { StyleSheet, TextStyle, ViewStyle } from 'react-native';
 import { Identity } from '@/themes/ThemeContext';
 import { tokens, withOpacity } from '@/themes/tokens';
 
@@ -18,23 +18,20 @@ interface WordCardStyles {
   separator: ViewStyle;
   exampleContainer: ViewStyle;
   exampleText: TextStyle;
-  visualContainer: ViewStyle;
-  emojiText: TextStyle;
-  image: ImageStyle;
 }
 
 /**
  * Couleurs sémantiques pour le texte
- * Évite les hex hardcodés et s'adapte au thème
+ * ✅ 100% White Label : Liées à l'identité via withOpacity
  */
 const getSemanticColors = (identity: Identity) => {
   const isDark = identity.branding.themeMode === 'dark';
 
   return {
-    // Couleur de la traduction (gris neutre)
-    translation: isDark ? '#9CA3AF' : '#6B7280',
-    // Couleur du texte d'exemple
-    example: isDark ? '#D1D5DB' : '#374151',
+    // Couleur de la traduction (liée à main avec opacité)
+    translation: withOpacity(identity.branding.main, 0.6),
+    // Couleur du texte d'exemple (liée à main avec opacité plus légère)
+    example: withOpacity(identity.branding.main, 0.7),
     // Bordure subtile de la card
     cardBorder: isDark ? withOpacity('#FFFFFF', 0.1) : withOpacity('#000000', 0.05),
   };
@@ -54,14 +51,16 @@ export const getWordCardStyles = (identity: Identity): WordCardStyles => {
       marginVertical: tokens.spacing.sm,
       // ✅ Ombre Premium (lg pour un effet dramatique)
       ...tokens.shadows.lg,
-      justifyContent: 'center',
+      // ✅ Centrage vertical parfait (No-Media)
+      justifyContent: 'space-evenly',
       alignItems: 'center',
       borderWidth: 1,
       borderColor: colors.cardBorder,
     },
     wordContainer: {
       alignItems: 'center',
-      marginBottom: tokens.spacing.xxxl,
+      // ✅ Réduit car plus d'emoji au-dessus
+      marginBottom: tokens.spacing.lg,
     },
     wordRow: {
       flexDirection: 'row',
@@ -106,19 +105,6 @@ export const getWordCardStyles = (identity: Identity): WordCardStyles => {
       color: colors.example, // ✅ Couleur sémantique
       textAlign: 'center',
       lineHeight: 26,
-    },
-    visualContainer: {
-      marginBottom: tokens.spacing.xxl,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    emojiText: {
-      fontSize: tokens.emojiSize.huge, // ✅ 80px
-    },
-    image: {
-      width: 120,
-      height: 120,
-      resizeMode: 'contain',
     },
   });
 };

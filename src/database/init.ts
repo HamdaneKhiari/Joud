@@ -225,6 +225,7 @@ CREATE TABLE IF NOT EXISTS activity_log (
       [1, 'Salutations', 'hand-wave', '👋', 'Apprends à dire bonjour', 1],
       [1, 'Famille', 'account-group', '👨‍👩‍👧‍👦', 'Les membres de la famille', 2],
       [1, 'Couleurs', 'palette', '🎨', 'Toutes les couleurs', 3],
+      [1, 'Food & Drinks', 'food', '🍽️', 'Nourriture et boissons', 4], // ✅ Nouvelle famille
       [2, 'Présent', 'clock-outline', '⏰', 'Le temps présent', 1],
       [2, 'Futur', 'rocket', '🚀', 'Parler de l\'avenir', 2]
     ];
@@ -233,6 +234,62 @@ CREATE TABLE IF NOT EXISTS activity_log (
       await db.runAsync(
         `INSERT OR IGNORE INTO families (module_id, name, icon, emoji, description, order_index) VALUES (?, ?, ?, ?, ?, ?)`,
         fam
+      );
+    }
+
+    // ============================================
+    // 2.6 SEED CONTENT (Vocabulaire - 3 mots pour test)
+    // ============================================
+    const contentSeed = [
+      // [family_id, level, content_type, data (JSON), difficulty, tags]
+      [
+        4, // Food & Drinks family (4ème famille insérée)
+        1, // Level 1
+        'word',
+        JSON.stringify({
+          word: 'Croissant',
+          translation: 'Croissant',
+          example: 'I love eating a fresh croissant for breakfast.',
+          image: '🥐',
+          audio: null
+        }),
+        'easy',
+        'food,breakfast'
+      ],
+      [
+        4, // Food & Drinks family
+        1, // Level 1
+        'word',
+        JSON.stringify({
+          word: 'Book',
+          translation: 'Livre',
+          example: 'She is reading a fascinating book about history.',
+          image: '📚',
+          audio: null
+        }),
+        'easy',
+        'objects,learning'
+      ],
+      [
+        4, // Food & Drinks family
+        1, // Level 1
+        'word',
+        JSON.stringify({
+          word: 'Cat',
+          translation: 'Chat',
+          example: 'The cat is sleeping on the sofa.',
+          image: '🐱',
+          audio: null
+        }),
+        'easy',
+        'animals,pets'
+      ]
+    ];
+
+    for (const item of contentSeed) {
+      await db.runAsync(
+        `INSERT OR IGNORE INTO content (family_id, level, content_type, data, difficulty, tags) VALUES (?, ?, ?, ?, ?, ?)`,
+        item
       );
     }
 

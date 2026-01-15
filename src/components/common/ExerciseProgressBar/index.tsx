@@ -24,9 +24,7 @@ const ExerciseProgressBar: React.FC<ExerciseProgressBarProps> = ({
       <View style={styles.track}>
         <View style={[styles.fill, { width: `${clampedProgress}%` }]} />
       </View>
-      {progressText && (
-        <Text style={styles.text}>{progressText}</Text>
-      )}
+      {/* ✅ Texte supprimé pour design minimaliste */}
     </View>
   );
 };
@@ -34,28 +32,23 @@ const ExerciseProgressBar: React.FC<ExerciseProgressBarProps> = ({
 const createStyles = (identity: Identity) => StyleSheet.create({
   container: {
     width: '100%',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: 0, // ✅ Pas de padding horizontal pour coller au header
+    paddingVertical: 0,   // ✅ Pas de padding vertical pour être collée
   },
   track: {
-    height: 8,
-    backgroundColor: identity.branding.themeMode === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
-    borderRadius: borderRadius.round,
+    height: 2, // ✅ Ultra-fine (2px au lieu de 8px)
+    backgroundColor: identity.branding.themeMode === 'dark'
+      ? 'rgba(255,255,255,0.1)'
+      : 'rgba(0,0,0,0.05)', // ✅ Opacité réduite
+    borderRadius: 0, // ✅ Pas d'arrondi pour ligne parfaite
     overflow: 'hidden',
   },
   fill: {
     height: '100%',
-    backgroundColor: identity.branding.dashboardLevelProgressColor || identity.branding.accent,
-    borderRadius: borderRadius.round,
+    backgroundColor: identity.branding.accent, // ✅ Toujours accent
+    borderRadius: 0,
+    opacity: 0.7, // ✅ Opacité réduite pour être presque invisible
   },
-  text: {
-    marginTop: spacing.xs,
-    textAlign: 'center',
-    fontSize: fontSize.xs,
-    color: identity.branding.textOnMain,
-    fontWeight: fontWeight.medium,
-    opacity: 0.8,
-  }
 });
 
 export default ExerciseProgressBar;

@@ -7,7 +7,7 @@
  */
 
 import React, { FC, useMemo } from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Text } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import { getWordCardStyles } from './WordCard.styles';
 import AudioButton from '@/components/ui/AudioButtons/AudioButton';
@@ -17,7 +17,6 @@ interface WordCardProps {
   frenchWord: string;
   exampleSentence?: string;
   highlightWord?: string;
-  image?: string;
   audio?: string;
 }
 
@@ -26,7 +25,6 @@ const WordCard: FC<WordCardProps> = ({
   frenchWord,
   exampleSentence,
   highlightWord,
-  image,
   audio,
 }) => {
   const { identity } = useTheme();
@@ -66,22 +64,8 @@ const WordCard: FC<WordCardProps> = ({
     );
   };
 
-  // Détection simple : si la chaîne est courte (< 4 chars), on suppose que c'est un emoji
-  const isEmoji = image && image.length < 5;
-
   return (
     <View style={styles.container}>
-      {/* Zone Visuelle (Image ou Emoji) */}
-      {image && (
-        <View style={styles.visualContainer}>
-          {isEmoji ? (
-            <Text style={styles.emojiText}>{image}</Text>
-          ) : (
-            <Image source={{ uri: image }} style={styles.image} />
-          )}
-        </View>
-      )}
-
       {/* Zone du mot principal */}
       <View style={styles.wordContainer}>
         <View style={styles.wordRow}>
