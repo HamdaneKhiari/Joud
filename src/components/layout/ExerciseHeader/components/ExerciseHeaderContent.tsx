@@ -1,13 +1,15 @@
 /**
- * ExerciseHeaderContent - Contenu textuel du header
- * Version TypeScript avec styles dynamiques
+ * ============================================
+ * ExerciseHeaderContent (Premium Edition)
+ * Logique simplifiée avec système de variants propre
+ * ============================================
  */
 
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import type { Identity } from '@/themes/ThemeContext';
-import { tokens } from '@/themes/tokens';
+import { tokens, withOpacity } from '@/themes/tokens';
 
 // ============================================
 // TYPES
@@ -20,68 +22,109 @@ interface ExerciseHeaderContentProps {
 }
 
 // ============================================
+// CONFIGURATION DES VARIANTS (DRY)
+// ============================================
+
+/**
+ * Configuration typographique par identité
+ * Simplifie la logique conditionnelle dans les styles
+ * ✅ 100% White Label : aucune couleur hardcodée
+ */
+const TYPOGRAPHY_CONFIG = {
+  primary: {
+    titleSize: tokens.fontSize.xxxl,      // 36px (↓ de 40px)
+    titleWeight: tokens.fontWeight.black,
+    titleLetterSpacing: -0.5,
+    titleLineHeight: 40,
+    subtitleWeight: tokens.fontWeight.bold,
+  },
+  college: {
+    titleSize: tokens.fontSize.xxl + 4,   // 32px (↓ de 36px)
+    titleWeight: tokens.fontWeight.black,
+    titleLetterSpacing: -0.5,
+    titleLineHeight: 38,
+    subtitleWeight: tokens.fontWeight.extrabold,
+  },
+  lycee: {
+    titleSize: tokens.fontSize.xxl,       // 28px
+    titleWeight: tokens.fontWeight.bold,
+    titleLetterSpacing: 0,
+    titleLineHeight: 34,
+    subtitleWeight: tokens.fontWeight.semibold,
+  },
+  adult: {
+    titleSize: tokens.fontSize.xxl,       // 28px
+    titleWeight: tokens.fontWeight.bold,
+    titleLetterSpacing: 0,
+    titleLineHeight: 34,
+    subtitleWeight: tokens.fontWeight.semibold,
+  },
+} as const;
+
+// ============================================
 // STYLES DYNAMIQUES
 // ============================================
 
 const createStyles = (identity: Identity) => {
-  const baseColors = {
-    white: '#FFFFFF',
-    gray600: '#4B5563',
-    gray800: '#1F2937'
-  };
+  const config = TYPOGRAPHY_CONFIG[identity.id];
+  const isDark = identity.branding.themeMode === 'dark';
+
+  // ✅ Couleurs sémantiques adaptatives
+  const textColor = identity.id === 'adult'
+    ? (isDark ? '#F9FAFB' : '#1F2937')
+    : '#FFFFFF';
+
+  const textShadow = identity.id === 'adult'
+    ? { shadowColor: 'transparent', shadowOpacity: 0 }
+    : {
+        shadowColor: '#000000',
+        shadowOpacity: 0.3,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+      };
 
   return StyleSheet.create({
     contentContainer: {
       flex: 1,
       alignItems: 'center',
-      justifyContent: 'flex-start',
-      paddingTop: tokens.spacing.sm,
-      paddingBottom: tokens.spacing.md,
-      paddingHorizontal: tokens.spacing.sm
+      justifyContent: 'center', // ✅ Centré verticalement pour équilibre
+      paddingHorizontal: tokens.spacing.md,
     },
 
-    // Titre principal
+    // ✅ Titre optimisé : plus de logique conditionnelle inline
     exerciseTitle: {
-      fontSize: identity.id === 'primary' ? tokens.fontSize.xxxl + 4 :
-               identity.id === 'college' ? tokens.fontSize.xxxl :
-               tokens.fontSize.xxl,
-      fontWeight: identity.id === 'primary' || identity.id === 'college'
-        ? tokens.fontWeight.black
-        : tokens.fontWeight.bold,
-      color: identity.id === 'adult' ? baseColors.gray800 : baseColors.white,
+      fontSize: config.titleSize,
+      fontWeight: config.titleWeight,
+      color: textColor,
       textAlign: 'center',
       marginBottom: tokens.spacing.xs,
-      letterSpacing: identity.id === 'lycee' || identity.id === 'adult' ? 0 : -0.5,
-      textShadowColor: identity.id === 'adult' ? 'transparent' : 'rgba(0, 0, 0, 0.3)',
-      textShadowOffset: { width: 0, height: 3 },
-      textShadowRadius: 6,
-      lineHeight: identity.id === 'primary' ? 44 : 40
+      letterSpacing: config.titleLetterSpacing,
+      lineHeight: config.titleLineHeight,
+      ...textShadow,
     },
 
+    // ✅ Variante pour selection (légèrement plus grand)
     selectionTitle: {
-      fontSize: identity.id === 'primary' ? tokens.fontSize.xxxl + 4 : tokens.fontSize.xxxl,
-      marginBottom: tokens.spacing.xs,
-      fontWeight: tokens.fontWeight.black,
-      letterSpacing: identity.id === 'lycee' || identity.id === 'adult' ? 0 : -0.5
+      fontSize: config.titleSize + 2,
     },
 
-    // Sous-titre
+    // ✅ Sous-titre optimisé (100% White Label)
     exerciseSubtitle: {
-      fontSize: tokens.fontSize.base,
-      fontWeight: identity.id === 'primary' ? tokens.fontWeight.bold :
-                   identity.id === 'college' ? tokens.fontWeight.extrabold :
-                   tokens.fontWeight.semibold,
-      color: identity.id === 'primary' ? '#FF5722' :
-             identity.id === 'college' ? '#FFD700' :
-             identity.id === 'lycee' ? '#00E5FF' :
-             baseColors.gray600,
+      fontSize: tokens.fontSize.sm,
+      fontWeight: config.subtitleWeight,
+      // ✅ Utilise l'accent de l'identité (caméléon pur)
+      color: identity.branding.accent,
       textAlign: 'center',
       letterSpacing: 0.3,
-      textShadowColor: identity.id === 'adult' ? 'transparent' : 'rgba(0, 0, 0, 0.25)',
-      textShadowOffset: { width: 0, height: 1 },
-      textShadowRadius: 3,
-      lineHeight: 22
-    }
+      lineHeight: 20,
+      // Ombre plus subtile pour le sous-titre
+      ...(identity.id !== 'adult' && {
+        shadowColor: '#000000',
+        shadowOpacity: 0.2,
+        shadowOffset: { width: 0, height: 1 },
+        shadowRadius: 2,
+      }),
+    },
   });
 };
 
@@ -97,19 +140,16 @@ const ExerciseHeaderContent: React.FC<ExerciseHeaderContentProps> = ({
   const { identity } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
 
-  // Détermine le style du titre selon la variante
-  const getTitleStyle = () => {
-    if (variant === 'selection') {
-      return [styles.exerciseTitle, styles.selectionTitle];
-    }
-    return [styles.exerciseTitle];
-  };
+  // ✅ Détermine le style du titre selon la variante (simplifié)
+  const titleStyle = variant === 'selection'
+    ? [styles.exerciseTitle, styles.selectionTitle]
+    : styles.exerciseTitle;
 
   return (
     <View style={styles.contentContainer}>
       {/* Titre principal */}
       {title && (
-        <Text style={getTitleStyle()} numberOfLines={2}>
+        <Text style={titleStyle} numberOfLines={2}>
           {title}
         </Text>
       )}

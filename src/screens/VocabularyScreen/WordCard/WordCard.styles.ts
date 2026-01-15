@@ -1,12 +1,13 @@
 /**
  * ============================================
- * FICHIER: src/components/pedagogy/vocabulary/WordCard.styles.ts
- * Styles dynamiques pilotés par l'identité (ThemeContext)
+ * FICHIER: WordCard.styles.ts (Premium Edition)
+ * Styles dynamiques pilotés par l'identité + Design Tokens
  * ============================================
  */
 
 import { StyleSheet, TextStyle, ViewStyle, ImageStyle } from 'react-native';
 import { Identity } from '@/themes/ThemeContext';
+import { tokens, withOpacity } from '@/themes/tokens';
 
 interface WordCardStyles {
   container: ViewStyle;
@@ -22,50 +23,65 @@ interface WordCardStyles {
   image: ImageStyle;
 }
 
+/**
+ * Couleurs sémantiques pour le texte
+ * Évite les hex hardcodés et s'adapte au thème
+ */
+const getSemanticColors = (identity: Identity) => {
+  const isDark = identity.branding.themeMode === 'dark';
+
+  return {
+    // Couleur de la traduction (gris neutre)
+    translation: isDark ? '#9CA3AF' : '#6B7280',
+    // Couleur du texte d'exemple
+    example: isDark ? '#D1D5DB' : '#374151',
+    // Bordure subtile de la card
+    cardBorder: isDark ? withOpacity('#FFFFFF', 0.1) : withOpacity('#000000', 0.05),
+  };
+};
+
 export const getWordCardStyles = (identity: Identity): WordCardStyles => {
   const { branding, ui } = identity;
+  const colors = getSemanticColors(identity);
 
   return StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: branding.surface || '#FFFFFF',
       borderRadius: ui.cardRadius,
-      padding: 24,
-      marginHorizontal: 4,
-      marginVertical: 10,
-      // Ombres douces et dynamiques
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.1,
-      shadowRadius: 8,
-      elevation: 5,
+      padding: tokens.layout.cardPadding,
+      marginHorizontal: tokens.spacing.xs,
+      marginVertical: tokens.spacing.sm,
+      // ✅ Ombre Premium (lg pour un effet dramatique)
+      ...tokens.shadows.lg,
       justifyContent: 'center',
       alignItems: 'center',
       borderWidth: 1,
-      borderColor: 'rgba(0,0,0,0.05)',
+      borderColor: colors.cardBorder,
     },
     wordContainer: {
       alignItems: 'center',
-      marginBottom: 32,
+      marginBottom: tokens.spacing.xxxl,
     },
     wordRow: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 12,
-      marginBottom: 8,
+      gap: tokens.spacing.md,
+      marginBottom: tokens.spacing.sm,
     },
     englishWord: {
-      fontSize: 42,
-      fontWeight: '800',
+      // ✅ Utilise fontSize.huge (48) mais réduit légèrement pour équilibre visuel
+      fontSize: tokens.fontSize.huge - 6, // 42px (proche de l'original)
+      fontWeight: tokens.fontWeight.extrabold,
       color: branding.main, // Couleur principale de la marque
       textAlign: 'center',
       letterSpacing: 0.5,
     },
     frenchWord: {
-      fontSize: 24,
-      fontWeight: '500',
-      color: '#6B7280', // Gris neutre pour la traduction
+      fontSize: tokens.fontSize.xl,
+      fontWeight: tokens.fontWeight.medium,
+      color: colors.translation, // ✅ Couleur sémantique
       textAlign: 'center',
       fontStyle: 'italic',
     },
@@ -73,29 +89,31 @@ export const getWordCardStyles = (identity: Identity): WordCardStyles => {
       width: 40,
       height: 4,
       backgroundColor: branding.accent, // Touche de couleur d'accent
-      borderRadius: 2,
-      marginBottom: 32,
-      opacity: 0.6,
+      borderRadius: tokens.borderRadius.sm / 4, // Arrondi subtil (2px)
+      marginBottom: tokens.spacing.xxxl,
+      opacity: tokens.opacity.overlay,
     },
     exampleContainer: {
-      backgroundColor: ui.hasGradient ? 'rgba(0,0,0,0.03)' : 'transparent',
-      padding: 16,
+      backgroundColor: ui.hasGradient
+        ? withOpacity('#000000', 0.03)
+        : 'transparent',
+      padding: tokens.spacing.lg,
       borderRadius: ui.cardRadius / 1.5,
       width: '100%',
     },
     exampleText: {
-      fontSize: 18,
-      color: '#374151',
+      fontSize: tokens.fontSize.md,
+      color: colors.example, // ✅ Couleur sémantique
       textAlign: 'center',
       lineHeight: 26,
     },
     visualContainer: {
-      marginBottom: 24,
+      marginBottom: tokens.spacing.xxl,
       justifyContent: 'center',
       alignItems: 'center',
     },
     emojiText: {
-      fontSize: 80,
+      fontSize: tokens.emojiSize.huge, // ✅ 80px
     },
     image: {
       width: 120,

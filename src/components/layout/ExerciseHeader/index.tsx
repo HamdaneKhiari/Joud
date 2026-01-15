@@ -1,7 +1,8 @@
 /**
- * ExerciseHeader - Header dynamique pour tous les exercices
- * Adapté aux 4 identités : PRIMARY | COLLEGE | LYCÉE | ADULT
- * Version modulaire avec sous-composants
+ * ============================================
+ * ExerciseHeader (Premium Edition)
+ * Header optimisé : hauteur réduite, logique simplifiée, tokens premium
+ * ============================================
  */
 
 import React, { useMemo } from 'react';
@@ -40,44 +41,50 @@ interface ExerciseHeaderProps {
 }
 
 // ============================================
+// CONFIGURATION DES VARIANTS (Clean & DRY)
+// ============================================
+
+/**
+ * Configuration centralisée des hauteurs par identité
+ * Réduit de 20-30% par rapport à l'original pour un look plus moderne
+ */
+const HEADER_HEIGHTS = {
+  primary: 130,   // ↓ de 160
+  college: 115,   // ↓ de 140
+  lycee: 100,     // ↓ de 120
+  adult: 100,     // ↓ de 120
+} as const;
+
+/**
+ * Configuration centralisée des espacements par identité
+ */
+const HEADER_SPACING = {
+  primary: { top: tokens.spacing.md, bottom: tokens.spacing.md },     // ↓ bottom réduit
+  college: { top: tokens.spacing.sm, bottom: tokens.spacing.sm },     // ↓ bottom réduit
+  lycee: { top: tokens.spacing.xs, bottom: tokens.spacing.xs },       // Minimal
+  adult: { top: tokens.spacing.xs, bottom: tokens.spacing.xs },       // Minimal
+} as const;
+
+// ============================================
 // STYLES DYNAMIQUES
 // ============================================
 
 const createStyles = (identity: Identity) => {
-  const baseColors = {
-    black: '#000000'
-  };
-
-  // Espacement selon l'identité
-  const getHeaderSpacing = () => {
-    switch (identity.id) {
-      case 'primary':
-        return { top: tokens.spacing.md, bottom: tokens.spacing.lg };
-      case 'college':
-        return { top: tokens.spacing.sm, bottom: tokens.spacing.md };
-      case 'lycee':
-      case 'adult':
-        return { top: tokens.spacing.sm, bottom: tokens.spacing.sm };
-    }
-  };
-
-  const headerSpacing = getHeaderSpacing();
+  const spacing = HEADER_SPACING[identity.id];
+  const minHeight = HEADER_HEIGHTS[identity.id];
 
   return StyleSheet.create({
     headerContainer: {
-      paddingTop: headerSpacing.top,
-      paddingBottom: headerSpacing.bottom,
+      paddingTop: spacing.top,
+      paddingBottom: spacing.bottom,
       paddingHorizontal: tokens.spacing.md,
-      minHeight: identity.id === 'primary' ? 160 : identity.id === 'college' ? 140 : 120,
+      minHeight,
       position: 'relative',
       overflow: 'hidden',
       borderBottomLeftRadius: identity.ui.cardRadius,
       borderBottomRightRadius: identity.ui.cardRadius,
-      shadowColor: baseColors.black,
-      shadowOffset: { width: 0, height: identity.id === 'primary' ? 6 : 4 },
-      shadowOpacity: identity.id === 'primary' ? 0.2 : identity.id === 'college' ? 0.15 : 0.1,
-      shadowRadius: identity.id === 'primary' ? 10 : identity.id === 'college' ? 8 : 6,
-      elevation: identity.id === 'primary' ? 8 : identity.id === 'college' ? 6 : 4
+      // ✅ Ombres premium via tokens
+      ...tokens.shadows.md,
     }
   });
 };
@@ -118,7 +125,7 @@ const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({
   // Badge niveau
   const displayBadge = showLevelBadge && levelTitle;
 
-  // Contenu central selon variant
+  // ✅ Contenu central selon variant (logique simplifiée)
   const getContentProps = () => {
     switch (variant) {
       case 'exercise':
