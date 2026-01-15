@@ -61,9 +61,15 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   route
 }) => {
   const router = useRouter();
-  const expoParams = useLocalSearchParams<RouteParams>();
+  const expoParams = useLocalSearchParams() as unknown as RouteParams;
   const { identity } = useTheme();
   const { db } = useUser();
+
+  // Cast local pour les propriétés manquantes dans l'interface actuelle
+  const branding = identity.branding as typeof identity.branding & { 
+    themeMode?: 'light' | 'dark'; 
+    headerAccent?: string; 
+  };
 
   // =================== PARAMÈTRES ===================
   // Support React Navigation ET Expo Router
@@ -137,6 +143,47 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   // =================== VALIDATION ===================
   if (!moduleId) return null;
 
+  // =================== CONTENU (Helper pour éviter les ternaires imbriqués) ===================
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={levelColor} />
+          <Text style={styles.loadingText}>
+            Chargement...
+          </Text>
+        </View>
+      );
+    }
+
+    if (families && families.length > 0) {
+      return families.map((family: any) => (
+        <FlowCard
+          key={family.id}
+          icon={family.icon} // Délégué à FlowCard (emoji, string, element)
+          title={family.name || family.id.toString()}
+          subtitle={family.description || ''}
+          color={family.color || moduleColor}
+          badge={family.badge || null}
+          onPress={() =>
+            router.push({
+              pathname: '/exercise/[exerciseId]',
+              params: { exerciseId: moduleId, familyId: family.id, levelId: numLevelId }
+            })
+          }
+        />
+      ));
+    }
+
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>
+          Aucun contenu disponible pour le moment.
+        </Text>
+      </View>
+    );
+  };
+
   // =================== RENDER ===================
 
   return (
@@ -144,7 +191,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
       <SafeAreaView style={styles.safeArea}>
         <StatusBar
           // Utilise la config de la DB (theme_mode) au lieu de vérifier les IDs
-          barStyle={identity.branding.themeMode === 'dark' ? 'light-content' : 'dark-content'}
+          barStyle={branding.themeMode === 'dark' ? 'light-content' : 'dark-content'}
           backgroundColor={levelColor}
         />
 
@@ -152,7 +199,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
           variant="simple"
           onBack={() => safeGoBack.navigate()}
           rightIcon={
-            <DynamicIcon name={moduleLabel.icon} size={28} color={identity.branding.headerAccent} fallback="book" />
+            <DynamicIcon name={moduleLabel.icon} size={28} color={branding.headerAccent} fallback="book" />
           }
           showLevelBadge
           levelTitle={levelLabel.badge}
@@ -166,37 +213,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
           contentContainerStyle={styles.scrollViewContent}
           showsVerticalScrollIndicator={false}
         >
-          {isLoading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={levelColor} />
-              <Text style={styles.loadingText}>
-                Chargement...
-              </Text>
-            </View>
-          ) : families && families.length > 0 ? (
-            families.map(family => (
-              <FlowCard
-                key={family.id}
-                icon={family.icon} // Délégué à FlowCard (emoji, string, element)
-                title={family.name || family.title || family.id}
-                subtitle={family.subtitle || ''}
-                color={family.color || moduleColor}
-                badge={family.badge || null}
-                onPress={() =>
-                  router.push({
-                    pathname: '/exercise/[exerciseId]',
-                    params: { exerciseId: moduleId, familyId: family.id, levelId: numLevelId }
-                  })
-                }
-              />
-            ))
-          ) : (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>
-                Aucun contenu disponible pour le moment.
-              </Text>
-            </View>
-          )}
+          {renderContent()}
 
           <View style={styles.bottomSpacer} />
         </ScrollView>
