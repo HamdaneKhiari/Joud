@@ -1,69 +1,51 @@
-// ============================================
-// FICHIER: src/components/pedagogy/shared/QuestionCard/index.jsx
-// VERSION FIXÉE - Composant stupide et contrôlé par parent
-// ============================================
+/**
+ * ============================================
+ * QUESTION CARD (TypeScript Premium Edition)
+ * Composant universel pour questions à choix multiples
+ * Version No-Media avec types stricts
+ * ============================================
+ */
 
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { styles } from './style';
+import { useTheme } from '@/themes/ThemeContext';
+import { getStyles } from './styles';
+import type { QuestionCardProps } from './types';
 import OptionButton from '../OptionButton';
 import FeedbackBanner from '../FeedbackBanner';
 
 /**
  * QuestionCard - Composant universel pour questions à choix multiples
- * 
+ *
  * ✅ ENTIÈREMENT CONTRÔLÉ PAR LE PARENT
- * 
+ *
  * Le parent gère:
  * - Quand une option est sélectionnée
  * - Quand afficher le feedback
  * - Les états correct/incorrect
  * - Les tentatives et resets
- * 
+ *
  * QuestionCard ne fait que:
  * - Afficher les options
  * - Appeler onAnswer(letter) au clic
  * - Afficher le feedback si demandé
- * 
- * Utilisable dans: Grammar, Reading, Vocab, etc.
  *
- * @param {number} questionIndex - Index de la question (pour affichage)
- * @param {string} question - Texte de la question
- * @param {Array<string>} options - Options (ex: ['Six years old', 'Eight years old', ...])
- * @param {string} correctAnswer - Lettre de la bonne réponse ('A', 'B', 'C')
- * @param {string} moduleType - Type de module ('grammar' | 'reading' | 'vocab')
- * 
- * PROPS DE CONTRÔLE (du parent):
- * @param {string} externalSelectedOption - Option sélectionnée ('A', 'B', 'C')
- * @param {boolean} externalIsAnswered - La question est répondue?
- * @param {boolean} externalShowFeedback - Afficher le feedback?
- * @param {boolean} externalIsCorrect - La réponse était correcte?
- * @param {Function} onAnswer - Callback: (letter) => void
- * 
- * PROPS OPTIONNELS:
- * @param {number} stars - Nombre d'étoiles (pour reading)
- * @param {boolean} showStars - Afficher les étoiles?
- * @param {string} hint - Texte de l'indice
- * @param {boolean} hintUsed - L'indice a-t-il été utilisé?
- * @param {Function} onToggleHint - Callback toggle indice
- * @param {string} feedbackMessage - Message personnalisé du feedback
- * @param {string} theme - 'light' | 'dark'
+ * Utilisable dans: Grammar, Reading, Vocab, etc.
  */
-const QuestionCard = ({
+const QuestionCard: React.FC<QuestionCardProps> = ({
   questionIndex,
   question,
   options,
   correctAnswer,
   moduleType = 'grammar',
-  
+
   // Props de contrôle (du parent)
   externalSelectedOption = null,
   externalIsAnswered = false,
   externalShowFeedback = false,
   externalIsCorrect = false,
   onAnswer,
-  
+
   // Props optionnels
   stars = 3,
   showStars = false,
@@ -73,6 +55,9 @@ const QuestionCard = ({
   feedbackMessage,
   theme = 'light',
 }) => {
+  const { identity } = useTheme();
+  const styles = useMemo(() => getStyles(identity), [identity]);
+
   const [showHint, setShowHint] = useState(false);
   const isDark = theme === 'dark';
 
@@ -81,14 +66,12 @@ const QuestionCard = ({
    * On juste appelle le callback parent
    * C'est TOUT! Pas de logique de validation ici!
    */
-  const handleAnswer = letter => {
+  const handleAnswer = (letter: string) => {
     // Si la question est déjà répondue, on ignore
     if (externalIsAnswered) return;
-    
+
     // Juste appeler le parent
-    if (onAnswer) {
-      onAnswer(letter);
-    }
+    onAnswer(letter);
   };
 
   const handleToggleHint = () => {
@@ -103,7 +86,7 @@ const QuestionCard = ({
 
     return (
       <View style={styles.starsIndicator}>
-        {[1, 2, 3].map(star => (
+        {[1, 2, 3].map((star) => (
           <Text key={star} style={[styles.star, star <= stars && styles.starActive]}>
             ⭐
           </Text>
@@ -116,14 +99,14 @@ const QuestionCard = ({
     <View
       style={[
         styles.questionCard,
-        styles[`questionCard_${moduleType}`],
+        styles[`questionCard_${moduleType}` as keyof typeof styles],
         isDark && styles.questionCardDark,
       ]}
     >
       {/* Header avec étoiles */}
       <View style={styles.questionHeader}>
         <View style={styles.questionTextContainer}>
-          <View style={[styles.questionNumber, styles[`questionNumber_${moduleType}`]]}>
+          <View style={[styles.questionNumber, styles[`questionNumber_${moduleType}` as keyof typeof styles]]}>
             <Text style={styles.questionNumberText}>{questionIndex + 1}</Text>
           </View>
           <Text style={[styles.questionText, isDark && styles.questionTextDark]}>
@@ -156,13 +139,13 @@ const QuestionCard = ({
         })}
       </View>
 
-      {/* Section Indice - Version College sobre */}
+      {/* Section Indice */}
       {hint && (
         <View style={styles.hintSection}>
           <TouchableOpacity
             style={[
               styles.hintToggleButton,
-              styles[`hintToggleButton_${moduleType}`],
+              styles[`hintToggleButton_${moduleType}` as keyof typeof styles],
               hintUsed && styles.hintToggleButtonUsed,
             ]}
             onPress={handleToggleHint}
@@ -176,7 +159,7 @@ const QuestionCard = ({
             <View
               style={[
                 styles.hintContent,
-                styles[`hintContent_${moduleType}`],
+                styles[`hintContent_${moduleType}` as keyof typeof styles],
                 isDark && styles.hintContentDark,
               ]}
             >
@@ -186,43 +169,18 @@ const QuestionCard = ({
         </View>
       )}
 
-      {/* ✅ FEEDBACK - Affiché SEULEMENT si parent dit oui */}
+      {/* ✅ NO-MEDIA: Feedback sans emoji */}
       {externalShowFeedback && (
         <FeedbackBanner
           isCorrect={externalIsCorrect}
           message={
             feedbackMessage ||
-            (externalIsCorrect ? '✅ Correct !' : '❌ Essaie encore !')
+            (externalIsCorrect ? 'CORRECT' : 'ESSAIE ENCORE')
           }
         />
       )}
     </View>
   );
-};
-
-QuestionCard.propTypes = {
-  // Props de base
-  questionIndex: PropTypes.number.isRequired,
-  question: PropTypes.string.isRequired,
-  options: PropTypes.arrayOf(PropTypes.string).isRequired,
-  correctAnswer: PropTypes.string.isRequired,
-  moduleType: PropTypes.oneOf(['grammar', 'reading', 'vocab']),
-  
-  // Props de contrôle (du parent)
-  externalSelectedOption: PropTypes.string,
-  externalIsAnswered: PropTypes.bool,
-  externalShowFeedback: PropTypes.bool,
-  externalIsCorrect: PropTypes.bool,
-  onAnswer: PropTypes.func.isRequired,
-  
-  // Props optionnels
-  stars: PropTypes.number,
-  showStars: PropTypes.bool,
-  hint: PropTypes.string,
-  hintUsed: PropTypes.bool,
-  onToggleHint: PropTypes.func,
-  feedbackMessage: PropTypes.string,
-  theme: PropTypes.oneOf(['light', 'dark']),
 };
 
 export default QuestionCard;

@@ -1,25 +1,27 @@
-// ============================================
-// FICHIER: src/components/pedagogy/shared/QuestionCard/style.js
-// VERSION COLLEGE - Styles adaptatifs pour QuestionCard
-// ============================================
+/**
+ * ============================================
+ * QUESTION CARD - STYLES (TypeScript Edition)
+ * Styles dynamiques basés sur Identity
+ * ============================================
+ */
 
 import { StyleSheet } from 'react-native';
-import {
-  spacing,
-  fontSize,
-  fontWeight,
-  collegeBorderRadius,
-  borderWidth as borderWidths,
-  collegeShadows,
-} from '@themes/tokens';
-import { grammarTheme, readingTheme, baseColors } from '@themes/colors';
+import type { Identity } from '@/themes/ThemeContext';
+import { spacing, fontSize, fontWeight, collegeBorderRadius, borderWidth as borderWidths } from '@/themes/tokens';
+import { grammarTheme, readingTheme, baseColors } from '@/themes/colors';
+import type { ModuleType } from './types';
 
-export const styles = StyleSheet.create({
-  // =================== QUESTION CARD BASE - COLLEGE ===================
+/**
+ * Génère les styles dynamiquement en fonction de l'Identity
+ * Note: Utilise encore grammarTheme/readingTheme legacy pour compatibilité
+ * TODO: Migrer ces thèmes vers identity.branding quand tous les modules seront refaits
+ */
+export const getStyles = (identity: Identity) => StyleSheet.create({
+  // =================== QUESTION CARD BASE ===================
   questionCard: {
     padding: spacing.lg + 2,
-    borderRadius: collegeBorderRadius.lg, // 16px - sobre
-    borderWidth: borderWidths.base, // Bordure fine
+    borderRadius: collegeBorderRadius.lg,
+    borderWidth: borderWidths.base,
     marginBottom: spacing.xl,
   },
 
@@ -33,6 +35,12 @@ export const styles = StyleSheet.create({
   questionCard_reading: {
     backgroundColor: readingTheme.questionBg,
     borderColor: readingTheme.questionBorder,
+  },
+
+  // Thème Vocab (utilisera identity quand disponible)
+  questionCard_vocab: {
+    backgroundColor: baseColors.gray50,
+    borderColor: baseColors.gray200,
   },
 
   // Dark mode
@@ -58,7 +66,7 @@ export const styles = StyleSheet.create({
   questionNumber: {
     width: 28,
     height: 28,
-    borderRadius: collegeBorderRadius.md, // 12px (semi-rond)
+    borderRadius: collegeBorderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing.sm + 2,
@@ -73,15 +81,19 @@ export const styles = StyleSheet.create({
     backgroundColor: readingTheme.questionNumberBg,
   },
 
+  questionNumber_vocab: {
+    backgroundColor: identity.branding.main,
+  },
+
   questionNumberText: {
     color: baseColors.white,
     fontSize: fontSize.sm,
-    fontWeight: fontWeight.extrabold,
+    fontWeight: fontWeight.extrabold as any,
   },
 
   questionText: {
     fontSize: fontSize.base,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.bold as any,
     color: grammarTheme.questionText,
     flex: 1,
   },
@@ -112,19 +124,19 @@ export const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
 
-  // =================== HINT SECTION - COLLEGE SOBRE ===================
+  // =================== HINT SECTION ===================
   hintSection: {
     marginTop: spacing.lg,
   },
 
   hintToggleButton: {
-    paddingVertical: spacing.md, // Plus de padding vertical
-    paddingHorizontal: spacing.xl, // Plus de padding horizontal
-    borderRadius: collegeBorderRadius.md, // 12px
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    borderRadius: collegeBorderRadius.md,
     borderWidth: 2,
-    backgroundColor: baseColors.transparent, // Outline transparent
+    backgroundColor: 'transparent',
     alignSelf: 'flex-start',
-    minHeight: 44, // Taille minimum tactile
+    minHeight: 44,
     justifyContent: 'center',
   },
 
@@ -136,14 +148,18 @@ export const styles = StyleSheet.create({
     borderColor: baseColors.gray400,
   },
 
+  hintToggleButton_vocab: {
+    borderColor: identity.branding.main,
+  },
+
   hintToggleButtonUsed: {
     opacity: 0.6,
   },
 
   hintToggleText: {
     color: baseColors.gray600,
-    fontSize: fontSize.base, // Plus gros
-    fontWeight: fontWeight.bold, // Plus bold
+    fontSize: fontSize.base,
+    fontWeight: fontWeight.bold as any,
   },
 
   hintContent: {
@@ -162,6 +178,10 @@ export const styles = StyleSheet.create({
     borderLeftColor: baseColors.blue500,
   },
 
+  hintContent_vocab: {
+    borderLeftColor: identity.branding.main,
+  },
+
   hintContentDark: {
     backgroundColor: baseColors.gray800,
   },
@@ -169,7 +189,7 @@ export const styles = StyleSheet.create({
   hintText: {
     fontSize: fontSize.sm,
     color: grammarTheme.questionText,
-    fontWeight: fontWeight.medium,
+    fontWeight: fontWeight.medium as any,
     lineHeight: 20,
   },
 
@@ -177,5 +197,3 @@ export const styles = StyleSheet.create({
     color: baseColors.gray200,
   },
 });
-
-export default styles;
