@@ -127,10 +127,10 @@ export const isValidLevel = async (
   }
 
   try {
-    const levels = await db.getAllAsync<{ level: number }>(
+    const levels = (await db.getAllAsync(
       `SELECT level FROM levels WHERE level = ? AND (target_audience = ? OR target_audience = 'all')`,
       [levelNumber, identityId]
-    );
+    )) as { level: number }[];
     return levels.length > 0;
   } catch (error) {
     console.error('Error in isValidLevel:', error);
@@ -150,10 +150,10 @@ export const getMaxLevels = async (
   }
 
   try {
-    const levels = await db.getAllAsync<{ level: number }>(
+    const levels = (await db.getAllAsync(
       `SELECT DISTINCT level FROM levels WHERE target_audience = ? OR target_audience = 'all' ORDER BY level DESC LIMIT 1`,
       [identityId]
-    );
+    )) as { level: number }[];
     return levels.length > 0 ? levels[0].level : 4;
   } catch (error) {
     console.error('Error in getMaxLevels:', error);
