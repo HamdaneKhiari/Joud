@@ -9,6 +9,24 @@ import { getIdentityPalette } from '@/database/queries';
 import { useState, useEffect } from 'react';
 
 // ============================================
+// CACHE GLOBAL (Optimisation)
+// ============================================
+
+// Cache simple pour éviter les requêtes SQL répétitives sur les palettes
+const globalPaletteCache: Record<string, string[]> = {};
+
+const getCachedPalette = async (db: any, identityId: string): Promise<string[]> => {
+  if (globalPaletteCache[identityId]) {
+    return globalPaletteCache[identityId];
+  }
+  const palette = await getIdentityPalette(db, identityId);
+  if (palette && palette.length > 0) {
+    globalPaletteCache[identityId] = palette;
+  }
+  return palette;
+};
+
+// ============================================
 // HOOKS POUR RÉCUPÉRER LES DONNÉES (DB)
 // ============================================
 
@@ -18,14 +36,15 @@ import { useState, useEffect } from 'react';
 export const useIdentityPalette = (): string[] => {
   const { db } = useUser();
   const { currentApp } = useTheme();
-  const [palette, setPalette] = useState<string[]>([]);
+  // Init avec le cache si dispo pour éviter le flash
+  const [palette, setPalette] = useState<string[]>(globalPaletteCache[currentApp] || []);
 
   useEffect(() => {
     const loadPalette = async () => {
       if (!db) return;
 
       try {
-        const colors = await getIdentityPalette(db, currentApp);
+        const colors = await getCachedPalette(db, currentApp);
         setPalette(colors);
       } catch (error) {
         console.error('Error loading identity palette:', error);
@@ -54,7 +73,7 @@ export const getModuleColor = async (
   }
 
   try {
-    const palette = await getIdentityPalette(db, identityId);
+    const palette = await getCachedPalette(db, identityId);
     
     if (palette.length === 0) {
       return '#34495E'; // Fallback
