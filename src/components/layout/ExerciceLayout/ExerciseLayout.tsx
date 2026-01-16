@@ -26,7 +26,6 @@ interface HeaderProps {
   variant?: 'exercise' | 'selection' | 'category' | 'subcategory' | 'simple';
   onBack?: () => void;
   levelTitle?: string;
-  levelColor?: string | string[];
   showLevelBadge?: boolean;
   title?: string;
   exerciseTitle?: string;
@@ -35,7 +34,6 @@ interface HeaderProps {
   subtitle?: string;
   decorativeIcon?: string | number | React.ReactElement;
   decorativePosition?: 'left' | 'center' | 'right';
-  gradientColors?: string[];
   showDecorative?: boolean;
   rightIcon?: string | React.ReactElement;
   onRightIconPress?: () => void;

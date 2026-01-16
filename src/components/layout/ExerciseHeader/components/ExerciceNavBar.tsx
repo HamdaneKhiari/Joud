@@ -16,7 +16,6 @@ import { tokens } from '@/themes/tokens';
 interface ExerciceNavBarProps {
   onBack?: () => void;
   levelTitle?: string;
-  levelColor?: string;
   showBadge?: boolean;
   rightIcon?: string | React.ReactElement;
   onRightIconPress?: () => void;
@@ -171,7 +170,6 @@ const createStyles = (identity: Identity) => {
 const ExerciceNavBar: React.FC<ExerciceNavBarProps> = ({
   onBack,
   levelTitle,
-  levelColor,
   showBadge = false,
   rightIcon,
   onRightIconPress
@@ -204,8 +202,9 @@ const ExerciceNavBar: React.FC<ExerciceNavBarProps> = ({
             style={[
               styles.levelBadge,
               {
-                backgroundColor: levelColor ||
-                  (identity.id === 'adult' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.3)')
+                backgroundColor: identity.id === 'adult'
+                  ? 'rgba(0, 0, 0, 0.15)'
+                  : 'rgba(255, 255, 255, 0.3)'
               }
             ]}
           >

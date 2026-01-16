@@ -25,7 +25,6 @@ interface ExerciseHeaderProps {
   variant?: 'exercise' | 'selection' | 'category' | 'subcategory' | 'simple';
   onBack?: () => void;
   levelTitle?: string;
-  levelColor?: string | string[];
   showLevelBadge?: boolean;
   title?: string;
   exerciseTitle?: string;
@@ -34,7 +33,6 @@ interface ExerciseHeaderProps {
   subtitle?: string;
   decorativeIcon?: string | number | React.ReactElement;
   decorativePosition?: 'left' | 'center' | 'right';
-  gradientColors?: string[];
   showDecorative?: boolean;
   rightIcon?: string | React.ReactElement;
   onRightIconPress?: () => void;
@@ -97,7 +95,6 @@ const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({
   variant = 'exercise',
   onBack,
   levelTitle,
-  levelColor,
   showLevelBadge = true,
   title,
   exerciseTitle,
@@ -106,7 +103,6 @@ const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({
   subtitle,
   decorativeIcon,
   decorativePosition = 'right',
-  gradientColors,
   showDecorative = true,
   rightIcon,
   onRightIconPress
@@ -114,13 +110,15 @@ const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({
   const { identity } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
 
-  // Déterminer le gradient correct (tableau de couleurs)
+  // ✅ WHITE LABEL: Utilise uniquement identity.branding.main pour le gradient
   const gradient = useMemo(() => {
-    if (gradientColors) return gradientColors;
-    if (Array.isArray(levelColor)) return levelColor;
-    const color = levelColor || identity.branding.main;
-    return [color, color];
-  }, [gradientColors, levelColor, identity]);
+    // Si l'identité a un gradient défini, on l'utilise
+    if (identity.ui.hasGradient && identity.ui.gradientColors) {
+      return identity.ui.gradientColors;
+    }
+    // Sinon, couleur unie basée sur identity.branding.main
+    return [identity.branding.main, identity.branding.main];
+  }, [identity]);
 
   // Badge niveau
   const displayBadge = showLevelBadge && levelTitle;
@@ -154,7 +152,6 @@ const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({
       <ExerciceNavBar
         onBack={onBack}
         levelTitle={levelTitle}
-        levelColor={Array.isArray(levelColor) ? levelColor[0] : levelColor}
         showBadge={displayBadge}
         rightIcon={rightIcon}
         onRightIconPress={onRightIconPress}
