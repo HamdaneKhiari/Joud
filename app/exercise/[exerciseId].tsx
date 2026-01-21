@@ -5,7 +5,7 @@ import { useTheme } from '@/themes/ThemeContext';
 
 // Import des écrans de contenu
 import VocabularyExerciseScreen from '@/screens/VocabularyScreen/VocabularyExerciceScreen';
-import SentenceScreen from '@/components/pedagogy/SentenceScreen';
+import SentenceScreen from '@/screens/SentenceScreen/VocabularyExerciceScreen';
 
 export default function ExerciseDispatcher() {
   const params = useLocalSearchParams();
