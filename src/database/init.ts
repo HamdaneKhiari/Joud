@@ -227,7 +227,9 @@ CREATE TABLE IF NOT EXISTS activity_log (
       [1, 'Couleurs', 'palette', '🎨', 'Toutes les couleurs', 3],
       [1, 'Food & Drinks', 'food', '🍽️', 'Nourriture et boissons', 4], // ✅ Nouvelle famille
       [2, 'Présent', 'clock-outline', '⏰', 'Le temps présent', 1],
-      [2, 'Futur', 'rocket', '🚀', 'Parler de l\'avenir', 2]
+      [2, 'Futur', 'rocket', '🚀', 'Parler de l\'avenir', 2],
+      // Module Phrases (ID 3)
+      [3, 'Au Restaurant', 'silverware-fork-knife', '🍽️', 'Commander et payer', 1]
     ];
 
     for (const fam of familiesSeed) {
@@ -283,6 +285,20 @@ CREATE TABLE IF NOT EXISTS activity_log (
         }),
         'easy',
         'animals,pets'
+      ],
+      // Contenu pour Phrases (Family ID 7 - Au Restaurant)
+      [
+        7, // ID généré auto après les 6 précédents
+        1,
+        'sentence',
+        JSON.stringify({
+          phrase_fr: "Je voudrais un café, s'il vous plaît.",
+          phrase_en: "I would like a coffee, please.",
+          concretement: "Formule standard pour commander poliment n'importe où.",
+          build: "I would like (Je voudrais) + [objet] + please"
+        }),
+        'easy',
+        'restaurant,politeness'
       ]
     ];
 

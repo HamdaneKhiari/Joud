@@ -213,6 +213,7 @@ const ExerciseSelectionScreen: React.FC<ExerciseSelectionScreenProps> = ({
         });
       } else {
         // Navigation vers FamilySelection
+        // Gère automatiquement 'vocab', 'phrases', etc. tant qu'ils ont des familles
         // Support React Navigation SI disponible
         if (navigation) {
           navigation.navigate('FamilySelection', {

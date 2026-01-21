@@ -5,6 +5,7 @@ import { useTheme } from '@/themes/ThemeContext';
 
 // Import des écrans de contenu
 import VocabularyExerciseScreen from '@/screens/VocabularyScreen/VocabularyExerciceScreen';
+import SentenceScreen from '@/components/pedagogy/SentenceScreen';
 
 export default function ExerciseDispatcher() {
   const params = useLocalSearchParams();
@@ -41,7 +42,7 @@ export default function ExerciseDispatcher() {
     navigation: navigation as any,
     route: {
       key: `exercise-${exerciseId}-${familyId}`,
-      name: 'VocabularyExercise',
+      name: exerciseId === 'phrases' ? 'SentenceExercise' : 'VocabularyExercise',
       params: {
         familyId,
         levelId: levelId || '1'
@@ -53,6 +54,9 @@ export default function ExerciseDispatcher() {
   switch (exerciseId) {
     case 'vocab':
       return <VocabularyExerciseScreen {...screenProps} />;
+
+    case 'phrases':
+      return <SentenceScreen {...screenProps} />;
     
     // Futurs cas à ajouter ici :
     // case 'grammar': return <GrammarExerciseScreen {...screenProps} />;
