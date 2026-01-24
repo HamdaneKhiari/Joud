@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '@/themes/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
-import { tokens, withOpacity } from '@/themes/tokens'; // Import de withOpacity
+import { tokens, withOpacity } from '@/themes/tokens'; 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ReadingCard from '../../components/pedagogy/reading/ReadingCard';
 import { useReadingState } from './hooks/useReadingState';
