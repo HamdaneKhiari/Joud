@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
+  ActivityIndicator,
   TextInput,
   TouchableOpacity,
   ScrollView,
@@ -11,10 +12,13 @@ import {
   Keyboard
 } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
+import { useUser } from '@/contexts/UserContext';
+import { tokens, withOpacity } from '@/themes/tokens';
+import { baseColors } from '@/themes/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-// Types pour les données JSON stockées en DB
+// --- TYPES ---
 interface SentenceData {
   phrase_fr: string;
   phrase_en: string;
@@ -23,34 +27,71 @@ interface SentenceData {
   audio?: string;
 }
 
-interface SentenceScreenProps {
-  // Props passées via la navigation ou le parent
-  content?: any; // Le contenu brut chargé depuis la DB
-  onNext?: (success: boolean) => void; // Callback pour passer à la suite
-  moduleColor?: string;
-}
-
-const SentenceScreen: React.FC<SentenceScreenProps> = () => {
+const SentenceScreen: React.FC = () => {
   const { identity } = useTheme();
+  const { db, user } = useUser();
   const route = useRoute();
   const navigation = useNavigation();
   
-  // Récupération des paramètres (simulée ici, à adapter selon ton routing)
-  // Dans la vraie vie, ces données viennent de useExerciseContent
   const params = route.params as any || {};
-  const moduleColor = params.moduleColor || identity.primary_color;
+  const familyId = params.familyId;
+  const levelId = params.levelId || 1;
+  const moduleColor = params.moduleColor || identity.branding.main;
   
-  // État local
+  const [loading, setLoading] = useState(true);
+  const [sentences, setSentences] = useState<SentenceData[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [inputText, setInputText] = useState('');
   const [showFeedback, setShowFeedback] = useState(false);
-  
-  // Données simulées si non fournies (pour tester l'UI sans DB connectée directement)
-  const data: SentenceData = params.data ? JSON.parse(params.data) : {
-    phrase_fr: "Je voudrais un café, s'il vous plaît.",
-    phrase_en: "I would like a coffee, please.",
-    concretement: "Utilisé pour commander poliment dans un café ou un restaurant.",
-    build: "I would like (Je voudrais) + a coffee (un café) + please"
+
+  // --- CONFIG WHITE LABEL ---
+  const uiConfig = useMemo(() => ({
+    cardRadius: identity.ui.cardRadius || tokens.borderRadius.lg,
+    buttonRadius: tokens.borderRadius.round, // Standardisé via tokens
+    borderWidth: 2, // Standardisé
+    successColor: baseColors.green500, // Standardisé via baseColors
+    errorColor: identity.ai.error,
+    warningColor: baseColors.orange500,
+    infoColor: baseColors.blue500,
+  }), [identity]);
+
+  const i18n = {
+    loading: identity.i18n?.loadingLabel || "Chargement...",
+    empty: identity.i18n?.emptySentences || "Aucune phrase trouvée.",
+    instruction: identity.i18n?.translateInstruction || "TRADUIS CETTE PHRASE",
+    placeholder: identity.i18n?.translatePlaceholder || "Écris en anglais ici...",
+    correctAnswer: identity.i18n?.correctAnswerLabel || "RÉPONSE CORRECTE",
+    concretely: identity.i18n?.concretelyLabel || "Concrètement",
+    structure: identity.i18n?.structureLabel || "La Structure",
+    showTranslation: identity.i18n?.showTranslationBtn || "Voir la traduction",
+    toReview: identity.i18n?.toReviewBtn || "À revoir",
+    gotIt: identity.i18n?.gotItBtn || "J'ai bon !",
   };
+
+  // --- LOGIQUE DB ---
+  useEffect(() => {
+    const loadContent = async () => {
+      if (!db || !familyId) return;
+      try {
+        setLoading(true);
+        const result = await db.getAllAsync<{data: string}>(
+          `SELECT data FROM content WHERE family_id = ?`,
+          [familyId]
+        );
+        if (result && result.length > 0) {
+          const parsed = result.map(item => JSON.parse(item.data));
+          setSentences(parsed);
+        }
+      } catch (error) {
+        console.error("Sentence load error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadContent();
+  }, [db, familyId]);
+
+  const data = sentences[currentIndex];
 
   const handleCheck = () => {
     Keyboard.dismiss();
@@ -58,131 +99,146 @@ const SentenceScreen: React.FC<SentenceScreenProps> = () => {
   };
 
   const handleResult = (success: boolean) => {
-    // Ici, on appellerait la logique pour passer à l'exercice suivant
-    // et sauvegarder le score (+1 si success)
-    console.log(success ? "Gagné" : "À revoir");
-    
-    // Reset pour le prochain (demo)
-    setInputText('');
-    setShowFeedback(false);
-    
-    if (params.onNext) {
-      params.onNext(success);
+    if (currentIndex < sentences.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+      setInputText('');
+      setShowFeedback(false);
     } else {
-      // Fallback navigation
+      if (db && familyId && user) {
+        db.runAsync(
+          `INSERT OR REPLACE INTO progress (user_id, family_id, level, completed, score, last_accessed) 
+           VALUES (?, ?, ?, 1, 100, ?)`,
+          [user.id, familyId, levelId, new Date().toISOString()]
+        ).catch(console.error);
+      }
       navigation.goBack();
     }
   };
 
+  if (loading) return (
+    <View style={[styles.loadingContainer, { backgroundColor: identity.branding.surface }]}>
+      <ActivityIndicator size="large" color={moduleColor} />
+      <Text style={{ color: identity.text.secondary, marginTop: 10 }}>{i18n.loading}</Text>
+    </View>
+  );
+
+  if (!data) return (
+    <View style={[styles.loadingContainer, { backgroundColor: identity.branding.surface }]}>
+      <Text style={{ color: identity.text.primary }}>{i18n.empty}</Text>
+    </View>
+  );
+
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: identity.surface_color }}
+      style={{ flex: 1, backgroundColor: identity.branding.surface }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
     >
-      <ScrollView 
-        contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* --- HEADER : La consigne --- */}
+      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+        
+        {/* HEADER */}
         <View style={styles.headerContainer}>
-          <Text style={[styles.instructionLabel, { color: identity.text_on_main_color + '80' }]}>
-            TRADUIS CETTE PHRASE
+          <Text style={[styles.instructionLabel, { color: identity.text.secondary }]}>
+            {i18n.instruction} ({currentIndex + 1}/{sentences.length})
           </Text>
-          <View style={[styles.phraseCard, { backgroundColor: identity.ui_has_gradient ? 'transparent' : '#fff' }]}>
-            <Text style={[styles.phraseFr, { color: identity.text_on_main_color }]}>
-              {data.phrase_fr}
-            </Text>
-          </View>
+          <Text style={[
+            styles.phraseFr, 
+            { 
+              color: identity.text.primary, 
+              lineHeight: tokens.fontSize.xxl * 1.3 
+            }
+          ]}>
+            {data.phrase_fr}
+          </Text>
         </View>
 
-        {/* --- ZONE DE SAISIE (Phase 1) --- */}
+        {/* INPUT AREA */}
         <View style={styles.inputContainer}>
           <TextInput
             style={[
               styles.textInput,
               { 
                 borderColor: showFeedback 
-                  ? (inputText.toLowerCase().trim() === data.phrase_en.toLowerCase().trim() ? '#4CAF50' : moduleColor) 
-                  : '#E0E0E0',
-                backgroundColor: identity.theme_mode === 'dark' ? '#1E293B' : '#FFFFFF',
-                color: identity.text_on_main_color
+                  ? (inputText.toLowerCase().trim() === data.phrase_en.toLowerCase().trim() ? uiConfig.successColor : moduleColor) 
+                  : withOpacity(identity.text.tertiary, 0.2),
+                backgroundColor: identity.branding.surface,
+                color: identity.text.primary,
+                borderRadius: uiConfig.cardRadius,
+                borderWidth: uiConfig.borderWidth,
               }
             ]}
-            placeholder="Écris en anglais ici..."
-            placeholderTextColor="#9CA3AF"
+            placeholder={i18n.placeholder}
+            placeholderTextColor={identity.text.tertiary}
             multiline
             value={inputText}
             onChangeText={setInputText}
-            editable={!showFeedback} // On bloque l'édit en phase correction pour comparer
+            editable={!showFeedback}
           />
         </View>
 
-        {/* --- FEEDBACK (Phase 2) --- */}
+        {/* FEEDBACK SECTION */}
         {showFeedback && (
           <View style={styles.feedbackContainer}>
-            
-            {/* La Réponse Officielle */}
             <View style={styles.correctionBlock}>
-              <Text style={styles.correctionLabel}>RÉPONSE CORRECTE</Text>
+              <Text style={[styles.correctionLabel, { color: identity.text.secondary }]}>{i18n.correctAnswer}</Text>
               <Text style={[styles.correctionText, { color: moduleColor }]}>
                 {data.phrase_en}
               </Text>
             </View>
 
-            {/* Bloc Concrètement */}
-            <View style={[styles.infoCard, { backgroundColor: identity.theme_mode === 'dark' ? '#334155' : '#F8FAFC' }]}>
+            {/* Info Cards */}
+            <View style={[styles.infoCard, { backgroundColor: withOpacity(moduleColor, 0.05), borderRadius: uiConfig.cardRadius }]}>
               <View style={styles.infoHeader}>
-                <MaterialCommunityIcons name="lightbulb-on" size={20} color="#F59E0B" />
-                <Text style={styles.infoTitle}>Concrètement</Text>
+                <MaterialCommunityIcons name="lightbulb-on" size={20} color={uiConfig.warningColor} />
+                <Text style={[styles.infoTitle, { color: identity.text.secondary }]}>{i18n.concretely}</Text>
               </View>
-              <Text style={[styles.infoText, { color: identity.text_on_main_color }]}>
-                {data.concretement}
-              </Text>
+              <Text style={[styles.infoText, { color: identity.text.primary, lineHeight: 24 }]}>{data.concretement}</Text>
             </View>
 
-            {/* Bloc Build */}
-            <View style={[styles.infoCard, { backgroundColor: identity.theme_mode === 'dark' ? '#334155' : '#F8FAFC' }]}>
+            <View style={[styles.infoCard, { backgroundColor: withOpacity(moduleColor, 0.05), borderRadius: uiConfig.cardRadius }]}>
               <View style={styles.infoHeader}>
-                <MaterialCommunityIcons name="toy-brick" size={20} color="#3B82F6" />
-                <Text style={styles.infoTitle}>La Structure</Text>
+                <MaterialCommunityIcons name="toy-brick" size={20} color={uiConfig.infoColor} />
+                <Text style={[styles.infoTitle, { color: identity.text.secondary }]}>{i18n.structure}</Text>
               </View>
-              <Text style={[styles.infoText, { color: identity.text_on_main_color }]}>
-                {data.build}
-              </Text>
+              <Text style={[styles.infoText, { color: identity.text.primary, lineHeight: 24 }]}>{data.build}</Text>
             </View>
-
           </View>
         )}
       </ScrollView>
 
-      {/* --- FOOTER ACTIONS --- */}
-      <View style={[styles.footer, { backgroundColor: identity.surface_color, borderTopColor: '#E2E8F0' }]}>
+      {/* FOOTER ACTIONS */}
+      <View style={[styles.footer, { 
+        backgroundColor: identity.branding.surface, 
+        borderTopColor: withOpacity(identity.text.tertiary, 0.1),
+        paddingBottom: Platform.OS === 'ios' ? 40 : 20
+      }]}>
         {!showFeedback ? (
           <TouchableOpacity
-            style={[styles.mainButton, { backgroundColor: moduleColor }]}
+            style={[styles.mainButton, { backgroundColor: moduleColor, borderRadius: uiConfig.buttonRadius }]}
             onPress={handleCheck}
-            activeOpacity={0.8}
           >
-            <Text style={styles.mainButtonText}>Voir la traduction</Text>
+            <Text style={styles.mainButtonText}>{i18n.showTranslation}</Text>
             <MaterialCommunityIcons name="eye" size={20} color="#FFF" style={{ marginLeft: 8 }} />
           </TouchableOpacity>
         ) : (
           <View style={styles.decisionRow}>
             <TouchableOpacity
-              style={[styles.decisionButton, styles.retryButton]}
+              style={[
+                styles.decisionButton, 
+                { borderRadius: uiConfig.buttonRadius, backgroundColor: withOpacity(identity.text.tertiary, 0.1), borderWidth: 1, borderColor: withOpacity(identity.text.tertiary, 0.2) }
+              ]}
               onPress={() => handleResult(false)}
             >
-              <MaterialCommunityIcons name="refresh" size={20} color="#64748B" />
-              <Text style={styles.retryButtonText}>À revoir</Text>
+              <MaterialCommunityIcons name="refresh" size={20} color={identity.text.secondary} />
+              <Text style={[styles.retryButtonText, { color: identity.text.secondary }]}>{i18n.toReview}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.decisionButton, styles.successButton]}
+              style={[styles.decisionButton, { backgroundColor: uiConfig.successColor, borderRadius: uiConfig.buttonRadius }]}
               onPress={() => handleResult(true)}
             >
               <MaterialCommunityIcons name="check" size={20} color="#FFF" />
-              <Text style={styles.successButtonText}>J'ai bon !</Text>
+              <Text style={styles.successButtonText}>{i18n.gotIt}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -192,130 +248,28 @@ const SentenceScreen: React.FC<SentenceScreenProps> = () => {
 };
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    padding: 20,
-    paddingBottom: 100, // Espace pour le footer
-  },
-  headerContainer: {
-    marginBottom: 20,
-  },
-  instructionLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    marginBottom: 8,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  phraseCard: {
-    paddingVertical: 10,
-  },
-  phraseFr: {
-    fontSize: 24,
-    fontWeight: '600',
-    lineHeight: 32,
-  },
-  inputContainer: {
-    marginBottom: 24,
-  },
-  textInput: {
-    borderWidth: 2,
-    borderRadius: 16,
-    padding: 16,
-    fontSize: 18,
-    minHeight: 100,
-    textAlignVertical: 'top',
-  },
-  feedbackContainer: {
-    gap: 16,
-  },
-  correctionBlock: {
-    marginBottom: 8,
-  },
-  correctionLabel: {
-    fontSize: 12,
-    color: '#64748B',
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  correctionText: {
-    fontSize: 22,
-    fontWeight: '700',
-  },
-  infoCard: {
-    padding: 16,
-    borderRadius: 12,
-    gap: 8,
-  },
-  infoHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  infoTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#64748B',
-  },
-  infoText: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 20,
-    borderTopWidth: 1,
-  },
-  mainButton: {
-    flexDirection: 'row',
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  mainButtonText: {
-    color: '#FFF',
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  decisionRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  decisionButton: {
-    flex: 1,
-    height: 56,
-    borderRadius: 28,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  retryButton: {
-    backgroundColor: '#F1F5F9',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-  },
-  retryButtonText: {
-    color: '#64748B',
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  successButton: {
-    backgroundColor: '#22C55E', // Green standard
-  },
-  successButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '700',
-  },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  scrollContainer: { padding: tokens.layout.screenPadding, paddingBottom: 150 },
+  headerContainer: { marginBottom: tokens.layout.sectionGap },
+  instructionLabel: { fontSize: tokens.fontSize.xs, fontWeight: tokens.fontWeight.bold, marginBottom: tokens.spacing.sm, letterSpacing: 1, textTransform: 'uppercase' },
+  phraseFr: { fontSize: tokens.fontSize.xxl, fontWeight: tokens.fontWeight.semibold },
+  inputContainer: { marginBottom: tokens.layout.sectionGap },
+  textInput: { padding: tokens.spacing.md, fontSize: tokens.fontSize.lg, minHeight: 120, textAlignVertical: 'top' },
+  feedbackContainer: { gap: tokens.spacing.md },
+  correctionBlock: { marginBottom: tokens.spacing.sm },
+  correctionLabel: { fontSize: tokens.fontSize.xs, fontWeight: tokens.fontWeight.bold, marginBottom: tokens.spacing.xs },
+  correctionText: { fontSize: tokens.fontSize.xl, fontWeight: tokens.fontWeight.bold },
+  infoCard: { padding: tokens.spacing.md, gap: tokens.spacing.sm },
+  infoHeader: { flexDirection: 'row', alignItems: 'center', gap: tokens.spacing.sm },
+  infoTitle: { fontSize: tokens.fontSize.sm, fontWeight: tokens.fontWeight.bold },
+  infoText: { fontSize: tokens.fontSize.md },
+  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: tokens.layout.screenPadding, borderTopWidth: 1 },
+  mainButton: { flexDirection: 'row', height: 56, alignItems: 'center', justifyContent: 'center', ...tokens.shadows.md },
+  mainButtonText: { color: '#FFF', fontSize: tokens.fontSize.lg, fontWeight: tokens.fontWeight.bold },
+  decisionRow: { flexDirection: 'row', gap: tokens.spacing.md },
+  decisionButton: { flex: 1, height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: tokens.spacing.sm },
+  retryButtonText: { fontSize: tokens.fontSize.md, fontWeight: tokens.fontWeight.bold },
+  successButtonText: { color: '#FFF', fontSize: tokens.fontSize.md, fontWeight: tokens.fontWeight.bold },
 });
 
 export default SentenceScreen;

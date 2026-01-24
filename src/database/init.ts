@@ -209,7 +209,7 @@ CREATE TABLE IF NOT EXISTS activity_log (
       // [id, name, slug, is_core, target_audience, icon, order_index, description, display_title, display_description, icon_name]
       [1, 'Vocabulary', 'vocab', 1, 'all', 'book', 1, 'Enrichis ton vocabulaire', 'Vocabulaire', 'Enrichis ton vocabulaire', 'book-alphabet'],
       [2, 'Grammar', 'grammar', 1, 'all', 'lightbulb', 2, 'Maîtrise les règles', 'Grammaire', 'Maîtrise les règles', 'format-list-bulleted'],
-      [3, 'Sentences', 'phrases', 1, 'all', 'message-square', 3, 'Structure et syntaxe', 'Phrases', 'Structure et syntaxe', 'format-quote-close'],
+      [3, 'Sentences', 'phrases', 1, 'all', 'message-text', 3, 'Structure et syntaxe', 'Phrases', 'Structure et syntaxe', 'format-quote-close'],
       [4, 'Reading', 'reading', 1, 'all', 'file-text', 4, 'Analyse de textes', 'Lecture', 'Analyse de textes', 'text-box'],
       [5, 'Conversation', 'conversation', 1, 'all', 'message-circle', 5, 'Pratique dialogues', 'Conversation', 'Pratique dialogues', 'chat'],
       [6, 'Games', 'games', 1, 'all', 'gamepad', 6, 'Exercices ludiques', 'Jeux', 'Exercices ludiques', 'gamepad-variant'],
