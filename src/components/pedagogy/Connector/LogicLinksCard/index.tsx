@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import ExerciseValidation from '../../../exercise-common/ExerciseValidation';
 import { useExerciseValidationState } from '../../../../hooks/useExerciseValidationState';
-import { generateFeedbackMessage } from '../../../../utils/exerciseFeedback';
+import { generateFeedbackMessage } from '../../../../utils/feedback';
 import { useTheme } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 import { LogicLinksCardProps } from '../types';
