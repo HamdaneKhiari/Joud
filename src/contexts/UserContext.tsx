@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { SQLiteDatabase } from 'expo-sqlite';
 import { initDatabase } from '@/database/init';
 
@@ -57,6 +58,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     () => ({ db, user, loading, updateAudience }),
     [db, user, loading]
   );
+
+  // ✅ FIX: Bloquer le rendu tant que la DB n'est pas prête
+  // Cela empêche ThemeContext de faire des SELECT pendant que initDatabase fait des DROP/INSERT
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+        <ActivityIndicator size="large" color="#3498DB" />
+      </View>
+    );
+  }
 
   return (
     <UserContext.Provider value={contextValue}>

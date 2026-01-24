@@ -3,8 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/themes/ThemeContext';
 import { tokens, withOpacity } from '@/themes/tokens';
-import { baseColors } from '@/themes/colors';
-import ExerciseValidation from '../../../exercise-common/ExerciseValidation';
+import ExerciseValidation from '../../../common/ExerciseValidation';
 import { generateFeedbackMessage } from '../../../../utils/feedback';
 import QuestionCard from '../../shared/QuestionCard';
 
@@ -52,12 +51,10 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
 }) => {
   const { identity } = useTheme();
 
-  // Couleur de la marque (White Label)
   const brandColor = color || identity.branding.main;
   const surfaceColor = identity.branding.surface;
   const cardRadius = identity.ui.cardRadius || tokens.borderRadius.lg;
 
-  // État de validation
   const validationState = useMemo(() => {
     if (!isValidated) return 'idle';
     if (isCorrect) return 'success';
@@ -66,11 +63,9 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
   }, [isValidated, isCorrect, attemptCount, maxAttempts]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       
-      {/* ========================================
-          SECTION 1 : PASSAGE (Texte à lire)
-      ======================================== */}
+      {/* SECTION 1 : PASSAGE */}
       <View style={[
         styles.passageCard,
         {
@@ -79,25 +74,29 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
           borderRadius: cardRadius,
         }
       ]}>
-        {/* Header avec icône */}
         <View style={styles.headerRow}>
           <View style={[styles.iconBadge, { backgroundColor: withOpacity(brandColor, 0.1) }]}>
             <Ionicons name="book-outline" size={20} color={brandColor} />
           </View>
-          <Text style={[styles.cardTitle, { color: identity.text.primary }]}>
-            Reading Passage
+          <Text style={[styles.cardTitle, { color: identity.text.primary, fontFamily: identity.typography?.families?.primary }]}>
+            {identity.i18n?.readingPassageLabel || "Reading Passage"}
           </Text>
         </View>
 
-        {/* Contenu du passage */}
         <View style={[styles.passageBox, { backgroundColor: withOpacity(brandColor, 0.04) }]}>
           <View style={[styles.accentLine, { backgroundColor: brandColor }]} />
-          <Text style={[styles.passageText, { color: identity.text.primary }]}>
+          <Text style={[
+            styles.passageText, 
+            { 
+              color: identity.text.primary,
+              fontSize: tokens.fontSize.base,
+              lineHeight: tokens.fontSize.base * 1.6 // ✅ Ratio dynamique
+            }
+          ]}>
             {question.passage}
           </Text>
         </View>
 
-        {/* Bouton Audio (optionnel) */}
         {question.audio_url && (
           <TouchableOpacity
             onPress={() => onPlayAudio(question.audio_url!)}
@@ -109,19 +108,16 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
               color={brandColor}
             />
             <Text style={[styles.audioText, { color: brandColor }]}>
-              {isPlaying ? "En cours..." : "Écouter le texte"}
+              {isPlaying ? (identity.i18n?.playingLabel || "En cours...") : (identity.i18n?.listenLabel || "Écouter le texte")}
             </Text>
           </TouchableOpacity>
         )}
       </View>
 
-      {/* ========================================
-          SECTION 2 : QUESTION + OPTIONS
-          Utilisation de QuestionCard (cohérence)
-      ======================================== */}
+      {/* SECTION 2 : QUESTION */}
       <View style={styles.questionSection}>
         <Text style={[styles.questionLabel, { color: identity.text.secondary }]}>
-          QUESTION
+          {identity.i18n?.questionHeader || "QUESTION"}
         </Text>
 
         <QuestionCard
@@ -137,9 +133,6 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
         />
       </View>
 
-      {/* ========================================
-          SECTION 3 : VALIDATION & FEEDBACK
-      ======================================== */}
       <ExerciseValidation
         state={validationState}
         attemptCount={attemptCount}
@@ -163,17 +156,11 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   content: {
     padding: tokens.layout.screenPadding,
-    paddingBottom: 120, // Espace pour le footer de validation
+    paddingBottom: 140, 
   },
-
-  // ========================================
-  // STYLES PASSAGE CARD
-  // ========================================
   passageCard: {
     padding: tokens.spacing.lg,
     borderTopWidth: 4,
@@ -204,16 +191,13 @@ const styles = StyleSheet.create({
     width: 3,
     borderRadius: tokens.borderRadius.round,
   },
-  passageText: {
-    flex: 1,
-    fontSize: tokens.fontSize.base,
-    lineHeight: 24,
-  },
+  passageText: { flex: 1 },
   audioButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: tokens.spacing.sm,
-    padding: tokens.spacing.md,
+    paddingVertical: tokens.spacing.sm,
+    paddingHorizontal: tokens.spacing.md,
     borderRadius: tokens.borderRadius.round,
     borderWidth: 1,
     marginTop: tokens.spacing.lg,
@@ -223,13 +207,7 @@ const styles = StyleSheet.create({
     fontWeight: tokens.fontWeight.semibold,
     fontSize: tokens.fontSize.sm,
   },
-
-  // ========================================
-  // STYLES QUESTION SECTION
-  // ========================================
-  questionSection: {
-    marginBottom: tokens.spacing.xl,
-  },
+  questionSection: { marginBottom: tokens.spacing.xl },
   questionLabel: {
     fontSize: tokens.fontSize.xs,
     fontWeight: tokens.fontWeight.extrabold,

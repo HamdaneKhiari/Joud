@@ -6,6 +6,8 @@ import { useTheme } from '@/themes/ThemeContext';
 // Import des écrans de contenu
 import VocabularyExerciseScreen from '@/screens/VocabularyScreen/VocabularyExerciceScreen';
 import SentenceScreen from '@/screens/SentenceScreen/VocabularyExerciceScreen';
+import ConnectorExerciseScreen from '@/screens/ConnectorScreen/ConnectorExerciseScreen';
+import ReadingExerciseScreen from '@/screens/ReadingScreen/ReadingExerciseScreen';
 
 export default function ExerciseDispatcher() {
   const params = useLocalSearchParams();
@@ -58,8 +60,15 @@ export default function ExerciseDispatcher() {
     case 'phrases':
       return <SentenceScreen {...screenProps} />;
     
-    // Futurs cas à ajouter ici :
-    // case 'grammar': return <GrammarExerciseScreen {...screenProps} />;
+    case 'connector':
+      return <ConnectorExerciseScreen {...screenProps} />;
+
+    case 'reading':
+      return <ReadingExerciseScreen {...screenProps} />;
+    
+    case 'grammar':
+      // On réutilise le moteur Connector qui gère parfaitement les QCM (Logic) et textes à trous
+      return <ConnectorExerciseScreen {...screenProps} />;
     
     default:
       return (

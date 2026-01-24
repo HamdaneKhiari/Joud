@@ -5,6 +5,15 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
   try {
     const db = await SQLite.openDatabaseAsync('janacore.db');
 
+    // ✅ FIX: Activation du mode WAL pour éviter les erreurs "database is locked"
+    await db.execAsync('PRAGMA journal_mode = WAL;');
+    
+    // ✅ FIX: Augmentation du timeout (5s) pour attendre si la DB est occupée par une autre requête
+    await db.execAsync('PRAGMA busy_timeout = 5000;');
+
+    // ✅ FIX: Petit délai pour laisser les connexions fantômes se fermer (Hack de stabilité dev)
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     // Activation des contraintes d'intégrité
     await db.execAsync(`PRAGMA foreign_keys = ON;`);
 
@@ -229,7 +238,11 @@ CREATE TABLE IF NOT EXISTS activity_log (
       [2, 'Présent', 'clock-outline', '⏰', 'Le temps présent', 1],
       [2, 'Futur', 'rocket', '🚀', 'Parler de l\'avenir', 2],
       // Module Phrases (ID 3)
-      [3, 'Au Restaurant', 'silverware-fork-knife', '🍽️', 'Commander et payer', 1]
+      [3, 'Au Restaurant', 'silverware-fork-knife', '🍽️', 'Commander et payer', 1],
+      // ✅ Module Connector (ID 9) - Activé pour Lycée & Adulte
+      [9, 'Logical Links', 'link-variant', '🔗', 'Connecteurs logiques', 1],
+      [9, 'Sentence Fusion', 'merge', '🔀', 'Fusionner des phrases', 2],
+      [9, 'Rephrasing', 'refresh', '♻️', 'Reformulation', 3]
     ];
 
     for (const fam of familiesSeed) {
@@ -299,6 +312,63 @@ CREATE TABLE IF NOT EXISTS activity_log (
         }),
         'easy',
         'restaurant,politeness'
+      ],
+      // ✅ Contenu pour Connector (Family ID 8 - Logical Links)
+      [
+        8, // ID estimé (après les 7 précédents)
+        1,
+        'logic',
+        JSON.stringify({
+          sentence: "I wanted to go for a walk, _____ it started raining.",
+          translation: "Je voulais aller me promener, mais il a commencé à pleuvoir.",
+          options: ["and", "but", "so", "because"],
+          correctAnswer: "but"
+        }),
+        'medium',
+        'grammar,connectors'
+      ],
+      // ✅ Contenu pour Connector (Family ID 9 - Sentence Fusion)
+      [
+        9, // ID estimé
+        1,
+        'fusion',
+        JSON.stringify({
+          phrase1: "It was raining.",
+          phrase2: "We stayed inside.",
+          hint: "Use 'so'",
+          correctAnswer: "It was raining so we stayed inside.",
+          translation: "Il pleuvait donc nous sommes restés à l'intérieur."
+        }),
+        'hard',
+        'grammar,fusion'
+      ],
+      // ✅ Contenu pour Connector (Family ID 10 - Rephrasing)
+      [
+        10, // ID estimé
+        1,
+        'rephrasing',
+        JSON.stringify({
+          baseSentence: "It is necessary for you to study.",
+          instruction: "Start with 'You must'",
+          correctAnswer: "You must study.",
+          translation: "Tu dois étudier."
+        }),
+        'hard',
+        'grammar,rephrasing'
+      ],
+      // ✅ Contenu pour Grammar (Family ID 5 - Présent)
+      [
+        5, // ID estimé (après les 4 familles de vocabulaire)
+        1,
+        'logic', // On utilise le type 'logic' (QCM) du moteur Connector
+        JSON.stringify({
+          sentence: "He _____ football every Sunday.",
+          translation: "Il joue au football tous les dimanches.",
+          options: ["play", "plays", "playing", "played"],
+          correctAnswer: "plays"
+        }),
+        'easy',
+        'grammar,present_simple'
       ]
     ];
 
@@ -473,6 +543,7 @@ CREATE TABLE IF NOT EXISTS activity_log (
       ['fastvocab', 'adult', 'Fast Vocabulary ⚡', 'Apprentissage accéléré', 'flash'],
       ['expressions', 'adult', 'Expressions', 'Locutions courantes', 'format-quote-open'],
       ['grammar', 'adult', 'Grammaire', 'Structures avancées', 'format-list-bulleted'],
+      ['connector', 'adult', 'Connecteurs Logiques', 'Articuler ses idées', 'connection'],
       ['reading', 'adult', 'Lecture', 'Textes professionnels', 'text-box'],
       ['conversation', 'adult', 'Conversations', 'Échanges professionnels', 'chat'],
       ['assessment', 'adult', 'Évaluation', 'Bilan de compétences', 'clipboard-check']
@@ -639,7 +710,7 @@ CREATE TABLE IF NOT EXISTS activity_log (
     }
 
     // ADULT: Modules standard pour niveaux 1-6, vocab+phrases pour niveau 7
-    const adultStandardModules = ['vocab', 'fastvocab', 'expressions', 'grammar', 'reading', 'conversation', 'assessment'];
+    const adultStandardModules = ['vocab', 'fastvocab', 'expressions', 'grammar', 'connector', 'reading', 'conversation', 'assessment'];
     for (const moduleSlug of adultStandardModules) {
       // Disponible pour niveaux 1-6
       for (let level = 1; level <= 6; level++) {

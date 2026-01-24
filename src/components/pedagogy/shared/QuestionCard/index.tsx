@@ -1,14 +1,11 @@
-// ============================================
-// index.tsx - QuestionCard 100% White Label
-// ============================================
-
 import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/themes/ThemeContext';
 import { getStyles } from './styles';
 import type { QuestionCardProps } from './types';
-import OptionButton from '../OptionButton';
+import OptionButton from './OptionButton';
+import FeedbackBanner from './feedbackBanner'; // ✅ Ajouté
 
 const QuestionCard: React.FC<QuestionCardProps> = ({
   question,
@@ -17,9 +14,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   externalSelectedOption,
   externalIsAnswered,
   externalIsCorrect,
+  externalShowFeedback, // ✅ Récupéré des props
   onAnswer,
   hint,
-  // 🆕 Props i18n optionnelles (avec fallback)
+  feedbackMessage,
   i18n,
 }) => {
   const { identity } = useTheme();
@@ -28,17 +26,18 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   const brandColor = moduleColor || identity.branding.main;
   const styles = useMemo(() => getStyles(identity, brandColor), [identity, brandColor]);
 
-  // 🆕 Textes i18n avec fallback vers identity ou français par défaut
   const texts = {
     hintShow: i18n?.hintShow || identity.i18n?.hintShow || "Besoin d'aide ?",
     hintHide: i18n?.hintHide || identity.i18n?.hintHide || "Masquer l'indice",
   };
 
-  // 🆕 Icônes avec fallback vers identity ou icônes par défaut
   const icons = {
     hint: identity.icons?.hint || "bulb-outline",
     hideHint: identity.icons?.hideHint || "eye-off-outline",
   };
+
+  // ✅ Transforme l'index en lettre (0 -> A, 1 -> B, etc.)
+  const getLetter = (index: number) => String.fromCharCode(65 + index);
 
   return (
     <View style={styles.questionCard}>
@@ -48,15 +47,24 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         {options.map((option, index) => (
           <OptionButton
             key={index}
-            label={option}
+            letter={getLetter(index)} // ✅ Passé au nouveau OptionButton
+            text={option}
             isSelected={externalSelectedOption === option}
-            isAnswered={externalIsAnswered}
-            isCorrect={externalIsCorrect}
+            isAnswered={externalIsAnswered || false}
+            isCorrect={externalIsCorrect || false}
             brandColor={brandColor}
             onPress={() => onAnswer(option)}
           />
         ))}
       </View>
+
+      {/* ✅ Intégration du Feedback Banner comme dans l'ancienne version JS */}
+      {externalShowFeedback && (
+        <FeedbackBanner
+          isCorrect={externalIsCorrect || false}
+          message={feedbackMessage || (externalIsCorrect ? "Correct !" : "Essaie encore !")}
+        />
+      )}
 
       {hint && (
         <View style={styles.hintSection}>
@@ -86,4 +94,3 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
 };
 
 export default QuestionCard;
-

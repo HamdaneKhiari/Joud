@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import ExerciseValidation from '../../../exercise-common/ExerciseValidation';
-import { useExerciseValidationState } from '../../../../hooks/useExerciseValidationState';
+import ExerciseValidation from '../../../common/ExerciseValidation';
+import { useExerciseValidationState } from '../../../../hooks/exercises/useExerciceValidationState';
 import { generateFeedbackMessage } from '../../../../utils/feedback';
 import { useTheme } from '@/themes/ThemeContext';
 // ✅ Imports corrigés pour correspondre à tes fichiers

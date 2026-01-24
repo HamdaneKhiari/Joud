@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput, ScrollView, StyleSheet } from 'react-native';
-import ExerciseValidation from '../../../exercise-common/ExerciseValidation';
-import { useExerciseValidationState } from '../../../../hooks/useExerciseValidationState';
+import ExerciseValidation from '../../../common/ExerciseValidation';
+import { useExerciseValidationState } from '../../../../hooks/exercises/useExerciceValidationState';
 import { generateFeedbackMessage } from '../../../../utils/feedback';
 import { useTheme } from '@/themes/ThemeContext';
 // ✅ Imports mis en conformité avec tes fichiers
