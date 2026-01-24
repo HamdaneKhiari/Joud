@@ -1,199 +1,81 @@
-/**
- * ============================================
- * QUESTION CARD - STYLES (TypeScript Edition)
- * Styles dynamiques basés sur Identity
- * ============================================
- */
+// ============================================
+// styles.ts - Styles 100% White Label
+// ============================================
 
 import { StyleSheet } from 'react-native';
+import { spacing, withOpacity, shadows } from '@/themes/tokens';
 import type { Identity } from '@/themes/ThemeContext';
-import { spacing, fontSize, fontWeight, collegeBorderRadius, borderWidth as borderWidths } from '@/themes/tokens';
-import { grammarTheme, readingTheme, baseColors } from '@/themes/colors';
-import type { ModuleType } from './types';
 
-/**
- * Génère les styles dynamiquement en fonction de l'Identity
- * Note: Utilise encore grammarTheme/readingTheme legacy pour compatibilité
- * TODO: Migrer ces thèmes vers identity.branding quand tous les modules seront refaits
- */
-export const getStyles = (identity: Identity) => StyleSheet.create({
-  // =================== QUESTION CARD BASE ===================
-  questionCard: {
-    padding: spacing.lg + 2,
-    borderRadius: collegeBorderRadius.lg,
-    borderWidth: borderWidths.base,
-    marginBottom: spacing.xl,
-  },
+export const getStyles = (identity: Identity, brandColor: string) => {
+  // 🆕 Typography depuis identity avec fallback
+  const typography = identity.typography || {
+    sizes: { base: 16, md: 18, sm: 14, lg: 15 },
+    weights: { bold: '700', regular: '400' },
+    lineHeights: { normal: 1.5, relaxed: 1.6 },
+  };
 
-  // Thème Grammar (violet)
-  questionCard_grammar: {
-    backgroundColor: grammarTheme.questionBg,
-    borderColor: grammarTheme.questionBorder,
-  },
+  return StyleSheet.create({
+    questionCard: {
+      padding: spacing.lg,
+      borderRadius: identity.ui.cardRadius || 16,
+      borderWidth: 2,
+      backgroundColor: identity.branding.surface || '#FFFFFF',
+      borderColor: withOpacity(identity.text.tertiary, 0.1),
+      marginBottom: spacing.xl,
+      // 🆕 Ombre depuis tokens au lieu de valeurs en dur
+      ...shadows.sm,
+    },
+    questionText: {
+      // 🆕 Typography 100% dynamique
+      fontSize: typography.sizes.md,
+      fontWeight: typography.weights.bold,
+      color: identity.text.primary,
+      marginBottom: spacing.lg,
+      lineHeight: typography.sizes.md * (typography.lineHeights.normal || 1.5),
+      // 🆕 Font family si définie
+      ...(typography.families?.primary && { fontFamily: typography.families.primary }),
+    },
+    optionsContainer: {
+      gap: spacing.md,
+    },
+    hintSection: {
+      marginTop: spacing.xl,
+      borderTopWidth: 1,
+      borderTopColor: withOpacity(identity.text.tertiary, 0.05),
+      paddingTop: spacing.lg,
+    },
+    hintToggleButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,  // 🆕 Utilise spacing.sm au lieu de 8
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      borderRadius: identity.ui?.buttonRadius || 20,  // 🆕 Rayon personnalisable
+      borderWidth: 1.5,
+      borderColor: brandColor,
+      alignSelf: 'flex-start',
+    },
+    hintToggleText: {
+      color: brandColor,
+      fontWeight: typography.weights.bold,
+      fontSize: typography.sizes.sm,
+      ...(typography.families?.primary && { fontFamily: typography.families.primary }),
+    },
+    hintContent: {
+      marginTop: spacing.md,
+      padding: spacing.lg,
+      borderRadius: identity.ui?.cardRadius ? identity.ui.cardRadius * 0.75 : 12,  // 🆕 Proportionnel au cardRadius
+      backgroundColor: withOpacity(brandColor, 0.05),
+      borderLeftWidth: 4,
+      borderLeftColor: brandColor,
+    },
+   hintText: {
+  color: identity.text.primary,
+  fontSize: typography.sizes.lg,
+  lineHeight: typography.sizes.lg * (typography.lineHeights.relaxed || 1.6),
+  fontStyle: typography.styles?.hint || 'normal',  // ✅ Dynamique avec fallback
+  ...(typography.families?.secondary && { fontFamily: typography.families.secondary }),
+}
+  });
+};
 
-  // Thème Reading (bleu)
-  questionCard_reading: {
-    backgroundColor: readingTheme.questionBg,
-    borderColor: readingTheme.questionBorder,
-  },
-
-  // Thème Vocab (utilisera identity quand disponible)
-  questionCard_vocab: {
-    backgroundColor: baseColors.gray50,
-    borderColor: baseColors.gray200,
-  },
-
-  // Dark mode
-  questionCardDark: {
-    backgroundColor: readingTheme.questionBgDark,
-    borderColor: readingTheme.questionBorderDark,
-  },
-
-  // =================== QUESTION HEADER ===================
-  questionHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: spacing.md,
-  },
-
-  questionTextContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    flex: 1,
-  },
-
-  questionNumber: {
-    width: 28,
-    height: 28,
-    borderRadius: collegeBorderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.sm + 2,
-    flexShrink: 0,
-  },
-
-  questionNumber_grammar: {
-    backgroundColor: grammarTheme.primary,
-  },
-
-  questionNumber_reading: {
-    backgroundColor: readingTheme.questionNumberBg,
-  },
-
-  questionNumber_vocab: {
-    backgroundColor: identity.branding.main,
-  },
-
-  questionNumberText: {
-    color: baseColors.white,
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.extrabold as any,
-  },
-
-  questionText: {
-    fontSize: fontSize.base,
-    fontWeight: fontWeight.bold as any,
-    color: grammarTheme.questionText,
-    flex: 1,
-  },
-
-  questionTextDark: {
-    color: readingTheme.questionTextDark,
-  },
-
-  // =================== STARS INDICATOR ===================
-  starsIndicator: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-    marginLeft: spacing.md,
-  },
-
-  star: {
-    fontSize: fontSize.md,
-    opacity: readingTheme.starInactive,
-  },
-
-  starActive: {
-    opacity: readingTheme.starActive,
-  },
-
-  // =================== OPTIONS CONTAINER ===================
-  optionsContainer: {
-    gap: spacing.sm,
-    marginTop: spacing.md,
-  },
-
-  // =================== HINT SECTION ===================
-  hintSection: {
-    marginTop: spacing.lg,
-  },
-
-  hintToggleButton: {
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
-    borderRadius: collegeBorderRadius.md,
-    borderWidth: 2,
-    backgroundColor: 'transparent',
-    alignSelf: 'flex-start',
-    minHeight: 44,
-    justifyContent: 'center',
-  },
-
-  hintToggleButton_grammar: {
-    borderColor: grammarTheme.primary,
-  },
-
-  hintToggleButton_reading: {
-    borderColor: baseColors.gray400,
-  },
-
-  hintToggleButton_vocab: {
-    borderColor: identity.branding.main,
-  },
-
-  hintToggleButtonUsed: {
-    opacity: 0.6,
-  },
-
-  hintToggleText: {
-    color: baseColors.gray600,
-    fontSize: fontSize.base,
-    fontWeight: fontWeight.bold as any,
-  },
-
-  hintContent: {
-    marginTop: spacing.md,
-    padding: spacing.lg,
-    borderRadius: collegeBorderRadius.md,
-    borderLeftWidth: borderWidths.heavy,
-    backgroundColor: baseColors.gray50,
-  },
-
-  hintContent_grammar: {
-    borderLeftColor: grammarTheme.primary,
-  },
-
-  hintContent_reading: {
-    borderLeftColor: baseColors.blue500,
-  },
-
-  hintContent_vocab: {
-    borderLeftColor: identity.branding.main,
-  },
-
-  hintContentDark: {
-    backgroundColor: baseColors.gray800,
-  },
-
-  hintText: {
-    fontSize: fontSize.sm,
-    color: grammarTheme.questionText,
-    fontWeight: fontWeight.medium as any,
-    lineHeight: 20,
-  },
-
-  hintTextDark: {
-    color: baseColors.gray200,
-  },
-});

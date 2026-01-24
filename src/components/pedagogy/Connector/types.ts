@@ -7,7 +7,7 @@ export interface BaseConnectorProps {
   onRetry: () => void;
   onNext: () => void;
   isLastQuestion: boolean;
-  color: string;
+  color?: string;
 }
 
 export interface LogicQuestion {

@@ -1,186 +1,89 @@
-/**
- * ============================================
- * QUESTION CARD (TypeScript Premium Edition)
- * Composant universel pour questions à choix multiples
- * Version No-Media avec types stricts
- * ============================================
- */
+// ============================================
+// index.tsx - QuestionCard 100% White Label
+// ============================================
 
 import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/themes/ThemeContext';
 import { getStyles } from './styles';
 import type { QuestionCardProps } from './types';
 import OptionButton from '../OptionButton';
-import FeedbackBanner from '../FeedbackBanner';
 
-/**
- * QuestionCard - Composant universel pour questions à choix multiples
- *
- * ✅ ENTIÈREMENT CONTRÔLÉ PAR LE PARENT
- *
- * Le parent gère:
- * - Quand une option est sélectionnée
- * - Quand afficher le feedback
- * - Les états correct/incorrect
- * - Les tentatives et resets
- *
- * QuestionCard ne fait que:
- * - Afficher les options
- * - Appeler onAnswer(letter) au clic
- * - Afficher le feedback si demandé
- *
- * Utilisable dans: Grammar, Reading, Vocab, etc.
- */
 const QuestionCard: React.FC<QuestionCardProps> = ({
-  questionIndex,
   question,
   options,
-  correctAnswer,
-  moduleType = 'grammar',
-
-  // Props de contrôle (du parent)
-  externalSelectedOption = null,
-  externalIsAnswered = false,
-  externalShowFeedback = false,
-  externalIsCorrect = false,
+  moduleColor,
+  externalSelectedOption,
+  externalIsAnswered,
+  externalIsCorrect,
   onAnswer,
-
-  // Props optionnels
-  stars = 3,
-  showStars = false,
   hint,
-  hintUsed = false,
-  onToggleHint,
-  feedbackMessage,
-  theme = 'light',
+  // 🆕 Props i18n optionnelles (avec fallback)
+  i18n,
 }) => {
   const { identity } = useTheme();
-  const styles = useMemo(() => getStyles(identity), [identity]);
-
   const [showHint, setShowHint] = useState(false);
-  const isDark = theme === 'dark';
+  
+  const brandColor = moduleColor || identity.branding.main;
+  const styles = useMemo(() => getStyles(identity, brandColor), [identity, brandColor]);
 
-  /**
-   * ✅ Quand une option est cliquée:
-   * On juste appelle le callback parent
-   * C'est TOUT! Pas de logique de validation ici!
-   */
-  const handleAnswer = (letter: string) => {
-    // Si la question est déjà répondue, on ignore
-    if (externalIsAnswered) return;
-
-    // Juste appeler le parent
-    onAnswer(letter);
+  // 🆕 Textes i18n avec fallback vers identity ou français par défaut
+  const texts = {
+    hintShow: i18n?.hintShow || identity.i18n?.hintShow || "Besoin d'aide ?",
+    hintHide: i18n?.hintHide || identity.i18n?.hintHide || "Masquer l'indice",
   };
 
-  const handleToggleHint = () => {
-    setShowHint(!showHint);
-    if (!showHint && !hintUsed && onToggleHint) {
-      onToggleHint();
-    }
-  };
-
-  const renderStars = () => {
-    if (!showStars) return null;
-
-    return (
-      <View style={styles.starsIndicator}>
-        {[1, 2, 3].map((star) => (
-          <Text key={star} style={[styles.star, star <= stars && styles.starActive]}>
-            ⭐
-          </Text>
-        ))}
-      </View>
-    );
+  // 🆕 Icônes avec fallback vers identity ou icônes par défaut
+  const icons = {
+    hint: identity.icons?.hint || "bulb-outline",
+    hideHint: identity.icons?.hideHint || "eye-off-outline",
   };
 
   return (
-    <View
-      style={[
-        styles.questionCard,
-        styles[`questionCard_${moduleType}` as keyof typeof styles],
-        isDark && styles.questionCardDark,
-      ]}
-    >
-      {/* Header avec étoiles */}
-      <View style={styles.questionHeader}>
-        <View style={styles.questionTextContainer}>
-          <View style={[styles.questionNumber, styles[`questionNumber_${moduleType}` as keyof typeof styles]]}>
-            <Text style={styles.questionNumberText}>{questionIndex + 1}</Text>
-          </View>
-          <Text style={[styles.questionText, isDark && styles.questionTextDark]}>
-            {question}
-          </Text>
-        </View>
-        {renderStars()}
-      </View>
+    <View style={styles.questionCard}>
+      <Text style={styles.questionText}>{question}</Text>
 
-      {/* Options */}
       <View style={styles.optionsContainer}>
-        {options.map((option, index) => {
-          const letter = String.fromCharCode(65 + index); // A, B, C, D
-          const isSelected = externalSelectedOption === letter;
-          const isCorrectOption = letter === correctAnswer;
-
-          return (
-            <OptionButton
-              key={option}
-              letter={letter}
-              text={option}
-              isSelected={isSelected}
-              isCorrect={isCorrectOption}
-              isAnswered={externalIsAnswered}
-              moduleType={moduleType}
-              theme={theme}
-              onPress={() => handleAnswer(letter)}
-            />
-          );
-        })}
+        {options.map((option, index) => (
+          <OptionButton
+            key={index}
+            label={option}
+            isSelected={externalSelectedOption === option}
+            isAnswered={externalIsAnswered}
+            isCorrect={externalIsCorrect}
+            brandColor={brandColor}
+            onPress={() => onAnswer(option)}
+          />
+        ))}
       </View>
 
-      {/* Section Indice */}
       {hint && (
         <View style={styles.hintSection}>
-          <TouchableOpacity
-            style={[
-              styles.hintToggleButton,
-              styles[`hintToggleButton_${moduleType}` as keyof typeof styles],
-              hintUsed && styles.hintToggleButtonUsed,
-            ]}
-            onPress={handleToggleHint}
+          <TouchableOpacity 
+            style={styles.hintToggleButton}
+            onPress={() => setShowHint(!showHint)}
           >
+            <Ionicons 
+              name={showHint ? icons.hideHint : icons.hint} 
+              size={identity.ui?.iconSize || 18}
+              color={brandColor} 
+            />
             <Text style={styles.hintToggleText}>
-              {showHint ? 'Hide hint' : 'Show hint'}
+              {showHint ? texts.hintHide : texts.hintShow}
             </Text>
           </TouchableOpacity>
 
           {showHint && (
-            <View
-              style={[
-                styles.hintContent,
-                styles[`hintContent_${moduleType}` as keyof typeof styles],
-                isDark && styles.hintContentDark,
-              ]}
-            >
-              <Text style={[styles.hintText, isDark && styles.hintTextDark]}>{hint}</Text>
+            <View style={styles.hintContent}>
+              <Text style={styles.hintText}>{hint}</Text>
             </View>
           )}
         </View>
-      )}
-
-      {/* ✅ NO-MEDIA: Feedback sans emoji */}
-      {externalShowFeedback && (
-        <FeedbackBanner
-          isCorrect={externalIsCorrect}
-          message={
-            feedbackMessage ||
-            (externalIsCorrect ? 'CORRECT' : 'ESSAIE ENCORE')
-          }
-        />
       )}
     </View>
   );
 };
 
 export default QuestionCard;
+

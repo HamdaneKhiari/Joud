@@ -3,6 +3,7 @@ import { log } from '../../../../utils/logUtils';
 import LogicLinksCard from '../LogicLinksCard';
 import SentenceFusionCard from '../SentenceFusionCard';
 import RephrasingCard from '../RephrasingCard';
+import { useTheme } from '@/themes/ThemeContext'; // ✅ Ajouté pour le fallback couleur
 import { 
   ConnectorCardRendererProps, 
   LogicQuestion, 
@@ -21,10 +22,15 @@ const ConnectorCardRenderer: React.FC<ConnectorCardRendererProps> = ({
   states,
   handlers,
 }) => {
+  const { identity } = useTheme(); // ✅ Récupération du thème
+
   if (!currentQuestion) {
     log.error('ConnectorCardRenderer: currentQuestion is null');
     return null;
   }
+
+  // ✅ Fallback : si la famille n'a pas de couleur, on prend la couleur principale de l'identité
+  const displayColor = exerciseFamily?.color || identity.branding.main;
 
   switch (exerciseType) {
     case 'logic':
@@ -39,7 +45,7 @@ const ConnectorCardRenderer: React.FC<ConnectorCardRendererProps> = ({
           maxAttempts={MAX_ATTEMPTS}
           {...handlers.logic}
           isLastQuestion={isLastQuestion}
-          color={exerciseFamily.color}
+          color={displayColor} // ✅ Utilisation de la couleur sécurisée
         />
       );
 
@@ -55,7 +61,7 @@ const ConnectorCardRenderer: React.FC<ConnectorCardRendererProps> = ({
           maxAttempts={MAX_ATTEMPTS}
           {...handlers.fusion}
           isLastQuestion={isLastQuestion}
-          color={exerciseFamily.color}
+          color={displayColor} // ✅ Utilisation de la couleur sécurisée
         />
       );
 
@@ -71,7 +77,7 @@ const ConnectorCardRenderer: React.FC<ConnectorCardRendererProps> = ({
           maxAttempts={MAX_ATTEMPTS}
           {...handlers.rephrasing}
           isLastQuestion={isLastQuestion}
-          color={exerciseFamily.color}
+          color={displayColor} // ✅ Utilisation de la couleur sécurisée
         />
       );
 

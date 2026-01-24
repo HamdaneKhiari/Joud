@@ -4,7 +4,9 @@ import ExerciseValidation from '../../../exercise-common/ExerciseValidation';
 import { useExerciseValidationState } from '../../../../hooks/useExerciseValidationState';
 import { generateFeedbackMessage } from '../../../../utils/feedback';
 import { useTheme } from '@/themes/ThemeContext';
-import { tokens } from '@/themes/tokens';
+// ✅ Imports mis en conformité avec tes fichiers
+import { tokens, withOpacity } from '@/themes/tokens';
+import { baseColors } from '@/themes/colors'; 
 import { RephrasingCardProps } from '../types';
 
 const RephrasingCard: React.FC<RephrasingCardProps> = ({
@@ -31,45 +33,66 @@ const RephrasingCard: React.FC<RephrasingCardProps> = ({
     !!userAnswer && userAnswer.trim().length > 0
   );
 
+  // Définition de la couleur de marque (soit celle du module, soit le main de l'identity)
+  const brandColor = color || identity.branding.main;
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={[
         styles.card, 
         { 
-          borderTopColor: color,
+          backgroundColor: identity.branding.surface || baseColors.white,
+          borderTopColor: brandColor,
           borderRadius: identity.ui.cardRadius || tokens.borderRadius.lg
         }
       ]}>
-        <View style={[styles.colorBar, { backgroundColor: color }]} />
+        <View style={[styles.colorBar, { backgroundColor: brandColor }]} />
 
         <View style={styles.titleSection}>
           <Text style={styles.titleIcon}>♻️</Text>
           <Text style={[styles.titleText, { color: identity.text.primary }]}>Rephrase the sentence</Text>
         </View>
 
-        {/* Phrase de base */}
-        <View style={[styles.baseSentenceBox, { borderColor: color }]}>
+        {/* Phrase de base : Fond dynamique basé sur le thème */}
+        <View style={[
+          styles.baseSentenceBox, 
+          { 
+            borderColor: withOpacity(brandColor, 0.3),
+            backgroundColor: withOpacity(brandColor, 0.05)
+          }
+        ]}>
           <Text style={[styles.baseSentenceLabel, { color: identity.text.secondary }]}>Original sentence:</Text>
           <Text style={[styles.baseSentenceText, { color: identity.text.primary }]}>{question.baseSentence}</Text>
         </View>
 
         {/* Instruction avec le mot à utiliser */}
         {question.instruction && (
-          <View style={[styles.instructionBox, { backgroundColor: color + '15', borderColor: color }]}>
+          <View style={[
+            styles.instructionBox, 
+            { 
+              backgroundColor: withOpacity(brandColor, 0.1), 
+              borderColor: brandColor 
+            }
+          ]}>
             <Text style={styles.instructionIcon}>📌</Text>
-            <Text style={[styles.instructionText, { color: color }]}>{question.instruction}</Text>
+            <Text style={[styles.instructionText, { color: brandColor }]}>{question.instruction}</Text>
           </View>
         )}
 
         {/* Input pour la réponse */}
-        <View style={[styles.answerSection, { borderColor: color }]}>
+        <View style={styles.answerSection}>
           <Text style={[styles.answerLabel, { color: identity.text.primary }]}>Your rephrased sentence:</Text>
           <TextInput
             style={[
               styles.answerInput,
-              { borderColor: color, color: identity.text.primary },
-              isValidated && isCorrect && styles.answerInputCorrect,
-              isValidated && !isCorrect && canSkip && styles.answerInputIncorrect,
+              { 
+                borderColor: withOpacity(identity.text.tertiary, 0.2), 
+                color: identity.text.primary,
+                backgroundColor: identity.branding.surface || baseColors.white,
+                borderRadius: tokens.borderRadius.md
+              },
+              isValidated && isCorrect && { borderColor: baseColors.green500, backgroundColor: baseColors.green50 },
+              isValidated && !isCorrect && canSkip && { borderColor: identity.ai.error, backgroundColor: withOpacity(identity.ai.error, 0.05) },
             ]}
             value={userAnswer || ''}
             onChangeText={onAnswer}
@@ -82,17 +105,20 @@ const RephrasingCard: React.FC<RephrasingCardProps> = ({
           />
         </View>
 
-        {/* Afficher la correction si validé et faux */}
+        {/* Correction si validé et faux */}
         {isValidated && !isCorrect && canSkip && (
-          <View style={styles.correctAnswerBox}>
-            <Text style={styles.correctAnswerLabel}>✅ Correct answer:</Text>
-            <Text style={styles.correctAnswerText}>{question.correctAnswer}</Text>
+          <View style={[
+            styles.correctAnswerBox, 
+            { backgroundColor: baseColors.green50, borderColor: baseColors.green500 }
+          ]}>
+            <Text style={[styles.correctAnswerLabel, { color: baseColors.green700 }]}>✅ Correct answer:</Text>
+            <Text style={[styles.correctAnswerText, { color: baseColors.green700 }]}>{question.correctAnswer}</Text>
           </View>
         )}
 
         {/* Traduction */}
         {question.translation && (
-          <View style={styles.translationBox}>
+          <View style={[styles.translationBox, { borderTopColor: withOpacity(identity.text.tertiary, 0.1) }]}>
             <Text style={[styles.translationText, { color: identity.text.secondary }]}>{question.translation}</Text>
           </View>
         )}
@@ -123,128 +149,103 @@ const RephrasingCard: React.FC<RephrasingCardProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  container: { flex: 1 },
+  content: { 
+    padding: tokens.layout.screenPadding, 
+    paddingBottom: 100 
   },
-  content: {
-    padding: tokens.layout.screenPadding,
-    paddingBottom: 100,
+  card: { 
+    padding: tokens.layout.cardPadding, 
+    ...tokens.shadows.md, 
+    borderTopWidth: tokens.borderWidth.thick, 
+    marginBottom: tokens.layout.sectionGap 
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    padding: tokens.layout.cardPadding,
-    ...tokens.shadows.md,
-    borderTopWidth: tokens.borderWidth.thick,
-    marginBottom: tokens.layout.sectionGap,
+  colorBar: { 
+    height: 4, 
+    width: 40, 
+    borderRadius: tokens.borderRadius.round, 
+    marginBottom: tokens.spacing.lg 
   },
-  colorBar: {
-    height: 4,
-    width: 40,
-    borderRadius: tokens.borderRadius.round,
-    marginBottom: tokens.spacing.lg,
+  titleSection: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: tokens.spacing.sm, 
+    marginBottom: tokens.layout.sectionGap 
   },
-  titleSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: tokens.spacing.sm,
-    marginBottom: tokens.layout.sectionGap,
+  titleIcon: { fontSize: tokens.fontSize.xl },
+  titleText: { 
+    fontSize: tokens.fontSize.lg, 
+    fontWeight: tokens.fontWeight.semibold, 
+    flex: 1 
   },
-  titleIcon: {
-    fontSize: tokens.fontSize.xl,
+  baseSentenceBox: { 
+    padding: tokens.spacing.lg, 
+    borderWidth: 1, 
+    borderRadius: tokens.borderRadius.md, 
+    marginBottom: tokens.spacing.md, 
+    borderStyle: 'dashed' 
   },
-  titleText: {
-    fontSize: tokens.fontSize.lg,
-    fontWeight: tokens.fontWeight.semibold,
-    flex: 1,
+  baseSentenceLabel: { 
+    fontSize: tokens.fontSize.xs, 
+    fontWeight: tokens.fontWeight.bold, 
+    marginBottom: tokens.spacing.xs, 
+    textTransform: 'uppercase' 
   },
-  baseSentenceBox: {
-    padding: tokens.spacing.lg,
-    borderWidth: 1,
-    borderRadius: tokens.borderRadius.md,
-    marginBottom: tokens.spacing.md,
-    backgroundColor: '#F8FAFC',
-    borderStyle: 'dashed',
+  baseSentenceText: { 
+    fontSize: tokens.fontSize.lg, 
+    fontWeight: tokens.fontWeight.medium 
   },
-  baseSentenceLabel: {
-    fontSize: tokens.fontSize.xs,
-    fontWeight: tokens.fontWeight.bold,
-    marginBottom: tokens.spacing.xs,
-    textTransform: 'uppercase',
+  instructionBox: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: tokens.spacing.sm, 
+    marginBottom: tokens.layout.sectionGap, 
+    padding: tokens.spacing.md, 
+    borderRadius: tokens.borderRadius.md, 
+    borderWidth: 1 
   },
-  baseSentenceText: {
-    fontSize: tokens.fontSize.lg,
-    fontWeight: tokens.fontWeight.medium,
+  instructionIcon: { fontSize: tokens.fontSize.md },
+  instructionText: { 
+    fontSize: tokens.fontSize.md, 
+    fontWeight: tokens.fontWeight.bold 
   },
-  instructionBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: tokens.spacing.sm,
-    marginBottom: tokens.layout.sectionGap,
-    padding: tokens.spacing.md,
-    borderRadius: tokens.borderRadius.md,
-    borderWidth: 1,
+  answerSection: { marginBottom: tokens.layout.sectionGap },
+  answerLabel: { 
+    fontSize: tokens.fontSize.sm, 
+    fontWeight: tokens.fontWeight.bold, 
+    marginBottom: tokens.spacing.sm 
   },
-  instructionIcon: {
-    fontSize: tokens.fontSize.md,
+  answerInput: { 
+    borderWidth: 2, 
+    padding: tokens.spacing.md, 
+    fontSize: tokens.fontSize.md, 
+    minHeight: 80, 
+    textAlignVertical: 'top' 
   },
-  instructionText: {
-    fontSize: tokens.fontSize.md,
-    fontWeight: tokens.fontWeight.bold,
+  correctAnswerBox: { 
+    marginTop: -tokens.spacing.md, 
+    marginBottom: tokens.layout.sectionGap, 
+    padding: tokens.spacing.md, 
+    borderRadius: tokens.borderRadius.md, 
+    borderWidth: 1 
   },
-  answerSection: {
-    marginBottom: tokens.layout.sectionGap,
+  correctAnswerLabel: { 
+    fontSize: tokens.fontSize.xs, 
+    fontWeight: tokens.fontWeight.bold, 
+    marginBottom: tokens.spacing.xs 
   },
-  answerLabel: {
-    fontSize: tokens.fontSize.sm,
-    fontWeight: tokens.fontWeight.bold,
-    marginBottom: tokens.spacing.sm,
+  correctAnswerText: { 
+    fontSize: tokens.fontSize.md, 
+    fontWeight: tokens.fontWeight.bold 
   },
-  answerInput: {
-    borderWidth: 2,
-    borderRadius: tokens.borderRadius.md,
-    padding: tokens.spacing.md,
-    fontSize: tokens.fontSize.md,
-    minHeight: 80,
-    textAlignVertical: 'top',
-    backgroundColor: '#FFFFFF',
+  translationBox: { 
+    alignItems: 'center', 
+    paddingTop: tokens.spacing.sm, 
+    borderTopWidth: 1 
   },
-  answerInputCorrect: {
-    borderColor: '#22C55E',
-    backgroundColor: '#F0FDF4',
-  },
-  answerInputIncorrect: {
-    borderColor: '#EF4444',
-    backgroundColor: '#FEF2F2',
-  },
-  correctAnswerBox: {
-    marginTop: -tokens.spacing.md,
-    marginBottom: tokens.layout.sectionGap,
-    padding: tokens.spacing.md,
-    backgroundColor: '#F0FDF4',
-    borderRadius: tokens.borderRadius.md,
-    borderWidth: 1,
-    borderColor: '#22C55E',
-  },
-  correctAnswerLabel: {
-    fontSize: tokens.fontSize.xs,
-    fontWeight: tokens.fontWeight.bold,
-    color: '#15803D',
-    marginBottom: tokens.spacing.xs,
-  },
-  correctAnswerText: {
-    fontSize: tokens.fontSize.md,
-    fontWeight: tokens.fontWeight.bold,
-    color: '#15803D',
-  },
-  translationBox: {
-    alignItems: 'center',
-    paddingTop: tokens.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-  },
-  translationText: {
-    fontSize: tokens.fontSize.sm,
-    fontStyle: 'italic',
+  translationText: { 
+    fontSize: tokens.fontSize.sm, 
+    fontStyle: 'italic' 
   },
 });
 

@@ -3,10 +3,19 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/themes/ThemeContext';
 import { tokens, withOpacity } from '@/themes/tokens';
-import { ReadingQuestionData } from '../types';
-import ExerciseValidation from '../../../common/ExerciseValidation';
+import { baseColors } from '@/themes/colors';
+import ExerciseValidation from '../../../exercise-common/ExerciseValidation';
 import { generateFeedbackMessage } from '../../../../utils/feedback';
 import QuestionCard from '../../shared/QuestionCard';
+
+interface ReadingQuestionData {
+  passage: string;
+  question_text: string;
+  options: string[];
+  correct_answer: string;
+  audio_url?: string;
+  hint?: string;
+}
 
 interface ReadingCardProps {
   question: ReadingQuestionData;
@@ -22,7 +31,7 @@ interface ReadingCardProps {
   onNext: () => void;
   onRetry: () => void;
   isLastQuestion: boolean;
-  color?: string; 
+  color?: string;
 }
 
 const ReadingCard: React.FC<ReadingCardProps> = ({
@@ -43,198 +52,190 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
 }) => {
   const { identity } = useTheme();
 
-  // 1. CALCULS MÉMORISÉS (Performance & Clean Code)
-  const canSkip = attemptCount >= maxAttempts && !isCorrect;
-  
-  // Utilise fromCodePoint pour SonarLint et centralise la lettre correcte
-  const correctLetter = useMemo(() => 
-    String.fromCodePoint(65 + question.correctAnswer), 
-  [question.correctAnswer]);
-
-  const validationState = useMemo(() => {
-    if (!isValidated) return 'initial';
-    if (isCorrect) return 'correct';
-    if (canSkip) return 'skip';
-    return 'incorrect';
-  }, [isValidated, isCorrect, canSkip]);
-
-  // 2. THEMING DYNAMIQUE (White Label)
-  const primaryColor = color || identity.branding.main; 
+  // Couleur de la marque (White Label)
+  const brandColor = color || identity.branding.main;
   const surfaceColor = identity.branding.surface;
   const cardRadius = identity.ui.cardRadius || tokens.borderRadius.lg;
+
+  // État de validation
+  const validationState = useMemo(() => {
+    if (!isValidated) return 'idle';
+    if (isCorrect) return 'success';
+    if (attemptCount >= maxAttempts) return 'error';
+    return 'retry';
+  }, [isValidated, isCorrect, attemptCount, maxAttempts]);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       
-      {/* --- SECTION TEXTE (PASSAGE) --- */}
+      {/* ========================================
+          SECTION 1 : PASSAGE (Texte à lire)
+      ======================================== */}
       <View style={[
-        styles.card, 
-        { backgroundColor: surfaceColor, borderRadius: cardRadius }
-      ]}>
-        <View style={[styles.header, { borderBottomColor: withOpacity(identity.text.tertiary, 0.2) }]}>
-          <View style={[styles.iconContainer, { backgroundColor: primaryColor }]}>
-            <Ionicons name="book-outline" size={tokens.fontSize.lg} color={identity.text.onMain} />
-          </View>
-          <Text style={[styles.headerTitle, { color: identity.text.primary }]}>Reading Passage</Text>
-        </View>
-
-        <View style={styles.passageContainer}>
-          <View style={[styles.decorativeBorder, { backgroundColor: primaryColor }]} />
-          
-          <View style={[styles.textContainer, { backgroundColor: withOpacity(primaryColor, 0.05) }]}>
-            <Text style={[styles.passageText, { color: identity.text.primary }]}>
-              {question.text}
-            </Text>
-          </View>
-        </View>
-
-        {/* Bouton Audio */}
-        {question.audio && (
-          <View style={styles.audioContainer}>
-            <TouchableOpacity
-              style={[
-                styles.audioButton,
-                { borderColor: primaryColor },
-                isPlaying && { backgroundColor: primaryColor }
-              ]}
-              onPress={() => onPlayAudio(question.audio!)}
-            >
-              <Ionicons
-                name={isPlaying ? "pause" : "volume-high"}
-                size={tokens.fontSize.lg}
-                color={isPlaying ? identity.text.onMain : primaryColor}
-              />
-              <Text style={[
-                styles.audioText,
-                { color: isPlaying ? identity.text.onMain : primaryColor }
-              ]}>
-                {isPlaying ? 'Playing...' : 'Listen to passage'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
-
-      {/* --- SECTION QUESTION --- */}
-      <View style={[
-        styles.card, 
-        { 
-          backgroundColor: surfaceColor, 
-          borderRadius: cardRadius, 
-          marginTop: tokens.layout.sectionGap 
+        styles.passageCard,
+        {
+          backgroundColor: surfaceColor,
+          borderTopColor: brandColor,
+          borderRadius: cardRadius,
         }
       ]}>
-        <View style={styles.questionHeader}>
-          <Text style={[styles.questionTitle, { color: identity.text.primary }]}>
-            {question.question}
+        {/* Header avec icône */}
+        <View style={styles.headerRow}>
+          <View style={[styles.iconBadge, { backgroundColor: withOpacity(brandColor, 0.1) }]}>
+            <Ionicons name="book-outline" size={20} color={brandColor} />
+          </View>
+          <Text style={[styles.cardTitle, { color: identity.text.primary }]}>
+            Reading Passage
           </Text>
         </View>
 
-        <View style={styles.optionsContainer}>
-          <QuestionCard
-            questionIndex={0}
-            question={question.question}
-            options={question.options}
-            correctAnswer={correctLetter}
-            moduleType="reading"
-            showStars={false}
-            hint={question.hint}
-            externalSelectedOption={selectedOption}
-            externalIsAnswered={isValidated}
-            externalShowFeedback={isValidated && (isCorrect || canSkip)}
-            externalIsCorrect={isCorrect}
-            onAnswer={onAnswer}
-          />
+        {/* Contenu du passage */}
+        <View style={[styles.passageBox, { backgroundColor: withOpacity(brandColor, 0.04) }]}>
+          <View style={[styles.accentLine, { backgroundColor: brandColor }]} />
+          <Text style={[styles.passageText, { color: identity.text.primary }]}>
+            {question.passage}
+          </Text>
         </View>
+
+        {/* Bouton Audio (optionnel) */}
+        {question.audio_url && (
+          <TouchableOpacity
+            onPress={() => onPlayAudio(question.audio_url!)}
+            style={[styles.audioButton, { borderColor: brandColor }]}
+          >
+            <Ionicons
+              name={isPlaying ? "pause" : "play-circle"}
+              size={22}
+              color={brandColor}
+            />
+            <Text style={[styles.audioText, { color: brandColor }]}>
+              {isPlaying ? "En cours..." : "Écouter le texte"}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
-      {/* --- VALIDATION & FEEDBACK --- */}
+      {/* ========================================
+          SECTION 2 : QUESTION + OPTIONS
+          Utilisation de QuestionCard (cohérence)
+      ======================================== */}
+      <View style={styles.questionSection}>
+        <Text style={[styles.questionLabel, { color: identity.text.secondary }]}>
+          QUESTION
+        </Text>
+
+        <QuestionCard
+          question={question.question_text}
+          options={question.options}
+          correctAnswer={question.correct_answer}
+          moduleColor={brandColor}
+          externalSelectedOption={selectedOption}
+          externalIsAnswered={isValidated}
+          externalIsCorrect={isCorrect}
+          onAnswer={onAnswer}
+          hint={question.hint}
+        />
+      </View>
+
+      {/* ========================================
+          SECTION 3 : VALIDATION & FEEDBACK
+      ======================================== */}
       <ExerciseValidation
         state={validationState}
         attemptCount={attemptCount}
         maxAttempts={maxAttempts}
-        correctAnswer={correctLetter}
         onValidate={onValidate}
         onNext={onNext}
         onRetry={onRetry}
-        onSkip={onNext}
-        disabled={!selectedOption && !isValidated}
+        disabled={!selectedOption}
         isLastQuestion={isLastQuestion}
-        // Correction de l'erreur TS: cast en any ou transformation du null en undefined
         feedbackMessage={generateFeedbackMessage(
           isValidated,
           isCorrect,
-          canSkip,
-          correctLetter,
+          attemptCount >= maxAttempts,
+          question.correct_answer,
           attemptCount,
           maxAttempts
-        ) as any} 
+        )}
       />
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  content: { 
-    padding: tokens.layout.screenPadding, 
-    paddingBottom: 120 // Espace pour ne pas être caché par le footer
+  container: {
+    flex: 1,
   },
-  card: {
-    padding: tokens.layout.cardPadding,
+  content: {
+    padding: tokens.layout.screenPadding,
+    paddingBottom: 120, // Espace pour le footer de validation
+  },
+
+  // ========================================
+  // STYLES PASSAGE CARD
+  // ========================================
+  passageCard: {
+    padding: tokens.spacing.lg,
+    borderTopWidth: 4,
+    marginBottom: tokens.spacing.xl,
     ...tokens.shadows.md,
   },
-  header: {
+  headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: tokens.spacing.md,
-    paddingBottom: tokens.spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    marginBottom: tokens.spacing.md,
+    gap: tokens.spacing.sm,
+    marginBottom: tokens.spacing.lg,
   },
-  iconContainer: {
-    padding: tokens.spacing.xs,
+  iconBadge: {
+    padding: tokens.spacing.sm,
     borderRadius: tokens.borderRadius.sm,
   },
-  headerTitle: {
-    fontSize: tokens.fontSize.lg,
+  cardTitle: {
     fontWeight: tokens.fontWeight.bold,
+    fontSize: tokens.fontSize.md,
   },
-  passageContainer: { flexDirection: 'row', marginBottom: tokens.spacing.lg },
-  decorativeBorder: { 
-    width: 4, 
-    borderRadius: tokens.borderRadius.round, 
-    marginRight: tokens.spacing.md 
+  passageBox: {
+    padding: tokens.spacing.lg,
+    borderRadius: tokens.borderRadius.md,
+    flexDirection: 'row',
+    gap: tokens.spacing.md,
   },
-  textContainer: { 
-    flex: 1, 
-    padding: tokens.spacing.md, 
-    borderRadius: tokens.borderRadius.md 
+  accentLine: {
+    width: 3,
+    borderRadius: tokens.borderRadius.round,
   },
-  passageText: { 
-    fontSize: tokens.fontSize.md, 
-    lineHeight: 24 
+  passageText: {
+    flex: 1,
+    fontSize: tokens.fontSize.base,
+    lineHeight: 24,
   },
-  audioContainer: { alignItems: 'flex-start' },
   audioButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: tokens.spacing.sm,
-    paddingVertical: tokens.spacing.sm,
-    paddingHorizontal: tokens.spacing.md,
+    padding: tokens.spacing.md,
     borderRadius: tokens.borderRadius.round,
     borderWidth: 1,
+    marginTop: tokens.spacing.lg,
+    alignSelf: 'flex-start',
   },
-  audioText: { 
-    fontWeight: tokens.fontWeight.bold, 
-    fontSize: tokens.fontSize.sm 
+  audioText: {
+    fontWeight: tokens.fontWeight.semibold,
+    fontSize: tokens.fontSize.sm,
   },
-  questionHeader: { marginBottom: tokens.spacing.md },
-  questionTitle: { 
-    fontSize: tokens.fontSize.lg, 
-    fontWeight: tokens.fontWeight.semibold 
+
+  // ========================================
+  // STYLES QUESTION SECTION
+  // ========================================
+  questionSection: {
+    marginBottom: tokens.spacing.xl,
   },
-  optionsContainer: { gap: tokens.spacing.sm },
+  questionLabel: {
+    fontSize: tokens.fontSize.xs,
+    fontWeight: tokens.fontWeight.extrabold,
+    letterSpacing: 1,
+    marginBottom: tokens.spacing.md,
+  },
 });
 
 export default ReadingCard;

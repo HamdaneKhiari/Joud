@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import ExerciseValidation from '../../../exercise-common/ExerciseValidation';
 import { useExerciseValidationState } from '../../../../hooks/useExerciseValidationState';
 import { generateFeedbackMessage } from '../../../../utils/feedback';
 import { useTheme } from '@/themes/ThemeContext';
-import { tokens } from '@/themes/tokens';
+// ✅ Imports corrigés pour correspondre à tes fichiers
+import { tokens, withOpacity } from '@/themes/tokens';
+import { baseColors } from '@/themes/colors'; 
 import { LogicLinksCardProps } from '../types';
 
 const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
@@ -19,7 +21,7 @@ const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
   onRetry,
   onNext,
   isLastQuestion,
-  color = '#3B82F6',
+  color = '#3B82F6', 
 }) => {
   const { identity } = useTheme();
 
@@ -36,24 +38,38 @@ const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
       <View style={[
         styles.card, 
         { 
+          backgroundColor: identity.branding.surface || baseColors.white,
           borderTopColor: color,
-          borderRadius: identity.ui.cardRadius || tokens.borderRadius.lg
+          borderRadius: identity.ui.cardRadius || tokens.borderRadius.lg,
+          ...tokens.shadows.md 
         }
       ]}>
         <View style={[styles.colorBar, { backgroundColor: color }]} />
 
         <View style={styles.titleSection}>
           <Text style={styles.titleIcon}>🔗</Text>
-          <Text style={[styles.titleText, { color: identity.text.primary }]}>Choose the logical connector</Text>
+          <Text style={[styles.titleText, { color: identity.text.primary }]}>
+            Choose the logical connector
+          </Text>
         </View>
 
-        <View style={[styles.sentenceBox, { borderColor: color }]}>
-          <Text style={[styles.sentenceText, { color: identity.text.primary }]}>{question.sentence}</Text>
+        <View style={[
+          styles.sentenceBox, 
+          { 
+            borderColor: withOpacity(color, 0.3),
+            backgroundColor: withOpacity(color, 0.05) 
+          }
+        ]}>
+          <Text style={[styles.sentenceText, { color: identity.text.primary }]}>
+            {question.sentence}
+          </Text>
         </View>
 
         {question.translation && (
           <View style={styles.translationBox}>
-            <Text style={[styles.translationText, { color: identity.text.secondary }]}>{question.translation}</Text>
+            <Text style={[styles.translationText, { color: identity.text.secondary }]}>
+              {question.translation}
+            </Text>
           </View>
         )}
 
@@ -63,27 +79,38 @@ const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
             const isCorrectOption = option === question.correctAnswer;
             const showFeedback = isValidated && (isCorrect || canSkip);
 
+            // ✅ CORRECTION DES COULEURS (baseColors au lieu de tokens.colors)
+            const getButtonStyle = () => {
+              if (showFeedback && isCorrectOption) 
+                return { backgroundColor: baseColors.green500, borderColor: baseColors.green500 };
+              
+              if (showFeedback && isSelected && !isCorrect) 
+                return { backgroundColor: identity.ai.error, borderColor: identity.ai.error };
+              
+              if (!showFeedback && isSelected) 
+                return { backgroundColor: withOpacity(color, 0.1), borderColor: color };
+              
+              return { 
+                backgroundColor: identity.branding.surface || baseColors.white, 
+                borderColor: withOpacity(identity.text.tertiary, 0.2) 
+              };
+            };
+
             return (
               <TouchableOpacity
                 key={option}
-                style={[
-                  styles.optionButton,
-                  { borderColor: color },
-                  showFeedback && isCorrectOption && styles.optionButtonCorrect,
-                  showFeedback && isSelected && !isCorrect && styles.optionButtonIncorrect,
-                  !showFeedback && isSelected && styles.optionButtonSelected,
-                ]}
+                style={[styles.optionButton, getButtonStyle()]}
                 onPress={() => !isValidated && onAnswer(option)}
                 disabled={isValidated}
               >
-                <Text
-                  style={[
-                    styles.optionText,
-                    { color: identity.text.primary },
-                    (showFeedback && (isCorrectOption || (isSelected && !isCorrect))) &&
-                      styles.optionTextWhite,
-                  ]}
-                >
+                <Text style={[
+                  styles.optionText,
+                  { 
+                    color: (showFeedback && (isCorrectOption || isSelected)) 
+                      ? baseColors.white 
+                      : identity.text.primary 
+                  }
+                ]}>
                   {option}
                 </Text>
               </TouchableOpacity>
@@ -117,95 +144,70 @@ const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  container: { flex: 1 },
+  content: { 
+    padding: tokens.layout.screenPadding, 
+    paddingBottom: 100 
   },
-  content: {
-    padding: tokens.layout.screenPadding,
-    paddingBottom: 100,
+  card: { 
+    padding: tokens.layout.cardPadding, 
+    borderTopWidth: tokens.borderWidth.thick, 
+    marginBottom: tokens.layout.sectionGap 
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    padding: tokens.layout.cardPadding,
-    ...tokens.shadows.md,
-    borderTopWidth: tokens.borderWidth.thick,
-    marginBottom: tokens.layout.sectionGap,
+  colorBar: { 
+    height: 4, 
+    width: 40, 
+    borderRadius: tokens.borderRadius.round, 
+    marginBottom: tokens.spacing.lg 
   },
-  colorBar: {
-    height: 4,
-    width: 40,
-    borderRadius: tokens.borderRadius.round,
-    marginBottom: tokens.spacing.lg,
+  titleSection: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: tokens.spacing.sm, 
+    marginBottom: tokens.layout.sectionGap 
   },
-  titleSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: tokens.spacing.sm,
-    marginBottom: tokens.layout.sectionGap,
+  titleIcon: { fontSize: tokens.fontSize.xl },
+  titleText: { 
+    fontSize: tokens.fontSize.lg, 
+    fontWeight: tokens.fontWeight.semibold, 
+    flex: 1 
   },
-  titleIcon: {
-    fontSize: tokens.fontSize.xl,
+  sentenceBox: { 
+    padding: tokens.spacing.xl, 
+    borderWidth: 2, 
+    borderRadius: tokens.borderRadius.md, 
+    marginBottom: tokens.layout.sectionGap, 
+    alignItems: 'center', 
+    borderStyle: 'dashed' 
   },
-  titleText: {
-    fontSize: tokens.fontSize.lg,
-    fontWeight: tokens.fontWeight.semibold,
-    flex: 1,
+  sentenceText: { 
+    fontSize: tokens.fontSize.xl, 
+    fontWeight: tokens.fontWeight.medium, 
+    textAlign: 'center' 
   },
-  sentenceBox: {
-    padding: tokens.spacing.xl,
-    borderWidth: 2,
-    borderRadius: tokens.borderRadius.md,
-    marginBottom: tokens.layout.sectionGap,
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderStyle: 'dashed',
+  translationBox: { 
+    marginTop: -tokens.spacing.md, 
+    marginBottom: tokens.layout.sectionGap, 
+    alignItems: 'center' 
   },
-  sentenceText: {
-    fontSize: tokens.fontSize.xl,
-    fontWeight: tokens.fontWeight.medium,
-    textAlign: 'center',
+  translationText: { 
+    fontSize: tokens.fontSize.sm, 
+    fontStyle: 'italic', 
+    opacity: tokens.opacity.subtle 
   },
-  translationBox: {
-    marginTop: -tokens.spacing.md,
-    marginBottom: tokens.layout.sectionGap,
-    alignItems: 'center',
+  optionsContainer: { gap: tokens.spacing.md },
+  optionButton: { 
+    padding: tokens.spacing.lg, 
+    borderWidth: 1, 
+    borderRadius: tokens.borderRadius.md, 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    ...tokens.shadows.sm 
   },
-  translationText: {
-    fontSize: tokens.fontSize.sm,
-    fontStyle: 'italic',
-    opacity: tokens.opacity.subtle,
-  },
-  optionsContainer: {
-    gap: tokens.spacing.md,
-  },
-  optionButton: {
-    padding: tokens.spacing.lg,
-    borderWidth: 1,
-    borderRadius: tokens.borderRadius.md,
-    backgroundColor: '#FFFFFF',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...tokens.shadows.sm,
-  },
-  optionButtonSelected: {
-    backgroundColor: '#EFF6FF',
-  },
-  optionButtonCorrect: {
-    backgroundColor: '#22C55E',
-    borderColor: '#22C55E',
-  },
-  optionButtonIncorrect: {
-    backgroundColor: '#EF4444',
-    borderColor: '#EF4444',
-  },
-  optionText: {
-    fontSize: tokens.fontSize.md,
-    fontWeight: tokens.fontWeight.medium,
-  },
-  optionTextWhite: {
-    color: '#FFFFFF',
-    fontWeight: tokens.fontWeight.bold,
+  optionText: { 
+    fontSize: tokens.fontSize.md, 
+    fontWeight: tokens.fontWeight.medium 
   },
 });
 

@@ -1,34 +1,36 @@
-/**
- * ============================================
- * QUESTION CARD - TYPES
- * Types TypeScript pour QuestionCard universel
- * ============================================
- */
+// ============================================
+// types.ts - Types mis à jour
+// ============================================
 
-export type ModuleType = 'grammar' | 'reading' | 'vocab';
-export type Theme = 'light' | 'dark';
+export type ModuleType = 'grammar' | 'reading' | 'vocab' | 'phrase_types';
+
+// 🆕 Interface i18n pour les textes
+export interface QuestionCardI18n {
+  hintShow: string;
+  hintHide: string;
+}
 
 export interface QuestionCardProps {
-  // Props de base
-  questionIndex: number;
+  questionIndex?: number;
   question: string;
   options: string[];
   correctAnswer: string;
   moduleType?: ModuleType;
+  moduleColor?: string;
 
-  // Props de contrôle (du parent)
+  // Contrôle parent
   externalSelectedOption?: string | null;
   externalIsAnswered?: boolean;
   externalShowFeedback?: boolean;
   externalIsCorrect?: boolean;
-  onAnswer: (letter: string) => void;
+  onAnswer: (option: string) => void;
 
-  // Props optionnels
-  stars?: number;
-  showStars?: boolean;
+  // Options
   hint?: string;
   hintUsed?: boolean;
   onToggleHint?: () => void;
   feedbackMessage?: string;
-  theme?: Theme;
+
+  // 🆕 i18n optionnel (override de identity.i18n si besoin)
+  i18n?: QuestionCardI18n;
 }

@@ -86,6 +86,21 @@ export interface Identity {
 
   // ✅ THEME MODE (Mode global)
   themeMode: 'light' | 'dark';
+
+  // ✅ I18N (Internationalisation)
+  i18n: {
+    locale: string;
+    rtl: boolean;
+  };
+
+  // ✅ ICONS (Configuration des icônes)
+  icons: {
+    logo: string;
+    [key: string]: string;
+  };
+
+  // ✅ ICON SIZE (Tailles standardisées)
+  iconSize: typeof tokens.iconSize;
 }
 
 interface ThemeContextType {
@@ -184,6 +199,17 @@ const brandingToIdentity = (branding: Branding): Identity => {
     },
 
     themeMode: branding.theme_mode,
+
+    i18n: {
+      locale: 'fr', // Valeur par défaut (à dynamiser plus tard si besoin)
+      rtl: false,
+    },
+
+    icons: {
+      logo: branding.logo_name || 'school',
+    },
+
+    iconSize: tokens.iconSize,
   };
 
   return identity;
@@ -235,6 +261,14 @@ const defaultIdentity: Identity = {
     onAccent: '#FFFFFF',
   },
   themeMode: 'light',
+  i18n: {
+    locale: 'fr',
+    rtl: false,
+  },
+  icons: {
+    logo: 'rocket',
+  },
+  iconSize: tokens.iconSize,
 };
 
 // ============================================

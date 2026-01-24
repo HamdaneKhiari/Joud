@@ -5,17 +5,25 @@ import {
   RephrasingQuestion 
 } from '../../../components/pedagogy/Connector/types';
 
+/**
+ * Normalise les entrées utilisateur pour la comparaison textuelle.
+ * CORRECTION SONAR: Utilisation d'une regex globale avec replace ou replaceAll
+ */
 const normalizeAnswer = (text: string) => {
-  return text.toLowerCase().trim().replace(/\s+/g, ' ');
+  // .replace(/\s+/g, ' ') est déjà global grâce au flag 'g'
+  // Mais Sonar préfère souvent l'intention explicite de replaceAll pour les chaînes
+  // Ici, pour une regex de nettoyage, on garde le replace avec le flag global 
+  // ou on utilise la syntaxe moderne :
+  return text.toLowerCase().trim().replaceAll(/\s+/g, ' ');
 };
 
 interface UseConnectorHandlersProps {
-  question: any; // Can be LogicQuestion | FusionQuestion | RephrasingQuestion
+  question: LogicQuestion | FusionQuestion | RephrasingQuestion | undefined;
   isLastQuestion: boolean;
   onNavigateBack: () => void;
   setCurrentQuestionIndex: React.Dispatch<React.SetStateAction<number>>;
-  states: any; // Return type of useConnectorState
-  onValidationSuccess: () => void; // Callback for progress tracking
+  states: any; 
+  onValidationSuccess: () => void;
 }
 
 export const useConnectorHandlers = ({
@@ -33,7 +41,6 @@ export const useConnectorHandlers = ({
     resetAllStates,
   } = states;
 
-  // Navigation centralisée
   const handleNavigationNext = useCallback(() => {
     if (isLastQuestion) {
       onNavigateBack();
@@ -43,99 +50,53 @@ export const useConnectorHandlers = ({
     }
   }, [isLastQuestion, onNavigateBack, setCurrentQuestionIndex, resetAllStates]);
 
-  // ===== LOGIC LINKS =====
-  const handleLogicAnswer = useCallback((option: string) => {
-    setLogicState((prev: any) => ({ ...prev, selectedOption: option }));
-  }, [setLogicState]);
+  // --- LOGIQUE DE VALIDATION (Extraite pour la clarté) ---
+  
+  const validateInputExercise = useCallback((
+    userAnswer: string | undefined, 
+    correctAnswer: string, 
+    setState: any
+  ) => {
+    if (!userAnswer?.trim()) return;
 
-  const handleLogicValidate = useCallback(() => {
-    if (!logicState.selectedOption) return;
-    const q = currentQuestion as LogicQuestion;
-    const correct = logicState.selectedOption === q.correctAnswer;
+    const isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(correctAnswer);
     
-    setLogicState((prev: any) => ({
+    setState((prev: any) => ({
       ...prev,
       isValidated: true,
-      isCorrect: correct,
+      isCorrect,
       attemptCount: prev.attemptCount + 1
     }));
 
-    if (correct) onValidationSuccess();
-  }, [logicState.selectedOption, currentQuestion, setLogicState, onValidationSuccess]);
+    if (isCorrect) onValidationSuccess();
+  }, [onValidationSuccess]);
 
-  const handleLogicRetry = useCallback(() => {
-    setLogicState((prev: any) => ({ ...prev, selectedOption: undefined, isValidated: false, isCorrect: false }));
-  }, [setLogicState]);
-
-  // ===== SENTENCE FUSION =====
-  const handleFusionAnswer = useCallback((text: string) => {
-    setFusionState((prev: any) => ({ ...prev, userAnswer: text }));
-  }, [setFusionState]);
-
-  const handleFusionValidate = useCallback(() => {
-    if (!fusionState.userAnswer || !fusionState.userAnswer.trim()) return;
-    const q = currentQuestion as FusionQuestion;
-    const userNormalized = normalizeAnswer(fusionState.userAnswer);
-    const correctNormalized = normalizeAnswer(q.correctAnswer);
-    const correct = userNormalized === correctNormalized;
-    
-    setFusionState((prev: any) => ({
-      ...prev,
-      isValidated: true,
-      isCorrect: correct,
-      attemptCount: prev.attemptCount + 1
-    }));
-
-    if (correct) onValidationSuccess();
-  }, [fusionState.userAnswer, currentQuestion, setFusionState, onValidationSuccess]);
-
-  const handleFusionRetry = useCallback(() => {
-    setFusionState((prev: any) => ({ ...prev, userAnswer: undefined, isValidated: false, isCorrect: false }));
-  }, [setFusionState]);
-
-  // ===== REPHRASING =====
-  const handleRephrasingAnswer = useCallback((text: string) => {
-    setRephrasingState((prev: any) => ({ ...prev, userAnswer: text }));
-  }, [setRephrasingState]);
-
-  const handleRephrasingValidate = useCallback(() => {
-    if (!rephrasingState.userAnswer || !rephrasingState.userAnswer.trim()) return;
-    const q = currentQuestion as RephrasingQuestion;
-    const userNormalized = normalizeAnswer(rephrasingState.userAnswer);
-    const correctNormalized = normalizeAnswer(q.correctAnswer);
-    const correct = userNormalized === correctNormalized;
-    
-    setRephrasingState((prev: any) => ({
-      ...prev,
-      isValidated: true,
-      isCorrect: correct,
-      attemptCount: prev.attemptCount + 1
-    }));
-
-    if (correct) onValidationSuccess();
-  }, [rephrasingState.userAnswer, currentQuestion, setRephrasingState, onValidationSuccess]);
-
-  const handleRephrasingRetry = useCallback(() => {
-    setRephrasingState((prev: any) => ({ ...prev, userAnswer: undefined, isValidated: false, isCorrect: false }));
-  }, [setRephrasingState]);
+  // --- HANDLERS PUBLICS ---
 
   return {
     logic: {
-      onAnswer: handleLogicAnswer,
-      onValidate: handleLogicValidate,
-      onRetry: handleLogicRetry,
+      onAnswer: (option: string) => setLogicState((prev: any) => ({ ...prev, selectedOption: option })),
+      onValidate: () => {
+        if (!logicState.selectedOption || !currentQuestion) return;
+        const q = currentQuestion as LogicQuestion;
+        // ✅ Normalisation ajoutée pour éviter les erreurs d'espaces invisibles
+        const isCorrect = normalizeAnswer(logicState.selectedOption) === normalizeAnswer(q.correctAnswer);
+        setLogicState((prev: any) => ({ ...prev, isValidated: true, isCorrect, attemptCount: prev.attemptCount + 1 }));
+        if (isCorrect) onValidationSuccess();
+      },
+      onRetry: () => setLogicState((prev: any) => ({ ...prev, selectedOption: undefined, isValidated: false, isCorrect: false })),
       onNext: handleNavigationNext,
     },
     fusion: {
-      onAnswer: handleFusionAnswer,
-      onValidate: handleFusionValidate,
-      onRetry: handleFusionRetry,
+      onAnswer: (text: string) => setFusionState((prev: any) => ({ ...prev, userAnswer: text })),
+      onValidate: () => currentQuestion && validateInputExercise(fusionState.userAnswer, (currentQuestion as FusionQuestion).correctAnswer, setFusionState),
+      onRetry: () => setFusionState((prev: any) => ({ ...prev, userAnswer: undefined, isValidated: false, isCorrect: false })),
       onNext: handleNavigationNext,
     },
     rephrasing: {
-      onAnswer: handleRephrasingAnswer,
-      onValidate: handleRephrasingValidate,
-      onRetry: handleRephrasingRetry,
+      onAnswer: (text: string) => setRephrasingState((prev: any) => ({ ...prev, userAnswer: text })),
+      onValidate: () => currentQuestion && validateInputExercise(rephrasingState.userAnswer, (currentQuestion as RephrasingQuestion).correctAnswer, setRephrasingState),
+      onRetry: () => setRephrasingState((prev: any) => ({ ...prev, userAnswer: undefined, isValidated: false, isCorrect: false })),
       onNext: handleNavigationNext,
     },
   };

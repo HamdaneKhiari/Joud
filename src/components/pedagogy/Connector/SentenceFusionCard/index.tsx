@@ -4,7 +4,8 @@ import ExerciseValidation from '../../../exercise-common/ExerciseValidation';
 import { useExerciseValidationState } from '../../../../hooks/useExerciseValidationState';
 import { generateFeedbackMessage } from '../../../../utils/feedback';
 import { useTheme } from '@/themes/ThemeContext';
-import { tokens } from '@/themes/tokens';
+import { tokens, withOpacity } from '@/themes/tokens';
+import { baseColors } from '@/themes/colors';
 import { SentenceFusionCardProps } from '../types';
 
 const SentenceFusionCard: React.FC<SentenceFusionCardProps> = ({
@@ -31,51 +32,71 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps> = ({
     !!userAnswer && userAnswer.trim().length > 0
   );
 
+  // Définition de la couleur de marque (priorité au module, sinon identité)
+  const brandColor = color || identity.branding.main;
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={[
         styles.card, 
         { 
-          borderTopColor: color,
+          backgroundColor: identity.branding.surface || baseColors.white,
+          borderTopColor: brandColor,
           borderRadius: identity.ui.cardRadius || tokens.borderRadius.lg
         }
       ]}>
-        <View style={[styles.colorBar, { backgroundColor: color }]} />
+        <View style={[styles.colorBar, { backgroundColor: brandColor }]} />
 
         <View style={styles.titleSection}>
           <Text style={styles.titleIcon}>🔀</Text>
           <Text style={[styles.titleText, { color: identity.text.primary }]}>Combine two sentences into one</Text>
         </View>
 
-        {/* Phrase 1 */}
-        <View style={[styles.phraseBox, { backgroundColor: '#F1F5F9', borderLeftColor: color }]}>
+        {/* Phrase 1 : Utilisation de withOpacity pour un look premium */}
+        <View style={[
+          styles.phraseBox, 
+          { 
+            backgroundColor: withOpacity(brandColor, 0.08), 
+            borderLeftColor: brandColor 
+          }
+        ]}>
           <Text style={[styles.phraseLabel, { color: identity.text.secondary }]}>Phrase 1:</Text>
           <Text style={[styles.phraseText, { color: identity.text.primary }]}>{question.phrase1}</Text>
         </View>
 
         {/* Phrase 2 */}
-        <View style={[styles.phraseBox, { backgroundColor: '#F8FAFC', borderLeftColor: color }]}>
+        <View style={[
+          styles.phraseBox, 
+          { 
+            backgroundColor: withOpacity(brandColor, 0.04), 
+            borderLeftColor: brandColor 
+          }
+        ]}>
           <Text style={[styles.phraseLabel, { color: identity.text.secondary }]}>Phrase 2:</Text>
           <Text style={[styles.phraseText, { color: identity.text.primary }]}>{question.phrase2}</Text>
         </View>
 
         {/* Hint */}
         {question.hint && (
-          <View style={styles.hintBox}>
+          <View style={[styles.hintBox, { backgroundColor: withOpacity(baseColors.orange500, 0.1) }]}>
             <Text style={styles.hintIcon}>💡</Text>
             <Text style={[styles.hintText, { color: identity.text.secondary }]}>{question.hint}</Text>
           </View>
         )}
 
         {/* Input pour la réponse */}
-        <View style={[styles.answerSection, { borderColor: color }]}>
+        <View style={styles.answerSection}>
           <Text style={[styles.answerLabel, { color: identity.text.primary }]}>Your answer:</Text>
           <TextInput
             style={[
               styles.answerInput,
-              { borderColor: color, color: identity.text.primary },
-              isValidated && isCorrect && styles.answerInputCorrect,
-              isValidated && !isCorrect && canSkip && styles.answerInputIncorrect,
+              { 
+                borderColor: withOpacity(identity.text.tertiary, 0.2), 
+                color: identity.text.primary,
+                backgroundColor: identity.branding.surface || baseColors.white 
+              },
+              isValidated && isCorrect && { borderColor: baseColors.green500, backgroundColor: baseColors.green50 },
+              isValidated && !isCorrect && canSkip && { borderColor: identity.ai.error, backgroundColor: withOpacity(identity.ai.error, 0.05) },
             ]}
             value={userAnswer || ''}
             onChangeText={onAnswer}
@@ -88,17 +109,20 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps> = ({
           />
         </View>
 
-        {/* Afficher la correction si validé et faux */}
+        {/* Correction si validé et faux */}
         {isValidated && !isCorrect && canSkip && (
-          <View style={styles.correctAnswerBox}>
-            <Text style={styles.correctAnswerLabel}>✅ Correct answer:</Text>
-            <Text style={styles.correctAnswerText}>{question.correctAnswer}</Text>
+          <View style={[
+            styles.correctAnswerBox, 
+            { backgroundColor: baseColors.green50, borderColor: baseColors.green500 }
+          ]}>
+            <Text style={[styles.correctAnswerLabel, { color: baseColors.green700 }]}>✅ Correct answer:</Text>
+            <Text style={[styles.correctAnswerText, { color: baseColors.green700 }]}>{question.correctAnswer}</Text>
           </View>
         )}
 
         {/* Traduction */}
         {question.translation && (
-          <View style={styles.translationBox}>
+          <View style={[styles.translationBox, { borderTopColor: withOpacity(identity.text.tertiary, 0.1) }]}>
             <Text style={[styles.translationText, { color: identity.text.secondary }]}>{question.translation}</Text>
           </View>
         )}
@@ -129,127 +153,103 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  container: { flex: 1 },
+  content: { 
+    padding: tokens.layout.screenPadding, 
+    paddingBottom: 100 
   },
-  content: {
-    padding: tokens.layout.screenPadding,
-    paddingBottom: 100,
+  card: { 
+    padding: tokens.layout.cardPadding, 
+    ...tokens.shadows.md, 
+    borderTopWidth: tokens.borderWidth.thick, 
+    marginBottom: tokens.layout.sectionGap 
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    padding: tokens.layout.cardPadding,
-    ...tokens.shadows.md,
-    borderTopWidth: tokens.borderWidth.thick,
-    marginBottom: tokens.layout.sectionGap,
+  colorBar: { 
+    height: 4, 
+    width: 40, 
+    borderRadius: tokens.borderRadius.round, 
+    marginBottom: tokens.spacing.lg 
   },
-  colorBar: {
-    height: 4,
-    width: 40,
-    borderRadius: tokens.borderRadius.round,
-    marginBottom: tokens.spacing.lg,
+  titleSection: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: tokens.spacing.sm, 
+    marginBottom: tokens.layout.sectionGap 
   },
-  titleSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: tokens.spacing.sm,
-    marginBottom: tokens.layout.sectionGap,
+  titleIcon: { fontSize: tokens.fontSize.xl },
+  titleText: { 
+    fontSize: tokens.fontSize.lg, 
+    fontWeight: tokens.fontWeight.semibold, 
+    flex: 1 
   },
-  titleIcon: {
-    fontSize: tokens.fontSize.xl,
+  phraseBox: { 
+    padding: tokens.spacing.md, 
+    borderLeftWidth: 4, 
+    borderRadius: tokens.borderRadius.sm, 
+    marginBottom: tokens.spacing.md 
   },
-  titleText: {
-    fontSize: tokens.fontSize.lg,
-    fontWeight: tokens.fontWeight.semibold,
-    flex: 1,
+  phraseLabel: { 
+    fontSize: tokens.fontSize.xs, 
+    fontWeight: tokens.fontWeight.bold, 
+    marginBottom: tokens.spacing.xs, 
+    textTransform: 'uppercase' 
   },
-  phraseBox: {
-    padding: tokens.spacing.md,
-    borderLeftWidth: 4,
-    borderRadius: tokens.borderRadius.sm,
-    marginBottom: tokens.spacing.md,
+  phraseText: { 
+    fontSize: tokens.fontSize.md, 
+    fontWeight: tokens.fontWeight.medium 
   },
-  phraseLabel: {
-    fontSize: tokens.fontSize.xs,
-    fontWeight: tokens.fontWeight.bold,
-    marginBottom: tokens.spacing.xs,
-    textTransform: 'uppercase',
+  hintBox: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    gap: tokens.spacing.sm, 
+    marginBottom: tokens.layout.sectionGap, 
+    padding: tokens.spacing.sm, 
+    borderRadius: tokens.borderRadius.md 
   },
-  phraseText: {
-    fontSize: tokens.fontSize.md,
-    fontWeight: tokens.fontWeight.medium,
+  hintIcon: { fontSize: tokens.fontSize.md },
+  hintText: { 
+    fontSize: tokens.fontSize.sm, 
+    fontStyle: 'italic', 
+    flex: 1 
   },
-  hintBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: tokens.spacing.sm,
-    marginBottom: tokens.layout.sectionGap,
-    padding: tokens.spacing.sm,
-    backgroundColor: '#FFFBEB',
-    borderRadius: tokens.borderRadius.md,
+  answerSection: { marginBottom: tokens.layout.sectionGap },
+  answerLabel: { 
+    fontSize: tokens.fontSize.sm, 
+    fontWeight: tokens.fontWeight.bold, 
+    marginBottom: tokens.spacing.sm 
   },
-  hintIcon: {
-    fontSize: tokens.fontSize.md,
+  answerInput: { 
+    borderWidth: 2, 
+    borderRadius: tokens.borderRadius.md, 
+    padding: tokens.spacing.md, 
+    fontSize: tokens.fontSize.md, 
+    minHeight: 80, 
+    textAlignVertical: 'top' 
   },
-  hintText: {
-    fontSize: tokens.fontSize.sm,
-    fontStyle: 'italic',
-    flex: 1,
+  correctAnswerBox: { 
+    marginTop: -tokens.spacing.md, 
+    marginBottom: tokens.layout.sectionGap, 
+    padding: tokens.spacing.md, 
+    borderRadius: tokens.borderRadius.md, 
+    borderWidth: 1 
   },
-  answerSection: {
-    marginBottom: tokens.layout.sectionGap,
+  correctAnswerLabel: { 
+    fontSize: tokens.fontSize.xs, 
+    fontWeight: tokens.fontWeight.bold, 
+    marginBottom: tokens.spacing.xs 
   },
-  answerLabel: {
-    fontSize: tokens.fontSize.sm,
-    fontWeight: tokens.fontWeight.bold,
-    marginBottom: tokens.spacing.sm,
+  correctAnswerText: { 
+    fontSize: tokens.fontSize.md, 
+    fontWeight: tokens.fontWeight.bold 
   },
-  answerInput: {
-    borderWidth: 2,
-    borderRadius: tokens.borderRadius.md,
-    padding: tokens.spacing.md,
-    fontSize: tokens.fontSize.md,
-    minHeight: 80,
-    textAlignVertical: 'top',
-    backgroundColor: '#FFFFFF',
+  translationBox: { 
+    alignItems: 'center', 
+    paddingTop: tokens.spacing.sm, 
+    borderTopWidth: 1 
   },
-  answerInputCorrect: {
-    borderColor: '#22C55E',
-    backgroundColor: '#F0FDF4',
-  },
-  answerInputIncorrect: {
-    borderColor: '#EF4444',
-    backgroundColor: '#FEF2F2',
-  },
-  correctAnswerBox: {
-    marginTop: -tokens.spacing.md,
-    marginBottom: tokens.layout.sectionGap,
-    padding: tokens.spacing.md,
-    backgroundColor: '#F0FDF4',
-    borderRadius: tokens.borderRadius.md,
-    borderWidth: 1,
-    borderColor: '#22C55E',
-  },
-  correctAnswerLabel: {
-    fontSize: tokens.fontSize.xs,
-    fontWeight: tokens.fontWeight.bold,
-    color: '#15803D',
-    marginBottom: tokens.spacing.xs,
-  },
-  correctAnswerText: {
-    fontSize: tokens.fontSize.md,
-    fontWeight: tokens.fontWeight.bold,
-    color: '#15803D',
-  },
-  translationBox: {
-    alignItems: 'center',
-    paddingTop: tokens.spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-  },
-  translationText: {
-    fontSize: tokens.fontSize.sm,
-    fontStyle: 'italic',
+  translationText: { 
+    fontSize: tokens.fontSize.sm, 
+    fontStyle: 'italic' 
   },
 });
 
