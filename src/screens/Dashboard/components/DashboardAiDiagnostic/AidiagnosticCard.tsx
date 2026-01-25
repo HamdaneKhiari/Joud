@@ -27,6 +27,7 @@ const AIDiagnosticCard: React.FC<AIDiagnosticCardProps> = ({
   const styles = useMemo(() => createStyles(identity), [identity]);
 
   const diagnostic = useMemo(() => {
+    // 1. Transformation des données brutes en tableau d'objets exploitables
     const patterns = Object.entries(errorPatterns || {}).map(([key, val]) => ({
       id: key,
       name: key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
@@ -36,16 +37,27 @@ const AIDiagnosticCard: React.FC<AIDiagnosticCardProps> = ({
 
     if (patterns.length === 0) return null;
 
-    const topWeakness = patterns.sort((a, b) => (b.count * b.severity) - (a.count * a.severity))[0];
+    /**
+     * ✅ CORRECTION CRASH & SONARLINT :
+     * On ne peut pas utiliser .toSorted() (pas supporté par React Native).
+     * On ne doit pas faire .sort() directement sur 'patterns' (mutation interdite).
+     * Solution : On spread [...] pour copier, puis on trie sur une ligne à part.
+     */
+    const sortedPatterns = [...patterns];
+    sortedPatterns.sort((a, b) => (b.count * b.severity) - (a.count * a.severity));
+
+    const topWeakness = sortedPatterns[0];
     const mastery = Math.max(0, 100 - (patterns.length * 8));
 
     return { mastery, topWeakness };
   }, [errorPatterns]);
 
+  // Si aucune donnée à analyser et aucun défi en cours, on n'affiche rien
   if (!diagnostic && !challenge) return null;
 
   return (
     <View style={styles.container}>
+      {/* HEADER : Titre et Score de Maîtrise */}
       <View style={styles.header}>
         <View style={styles.titleRow}>
           <MaterialCommunityIcons name="brain" size={24} color={identity.ai.accent} />
@@ -56,6 +68,7 @@ const AIDiagnosticCard: React.FC<AIDiagnosticCardProps> = ({
         </View>
       </View>
 
+      {/* SECTION CONSTAT : Affiche la difficulté principale */}
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>CONSTAT</Text>
         <View style={styles.bubble}>
@@ -66,6 +79,7 @@ const AIDiagnosticCard: React.FC<AIDiagnosticCardProps> = ({
         </View>
       </View>
 
+      {/* SECTION SOLUTION : Le message du coach et le bouton d'action */}
       {challenge && (
         <LinearGradient
           colors={identity.ai.solutionBg as [string, string, ...string[]]}
@@ -74,7 +88,11 @@ const AIDiagnosticCard: React.FC<AIDiagnosticCardProps> = ({
           <Text style={styles.sectionLabel}>SOLUTION</Text>
           <Text style={styles.coachMessage}>"{challenge.userMessage}"</Text>
 
-          <TouchableOpacity style={styles.ctaButton} onPress={onTakeChallenge} activeOpacity={0.8}>
+          <TouchableOpacity 
+            style={styles.ctaButton} 
+            onPress={onTakeChallenge} 
+            activeOpacity={0.8}
+          >
             <Text style={styles.ctaText}>Relever le défi</Text>
             <MaterialCommunityIcons name="arrow-right" size={18} color="#FFF" />
           </TouchableOpacity>

@@ -315,3 +315,5 @@ export const getRecentActivity = async (db: SQLiteDatabase, limit: number = 10):
     [limit]
   );
 };
+
+export type { Branding } from './schema';

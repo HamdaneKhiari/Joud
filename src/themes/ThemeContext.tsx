@@ -1,13 +1,14 @@
 /**
  * ============================================
  * THEME CONTEXT UNIFIÉ (100% White Label)
- * Version fusionnée : Design System + Dashboard + AI
+ * Version : Pilotage par la donnée (DB -> UI)
  * ============================================
  */
 
 import React, { createContext, useContext, useMemo, useState, useEffect, ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 import { useUser } from '@/contexts/UserContext';
+// On importe le type Branding depuis queries (qu'on a corrigé juste avant)
 import { getBrandingById, type Branding } from '@/database/queries';
 import { tokens, withOpacity } from '@/themes/tokens';
 
@@ -15,32 +16,27 @@ import { tokens, withOpacity } from '@/themes/tokens';
 // TYPES
 // ============================================
 
-export type AppId = string;
-
 /**
  * Interface Identity complète (White Label)
- * Contient TOUS les champs nécessaires : AI, Header, DailyWord, Dashboard, UI
  */
 export interface Identity {
   id: string;
 
-  // ✅ BRANDING (Couleurs principales + Alias pour compatibilité)
+  // ✅ BRANDING (Couleurs + Textes spécifiques à l'IA)
   branding: {
-    // Couleurs principales
-    main: string;           // Couleur principale
-    accent: string;         // Couleur d'accent
-    surface?: string;       // Couleur de surface (backgrounds)
-
-    // Alias pour compatibilité Dashboard
-    primary: string;        // Alias de 'main'
-    textOnMain: string;     // Couleur du texte sur fond main
-    themeMode: 'light' | 'dark'; // Mode clair/sombre
-
-    // Alias pour compatibilité VocabularyScreen
-    headerAccent: string;   // Alias de 'header.accent'
+    main: string;
+    accent: string;
+    surface?: string;
+    primary: string;
+    textOnMain: string;
+    themeMode: 'light' | 'dark';
+    headerAccent: string;
+    
+    // Champs pilotés par la DB pour l'IA
+    aiTutorTitle: string;    
+    aiTutorSubtitle: string; 
   };
 
-  // ✅ UI (Comportements visuels)
   ui: {
     hasGradient: boolean;
     gradientColors?: [string, string, ...string[]];
@@ -48,14 +44,12 @@ export interface Identity {
     showDecorativeShapes: boolean;
   };
 
-  // ✅ AI (Couleurs spécifiques à l'AI Assistant)
   ai: {
     accent: string;
     error: string;
     solutionBg: string[];
   };
 
-  // ✅ HEADER (Configuration du header)
   header: {
     bg: string;
     accent: string;
@@ -63,53 +57,46 @@ export interface Identity {
     welcomeText: string;
   };
 
-  // ✅ DAILY WORD (Widget mot du jour)
   dailyWord: {
     bg?: string;
     gradient?: [string, string, ...string[]];
     decoration: 'circles' | 'water-drop' | 'none';
   };
 
-  // ✅ DASHBOARD (Couleurs spécifiques au Dashboard)
   dashboard: {
     levelProgress: string;
   };
 
-  // ✅ TEXT (Couleurs de texte sémantiques - 100% White Label)
   text: {
-    primary: string;    // Texte principal (headings, titres)
-    secondary: string;  // Texte secondaire (descriptions, labels)
-    tertiary: string;   // Texte tertiaire (hints, placeholders)
-    onMain: string;     // Texte sur fond main
-    onAccent: string;   // Texte sur fond accent
+    primary: string;
+    secondary: string;
+    tertiary: string;
+    onMain: string;
+    onAccent: string;
   };
 
-  // ✅ THEME MODE (Mode global)
   themeMode: 'light' | 'dark';
 
-  // ✅ I18N (Internationalisation)
   i18n: {
     locale: string;
     rtl: boolean;
   };
 
-  // ✅ ICONS (Configuration des icônes)
   icons: {
     logo: string;
     [key: string]: string;
   };
 
-  // ✅ ICON SIZE (Tailles standardisées)
   iconSize: typeof tokens.iconSize;
 }
 
 interface ThemeContextType {
   identity: Identity;
   tokens: typeof tokens;
-  currentApp: AppId;
+  currentApp: string; // Simplifié pour éviter l'alerte Sonar sur AppId
   isDark: boolean;
   isLoading: boolean;
-  setAppIdentity: (id: AppId) => void;
+  setAppIdentity: (id: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -118,10 +105,6 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 // HELPERS
 // ============================================
 
-/**
- * Parse JSON de manière sécurisée
- * Retourne undefined en cas d'erreur
- */
 const parseJson = <T = any>(jsonStr?: string): T | undefined => {
   if (!jsonStr) return undefined;
   try {
@@ -133,30 +116,30 @@ const parseJson = <T = any>(jsonStr?: string): T | undefined => {
 };
 
 /**
- * Transforme un objet Branding (DB) en Identity (App)
- * ✅ 100% White Label : zéro hardcoding de couleurs métier
+ * MAPPING : Branding (DB) -> Identity (App)
  */
 const brandingToIdentity = (branding: Branding): Identity => {
-  // Parsing des arrays JSON
-  const gradientColors = parseJson<[string, string, ...string[]]>(branding.ui_gradient_colors);
-  const aiSolutionBg = parseJson<string[]>(branding.ai_solution_bg) || ['#F3F4F6', '#F3F4F6'];
-  const dailyWordGradient = parseJson<[string, string, ...string[]]>(branding.daily_word_gradient);
+  // ✅ Correction : on force 'undefined' si le résultat est null
+  const gradientColors = parseJson<[string, string, ...string[]]>(branding.ui_gradient_colors || undefined) || undefined;
+  const aiSolutionBg = parseJson<string[]>(branding.ai_solution_bg || undefined) || ['#F3F4F6', '#F3F4F6'];
+  const dailyWordGradient = parseJson<[string, string, ...string[]]>(branding.daily_word_gradient || undefined) || undefined;
+  // Cast pour accéder aux nouvelles colonnes de façon sécurisée
+  const b = branding as any;
 
-  // Construction de l'identité
-  const identity: Identity = {
+  return {
     id: branding.id,
 
     branding: {
-      // Couleurs principales
       main: branding.primary_color,
       accent: branding.accent_color,
       surface: branding.surface_color || undefined,
-
-      // Alias pour compatibilité
       primary: branding.primary_color,
       textOnMain: branding.text_on_main_color,
       themeMode: branding.theme_mode,
-      headerAccent: branding.header_accent_color, // ✅ Pour VocabularyScreen
+      headerAccent: branding.header_accent_color,
+      // On pioche dans la DB ou fallback
+      aiTutorTitle: b.ai_tutor_title || "AI Tutor",
+      aiTutorSubtitle: b.ai_tutor_subtitle || "Ton assistant personnel",
     },
 
     ui: {
@@ -176,13 +159,13 @@ const brandingToIdentity = (branding: Branding): Identity => {
       bg: branding.header_bg_color,
       accent: branding.header_accent_color,
       emoji: branding.header_emoji || '📚',
-      welcomeText: branding.header_welcome_text || 'Hello,',
+      welcomeText: branding.header_welcome_text || 'Bonjour,',
     },
 
     dailyWord: {
       bg: branding.daily_word_bg_color || undefined,
       gradient: dailyWordGradient,
-      decoration: branding.daily_word_decoration,
+      decoration: (branding.daily_word_decoration as any) || 'none',
     },
 
     dashboard: {
@@ -190,84 +173,52 @@ const brandingToIdentity = (branding: Branding): Identity => {
     },
 
     text: {
-      // ✅ Couleurs sémantiques dérivées de primary_color (100% White Label)
-      primary: branding.primary_color,
-      secondary: withOpacity(branding.primary_color, 0.6),
+      primary: b.text_primary_color || branding.primary_color,
+      secondary: b.text_secondary_color || withOpacity(branding.primary_color, 0.6),
       tertiary: withOpacity(branding.primary_color, 0.4),
       onMain: branding.text_on_main_color,
-      onAccent: branding.text_on_main_color, // Assume même couleur pour texte sur accent
+      onAccent: branding.text_on_main_color,
     },
 
     themeMode: branding.theme_mode,
-
-    i18n: {
-      locale: 'fr', // Valeur par défaut (à dynamiser plus tard si besoin)
-      rtl: false,
-    },
-
-    icons: {
-      logo: branding.logo_name || 'school',
-    },
-
+    i18n: { locale: 'fr', rtl: false },
+    icons: { logo: branding.logo_name || 'school' },
     iconSize: tokens.iconSize,
   };
-
-  return identity;
 };
 
-/**
- * Identité par défaut (fallback en cas d'erreur)
- * ⚠️ Filet de sécurité uniquement : toutes les couleurs métier doivent venir de la DB
- */
+// ============================================
+// DEFAULT IDENTITY
+// ============================================
+
 const defaultIdentity: Identity = {
   id: 'college',
   branding: {
     main: '#34495E',
     accent: '#FFD700',
-    surface: '#F5F7FA',
+    surface: '#FFFFFF',
     primary: '#34495E',
     textOnMain: '#FFFFFF',
     themeMode: 'light',
     headerAccent: '#FFD700',
+    aiTutorTitle: "Tuteur IA",
+    aiTutorSubtitle: "Aide aux devoirs",
   },
-  ui: {
-    hasGradient: false,
-    cardRadius: 20,
-    showDecorativeShapes: true,
-  },
-  ai: {
-    accent: '#6366F1',
-    error: '#EF4444',
-    solutionBg: ['#F5F3FF', '#EDE9FE'],
-  },
-  header: {
-    bg: '#34495E',
-    accent: '#FFD700',
-    emoji: '🚀',
-    welcomeText: 'Ready,',
-  },
-  dailyWord: {
-    bg: '#00D2FF',
-    decoration: 'circles',
-  },
-  dashboard: {
-    levelProgress: '#FFD700',
-  },
+  ui: { hasGradient: false, cardRadius: 12, showDecorativeShapes: true },
+  ai: { accent: '#34495E', error: '#D32F2F', solutionBg: ['#ECEFF1', '#CFD8DC'] },
+  header: { bg: '#34495E', accent: '#FFD700', emoji: '📚', welcomeText: 'Bonjour !' },
+  dailyWord: { bg: '#FFF9C4', decoration: 'none' },
+  dashboard: { levelProgress: '#34495E' },
   text: {
-    primary: '#34495E',
-    secondary: withOpacity('#34495E', 0.6),
-    tertiary: withOpacity('#34495E', 0.4),
+    primary: '#1F2937',
+    secondary: '#6B7280',
+    tertiary: '#9CA3AF',
     onMain: '#FFFFFF',
-    onAccent: '#FFFFFF',
+    onAccent: '#000000',
   },
   themeMode: 'light',
-  i18n: {
-    locale: 'fr',
-    rtl: false,
-  },
-  icons: {
-    logo: 'rocket',
-  },
+  i18n: { locale: 'fr', rtl: false },
+  icons: { logo: 'school' },
   iconSize: tokens.iconSize,
 };
 
@@ -279,31 +230,26 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const systemColorScheme = useColorScheme();
   const { db, user } = useUser();
 
-  // État pour l'application active (défaut depuis user.audience ou 'college')
-  const [currentApp, setCurrentApp] = useState<AppId>(user?.audience || 'college');
+  const [currentApp, setCurrentApp] = useState<string>(user?.audience || 'college');
   const [identity, setIdentity] = useState<Identity>(defaultIdentity);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Chargement de l'identité depuis la DB
   useEffect(() => {
     const loadIdentity = async () => {
       if (!db) {
         setIsLoading(false);
         return;
       }
-
       try {
         setIsLoading(true);
-        const branding = await getBrandingById(db, currentApp);
-
-        if (branding) {
-          setIdentity(brandingToIdentity(branding));
+        const brandingData = await getBrandingById(db, currentApp);
+        if (brandingData) {
+          setIdentity(brandingToIdentity(brandingData));
         } else {
-          console.warn(`Branding not found for identity: ${currentApp}, using default`);
           setIdentity(defaultIdentity);
         }
       } catch (error) {
-        console.error('Error loading branding:', error);
+        console.error('Error loading branding identity:', error);
         setIdentity(defaultIdentity);
       } finally {
         setIsLoading(false);
@@ -313,28 +259,25 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     loadIdentity();
   }, [db, currentApp]);
 
-  // Synchronisation avec user.audience
   useEffect(() => {
     if (user?.audience && user.audience !== currentApp) {
       setCurrentApp(user.audience);
     }
   }, [user?.audience]);
 
-  // Mode sombre (basé sur themeMode de l'identité ou système)
   const isDark = useMemo(() => {
     if (identity.themeMode === 'dark') return true;
     if (identity.themeMode === 'light') return false;
     return systemColorScheme === 'dark';
   }, [identity.themeMode, systemColorScheme]);
 
-  // Objet de valeur mémorisé pour éviter les re-renders inutiles
   const value = useMemo(() => ({
     identity,
     tokens,
     currentApp,
     isDark,
     isLoading,
-    setAppIdentity: (id: AppId) => setCurrentApp(id),
+    setAppIdentity: (id: string) => setCurrentApp(id),
   }), [identity, currentApp, isDark, isLoading]);
 
   return (
@@ -344,18 +287,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// ============================================
-// HOOK
-// ============================================
-
-/**
- * Hook personnalisé pour consommer le thème
- * Throw une erreur si utilisé hors du ThemeProvider
- */
 export const useTheme = () => {
   const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme doit être utilisé à l\'intérieur d\'un ThemeProvider');
-  }
+  if (!context) throw new Error('useTheme doit être utilisé dans un ThemeProvider');
   return context;
 };

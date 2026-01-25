@@ -7,6 +7,7 @@ import { createStyles } from './styles/dashboardStyle';
 import DashboardHeader from './components/DashboardHeader/DashboardHeader';
 import DashboardCard from './components/DashboardCard';
 import AIDiagnosticCard from './components/DashboardAiDiagnostic/AidiagnosticCard';
+import AITutorCard from './components/DashboardAiTutorCard/AiTutorCard';
 import MetricsSection from './components/DashboardMetricsSession/metricsSession';
 import LevelCard from './components/DashboardLevel/levelCard';
 
@@ -36,8 +37,6 @@ export default function Dashboard() {
         try {
           const data = await getLevelsByAudience(db, user.audience);
           setLevels(data);
-
-          // Charger les labels pour chaque niveau
           const labels: Record<number, { title: string; badge: string; description: string }> = {};
           for (const level of data) {
             const label = await getLevelLabel(level.level, identity.id, db);
@@ -70,11 +69,10 @@ export default function Dashboard() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-
-      {/* FIX 1 : On passe firstName dans la propriété name attendue */}
+      
       <DashboardHeader user={{ name: user.firstName }} />
 
-      {/* 1. MOT DU JOUR */}
+      {/* 1. DÉCOUVRIR : Mot du jour */}
       <View style={styles.section}>
         <DashboardCard title="Le mot du jour" variant="daily-word">
           <Text style={styles.dailyWordTitle}>Resilience</Text>
@@ -82,7 +80,7 @@ export default function Dashboard() {
         </DashboardCard>
       </View>
 
-      {/* 2. RÉVISION */}
+      {/* 2. ENTRETENIR : Révisions (remontées ici) */}
       <View style={styles.section}>
         <DashboardCard
           title="Révisions"
@@ -90,11 +88,11 @@ export default function Dashboard() {
           onPress={() => router.push('/revision' as any)}
         >
           <Text style={styles.revisionTitle}>12 mots à réviser</Text>
-          <Text style={styles.revisionSubtitle}>Renforce ta mémoire avec la répétition espacée</Text>
+          <Text style={styles.revisionSubtitle}>Renforce ta mémoire par la répétition</Text>
         </DashboardCard>
       </View>
 
-      {/* 3. AI DIAGNOSTIC */}
+      {/* 3. ANALYSER & AGIR : Pôle IA */}
       {user.audience !== 'primary' && (
         <View style={styles.section}>
           <AIDiagnosticCard
@@ -102,13 +100,16 @@ export default function Dashboard() {
             challenge={{ userMessage: "Concentre-toi sur les verbes" }}
             onTakeChallenge={() => console.log('Challenge accepted')}
           />
+          <AITutorCard />
         </View>
       )}
 
-      {/* 4. METRICS */}
-      <MetricsSection metrics={{ wordsLearned: 127, badges: 3, streak: 7 }} theme="light" />
+      {/* 4. BILAN : Metrics */}
+      <View style={styles.section}>
+        <MetricsSection metrics={{ wordsLearned: 127, badges: 3, streak: 7 }} theme="light" />
+      </View>
 
-      {/* REPRENDRE LE COURS (optionnel) */}
+      {/* 5. REPRENDRE : Activité récente */}
       {lastActivity && (
         <View style={styles.section}>
           <DashboardCard title="Reprendre le cours" variant="continue">
@@ -116,7 +117,6 @@ export default function Dashboard() {
               <Text style={styles.resumeFamilyName}>{lastActivity.familyName}</Text>
               <Text style={styles.resumeLevelText}>Niveau {lastActivity.level}</Text>
             </View>
-
             <View style={styles.progressBarContainer}>
               <View style={[styles.progressBarFill, { width: `${lastActivity.progress}%` }]} />
             </View>
@@ -124,33 +124,20 @@ export default function Dashboard() {
         </View>
       )}
 
+      {/* 6. PARCOURS : La timeline */}
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Parcours</Text>
         <View style={styles.levelsGrid}>
-          {/* ✅ Timeline verticale */}
           {levels.length > 1 && <View style={styles.timelineLine} />}
-
           {levels.map((level) => {
-            // Récupération du label depuis le state
-            const levelLabel = levelLabels[level.level] || {
-              title: `Niveau ${level.level}`,
-              badge: `N${level.level}`,
-              description: 'Niveau'
-            };
-
-            // Calcul du status selon la progression
+            const levelLabel = levelLabels[level.level] || { title: `Niveau ${level.level}`, badge: `N${level.level}`, description: 'Niveau' };
             const progress = getLevelProgress(level.level);
             const status = progress === 100 ? 'completed' : 'in_progress';
 
             return (
               <LevelCard
                 key={level.id}
-                data={{
-                  id: level.id || 0,
-                  level: level.level,
-                  title: levelLabel.title,
-                  status
-                }}
+                data={{ id: level.id || 0, level: level.level, title: levelLabel.title, status }}
                 onPress={() => navigateToExerciseSelection(router, level.level)}
               />
             );

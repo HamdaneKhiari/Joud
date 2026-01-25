@@ -134,7 +134,11 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
         daily_word_gradient TEXT,
         daily_word_decoration TEXT DEFAULT 'none',
         dashboard_level_progress_color TEXT NOT NULL,
-        text_on_main_color TEXT NOT NULL
+        text_on_main_color TEXT NOT NULL,
+        text_primary_color TEXT,
+        text_secondary_color TEXT,
+        ai_tutor_title TEXT,
+        ai_tutor_subtitle TEXT
       );
 
       CREATE TABLE IF NOT EXISTS module_labels (
@@ -261,16 +265,16 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
     // ============================================
     
     const brandingSeed = [
-      // [id, primary_color, accent_color, surface_color, logo_name, theme_mode, ui_has_gradient, ui_gradient_colors, ui_card_radius, ui_show_decorative_shapes, ai_accent_color, ai_error_color, ai_solution_bg, header_bg_color, header_accent_color, header_emoji, header_welcome_text, daily_word_bg_color, daily_word_gradient, daily_word_decoration, dashboard_level_progress_color, text_on_main_color]
-      ['primary', '#FF5722', '#FFCE00', '#FFFFFF', null, 'light', 0, null, 12, 1, null, null, null, '#FF5722', '#FFCE00', '🎨', 'Bienvenue !', '#FFE0B2', null, 'none', '#FF5722', '#000000'],
-      ['college', '#34495E', '#FFD700', '#FFFFFF', null, 'light', 0, null, 12, 1, null, null, null, '#34495E', '#FFD700', '📚', 'Bonjour !', '#FFF9C4', null, 'none', '#34495E', '#000000'],
-      ['lycee', '#00E5FF', '#1A1A1A', '#FFFFFF', null, 'dark', 1, '["#00E5FF", "#00BCD4"]', 16, 1, null, null, null, '#00E5FF', '#1A1A1A', '🎓', 'Hello!', '#E0F7FA', null, 'water-drop', '#00E5FF', '#FFFFFF'],
-      ['adult', '#111827', '#374151', '#1F2937', null, 'dark', 0, null, 8, 0, null, null, null, '#111827', '#374151', '💼', 'Welcome', '#263238', null, 'none', '#374151', '#FFFFFF']
+      // [id, primary_color, accent_color, surface_color, logo_name, theme_mode, ui_has_gradient, ui_gradient_colors, ui_card_radius, ui_show_decorative_shapes, ai_accent_color, ai_error_color, ai_solution_bg, header_bg_color, header_accent_color, header_emoji, header_welcome_text, daily_word_bg_color, daily_word_gradient, daily_word_decoration, dashboard_level_progress_color, text_on_main_color, text_primary_color, text_secondary_color, ai_tutor_title, ai_tutor_subtitle]
+      ['primary', '#FF5722', '#FFCE00', '#FFFFFF', null, 'light', 0, null, 12, 1, '#FF5722', '#D32F2F', '["#FFF3E0", "#FFE0B2"]', '#FF5722', '#FFCE00', '🎨', 'Bienvenue !', '#FFE0B2', null, 'none', '#FF5722', '#000000', '#1F2937', '#6B7280', 'Coach IA', 'Ton assistant personnel'],
+      ['college', '#34495E', '#FFD700', '#FFFFFF', null, 'light', 0, null, 12, 1, '#34495E', '#D32F2F', '["#ECEFF1", "#CFD8DC"]', '#34495E', '#FFD700', '📚', 'Bonjour !', '#FFF9C4', null, 'none', '#34495E', '#000000', '#1F2937', '#6B7280', 'Tuteur IA', 'Aide aux devoirs'],
+      ['lycee', '#00E5FF', '#1A1A1A', '#212121', null, 'dark', 1, '["#00E5FF", "#00BCD4"]', 16, 1, '#00E5FF', '#EF5350', '["#263238", "#37474F"]', '#00E5FF', '#1A1A1A', '🎓', 'Hello!', '#E0F7FA', null, 'water-drop', '#00E5FF', '#000000', '#FFFFFF', '#9CA3AF', 'AI Tutor', 'Your personal assistant'],
+      ['adult', '#111827', '#374151', '#1F2937', null, 'dark', 0, null, 8, 0, '#4B5563', '#DC2626', '["#1F2937", "#374151"]', '#111827', '#374151', '💼', 'Welcome', '#263238', null, 'none', '#374151', '#FFFFFF', '#FFFFFF', '#9CA3AF', 'AI Assistant', 'Smart learning companion']
     ];
 
     for (const brand of brandingSeed) {
       await db.runAsync(
-        `INSERT INTO branding VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO branding VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         brand
       );
     }

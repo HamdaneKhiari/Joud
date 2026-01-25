@@ -89,6 +89,10 @@ export interface Branding {
   daily_word_decoration: 'circles' | 'water-drop' | 'none';
   dashboard_level_progress_color: string;
   text_on_main_color: string;
+  text_primary_color: string | null;
+  text_secondary_color: string | null;
+  ai_tutor_title: string | null;
+  ai_tutor_subtitle: string | null;
 }
 
 export interface ModuleLabel {
