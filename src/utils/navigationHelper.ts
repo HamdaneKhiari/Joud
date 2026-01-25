@@ -1,16 +1,17 @@
 /**
  * Navigation Helper - Gestion centralisée de la navigation
+ * Version corrigée : Utilise des Slugs (string) au lieu de ModuleId
  */
 
 import type { Router } from 'expo-router';
-import type { ModuleId } from './labelMapper';
 
 // ============================================
 // TYPES
 // ============================================
 
 export interface NavigateToExerciseParams {
-  type: ModuleId | string;
+  // type est maintenant un string (ex: 'vocab', 'phrase_types')
+  type: string; 
   levelId: number;
   familyId?: string;
   moduleId?: string;
@@ -21,8 +22,7 @@ export interface NavigateToExerciseParams {
 // ============================================
 
 /**
- * Navigue vers un exercice spécifique avec Expo Router
- * Gère tous les types de modules (vocab, grammar, quiz, etc.)
+ * Navigue vers un exercice spécifique (Écran final d'exercice)
  */
 export const navigateToExercise = (
   router: Router,
@@ -43,7 +43,7 @@ export const navigateToExercise = (
     return;
   }
 
-  // CAS 2 : Exercice avec famille spécifique
+  // CAS 2 : Exercice avec famille spécifique (ex: un exercice de vocabulaire précis)
   if (familyId) {
     router.push({
       pathname: '/exercise/[exerciseId]',
@@ -58,11 +58,11 @@ export const navigateToExercise = (
     return;
   }
 
-  // CAS 3 : Sélection de famille (défaut)
+  // CAS 3 : Sélection de famille (L'écran qui liste les thèmes d'un module)
   router.push({
     pathname: '/family/[familyId]',
     params: {
-      familyId: type,
+      familyId: type, // Ici type est le slug comme 'phrase_types'
       levelId: levelId.toString(),
       moduleId: moduleId || type
     }
@@ -80,7 +80,7 @@ export const navigateToFamilySelection = (
   router.push({
     pathname: '/family/[familyId]',
     params: {
-      familyId: moduleId,
+      familyId: moduleId, // moduleId est le slug
       levelId: levelId.toString(),
       moduleId
     }
@@ -88,7 +88,7 @@ export const navigateToFamilySelection = (
 };
 
 /**
- * Navigue vers la sélection d'exercices d'un niveau
+ * Navigue vers la sélection d'exercices (modules) d'un niveau
  */
 export const navigateToExerciseSelection = (
   router: Router,

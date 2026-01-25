@@ -1,10 +1,10 @@
 /**
  * ExerciceSelectionScreen - Sélection des exercices d'un niveau
- * Migration TypeScript FIDÈLE au code JS original
+ * Version finale : Nettoyée, typée et sécurisée
  */
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { View, ScrollView, StatusBar, Text, ActivityIndicator } from 'react-native';
+import { View, ScrollView, StatusBar, ActivityIndicator, Text } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
@@ -30,35 +30,12 @@ import { getModuleColor } from '@/utils/moduleHelper';
 import { createStyles } from './style';
 
 // ============================================
-// TYPES
-// ============================================
-
-interface RouteParams {
-  levelId?: string;
-}
-
-interface NavigationProp {
-  navigate: (screen: string, params: any) => void;
-  goBack: () => void;
-}
-
-// Props pour compatibilité React Navigation (si utilisé)
-interface ExerciseSelectionScreenProps {
-  navigation?: NavigationProp;
-  route?: {
-    params?: {
-      levelId?: string | number;
-    };
-  };
-}
-
-// ============================================
-// COMPOSANT HELPER POUR CHAQUE EXERCICE
+// COMPOSANT HELPER : UNE CARTE D'EXERCICE
 // ============================================
 
 interface ExerciseItemProps {
   exercise: {
-    id: string;
+    id: string; // Slug (ex: 'vocab')
     icon: string;
     title: string;
     description: string;
@@ -78,29 +55,28 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({
   const { db } = useUser();
   const [moduleColor, setModuleColor] = useState<string>(identity.branding.main);
 
-  // Récupération des familles pour ce module (SQLite)
+  // Récupération des familles via le Slug technique (ex: 'phrase_types')
   const { familyIds, isLoading: loadingFamilies } = useGetFamiliesByModule(
     exercise.id,
     levelId
   );
 
-  // Chargement de la couleur du module
   useEffect(() => {
     const loadColor = async () => {
       if (!db) return;
       try {
-        const { getAvailableModules } = await import('@/utils/labelMapper');
         const availableModules = await getAvailableModules(identity.id, levelId, db);
         const color = await getModuleColor(exercise.id, identity.id, db, availableModules);
         setModuleColor(color);
       } catch (error) {
-        console.error('Error loading module color:', error);
+        // ✅ Correction SonarLint : On gère l'exception explicitement
+        console.warn(`[ExerciseItem] Impossible de charger la couleur pour : ${exercise.id}`, error);
+        setModuleColor(identity.branding.main);
       }
     };
     loadColor();
   }, [db, exercise.id, identity.id, levelId]);
 
-  // Calcul RÉEL de la progression
   const progress = useMemo(() => {
     if (loadingFamilies) return 0;
     return getExerciseProgress(levelId, exercise.id, familyIds) || 0;
@@ -122,66 +98,53 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({
 };
 
 // ============================================
-// COMPOSANT PRINCIPAL
+// COMPOSANT PRINCIPAL : ECRAN DE SELECTION
 // ============================================
 
-const ExerciseSelectionScreen: React.FC<ExerciseSelectionScreenProps> = ({
-  navigation,
-  route
-}) => {
+const ExerciseSelectionScreen: React.FC = () => {
   const router = useRouter();
-  const expoParams = useLocalSearchParams<RouteParams>();
+  const params = useLocalSearchParams<{ levelId: string }>();
   const { identity } = useTheme();
   const { db } = useUser();
   const { isLoading } = useProgress();
   const safeNavigate = useSafeAction();
 
-  // =================== PARAMÈTRES ===================
-  // Support React Navigation ET Expo Router
-  const levelId = route?.params?.levelId || expoParams.levelId || '1';
-  const numLevelId = Number.parseInt(levelId.toString(), 10);
-
-  // =================== HOOKS & DATA ===================
+  const numLevelId = Number.parseInt(params.levelId || '1', 10);
   const styles = useMemo(() => createStyles(identity), [identity]);
-  const [levelLabel, setLevelLabel] = useState<{ title: string; badge: string; description: string }>({
-    title: `Niveau ${numLevelId}`,
-    badge: `N${numLevelId}`,
-    description: 'Niveau'
-  });
-  const [exercises, setExercises] = useState<Array<{ id: string; icon: string; title: string; description: string }>>([]);
+
+  const [levelLabel, setLevelLabel] = useState({ title: '', badge: '', description: '' });
+  const [exercises, setExercises] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
-  // Chargement des données depuis la DB
   useEffect(() => {
     const loadData = async () => {
       if (!db) return;
-
       try {
         setLoadingData(true);
 
-        // Charger le label du niveau
-        const levelLabelData = await getLevelLabel(numLevelId, identity.id, db);
-        setLevelLabel(levelLabelData);
+        // 1. Charger le nom du niveau (ex: Mastery)
+        const labelData = await getLevelLabel(numLevelId, identity.id, db);
+        setLevelLabel(labelData);
 
-        // Charger les modules disponibles
-        const moduleIds = await getAvailableModules(identity.id, numLevelId, db);
+        // 2. Modules Autorisés (Filtrage Identity + Level)
+        const moduleSlugs = await getAvailableModules(identity.id, numLevelId, db);
 
-        // Charger les labels de chaque module
+        // 3. Charger les détails visuels de chaque module
         const exercisesData = await Promise.all(
-          moduleIds.map(async (moduleId) => {
-            const moduleLabel = await getModuleLabel(moduleId, identity.id, db);
+          moduleSlugs.map(async (slug: string) => {
+            const mLabel = await getModuleLabel(slug, identity.id, db);
             return {
-              id: moduleId,
-              icon: moduleLabel.icon,
-              title: moduleLabel.title,
-              description: moduleLabel.description
+              id: slug, // On utilise le SLUG comme identifiant
+              icon: mLabel.icon,
+              title: mLabel.title,
+              description: mLabel.description
             };
           })
         );
 
         setExercises(exercisesData);
       } catch (error) {
-        console.error('Error loading exercise data:', error);
+        console.error('[ExerciseSelection] Erreur fatale de chargement :', error);
       } finally {
         setLoadingData(false);
       }
@@ -190,98 +153,49 @@ const ExerciseSelectionScreen: React.FC<ExerciseSelectionScreenProps> = ({
     loadData();
   }, [db, numLevelId, identity.id]);
 
-  // Couleur du niveau (remplace getLevelColor)
-  const levelColor = identity.branding.main;
-
-  // Gradient du niveau (remplace getLevelGradient)
-  const levelGradient = useMemo(() => {
-    if (identity.ui.hasGradient && identity.ui.gradientColors) {
-      return identity.ui.gradientColors;
-    }
-    return [levelColor, levelColor];
-  }, [identity, levelColor]);
-
-  // =================== HANDLERS ===================
-
-  const handleExercisePress = (exercise: typeof exercises[0]) => {
+  const handleExercisePress = (exercise: any) => {
     safeNavigate.execute(() => {
-      if (exercise.id === 'assessment') {
-        // Évaluation (quiz)
-        navigateToExercise(router, {
-          type: 'quiz',
-          levelId: numLevelId
-        });
-      } else {
-        // Navigation vers FamilySelection
-        // Gère automatiquement 'vocab', 'phrases', etc. tant qu'ils ont des familles
-        // Support React Navigation SI disponible
-        if (navigation) {
-          navigation.navigate('FamilySelection', {
-            moduleId: exercise.id,
-            levelId: numLevelId
-          });
-        } else {
-          // Sinon Expo Router
-          navigateToExercise(router, {
-            type: exercise.id,
-            levelId: numLevelId
-          });
-        }
-      }
+      // Redirection vers FamilySelection avec le SLUG technique
+      navigateToExercise(router, {
+        type: exercise.id, // Envoie 'vocab', 'phrase_types', etc.
+        levelId: numLevelId
+      });
     });
   };
-
-  const handleBackPress = () => {
-    safeNavigate.execute(() => {
-      if (navigation) {
-        navigation.goBack();
-      } else if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace('/');
-      }
-    });
-  };
-
-  // =================== RENDER ===================
 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
         <StatusBar
           barStyle={identity.id === 'lycee' || identity.id === 'college' ? 'light-content' : 'dark-content'}
-          backgroundColor={levelColor}
+          backgroundColor={identity.branding.main}
         />
 
         <ExerciseHeader
           variant="simple"
-          onBack={handleBackPress}
+          onBack={() => router.back()}
           rightIcon={
-            <DynamicIcon
-              name="book-open"
-              size={28}
-              color={identity.branding.headerAccent}
-              fallback="book"
+            <DynamicIcon 
+              name="book-open" 
+              size={28} 
+              color={identity.branding.headerAccent} 
             />
           }
           showLevelBadge
           levelTitle={numLevelId.toString()}
-          levelColor={levelColor}
           exerciseTitle={levelLabel.title}
-          gradientColors={levelGradient}
+          // levelColor a été retiré car non présent dans les types de ExerciseHeader
         />
 
-        <ScrollView
+        <ScrollView 
           style={styles.scrollView}
           contentContainerStyle={styles.scrollViewContent}
           showsVerticalScrollIndicator={false}
         >
           {(isLoading || loadingData) ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={levelColor} />
-              <Text style={styles.loadingText}>
-                {identity.id === 'lycee' ? 'Loading...' : 'Chargement...'}
-              </Text>
+              <ActivityIndicator size="large" color={identity.branding.main} />
+              <Text style={styles.loadingText}>Chargement des modules...</Text>
             </View>
           ) : (
             <View style={styles.listContainer}>
@@ -296,7 +210,6 @@ const ExerciseSelectionScreen: React.FC<ExerciseSelectionScreenProps> = ({
               ))}
             </View>
           )}
-
           <View style={styles.bottomSpacer} />
         </ScrollView>
       </SafeAreaView>
