@@ -1,7 +1,7 @@
 import React, { useRef, useMemo } from 'react';
-import { TouchableOpacity, Text, View, Animated } from 'react-native';
+import { TouchableOpacity, Text, View, Animated, ViewStyle } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
-import { useAudioPlayer } from '../AudioButtons/hooks/useAudioPlayer';
+import { useAudioPlayer } from '../AudioButtons/hooks/useAudioPlayer'; // Vérifie bien ce chemin
 import { createStyles } from './AudioButtonStyle';
 
 interface AudioButtonProps {
@@ -10,9 +10,10 @@ interface AudioButtonProps {
   variant?: 'default' | 'onColor';
   size?: 'small' | 'medium' | 'large';
   icon?: string;
-  idleText?: string;
+  idleText?: string; 
   playingText?: string;
   audioUrl?: string;
+  style?: ViewStyle | ViewStyle[]; // ✅ Ajouté pour le positionnement externe
 }
 
 const AudioButton: React.FC<AudioButtonProps> = ({
@@ -21,58 +22,64 @@ const AudioButton: React.FC<AudioButtonProps> = ({
   variant = 'default',
   size = 'medium',
   icon = '🔊',
-  idleText = 'Écouter',
-  playingText = 'Lecture...',
+  idleText, // ✅ Rendu optionnel pour le mode icône seule
+  playingText = '...', 
   audioUrl,
+  style,
 }) => {
   const { identity, tokens } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
   const { speakText, isPlayingAudio } = useAudioPlayer();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  // Configuration dynamique basée sur l'identité (Collège / Lycée)
-  const isOnColor = variant === 'onColor';
-  
-  // Les couleurs sont tirées de l'identity, pas codées ici
+  // Mode "Icône Seule" si aucun texte n'est fourni
+  const isIconOnly = !idleText;
+
+  // Couleurs sémantiques basées sur le nouveau ThemeContext
   const dynamicColors = {
-    bg: isOnColor ? 'rgba(255, 255, 255, 0.95)' : identity.branding.main,
-    text: isOnColor ? identity.branding.main : '#FFFFFF',
+    bg: variant === 'onColor' ? 'rgba(255, 255, 255, 0.2)' : identity.palette.primary,
+    text: variant === 'onColor' ? '#FFFFFF' : identity.text.onPrimary,
   };
 
   const currentSize = {
-    paddingVertical: size === 'small' ? tokens.spacing.sm : tokens.spacing.md,
+    paddingVertical: isIconOnly ? 0 : (size === 'small' ? tokens.spacing.sm : tokens.spacing.md),
+    paddingHorizontal: isIconOnly ? 0 : tokens.spacing.xl,
     fontSize: size === 'small' ? tokens.fontSize.xs : tokens.fontSize.base,
   };
 
   return (
-    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+    <Animated.View style={[{ transform: [{ scale: scaleAnim }] }, style]}>
       <TouchableOpacity 
         style={[
           styles.audioButton, 
-          styles.shadow,
+          !isIconOnly && styles.shadow, // Ombre uniquement si c'est un vrai bouton
           { 
-            backgroundColor: dynamicColors.bg,
+            backgroundColor: isIconOnly ? 'transparent' : dynamicColors.bg,
             borderRadius: identity.ui.cardRadius,
             paddingVertical: currentSize.paddingVertical,
-            paddingHorizontal: tokens.spacing.xl 
+            paddingHorizontal: currentSize.paddingHorizontal,
           }
         ]} 
         onPress={() => speakText(text, { language, audioUrl })}
         disabled={isPlayingAudio}
-        activeOpacity={0.9}
+        activeOpacity={0.8}
       >
         <View style={styles.buttonContent}>
-          <Text style={[styles.icon, { fontSize: currentSize.fontSize + 4 }]}>
+          <Text style={[styles.icon, { 
+            fontSize: currentSize.fontSize + 4,
+            marginRight: isIconOnly ? 0 : tokens.spacing.sm 
+          }]}>
             {icon}
           </Text>
-          <Text style={[
-            styles.text, 
-            { color: dynamicColors.text, fontSize: currentSize.fontSize }
-          ]}>
-            {isPlayingAudio ? playingText : idleText}
-          </Text>
+          {!isIconOnly && (
+            <Text style={[
+              styles.text, 
+              { color: dynamicColors.text, fontSize: currentSize.fontSize }
+            ]}>
+              {isPlayingAudio ? playingText : idleText}
+            </Text>
+          )}
         </View>
-        {isPlayingAudio && <View style={styles.shineEffect} />}
       </TouchableOpacity>
     </Animated.View>
   );

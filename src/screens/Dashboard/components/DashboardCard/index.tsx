@@ -31,7 +31,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
             <View>
               <Text style={styles.exerciseTitle}>{title}</Text>
               {subtitle && (
-                <Text style={{ color: identity.branding.accent }}>{subtitle}</Text>
+                <Text style={{ color: identity.text.secondary }}>{subtitle}</Text>
               )}
             </View>
           </View>

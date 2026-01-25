@@ -8,8 +8,7 @@
 import React, { createContext, useContext, useMemo, useState, useEffect, ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 import { useUser } from '@/contexts/UserContext';
-// On importe le type Branding depuis queries (qu'on a corrigé juste avant)
-import { getBrandingById, type Branding } from '@/database/queries';
+import { queries, type Branding } from '@/database';
 import { tokens, withOpacity } from '@/themes/tokens';
 
 // ============================================
@@ -21,61 +20,56 @@ import { tokens, withOpacity } from '@/themes/tokens';
  */
 export interface Identity {
   id: string;
+  themeMode: 'light' | 'dark';
 
-  // ✅ BRANDING (Couleurs + Textes spécifiques à l'IA)
-  branding: {
-    main: string;
-    accent: string;
-    surface?: string;
+  // Palette de couleurs de base de l'identité
+  palette: {
     primary: string;
-    textOnMain: string;
-    themeMode: 'light' | 'dark';
-    headerAccent: string;
-    
-    // Champs pilotés par la DB pour l'IA
-    aiTutorTitle: string;    
-    aiTutorSubtitle: string; 
+    accent: string;
+    surface: string;
   };
 
+  // Couleurs de texte pour différents contextes
+  text: {
+    primary: string;   // Pour les titres principaux
+    secondary: string; // Pour les sous-titres, descriptions
+    tertiary: string;  // Pour les textes d'aide, désactivés
+    onPrimary: string; // Texte sur un fond de couleur primaire (boutons, etc.)
+  };
+
+  // Styles globaux de l'interface utilisateur
   ui: {
-    hasGradient: boolean;
-    gradientColors?: [string, string, ...string[]];
     cardRadius: number;
     showDecorativeShapes: boolean;
   };
 
-  ai: {
-    accent: string;
-    error: string;
-    solutionBg: string[];
-  };
-
+  // Configurations spécifiques aux composants
   header: {
-    bg: string;
+    background: string | [string, string, ...string[]];
     accent: string;
     emoji: string;
     welcomeText: string;
   };
 
   dailyWord: {
-    bg?: string;
-    gradient?: [string, string, ...string[]];
+    background: string | [string, string, ...string[]];
     decoration: 'circles' | 'water-drop' | 'none';
+  };
+
+  aiTutor: {
+    title: string;
+    subtitle: string;
+  };
+
+  aiDiagnostic: {
+    accent: string;
+    error: string;
+    solutionBackground: [string, string, ...string[]];
   };
 
   dashboard: {
     levelProgress: string;
   };
-
-  text: {
-    primary: string;
-    secondary: string;
-    tertiary: string;
-    onMain: string;
-    onAccent: string;
-  };
-
-  themeMode: 'light' | 'dark';
 
   i18n: {
     locale: string;
@@ -119,68 +113,61 @@ const parseJson = <T = any>(jsonStr?: string): T | undefined => {
  * MAPPING : Branding (DB) -> Identity (App)
  */
 const brandingToIdentity = (branding: Branding): Identity => {
-  // ✅ Correction : on force 'undefined' si le résultat est null
-  const gradientColors = parseJson<[string, string, ...string[]]>(branding.ui_gradient_colors || undefined) || undefined;
-  const aiSolutionBg = parseJson<string[]>(branding.ai_solution_bg || undefined) || ['#F3F4F6', '#F3F4F6'];
-  const dailyWordGradient = parseJson<[string, string, ...string[]]>(branding.daily_word_gradient || undefined) || undefined;
-  // Cast pour accéder aux nouvelles colonnes de façon sécurisée
-  const b = branding as any;
+  const headerGradient = parseJson<[string, string, ...string[]]>(branding.ui_gradient_colors || undefined);
+  const dailyWordGradient = parseJson<[string, string, ...string[]]>(branding.daily_word_gradient || undefined);
+  const aiSolutionBg = parseJson<[string, string, ...string[]]>(branding.ai_solution_bg || undefined);
+
+  const isDark = branding.theme_mode === 'dark';
 
   return {
     id: branding.id,
+    themeMode: branding.theme_mode,
 
-    branding: {
-      main: branding.primary_color,
-      accent: branding.accent_color,
-      surface: branding.surface_color || undefined,
+    palette: {
       primary: branding.primary_color,
-      textOnMain: branding.text_on_main_color,
-      themeMode: branding.theme_mode,
-      headerAccent: branding.header_accent_color,
-      // On pioche dans la DB ou fallback
-      aiTutorTitle: b.ai_tutor_title || "AI Tutor",
-      aiTutorSubtitle: b.ai_tutor_subtitle || "Ton assistant personnel",
+      accent: branding.accent_color,
+      surface: branding.surface_color || (isDark ? '#1F2937' : '#FFFFFF'),
+    },
+
+    text: {
+      primary: branding.text_primary_color || (isDark ? '#FFFFFF' : '#1F2937'),
+      secondary: branding.text_secondary_color || (isDark ? '#9CA3AF' : '#6B7280'),
+      tertiary: isDark ? '#4B5563' : '#D1D5DB',
+      onPrimary: branding.text_on_main_color,
     },
 
     ui: {
-      hasGradient: branding.ui_has_gradient === 1,
-      gradientColors,
       cardRadius: branding.ui_card_radius,
       showDecorativeShapes: branding.ui_show_decorative_shapes === 1,
     },
 
-    ai: {
-      accent: branding.ai_accent_color || branding.accent_color,
-      error: branding.ai_error_color || '#F44336',
-      solutionBg: aiSolutionBg,
-    },
-
     header: {
-      bg: branding.header_bg_color,
+      background: headerGradient || branding.header_bg_color,
       accent: branding.header_accent_color,
       emoji: branding.header_emoji || '📚',
       welcomeText: branding.header_welcome_text || 'Bonjour,',
     },
 
     dailyWord: {
-      bg: branding.daily_word_bg_color || undefined,
-      gradient: dailyWordGradient,
-      decoration: (branding.daily_word_decoration as any) || 'none',
+      background: dailyWordGradient || branding.daily_word_bg_color || 'transparent',
+      decoration: branding.daily_word_decoration,
+    },
+
+    aiTutor: {
+      title: branding.ai_tutor_title || "Tuteur IA",
+      subtitle: branding.ai_tutor_subtitle || "Ton assistant personnel",
+    },
+
+    aiDiagnostic: {
+      accent: branding.ai_accent_color || branding.accent_color,
+      error: branding.ai_error_color || '#F44336',
+      solutionBackground: aiSolutionBg || [withOpacity(branding.primary_color, 0.1), withOpacity(branding.primary_color, 0.05)],
     },
 
     dashboard: {
       levelProgress: branding.dashboard_level_progress_color,
     },
 
-    text: {
-      primary: b.text_primary_color || branding.primary_color,
-      secondary: b.text_secondary_color || withOpacity(branding.primary_color, 0.6),
-      tertiary: withOpacity(branding.primary_color, 0.4),
-      onMain: branding.text_on_main_color,
-      onAccent: branding.text_on_main_color,
-    },
-
-    themeMode: branding.theme_mode,
     i18n: { locale: 'fr', rtl: false },
     icons: { logo: branding.logo_name || 'school' },
     iconSize: tokens.iconSize,
@@ -193,30 +180,20 @@ const brandingToIdentity = (branding: Branding): Identity => {
 
 const defaultIdentity: Identity = {
   id: 'college',
-  branding: {
-    main: '#34495E',
-    accent: '#FFD700',
-    surface: '#FFFFFF',
-    primary: '#34495E',
-    textOnMain: '#FFFFFF',
-    themeMode: 'light',
-    headerAccent: '#FFD700',
-    aiTutorTitle: "Tuteur IA",
-    aiTutorSubtitle: "Aide aux devoirs",
-  },
-  ui: { hasGradient: false, cardRadius: 12, showDecorativeShapes: true },
-  ai: { accent: '#34495E', error: '#D32F2F', solutionBg: ['#ECEFF1', '#CFD8DC'] },
-  header: { bg: '#34495E', accent: '#FFD700', emoji: '📚', welcomeText: 'Bonjour !' },
-  dailyWord: { bg: '#FFF9C4', decoration: 'none' },
-  dashboard: { levelProgress: '#34495E' },
+  themeMode: 'light',
+  palette: { primary: '#34495E', accent: '#FFD700', surface: '#FFFFFF' },
   text: {
     primary: '#1F2937',
     secondary: '#6B7280',
     tertiary: '#9CA3AF',
-    onMain: '#FFFFFF',
-    onAccent: '#000000',
+    onPrimary: '#FFFFFF',
   },
-  themeMode: 'light',
+  ui: { cardRadius: 12, showDecorativeShapes: true },
+  header: { background: '#34495E', accent: '#FFD700', emoji: '📚', welcomeText: 'Bonjour !' },
+  dailyWord: { background: '#FFF9C4', decoration: 'none' },
+  aiTutor: { title: "Tuteur IA", subtitle: "Aide aux devoirs" },
+  aiDiagnostic: { accent: '#34495E', error: '#D32F2F', solutionBackground: ['#ECEFF1', '#CFD8DC'] },
+  dashboard: { levelProgress: '#34495E' },
   i18n: { locale: 'fr', rtl: false },
   icons: { logo: 'school' },
   iconSize: tokens.iconSize,
@@ -242,7 +219,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       }
       try {
         setIsLoading(true);
-        const brandingData = await getBrandingById(db, currentApp);
+        const brandingData = await queries.getBrandingById(db, currentApp);
         if (brandingData) {
           setIdentity(brandingToIdentity(brandingData));
         } else {

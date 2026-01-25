@@ -12,7 +12,7 @@ const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ isCorrect, message }) =
   const { identity } = useTheme();
   
   // Utilisation des couleurs AI de l'identité ou fallback
-  const statusColor = isCorrect ? identity.ai?.success || '#22C55E' : identity.ai?.error || '#EF4444';
+  const statusColor = isCorrect ? '#22C55E' : identity.aiDiagnostic.error;
 
   return (
     <View style={[
@@ -20,7 +20,7 @@ const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ isCorrect, message }) =
       { backgroundColor: withOpacity(statusColor, 0.1), borderColor: withOpacity(statusColor, 0.3) }
     ]}>
       <Text style={styles.icon}>{isCorrect ? '✅' : '❌'}</Text>
-      <Text style={[styles.text, { color: statusColor, fontFamily: identity.typography?.families?.primary }]}>
+      <Text style={[styles.text, { color: statusColor }]}>
         {message}
       </Text>
     </View>

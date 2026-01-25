@@ -23,12 +23,13 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
   return (
     <ThemeContainer identity={identity} style={styles.header} rounded>
       <View style={styles.headerContent}>
-        {/* ✅ No-Media: Pas d'emoji, focus sur la typographie */}
         <View style={styles.textSection}>
-          <Text style={[styles.greeting, { color: identity.text.onMain }]}>
+          {/* ✅ Correction : onMain -> onPrimary */}
+          <Text style={[styles.greeting, { color: identity.text.onPrimary }]}>
             {identity.header.welcomeText}
           </Text>
-          <Text style={[styles.userName, { color: identity.text.onMain }]}>
+          {/* ✅ Correction : onMain -> onPrimary */}
+          <Text style={[styles.userName, { color: identity.text.onPrimary }]}>
             {user.name}
           </Text>
         </View>

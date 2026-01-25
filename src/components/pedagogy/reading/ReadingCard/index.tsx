@@ -1,30 +1,27 @@
 import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
-import { tokens, withOpacity } from '@/themes/tokens';
+import { tokens } from '@/themes/tokens'; // ✅ Nettoyage : withOpacity supprimé (SonarLint)
 import ExerciseValidation from '../../../common/ExerciseValidation';
 import { generateFeedbackMessage } from '../../../../utils/feedback';
 import QuestionCard from '../../shared/QuestionCard';
 
-interface ReadingQuestionData {
-  passage: string;
-  question_text: string;
-  options: string[];
-  correct_answer: string;
-  audio_url?: string;
-  hint?: string;
-}
+// ✅ On importe le type exact pour garantir la compatibilité
+import { ValidationState } from '../../../common/ExerciseValidation/types';
 
 interface ReadingCardProps {
-  question: ReadingQuestionData;
+  question: {
+    passage: string;
+    question_text: string;
+    options: string[];
+    correct_answer: string;
+    hint?: string;
+  };
   selectedOption?: string;
   isValidated: boolean;
   isCorrect: boolean;
   attemptCount: number;
   maxAttempts: number;
-  isPlaying: boolean;
-  onPlayAudio: (source: string) => void;
   onAnswer: (option: string) => void;
   onValidate: () => void;
   onNext: () => void;
@@ -40,8 +37,6 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
   isCorrect,
   attemptCount,
   maxAttempts,
-  isPlaying,
-  onPlayAudio,
   onAnswer,
   onValidate,
   onNext,
@@ -51,75 +46,65 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
 }) => {
   const { identity } = useTheme();
 
-  const brandColor = color || identity.branding.main;
-  const surfaceColor = identity.branding.surface;
-  const cardRadius = identity.ui.cardRadius || tokens.borderRadius.lg;
+  const brandColor = color || identity.palette.primary;
+  const surfaceColor = identity.palette.surface;
 
-  const validationState = useMemo(() => {
-    if (!isValidated) return 'idle';
-    if (isCorrect) return 'success';
-    if (attemptCount >= maxAttempts) return 'error';
-    return 'retry';
+  // ✅ Correction TypeScript : Utilisation explicite du type importé pour lever l'ambiguïté
+  const validationState = useMemo<ValidationState | undefined>(() => {
+    if (!isValidated) return undefined;
+    if (isCorrect) return 'success' as ValidationState;
+    if (attemptCount >= maxAttempts) return 'error' as ValidationState;
+    return 'retry' as ValidationState;
   }, [isValidated, isCorrect, attemptCount, maxAttempts]);
 
+  const feedback = useMemo(() => {
+    const msg = generateFeedbackMessage(
+      isValidated,
+      isCorrect,
+      attemptCount >= maxAttempts,
+      question.correct_answer,
+      attemptCount,
+      maxAttempts
+    );
+    return msg || undefined;
+  }, [isValidated, isCorrect, attemptCount, maxAttempts, question.correct_answer]);
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      
-      {/* SECTION 1 : PASSAGE */}
+    <ScrollView 
+      style={styles.container} 
+      contentContainerStyle={styles.content} 
+      showsVerticalScrollIndicator={false}
+    >
+      {/* SECTION PASSAGE */}
       <View style={[
-        styles.passageCard,
-        {
-          backgroundColor: surfaceColor,
+        styles.passageCard, 
+        { 
+          backgroundColor: surfaceColor, 
           borderTopColor: brandColor,
-          borderRadius: cardRadius,
+          borderRadius: identity.ui?.cardRadius || tokens.borderRadius.lg 
         }
       ]}>
-        <View style={styles.headerRow}>
-          <View style={[styles.iconBadge, { backgroundColor: withOpacity(brandColor, 0.1) }]}>
-            <Ionicons name="book-outline" size={20} color={brandColor} />
-          </View>
-          <Text style={[styles.cardTitle, { color: identity.text.primary, fontFamily: identity.typography?.families?.primary }]}>
-            {identity.i18n?.readingPassageLabel || "Reading Passage"}
-          </Text>
-        </View>
+        <Text style={[styles.cardTitle, { color: identity.text.secondary }]}>
+          {("readingPassageLabel" in identity.i18n ? (identity.i18n as any).readingPassageLabel : "ANALYSE DE TEXTE")}
+        </Text>
 
-        <View style={[styles.passageBox, { backgroundColor: withOpacity(brandColor, 0.04) }]}>
+        <View style={styles.passageBox}>
           <View style={[styles.accentLine, { backgroundColor: brandColor }]} />
           <Text style={[
             styles.passageText, 
             { 
               color: identity.text.primary,
               fontSize: tokens.fontSize.base,
-              lineHeight: tokens.fontSize.base * 1.6 // ✅ Ratio dynamique
+              lineHeight: tokens.fontSize.base * 1.6 
             }
           ]}>
             {question.passage}
           </Text>
         </View>
-
-        {question.audio_url && (
-          <TouchableOpacity
-            onPress={() => onPlayAudio(question.audio_url!)}
-            style={[styles.audioButton, { borderColor: brandColor }]}
-          >
-            <Ionicons
-              name={isPlaying ? "pause" : "play-circle"}
-              size={22}
-              color={brandColor}
-            />
-            <Text style={[styles.audioText, { color: brandColor }]}>
-              {isPlaying ? (identity.i18n?.playingLabel || "En cours...") : (identity.i18n?.listenLabel || "Écouter le texte")}
-            </Text>
-          </TouchableOpacity>
-        )}
       </View>
 
-      {/* SECTION 2 : QUESTION */}
+      {/* SECTION QUESTION */}
       <View style={styles.questionSection}>
-        <Text style={[styles.questionLabel, { color: identity.text.secondary }]}>
-          {identity.i18n?.questionHeader || "QUESTION"}
-        </Text>
-
         <QuestionCard
           question={question.question_text}
           options={question.options}
@@ -142,14 +127,7 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
         onRetry={onRetry}
         disabled={!selectedOption}
         isLastQuestion={isLastQuestion}
-        feedbackMessage={generateFeedbackMessage(
-          isValidated,
-          isCorrect,
-          attemptCount >= maxAttempts,
-          question.correct_answer,
-          attemptCount,
-          maxAttempts
-        )}
+        feedbackMessage={feedback}
       />
     </ScrollView>
   );
@@ -157,63 +135,24 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  content: {
-    padding: tokens.layout.screenPadding,
-    paddingBottom: 140, 
-  },
+  content: { padding: tokens.layout.screenPadding, paddingBottom: 140 },
   passageCard: {
     padding: tokens.spacing.lg,
     borderTopWidth: 4,
     marginBottom: tokens.spacing.xl,
-    ...tokens.shadows.md,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: tokens.spacing.sm,
-    marginBottom: tokens.spacing.lg,
-  },
-  iconBadge: {
-    padding: tokens.spacing.sm,
-    borderRadius: tokens.borderRadius.sm,
+    ...tokens.shadows.sm,
   },
   cardTitle: {
-    fontWeight: tokens.fontWeight.bold,
-    fontSize: tokens.fontSize.md,
-  },
-  passageBox: {
-    padding: tokens.spacing.lg,
-    borderRadius: tokens.borderRadius.md,
-    flexDirection: 'row',
-    gap: tokens.spacing.md,
-  },
-  accentLine: {
-    width: 3,
-    borderRadius: tokens.borderRadius.round,
-  },
-  passageText: { flex: 1 },
-  audioButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: tokens.spacing.sm,
-    paddingVertical: tokens.spacing.sm,
-    paddingHorizontal: tokens.spacing.md,
-    borderRadius: tokens.borderRadius.round,
-    borderWidth: 1,
-    marginTop: tokens.spacing.lg,
-    alignSelf: 'flex-start',
-  },
-  audioText: {
-    fontWeight: tokens.fontWeight.semibold,
-    fontSize: tokens.fontSize.sm,
-  },
-  questionSection: { marginBottom: tokens.spacing.xl },
-  questionLabel: {
-    fontSize: tokens.fontSize.xs,
     fontWeight: tokens.fontWeight.extrabold,
-    letterSpacing: 1,
+    fontSize: tokens.fontSize.xs,
+    letterSpacing: 1.2,
     marginBottom: tokens.spacing.md,
+    textTransform: 'uppercase',
   },
+  passageBox: { flexDirection: 'row', gap: tokens.spacing.md },
+  accentLine: { width: 3, borderRadius: 2, opacity: 0.6 },
+  passageText: { flex: 1, fontWeight: '400' },
+  questionSection: { marginBottom: tokens.spacing.xl },
 });
 
 export default ReadingCard;

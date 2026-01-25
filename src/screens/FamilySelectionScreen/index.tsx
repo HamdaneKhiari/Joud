@@ -65,12 +65,6 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   const { identity } = useTheme();
   const { db } = useUser();
 
-  // Cast local pour les propriétés manquantes dans l'interface actuelle
-  const branding = identity.branding as typeof identity.branding & { 
-    themeMode?: 'light' | 'dark'; 
-    headerAccent?: string; 
-  };
-
   // =================== PARAMÈTRES ===================
   // Support React Navigation ET Expo Router
   const rawModuleId = route?.params?.moduleId || expoParams.moduleId || expoParams.familyId || '';
@@ -107,7 +101,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   // Labels (remplace getLevelData, getExerciseData, getModuleMetadata)
   const [levelLabel, setLevelLabel] = useState({ badge: '', title: '', description: '' });
   const [moduleLabel, setModuleLabel] = useState({ title: '', icon: '', description: '' });
-  const [moduleColor, setModuleColor] = useState(identity.branding.main || '#000000');
+  const [moduleColor, setModuleColor] = useState(identity.palette.primary || '#000000');
 
   useEffect(() => {
     const loadLabels = async () => {
@@ -132,13 +126,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   }, [db, moduleId, numLevelId, identity.id]);
 
   // Couleurs (remplace getLevelColor, getLevelGradient)
-  const levelColor = identity.branding.main;
-  const levelGradient = useMemo(() => {
-    if (identity.ui.hasGradient && identity.ui.gradientColors) {
-      return identity.ui.gradientColors;
-    }
-    return [levelColor, levelColor];
-  }, [identity, levelColor]);
+  const levelColor = identity.palette.primary;
 
   // =================== VALIDATION ===================
   if (!moduleId) return null;
@@ -191,21 +179,19 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
       <SafeAreaView style={styles.safeArea}>
         <StatusBar
           // Utilise la config de la DB (theme_mode) au lieu de vérifier les IDs
-          barStyle={branding.themeMode === 'dark' ? 'light-content' : 'dark-content'}
-          backgroundColor={levelColor}
+          barStyle={identity.themeMode === 'dark' ? 'light-content' : 'dark-content'}
+          backgroundColor={Array.isArray(identity.header.background) ? identity.header.background[0] : identity.header.background}
         />
 
         <ExerciseHeader
           variant="simple"
           onBack={() => safeGoBack.navigate()}
           rightIcon={
-            <DynamicIcon name={moduleLabel.icon} size={28} color={branding.headerAccent} fallback="book" />
+            <DynamicIcon name={moduleLabel.icon} size={28} color={identity.header.accent} fallback="book" />
           }
           showLevelBadge
           levelTitle={levelLabel.badge}
-          levelColor={levelColor}
           exerciseTitle={moduleLabel.title}
-          gradientColors={levelGradient}
         />
 
         <ScrollView

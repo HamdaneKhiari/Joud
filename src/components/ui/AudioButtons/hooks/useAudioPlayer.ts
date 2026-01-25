@@ -8,6 +8,7 @@ interface SpeakOptions {
   language?: 'en' | 'fr';
   rate?: number;
   pitch?: number;
+  audioUrl?: string;
 }
 
 // On définit ce que le Hook retourne exactement

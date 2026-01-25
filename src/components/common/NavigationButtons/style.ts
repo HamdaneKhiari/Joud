@@ -17,7 +17,7 @@ const BUTTON_SIZE = 72;
 
 export const createStyles = (identity: Identity) => {
   // Dérivation dynamique des couleurs neutres (White Label Rigor)
-  const isDark = identity.branding.themeMode === 'dark';
+  const isDark = identity.themeMode === 'dark';
   const neutralBorder = isDark
     ? withOpacity('#FFFFFF', 0.2)
     : withOpacity('#000000', 0.1);
@@ -34,7 +34,7 @@ export const createStyles = (identity: Identity) => {
       paddingHorizontal: tokens.spacing.xxxl,
       paddingVertical: tokens.spacing.xxl,
       paddingBottom: tokens.spacing.xxxl, // Extra padding en bas pour détacher du bord
-      backgroundColor: identity.branding.surface,
+      backgroundColor: identity.palette.surface,
       borderTopWidth: tokens.borderWidth.thin,
       borderTopColor: neutralBorder,
       // ✅ Ombre premium pour élévation
@@ -60,21 +60,21 @@ export const createStyles = (identity: Identity) => {
     },
     navButtonNext: {
       // Utilise primary si disponible, sinon main
-      backgroundColor: identity.branding.primary || identity.branding.main,
+      backgroundColor: identity.palette.primary,
       // ✅ Bordure neutre pour look premium
       borderWidth: tokens.borderWidth.thin,
       borderColor: isDark ? withOpacity('#FFFFFF', 0.3) : withOpacity('#000000', 0.15),
       // ✅ Glow accent pour effet dynamique
-      shadowColor: identity.branding.accent,
+      shadowColor: identity.palette.accent,
       shadowOffset: { width: 0, height: 6 },
       shadowOpacity: 0.35,
       shadowRadius: 16,
       elevation: 8,
     },
     navButtonFinish: {
-      backgroundColor: identity.branding.accent,
+      backgroundColor: identity.palette.accent,
       // ✅ Effet "glow" subtil pour le bouton finish (ombre colorée)
-      shadowColor: identity.branding.accent,
+      shadowColor: identity.palette.accent,
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.3,
       shadowRadius: 12,

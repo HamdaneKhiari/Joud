@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, TextInput, ScrollView } from 'react-native';
+import { View, Text, TextInput} from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import { getSentenceCardStyles } from './SentencesCard.styles';
 import { SentenceData } from '@/hooks/exercises/useExerciseContent';
@@ -20,21 +20,34 @@ const SentenceCard: React.FC<SentenceCardProps> = ({
   moduleColor 
 }) => {
   const { identity } = useTheme();
-  const styles = useMemo(() => getSentenceCardStyles(identity, moduleColor), [identity, moduleColor]);
+  
+  // Mémorisation des styles avec passage de l'identité sémantique
+  const styles = useMemo(() => 
+    getSentenceCardStyles(identity, moduleColor), 
+    [identity, moduleColor]
+  );
 
   return (
     <View style={styles.container}>
       {/* 1. ÉNONCÉ */}
       <View style={styles.questionBox}>
-        <Text style={styles.instruction}>Traduis cette phrase :</Text>
-        <Text style={styles.phraseSource}>{data.phrase_fr}</Text>
+        <Text style={[styles.instruction, { color: identity.text.secondary }]}>
+          Traduis cette phrase :
+        </Text>
+        <Text style={[styles.phraseSource, { color: identity.text.primary }]}>
+          {data.phrase_fr}
+        </Text>
       </View>
 
       {/* 2. ZONE DE SAISIE */}
       <TextInput
         style={[
           styles.input,
-          { borderColor: isRevealed ? moduleColor : identity.text.tertiary + '33' }
+          { 
+            borderColor: isRevealed ? moduleColor : identity.text.tertiary + '33',
+            color: identity.text.primary,
+            backgroundColor: identity.palette.surface 
+          }
         ]}
         placeholder="Tape ta traduction ici..."
         placeholderTextColor={identity.text.tertiary}
@@ -42,25 +55,39 @@ const SentenceCard: React.FC<SentenceCardProps> = ({
         onChangeText={setUserDraft}
         editable={!isRevealed}
         multiline
-        blurOnSubmit
+        // ✅ Remplacement de blurOnSubmit (déprécié) par submitBehavior
+        // "blurAndSubmit" permet de fermer le clavier sur Entrée même en multiline
+        submitBehavior="blurAndSubmit" 
       />
 
       {/* 3. RÉVÉLATION (Si validé) */}
       {isRevealed && (
         <View style={styles.revealContainer}>
-          <View style={styles.correctionBlock}>
-            <Text style={styles.labelCorrection}>PHRASE ATTENDUE :</Text>
-            <Text style={styles.phraseTarget}>{data.phrase_en}</Text>
+          <View style={[styles.correctionBlock, { borderLeftColor: moduleColor }]}>
+            <Text style={[styles.labelCorrection, { color: moduleColor }]}>
+              PHRASE ATTENDUE :
+            </Text>
+            <Text style={[styles.phraseTarget, { color: identity.text.primary }]}>
+              {data.phrase_en}
+            </Text>
           </View>
 
-          <View style={styles.pedagogyCard}>
-            <Text style={styles.pedagogyTitle}>Concrètement</Text>
-            <Text style={styles.pedagogyText}>{data.concretement}</Text>
+          <View style={[styles.pedagogyCard, { backgroundColor: identity.palette.surface }]}>
+            <Text style={[styles.pedagogyTitle, { color: identity.text.primary }]}>
+              Concrètement
+            </Text>
+            <Text style={[styles.pedagogyText, { color: identity.text.secondary }]}>
+              {data.concretement}
+            </Text>
           </View>
 
-          <View style={styles.pedagogyCard}>
-            <Text style={styles.pedagogyTitle}>La Structure (Build)</Text>
-            <Text style={styles.pedagogyText}>{data.build}</Text>
+          <View style={[styles.pedagogyCard, { backgroundColor: identity.palette.surface }]}>
+            <Text style={[styles.pedagogyTitle, { color: identity.text.primary }]}>
+              La Structure (Build)
+            </Text>
+            <Text style={[styles.pedagogyText, { color: identity.text.secondary }]}>
+              {data.build}
+            </Text>
           </View>
         </View>
       )}

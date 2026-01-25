@@ -53,7 +53,7 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({
 }) => {
   const { getExerciseProgress } = useProgress();
   const { db } = useUser();
-  const [moduleColor, setModuleColor] = useState<string>(identity.branding.main);
+  const [moduleColor, setModuleColor] = useState<string>(identity.palette.primary);
 
   // Récupération des familles via le Slug technique (ex: 'phrase_types')
   const { familyIds, isLoading: loadingFamilies } = useGetFamiliesByModule(
@@ -71,7 +71,7 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({
       } catch (error) {
         // ✅ Correction SonarLint : On gère l'exception explicitement
         console.warn(`[ExerciseItem] Impossible de charger la couleur pour : ${exercise.id}`, error);
-        setModuleColor(identity.branding.main);
+        setModuleColor(identity.palette.primary);
       }
     };
     loadColor();
@@ -167,8 +167,8 @@ const ExerciseSelectionScreen: React.FC = () => {
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
         <StatusBar
-          barStyle={identity.id === 'lycee' || identity.id === 'college' ? 'light-content' : 'dark-content'}
-          backgroundColor={identity.branding.main}
+          barStyle={identity.themeMode === 'dark' ? 'light-content' : 'dark-content'}
+          backgroundColor={Array.isArray(identity.header.background) ? identity.header.background[0] : identity.header.background}
         />
 
         <ExerciseHeader
@@ -178,7 +178,7 @@ const ExerciseSelectionScreen: React.FC = () => {
             <DynamicIcon 
               name="book-open" 
               size={28} 
-              color={identity.branding.headerAccent} 
+              color={identity.header.accent} 
             />
           }
           showLevelBadge
@@ -194,7 +194,7 @@ const ExerciseSelectionScreen: React.FC = () => {
         >
           {(isLoading || loadingData) ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={identity.branding.main} />
+              <ActivityIndicator size="large" color={identity.palette.primary} />
               <Text style={styles.loadingText}>Chargement des modules...</Text>
             </View>
           ) : (

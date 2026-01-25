@@ -68,8 +68,9 @@ const HEADER_SPACING = {
 // ============================================
 
 const createStyles = (identity: Identity) => {
-  const spacing = HEADER_SPACING[identity.id];
-  const minHeight = HEADER_HEIGHTS[identity.id];
+  // Fallback safe si l'ID n'est pas dans la liste (ex: 'business')
+  const spacing = HEADER_SPACING[identity.id as keyof typeof HEADER_SPACING] || HEADER_SPACING.college;
+  const minHeight = HEADER_HEIGHTS[identity.id as keyof typeof HEADER_HEIGHTS] || HEADER_HEIGHTS.college;
 
   return StyleSheet.create({
     headerContainer: {
@@ -113,11 +114,11 @@ const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({
   // ✅ WHITE LABEL: Utilise uniquement identity.branding.main pour le gradient
   const gradient = useMemo(() => {
     // Si l'identité a un gradient défini, on l'utilise
-    if (identity.ui.hasGradient && identity.ui.gradientColors) {
-      return identity.ui.gradientColors;
+    if (Array.isArray(identity.header.background)) {
+      return identity.header.background;
     }
     // Sinon, couleur unie basée sur identity.branding.main
-    return [identity.branding.main, identity.branding.main];
+    return [identity.palette.primary, identity.palette.primary];
   }, [identity]);
 
   // Badge niveau
@@ -152,7 +153,7 @@ const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({
       <ExerciceNavBar
         onBack={onBack}
         levelTitle={levelTitle}
-        showBadge={displayBadge}
+        showBadge={!!displayBadge} // Force boolean
         rightIcon={rightIcon}
         onRightIconPress={onRightIconPress}
       />
@@ -161,7 +162,7 @@ const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({
       <ExerciseHeaderContent
         title={contentProps.title}
         subtitle={contentProps.subtitle}
-        variant={variant}
+        variant={variant === 'simple' ? 'selection' : variant} // Map 'simple' to 'selection' for content
       />
 
       {/* Élément décoratif */}

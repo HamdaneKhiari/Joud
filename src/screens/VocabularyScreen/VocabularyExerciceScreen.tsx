@@ -1,8 +1,3 @@
-// ============================================
-// FICHIER: src/screens/exercises/Vocabulary/VocabularyExerciseScreen.tsx
-// ✅ VERSION MOTEUR : Données depuis DB, typage strict.
-// ============================================
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
@@ -27,6 +22,15 @@ import { useLevelLabel } from '../../utils/labelMapper';
 const EXERCISE_TYPE = 'vocab';
 
 // =================== TYPES ===================
+
+/** Interface pour les données spécifiques au vocabulaire (ContentItem.data) */
+interface VocabData {
+  word: string;
+  translation: string;
+  example: string;
+  audio?: string;
+}
+
 type VocabularyStackParamList = {
   VocabularyExercise: {
     familyId: string;
@@ -43,24 +47,23 @@ interface Props {
 }
 
 const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
-  // =================== PARAMS ===================
+  // =================== PARAMS & THEME ===================
   const { familyId, levelId = '1' } = route.params || {};
   const numLevelId = Number.parseInt(levelId, 10);
+  const { identity } = useTheme();
 
-  // =================== HOOKS & DATA ===================
-  const { identity } = useTheme(); // ✅ Récupération de l'identité visuelle
+  // =================== PROGRESSION & NAVIGATION ===================
   const { trackItemCompletion, getFamilyProgress, saveProgressNow } = useProgress();
   const safeGoBack = useSafeNavigation(
     useCallback(() => navigation.goBack(), [navigation])
   );
 
-  // --- DATA DRIVEN (Phase 1 & 2) ---
-  // ✅ FULL SQL MODE - Données exclusivement depuis la DB
-  const { module, family, contentItems, isLoading, error } = useExerciseContent(familyId, numLevelId);
+  // ✅ Correction TS : Type générique <VocabData> et suppression de 'error' (S1854)
+  const { module, family, contentItems, isLoading } = useExerciseContent<VocabData>(familyId, numLevelId);
 
   const levelLabel = useLevelLabel(numLevelId);
+  const [currentWordIndex, setCurrentWordIndex] = useState<number>(0);
 
-  // =================== PROGRESSION LOGIC ===================
   const totalWords = contentItems.length;
   const getFirstIncompleteIndex = useFirstIncompleteIndex(
     numLevelId,
@@ -69,26 +72,27 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
     totalWords
   );
 
-  // =================== STATE ===================
-  const [currentWordIndex, setCurrentWordIndex] = useState<number>(0);
-
+  // Initialisation de l'index de départ
   useEffect(() => {
     if (totalWords > 0) {
       setCurrentWordIndex(getFirstIncompleteIndex());
     }
   }, [totalWords, getFirstIncompleteIndex]);
 
-  const currentContentItem: ContentItem | null = contentItems?.[currentWordIndex] || null;
+  // ✅ Correction TS : Type explicite ContentItem<VocabData>
+  const currentContentItem: ContentItem<VocabData> | null = contentItems?.[currentWordIndex] || null;
   const isLastWord = currentWordIndex === totalWords - 1;
   const isFirstWord = currentWordIndex === 0;
   const realProgress = getFamilyProgress(numLevelId, EXERCISE_TYPE, familyId);
 
-  // =================== ⚡ HOOKS UTILITAIRES ===================
+  // =================== ACTIVITÉ & AUTO-SAVE ===================
+  
+  // ✅ Correction TS : Ajout du moduleSlug requis
   useExerciseActivity({
-    type: EXERCISE_TYPE,
     levelId: numLevelId,
     familyId,
     familyName: family?.name || 'Vocabulaire',
+    moduleSlug: module?.slug || 'vocabulary',
     icon: family?.icon || 'book',
     currentIndex: currentWordIndex,
     totalItems: totalWords,
@@ -97,49 +101,60 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
 
   useExerciseSaveOnUnmount();
 
-  // =================== VALIDATION ===================
-  useEffect(() => {
-    if (!isLoading && (error || !family || totalWords === 0)) {
-      console.warn('Données invalides ou erreur de chargement, retour en arrière.');
-      const timer = setTimeout(() => safeGoBack.navigate(), 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isLoading, error, family, totalWords, safeGoBack]);
+  // =================== HANDLERS (S6544 Fixes) ===================
 
+  const handleNext = useCallback(() => {
+    // Cette opération est synchrone dans le ProgressContext
+    trackItemCompletion(numLevelId, EXERCISE_TYPE, familyId, currentWordIndex, totalWords);
+    if (!isLastWord) {
+      setCurrentWordIndex((prev) => prev + 1);
+    }
+  }, [numLevelId, familyId, currentWordIndex, totalWords, isLastWord, trackItemCompletion]);
+
+  const handleFinish = useCallback(() => {
+    // ✅ Correction Sonar S6544 : Wrapper synchrone pour la logique asynchrone
+    const performFinish = async () => {
+      trackItemCompletion(numLevelId, EXERCISE_TYPE, familyId, currentWordIndex, totalWords);
+      await saveProgressNow();
+      safeGoBack.navigate();
+    };
+
+    performFinish().catch((err) => {
+      console.error("[VocabularyScreen] Erreur lors de la sauvegarde finale:", err);
+    });
+  }, [numLevelId, familyId, currentWordIndex, totalWords, trackItemCompletion, saveProgressNow, safeGoBack]);
+
+  // =================== RENDU ===================
+
+  // ✅ Correction TS : headerProps obligatoire même pendant le chargement
   if (isLoading || !family || !currentContentItem) {
+    const loaderBg = Array.isArray(identity.header.background) ? identity.header.background : [identity.palette.primary, identity.palette.primary];
     return (
-      <ExerciseLayout gradientColors={identity.ui.gradientColors || [identity.branding.main, identity.branding.main]}>
+      <ExerciseLayout 
+        gradientColors={loaderBg}
+        headerProps={{
+          variant: "exercise",
+          onBack: () => { safeGoBack.navigate(); },
+          exerciseTitle: "Chargement...",
+        }}
+      >
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color={identity.branding.accent} />
+          <ActivityIndicator size="large" color={identity.palette.accent} />
         </View>
       </ExerciseLayout>
     );
   }
 
-  // =================== HANDLERS ===================
-  const handleNext = () => {
-    trackItemCompletion(numLevelId, EXERCISE_TYPE, familyId, currentWordIndex, totalWords);
-    !isLastWord && setCurrentWordIndex((prev: number) => prev + 1);
-  };
-
-  const handleFinish = async () => {
-    trackItemCompletion(numLevelId, EXERCISE_TYPE, familyId, currentWordIndex, totalWords);
-    await saveProgressNow();
-    safeGoBack.navigate();
-  };
-
   return (
     <ExerciseLayout
-      gradientColors={identity.ui.gradientColors} // ✅ Fond dynamique selon l'identité
+      gradientColors={Array.isArray(identity.header.background) ? identity.header.background : [identity.palette.primary, identity.palette.primary]}
       headerProps={{
         variant: "exercise",
-        onBack: safeGoBack.navigate,
-        rightIcon: <DynamicIcon name={module?.icon} size={28} color={identity.branding.headerAccent} fallback="book" />,
+        onBack: () => { safeGoBack.navigate(); },
+        rightIcon: <DynamicIcon name={module?.icon} size={28} color={identity.header.accent} fallback="book" />,
         showLevelBadge: true,
         levelTitle: levelLabel.badge,
-        levelColor: identity.branding.accent, // ✅ Couleur d'accent dynamique
         exerciseTitle: family.name,
-        gradientColors: identity.ui.gradientColors,
       }}
       progressProps={{
         progressPercent: realProgress,
@@ -149,7 +164,7 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
         <NavigationButtons
           isFirst={isFirstWord}
           isLast={isLastWord}
-          onPrevious={() => currentWordIndex > 0 && setCurrentWordIndex((prev: number) => prev - 1)}
+          onPrevious={() => currentWordIndex > 0 && setCurrentWordIndex((prev) => prev - 1)}
           onNext={handleNext}
           onFinish={handleFinish}
         />
@@ -161,9 +176,7 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
         frenchWord={currentContentItem.data.translation}
         exampleSentence={currentContentItem.data.example}
         highlightWord={currentContentItem.data.word}
-        image={currentContentItem.data.image}
         audio={currentContentItem.data.audio}
-        // ✅ Plus de props de style ici, WordCard gère son propre design via useTheme
       />
     </ExerciseLayout>
   );

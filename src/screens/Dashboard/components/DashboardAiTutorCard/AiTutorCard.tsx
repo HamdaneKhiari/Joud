@@ -15,23 +15,23 @@ const AITutorCard: React.FC = () => {
           <MaterialCommunityIcons 
             name="robot" 
             size={24} 
-            color={identity.branding.main} 
+            color={identity.palette.primary} 
           />
         </View>
 
         <View style={styles.textBody}>
           <Text style={styles.title}>
-            {identity.branding.aiTutorTitle || "Tuteur IA"}
+            {identity.aiTutor.title}
           </Text>
           <Text style={styles.subtitle}>
-            {identity.branding.aiTutorSubtitle || "Aide aux devoirs"}
+            {identity.aiTutor.subtitle}
           </Text>
         </View>
 
         <MaterialCommunityIcons 
           name="chevron-right" 
           size={22} 
-          color="#D1D5DB" 
+          color={identity.text.tertiary} 
         />
       </View>
     </TouchableOpacity>

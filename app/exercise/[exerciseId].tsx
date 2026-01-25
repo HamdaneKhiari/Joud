@@ -27,10 +27,10 @@ export default function ExerciseDispatcher() {
         flex: 1, 
         justifyContent: 'center', 
         alignItems: 'center',
-        backgroundColor: identity.branding.surface || '#FFFFFF' // ✅ Fond dynamique
+        backgroundColor: identity.palette.surface || '#FFFFFF' // ✅ Fond dynamique
       }}>
-        <ActivityIndicator size="large" color={identity.branding.accent} />
-        <Text style={{ marginTop: 10, color: identity.branding.headerAccent }}>
+        <ActivityIndicator size="large" color={identity.palette.accent} />
+        <Text style={{ marginTop: 10, color: identity.header.accent }}>
           Chargement de l'exercice...
         </Text>
       </View>
@@ -55,20 +55,20 @@ export default function ExerciseDispatcher() {
   // 4. Aiguillage (Switch) vers le bon composant
   switch (exerciseId) {
     case 'vocab':
-      return <VocabularyExerciseScreen {...screenProps} />;
+      return <VocabularyExerciseScreen {...(screenProps as any)} />;
 
     case 'phrases':
-      return <SentenceScreen {...screenProps} />;
+      return <SentenceScreen {...(screenProps as any)} />;
     
     case 'connector':
-      return <ConnectorExerciseScreen {...screenProps} />;
+      return <ConnectorExerciseScreen {...(screenProps as any)} />;
 
     case 'reading':
-      return <ReadingExerciseScreen {...screenProps} />;
+      return <ReadingExerciseScreen {...(screenProps as any)} />;
     
     case 'grammar':
       // On réutilise le moteur Connector qui gère parfaitement les QCM (Logic) et textes à trous
-      return <ConnectorExerciseScreen {...screenProps} />;
+      return <ConnectorExerciseScreen {...(screenProps as any)} />;
     
     default:
       return (

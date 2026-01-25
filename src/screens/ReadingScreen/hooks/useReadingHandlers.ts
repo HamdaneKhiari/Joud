@@ -1,72 +1,24 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { Audio } from 'expo-av';
-import { ReadingQuestionData } from '../../../components/pedagogy/reading/types';
+import { useCallback } from 'react';
 
 interface UseReadingHandlersProps {
-  question: ReadingQuestionData;
+  question: any;
   isLastQuestion: boolean;
-  onNavigateBack: () => void;
+  onFinish: () => void; // ✅ Ajouté pour corriger l'erreur TS
   setCurrentQuestionIndex: React.Dispatch<React.SetStateAction<number>>;
-  state: any; // ReadingState
+  state: any;
   setState: any;
   resetState: () => void;
-  onValidationSuccess: () => void;
 }
 
 export const useReadingHandlers = ({
   question,
   isLastQuestion,
-  onNavigateBack,
+  onFinish,
   setCurrentQuestionIndex,
   state,
   setState,
   resetState,
-  onValidationSuccess,
 }: UseReadingHandlersProps) => {
-  const soundRef = useRef<Audio.Sound | null>(null);
-
-  // Cleanup audio on unmount
-  useEffect(() => {
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-      }
-    };
-  }, []);
-
-  const handlePlayAudio = useCallback(async (audioSource: string) => {
-    try {
-      if (state.isPlaying) {
-        if (soundRef.current) {
-          await soundRef.current.stopAsync();
-          await soundRef.current.unloadAsync();
-          soundRef.current = null;
-        }
-        setState((prev: any) => ({ ...prev, isPlaying: false }));
-        return;
-      }
-
-      setState((prev: any) => ({ ...prev, isPlaying: true }));
-      
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: audioSource },
-        { shouldPlay: true }
-      );
-      
-      soundRef.current = sound;
-      
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) {
-          setState((prev: any) => ({ ...prev, isPlaying: false }));
-          sound.unloadAsync();
-          soundRef.current = null;
-        }
-      });
-    } catch (error) {
-      console.error('Error playing audio:', error);
-      setState((prev: any) => ({ ...prev, isPlaying: false }));
-    }
-  }, [state.isPlaying, setState]);
 
   const handleAnswer = useCallback((option: string) => {
     if (state.isValidated) return;
@@ -76,8 +28,8 @@ export const useReadingHandlers = ({
   const handleValidate = useCallback(() => {
     if (!state.selectedOption) return;
     
-    const correctLetter = String.fromCharCode(65 + question.correctAnswer);
-    const isCorrect = state.selectedOption === correctLetter;
+    // On compare la lettre choisie (A, B, C...) avec la bonne réponse
+    const isCorrect = state.selectedOption === question.correct_answer;
 
     setState((prev: any) => ({
       ...prev,
@@ -85,23 +37,16 @@ export const useReadingHandlers = ({
       isCorrect,
       attemptCount: prev.attemptCount + 1
     }));
-
-    if (isCorrect) onValidationSuccess();
-  }, [state.selectedOption, question, setState, onValidationSuccess]);
+  }, [state.selectedOption, question, setState]);
 
   const handleNext = useCallback(() => {
-    if (soundRef.current) {
-      soundRef.current.unloadAsync();
-      soundRef.current = null;
-    }
-
     if (isLastQuestion) {
-      onNavigateBack();
+      onFinish(); // ✅ On appelle la fin de l'exercice
     } else {
       setCurrentQuestionIndex((prev) => prev + 1);
       resetState();
     }
-  }, [isLastQuestion, onNavigateBack, setCurrentQuestionIndex, resetState]);
+  }, [isLastQuestion, onFinish, setCurrentQuestionIndex, resetState]);
 
   const handleRetry = useCallback(() => {
     setState((prev: any) => ({
@@ -113,7 +58,6 @@ export const useReadingHandlers = ({
   }, [setState]);
 
   return {
-    onPlayAudio: handlePlayAudio,
     onAnswer: handleAnswer,
     onValidate: handleValidate,
     onNext: handleNext,

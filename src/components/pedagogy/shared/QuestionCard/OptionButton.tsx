@@ -21,25 +21,25 @@ const OptionButton: React.FC<OptionButtonProps> = ({
   // Extraction des préférences UI de l'identité
   const uiPrefs = {
     borderRadius: identity.ui?.cardRadius || tokens.borderRadius.md,
-    badgeRadius: identity.ui?.buttonRadius ? identity.ui.buttonRadius * 0.4 : tokens.borderRadius.sm,
-    borderWidth: identity.ui?.borderWidth || tokens.borderWidth.base,
+    badgeRadius: tokens.borderRadius.sm,
+    borderWidth: 1, // Valeur standard
   };
 
   const getColors = () => {
     // Couleurs système depuis l'identité
-    const successColor = identity.ai?.success || tokens.colors.success;
-    const errorColor = identity.ai?.error || tokens.colors.error;
+    const successColor = '#22C55E'; // Vert standard
+    const errorColor = identity.aiDiagnostic.error || '#EF4444';
 
     if (!isAnswered) {
       return isSelected 
         ? { 
-            bg: withOpacity(brandColor, tokens.opacity?.light || 0.1), 
+            bg: withOpacity(brandColor, 0.1), 
             border: brandColor, 
             text: identity.text.primary 
           }
         : { 
-            bg: identity.branding.surface, 
-            border: withOpacity(identity.text.tertiary, tokens.opacity?.border || 0.2), 
+            bg: identity.palette.surface, 
+            border: withOpacity(identity.text.tertiary, 0.2), 
             text: identity.text.primary 
           };
     }
@@ -50,8 +50,8 @@ const OptionButton: React.FC<OptionButtonProps> = ({
     }
 
     return { 
-      bg: identity.branding.surface, 
-      border: withOpacity(identity.text.tertiary, tokens.opacity?.border || 0.1), 
+      bg: identity.palette.surface, 
+      border: withOpacity(identity.text.tertiary, 0.1), 
       text: withOpacity(identity.text.primary, 0.5) 
     };
   };
@@ -87,8 +87,7 @@ const OptionButton: React.FC<OptionButtonProps> = ({
         styles.optionText, 
         { 
           color: colors.text, 
-          fontFamily: identity.typography?.families?.primary,
-          fontSize: identity.typography?.sizes?.base || tokens.fontSize.base
+          fontSize: tokens.fontSize.base
         }
       ]}>
         {text}

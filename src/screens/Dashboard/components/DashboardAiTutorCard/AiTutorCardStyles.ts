@@ -5,7 +5,7 @@ import { tokens, withOpacity } from '@/themes/tokens';
 export const createStyles = (identity: Identity) =>
   StyleSheet.create({
     container: {
-      backgroundColor: '#FFFFFF',
+      backgroundColor: identity.palette.surface,
       borderRadius: identity.ui.cardRadius, // Identique au diagnostic
       padding: tokens.spacing.lg,
       marginHorizontal: tokens.spacing.xl, // On reprend la même marge pour la largeur
@@ -20,7 +20,7 @@ export const createStyles = (identity: Identity) =>
       width: 44,
       height: 44,
       borderRadius: tokens.borderRadius.md,
-      backgroundColor: withOpacity(identity.branding.main, 0.1),
+      backgroundColor: withOpacity(identity.palette.primary, 0.1),
       justifyContent: 'center',
       alignItems: 'center',
       marginRight: tokens.spacing.md,
@@ -31,11 +31,11 @@ export const createStyles = (identity: Identity) =>
     title: {
       fontSize: tokens.fontSize.base,
       fontWeight: tokens.fontWeight.bold,
-      color: '#1F2937',
+      color: identity.text.primary,
     },
     subtitle: {
       fontSize: tokens.fontSize.sm,
-      color: '#6B7280',
+      color: identity.text.secondary,
       marginTop: 2,
     }
   });

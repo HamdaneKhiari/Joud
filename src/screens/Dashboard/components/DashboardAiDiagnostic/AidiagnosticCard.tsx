@@ -60,7 +60,7 @@ const AIDiagnosticCard: React.FC<AIDiagnosticCardProps> = ({
       {/* HEADER : Titre et Score de Maîtrise */}
       <View style={styles.header}>
         <View style={styles.titleRow}>
-          <MaterialCommunityIcons name="brain" size={24} color={identity.ai.accent} />
+          <MaterialCommunityIcons name="brain" size={24} color={identity.aiDiagnostic.accent} />
           <Text style={styles.title}>Analyse Coach IA</Text>
         </View>
         <View style={styles.masteryBadge}>
@@ -72,7 +72,7 @@ const AIDiagnosticCard: React.FC<AIDiagnosticCardProps> = ({
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>CONSTAT</Text>
         <View style={styles.bubble}>
-          <MaterialCommunityIcons name="alert-circle-outline" size={18} color={identity.ai.error} />
+          <MaterialCommunityIcons name="alert-circle-outline" size={18} color={identity.aiDiagnostic.error} />
           <Text style={styles.bubbleText} numberOfLines={1}>
             Difficulté : <Text style={styles.bold}>{diagnostic?.topWeakness?.name || 'Analyse...'}</Text>
           </Text>
@@ -82,7 +82,7 @@ const AIDiagnosticCard: React.FC<AIDiagnosticCardProps> = ({
       {/* SECTION SOLUTION : Le message du coach et le bouton d'action */}
       {challenge && (
         <LinearGradient
-          colors={identity.ai.solutionBg as [string, string, ...string[]]}
+          colors={identity.aiDiagnostic.solutionBackground}
           style={styles.solutionBox}
         >
           <Text style={styles.sectionLabel}>SOLUTION</Text>
@@ -94,7 +94,7 @@ const AIDiagnosticCard: React.FC<AIDiagnosticCardProps> = ({
             activeOpacity={0.8}
           >
             <Text style={styles.ctaText}>Relever le défi</Text>
-            <MaterialCommunityIcons name="arrow-right" size={18} color="#FFF" />
+            <MaterialCommunityIcons name="arrow-right" size={18} color={identity.text.onPrimary} />
           </TouchableOpacity>
         </LinearGradient>
       )}

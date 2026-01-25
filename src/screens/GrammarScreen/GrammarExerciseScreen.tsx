@@ -5,24 +5,21 @@
  * ============================================
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
-import { log } from '../../utils/logUtils';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { View, ActivityIndicator, Text } from 'react-native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 
 // Composants
-import ExerciseLayout from '../../components/layout/ExerciseLayout';
-import GrammarCard from '../../components/pedagogy/grammar/GrammarCard';
-import ExerciseValidation from '../../components/common/ExerciseValidation';
+import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
+import GrammarCard from '@/components/pedagogy/grammar/GrammarCard';
+import ExerciseValidation from '@/components/common/ExerciseValidation';
 
 // Helpers & Hooks
-import { getFamilyById } from '../../data';
-import { getLevelData, getExerciseData } from '../../utils/constants';
-import { useProgress } from '../../contexts/ProgressContext';
-import useExerciseBackground from '../../hooks/useExerciseBackground';
-import useSafeNavigation from '../../hooks/useSafeNavigation';
-import { useExerciseActivity } from '../../hooks/exercises/useExerciseActivity';
-import { useExerciseSaveOnUnmount } from '../../hooks/exercises/useExerciseSaveOnUnmount';
-import { useErrorTracking } from '../../hooks/useErrorTracking';
+import { useProgress } from '@/contexts/ProgressContext';
+import { useUser } from '@/contexts/UserContext';
+import useSafeNavigation from '@/hooks/useSafeNavigation';
+import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
+import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
 import { useTheme } from '@/themes/ThemeContext';
 
 // Types
@@ -46,25 +43,68 @@ interface GrammarExerciseScreenProps {
 const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigation, route }) => {
   // =================== PARAMS & DYNAMISME ===================
   const { familyId, moduleId, levelId = 1 } = route.params || {};
+  const safeFamilyId = familyId || '';
+  const safeModuleId = moduleId || '';
   const numLevelId = Number.parseInt(String(levelId), 10);
 
   // =================== HOOKS ===================
   const { identity } = useTheme();
+  const { db } = useUser();
   const { trackItemCompletion, getFamilyProgress } = useProgress();
-  const { trackErrorAuto } = useErrorTracking();
 
-  const currentLevelData = useMemo(() => getLevelData(numLevelId), [numLevelId]);
-  const moduleData = useMemo(() => getExerciseData(EXERCISE_TYPE), []);
+  // ✅ WHITE LABEL: Couleurs dynamiques
+  const gradientColors = useMemo(() => {
+    if (Array.isArray(identity.header.background)) return identity.header.background;
+    return [identity.palette.primary, identity.palette.primary];
+  }, [identity]);
 
-  // ✅ WHITE LABEL: Utilise identity au lieu de levelColor legacy
-  const { gradientColors } = useExerciseBackground(EXERCISE_TYPE, identity.branding.main);
+  const safeGoBack = useSafeNavigation(useCallback(() => { navigation.goBack(); }, [navigation]));
 
-  const safeGoBack = useSafeNavigation(useCallback(() => navigation.goBack(), [navigation]));
+  // =================== DATA LOADING (SQLITE) ===================
+  const [grammarFamily, setGrammarFamily] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const grammarFamily = useMemo(
-    () => getFamilyById(moduleId, numLevelId, familyId),
-    [moduleId, numLevelId, familyId]
-  );
+  useEffect(() => {
+    const loadData = async () => {
+      if (!db || !safeFamilyId) return;
+      try {
+        setLoading(true);
+        // 1. Récupérer les infos de la famille
+        const family = await db.getFirstAsync<{ name: string; icon: string }>(
+          'SELECT name, icon FROM families WHERE id = ?',
+          [safeFamilyId]
+        );
+
+        // 2. Récupérer le contenu (règles/exercices)
+        const contentRows = await db.getAllAsync<{ data: string; id: number }>(
+          'SELECT id, data FROM content WHERE family_id = ?',
+          [safeFamilyId]
+        );
+
+        // 3. Parser le JSON
+        const rules = contentRows.map(row => {
+          const data = JSON.parse(row.data);
+          return {
+            id: row.id,
+            content: data.rule || data.concretement || data.sentence, // Fallback selon le format JSON
+            examples: data.examples || [],
+            exercise: {
+              question: data.sentence || data.phrase_en,
+              correctAnswer: data.correctAnswer || data.options?.[0], // Fallback simple
+              options: data.options || []
+            }
+          };
+        });
+
+        setGrammarFamily({ title: family?.name, icon: family?.icon, rules });
+      } catch (e) {
+        console.error('Erreur chargement grammaire:', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [db, safeFamilyId]);
 
   // =================== STATE ===================
   const [currentRuleIndex, setCurrentRuleIndex] = useState(0);
@@ -80,14 +120,13 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
   const totalRules = rules.length;
   const currentRule = rules[currentRuleIndex];
   const isLastRule = currentRuleIndex === totalRules - 1;
-  const realProgress = getFamilyProgress(numLevelId, EXERCISE_TYPE, familyId);
+  const realProgress = getFamilyProgress(numLevelId, EXERCISE_TYPE, safeFamilyId);
 
   // =================== HOOKS UTILITAIRES ===================
   useExerciseActivity({
-    type: 'grammar',
     levelId: numLevelId,
-    familyId,
-    moduleId,
+    familyId: safeFamilyId,
+    moduleSlug: safeModuleId,
     familyName: grammarFamily?.title || 'Grammaire',
     icon: grammarFamily?.icon || 'book',
     currentIndex: currentRuleIndex,
@@ -116,19 +155,9 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
       attemptCount: newAttemptCount,
     }));
 
-    // ✅ TRACKING D'ERREUR POUR MODE VOLTAGE
-    if (!isCorrect) {
-      trackErrorAuto(EXERCISE_TYPE, {
-        question: currentRule.exercise.question || currentRule.content,
-        userAnswer: exerciseState.selectedOption,
-        correctAnswer: currentRule.exercise.correctAnswer,
-        ruleId: currentRule.id || familyId,
-      });
-    }
-
     // Marquer comme complété si correct ou si dernier essai
     if (isCorrect || newAttemptCount >= MAX_ATTEMPTS) {
-      trackItemCompletion(numLevelId, EXERCISE_TYPE, familyId, currentRuleIndex, totalRules);
+      trackItemCompletion(numLevelId, EXERCISE_TYPE, safeFamilyId, currentRuleIndex, totalRules);
     }
   };
 
@@ -155,18 +184,40 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
     }));
   };
 
+  // =================== RENDER ===================
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: identity.palette.surface }}>
+        <ActivityIndicator size="large" color={identity.palette.primary} />
+        <Text style={{ marginTop: 10, color: identity.text.secondary }}>Chargement de la leçon...</Text>
+      </View>
+    );
+  }
+
   if (!grammarFamily || !currentRule) return null;
+
+  // Calcul de l'état de validation pour SonarLint (logique extraite pour lisibilité)
+  let validationStatus: 'initial' | 'correct' | 'skip' | 'incorrect';
+  if (!exerciseState.isValidated) {
+    validationStatus = 'initial';
+  } else if (exerciseState.isCorrect) {
+    validationStatus = 'correct';
+  } else if (exerciseState.attemptCount >= MAX_ATTEMPTS) {
+    validationStatus = 'skip';
+  } else {
+    validationStatus = 'incorrect';
+  }
 
   return (
     <ExerciseLayout
       gradientColors={gradientColors}
       headerProps={{
         variant: 'exercise',
-        onBack: safeGoBack.navigate,
-        rightIcon: moduleData?.icon || 'book',
-        onRightIconPress: () => log.debug('Grammar info pressed'),
+        onBack: () => { safeGoBack.navigate(); },
+        rightIcon: grammarFamily.icon || 'book',
+        onRightIconPress: () => console.log('Grammar info pressed'),
         showLevelBadge: true,
-        levelTitle: currentLevelData?.badge,
+        levelTitle: `Niveau ${numLevelId}`,
         exerciseTitle: grammarFamily.title || 'Grammaire',
       }}
       progressProps={{
@@ -175,15 +226,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
       }}
       footer={
         <ExerciseValidation
-          state={
-            !exerciseState.isValidated
-              ? 'initial'
-              : exerciseState.isCorrect
-                ? 'correct'
-                : exerciseState.attemptCount >= MAX_ATTEMPTS
-                  ? 'skip'
-                  : 'incorrect'
-          }
+          state={validationStatus}
           attemptCount={exerciseState.attemptCount}
           maxAttempts={MAX_ATTEMPTS}
           correctAnswer={currentRule.exercise.correctAnswer}
@@ -191,7 +234,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
           onNext={handleNext}
           onRetry={handleRetry}
           onSkip={handleNext}
-          disabled={!exerciseState.isValidated && !exerciseState.selectedOption}
+          disabled={!(exerciseState.isValidated || exerciseState.selectedOption)}
           isLastQuestion={isLastRule}
         />
       }
@@ -204,7 +247,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
         }}
         exerciseState={exerciseState}
         onAnswer={handleAnswer}
-        onAudioPress={() => log.debug('Audio play requested')}
+        onAudioPress={() => console.log('Audio play requested')}
       />
     </ExerciseLayout>
   );
