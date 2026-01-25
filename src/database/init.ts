@@ -206,9 +206,10 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
       ['dialogues', 'Conversation', 'chat', 'Pratique dialogues', 5, 1, 'all'],
       ['word_games', 'Jeux', 'gamepad-variant', 'Exercices ludiques', 6, 1, 'all'],
       ['assessment', 'Évaluation', 'clipboard-check', 'Teste tes connaissances', 7, 1, 'all'],
-      ['ai_tutor', 'AI Tutor', 'brain', 'Discute avec ton assistant IA', 8, 0, 'college'],
-      ['connector', 'The Connector', 'connection', 'Syntax & articulation', 9, 0, 'lycee'],
-      ['fastvocab', 'Fast Vocab', 'flash', '500 mots essentiels', 10, 0, 'adult']
+      // NOTE: AI Tutor n'est PAS un module d'exercice, c'est un outil du Dashboard
+      // Il est codé en dur dans le composant Dashboard comme une carte spéciale
+      ['connector', 'The Connector', 'connection', 'Syntax & articulation', 8, 0, 'lycee'],
+      ['fastvocab', 'Fast Vocab', 'flash', '500 mots essentiels', 9, 0, 'adult']
     ];
 
     for (const mod of modulesSeed) {
@@ -256,7 +257,26 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
     }
 
     // ============================================
-    // 4. SEED FAMILIES (Avec module_slug au lieu de module_id)
+    // 4. SEED BRANDING (CRITIQUE : AVANT les tables qui référencent identity_id)
+    // ============================================
+    
+    const brandingSeed = [
+      // [id, primary_color, accent_color, surface_color, logo_name, theme_mode, ui_has_gradient, ui_gradient_colors, ui_card_radius, ui_show_decorative_shapes, ai_accent_color, ai_error_color, ai_solution_bg, header_bg_color, header_accent_color, header_emoji, header_welcome_text, daily_word_bg_color, daily_word_gradient, daily_word_decoration, dashboard_level_progress_color, text_on_main_color]
+      ['primary', '#FF5722', '#FFCE00', '#FFFFFF', null, 'light', 0, null, 12, 1, null, null, null, '#FF5722', '#FFCE00', '🎨', 'Bienvenue !', '#FFE0B2', null, 'none', '#FF5722', '#000000'],
+      ['college', '#34495E', '#FFD700', '#FFFFFF', null, 'light', 0, null, 12, 1, null, null, null, '#34495E', '#FFD700', '📚', 'Bonjour !', '#FFF9C4', null, 'none', '#34495E', '#000000'],
+      ['lycee', '#00E5FF', '#1A1A1A', '#FFFFFF', null, 'dark', 1, '["#00E5FF", "#00BCD4"]', 16, 1, null, null, null, '#00E5FF', '#1A1A1A', '🎓', 'Hello!', '#E0F7FA', null, 'water-drop', '#00E5FF', '#FFFFFF'],
+      ['adult', '#111827', '#374151', '#1F2937', null, 'dark', 0, null, 8, 0, null, null, null, '#111827', '#374151', '💼', 'Welcome', '#263238', null, 'none', '#374151', '#FFFFFF']
+    ];
+
+    for (const brand of brandingSeed) {
+      await db.runAsync(
+        `INSERT INTO branding VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        brand
+      );
+    }
+
+    // ============================================
+    // 5. SEED FAMILIES (Avec module_slug au lieu de module_id)
     // ============================================
     const familiesSeed = [
       // [module_slug, name, icon, emoji, description, order_index]
@@ -280,7 +300,7 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
     }
 
     // ============================================
-    // 5. SEED CONTENT (Exercices de démonstration)
+    // 6. SEED CONTENT (Exercices de démonstration)
     // ============================================
     const contentSeed = [
       // Vocabulaire - Food & Drinks (family_id sera auto-généré = 4)
@@ -383,7 +403,7 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
     }
 
     // ============================================
-    // 6. SEED LEVEL_LABELS (Labels par Identité)
+    // 7. SEED LEVEL_LABELS (Labels par Identité)
     // ============================================
     
     const primaryLevelLabels = [
@@ -432,7 +452,7 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
     }
 
     // ============================================
-    // 7. SEED IDENTITY_PALETTES (Palettes de Couleurs)
+    // 8. SEED IDENTITY_PALETTES (Palettes de Couleurs)
     // ============================================
     
     const primaryPalette = [
@@ -490,7 +510,7 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
     }
 
     // ============================================
-    // 8. SEED MODULE_AVAILABILITY (MATRICE DE RÉFÉRENCE)
+    // 9. SEED MODULE_AVAILABILITY (MATRICE DE RÉFÉRENCE)
     // ============================================
     
     // PRIMARY: vocab, phrase_types, grammar, reading, dialogues, word_games, assessment
@@ -502,8 +522,8 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
       );
     }
 
-    // COLLEGE: Primary + ai_tutor (SANS connector)
-    const collegeModules = [...primaryModules, 'ai_tutor'];
+    // COLLEGE: Primary modules (ai_tutor retiré car c'est un outil Dashboard, pas un module)
+    const collegeModules = [...primaryModules];
     for (const moduleSlug of collegeModules) {
       await db.runAsync(
         `INSERT INTO module_availability (module_slug, identity_id, level_number, is_available) VALUES (?, ?, ?, ?)`,
