@@ -1,8 +1,21 @@
 // src/database/queries.ts
 import { SQLiteDatabase } from 'expo-sqlite';
-import { Module, Family, Content, Progress, Level } from './schema';
+import {
+  Module,
+  Family,
+  Content,
+  Progress,
+  Level,
+  Branding,
+  ModuleLabel,
+  LevelLabel,
+  IdentityPalette
+} from './schema';
 
-// --- QUERIES MODULES ---
+// ============================================
+// QUERIES MODULES
+// ============================================
+
 export const getModulesByAudience = async (db: SQLiteDatabase, audience: string): Promise<Module[]> => {
   return await db.getAllAsync<Module>(
     `SELECT * FROM modules WHERE target_audience = ? OR target_audience = 'all' ORDER BY order_index`,
@@ -17,45 +30,63 @@ export const getModuleBySlug = async (db: SQLiteDatabase, slug: string): Promise
   );
 };
 
-// --- QUERIES LEVELS ---
+// ============================================
+// QUERIES LEVELS
+// ============================================
+
 export const getLevelsByAudience = async (db: SQLiteDatabase, audience: string): Promise<Level[]> => {
   return await db.getAllAsync<Level>(
-    `SELECT * FROM levels WHERE target_audience = ? OR target_audience = 'all' ORDER BY level`,
+    `SELECT * FROM levels WHERE target_audience = ? ORDER BY level`,
     [audience]
   );
 };
 
-// --- QUERIES FAMILIES ---
-export const getFamiliesForModule = async (db: SQLiteDatabase, moduleId: number): Promise<Family[]> => {
+// ============================================
+// QUERIES FAMILIES
+// ============================================
+
+/**
+ * ✅ CORRIGÉ : Utilise moduleSlug (TEXT) au lieu de moduleId (INTEGER)
+ */
+export const getFamiliesForModule = async (db: SQLiteDatabase, moduleSlug: string): Promise<Family[]> => {
   return await db.getAllAsync<Family>(
-    `SELECT * FROM families WHERE module_id = ? ORDER BY order_index`,
-    [moduleId]
+    `SELECT * FROM families WHERE module_slug = ? ORDER BY order_index`,
+    [moduleSlug]
   );
 };
 
+/**
+ * ✅ CORRIGÉ : Utilise moduleSlug (TEXT) au lieu de moduleId (INTEGER)
+ */
 export const getFamiliesByModuleAndLevel = async (
   db: SQLiteDatabase,
-  moduleId: number,
+  moduleSlug: string,
   level: number
 ): Promise<Family[]> => {
   return await db.getAllAsync<Family>(
     `SELECT DISTINCT f.* 
      FROM families f
      INNER JOIN content c ON f.id = c.family_id
-     WHERE f.module_id = ? AND c.level = ?
+     WHERE f.module_slug = ? AND c.level = ?
      ORDER BY f.order_index`,
-    [moduleId, level]
+    [moduleSlug, level]
   );
 };
 
+/**
+ * ✅ CORRIGÉ : Utilise module_slug (TEXT) au lieu de module_id (INTEGER)
+ */
 export const insertFamily = async (db: SQLiteDatabase, family: Omit<Family, 'id'>): Promise<void> => {
   await db.runAsync(
-    `INSERT INTO families (module_id, name, icon, emoji, description, order_index) VALUES (?, ?, ?, ?, ?, ?)`,
-    [family.module_id, family.name, family.icon || null, family.emoji || null, family.description || null, family.order_index]
+    `INSERT INTO families (module_slug, name, icon, emoji, description, order_index) VALUES (?, ?, ?, ?, ?, ?)`,
+    [family.module_slug, family.name, family.icon || null, family.emoji || null, family.description || null, family.order_index]
   );
 };
 
-// --- QUERIES CONTENT ---
+// ============================================
+// QUERIES CONTENT
+// ============================================
+
 export const getContentByFamilyAndLevel = async (db: SQLiteDatabase, familyId: number, level: number): Promise<Content[]> => {
   return await db.getAllAsync<Content>(
     `SELECT * FROM content WHERE family_id = ? AND level = ? ORDER BY id`,
@@ -70,7 +101,10 @@ export const insertContent = async (db: SQLiteDatabase, content: Omit<Content, '
   );
 };
 
-// --- QUERIES PROGRESS ---
+// ============================================
+// QUERIES PROGRESS
+// ============================================
+
 export const upsertProgress = async (db: SQLiteDatabase, progress: Omit<Progress, 'id'>): Promise<void> => {
   await db.runAsync(
     `INSERT OR REPLACE INTO progress (user_id, family_id, level, completed, score, last_accessed) VALUES (?, ?, ?, ?, ?, ?)`,
@@ -78,31 +112,16 @@ export const upsertProgress = async (db: SQLiteDatabase, progress: Omit<Progress
   );
 };
 
-// --- QUERIES BRANDING (White Label) ---
-export interface Branding {
-  id: string;
-  primary_color: string;
-  accent_color: string;
-  surface_color: string | null;
-  logo_name: string | null;
-  theme_mode: 'light' | 'dark';
-  ui_has_gradient: number;
-  ui_gradient_colors: string | null;
-  ui_card_radius: number;
-  ui_show_decorative_shapes: number;
-  ai_accent_color: string | null;
-  ai_error_color: string | null;
-  ai_solution_bg: string | null;
-  header_bg_color: string;
-  header_accent_color: string;
-  header_emoji: string | null;
-  header_welcome_text: string | null;
-  daily_word_bg_color: string | null;
-  daily_word_gradient: string | null;
-  daily_word_decoration: 'circles' | 'water-drop' | 'none';
-  dashboard_level_progress_color: string;
-  text_on_main_color: string;
-}
+export const getProgressByFamily = async (db: SQLiteDatabase, userId: string, familyId: number): Promise<Progress[]> => {
+  return await db.getAllAsync<Progress>(
+    `SELECT * FROM progress WHERE user_id = ? AND family_id = ? ORDER BY level`,
+    [userId, familyId]
+  );
+};
+
+// ============================================
+// QUERIES BRANDING (White Label)
+// ============================================
 
 export const getBrandingById = async (db: SQLiteDatabase, identityId: string): Promise<Branding | null> => {
   return await db.getFirstAsync<Branding>(
@@ -111,14 +130,9 @@ export const getBrandingById = async (db: SQLiteDatabase, identityId: string): P
   );
 };
 
-// --- QUERIES MODULE_LABELS (White Label) ---
-export interface ModuleLabel {
-  module_slug: string;
-  identity_id: string;
-  display_title: string;
-  display_description: string;
-  icon_name: string;
-}
+// ============================================
+// QUERIES MODULE_LABELS (White Label)
+// ============================================
 
 export const getModuleLabel = async (
   db: SQLiteDatabase,
@@ -164,14 +178,9 @@ export const getModuleLabelWithFallback = async (
   };
 };
 
-// --- QUERIES LEVEL_LABELS (White Label) ---
-export interface LevelLabel {
-  level_number: number;
-  identity_id: string;
-  display_title: string;
-  badge_text: string;
-  display_description: string;
-}
+// ============================================
+// QUERIES LEVEL_LABELS (White Label)
+// ============================================
 
 export const getLevelLabel = async (
   db: SQLiteDatabase,
@@ -222,12 +231,9 @@ export const getLevelLabelWithFallback = async (
   };
 };
 
-// --- QUERIES IDENTITY_PALETTES (White Label) ---
-export interface IdentityPalette {
-  identity_id: string;
-  color_index: number;
-  color_value: string;
-}
+// ============================================
+// QUERIES IDENTITY_PALETTES (White Label)
+// ============================================
 
 export const getIdentityPalette = async (db: SQLiteDatabase, identityId: string): Promise<string[]> => {
   const palette = await db.getAllAsync<IdentityPalette>(
@@ -237,7 +243,13 @@ export const getIdentityPalette = async (db: SQLiteDatabase, identityId: string)
   return palette.map(p => p.color_value);
 };
 
-// --- QUERIES MODULE_AVAILABILITY (White Label) ---
+// ============================================
+// QUERIES MODULE_AVAILABILITY (White Label)
+// ============================================
+
+/**
+ * Récupère les slugs des modules disponibles pour une identité et un niveau donnés
+ */
 export const getAvailableModules = async (
   db: SQLiteDatabase,
   identityId: string,
@@ -254,4 +266,52 @@ export const getAvailableModules = async (
     [identityId, levelNumber]
   );
   return modules.map(m => m.slug);
+};
+
+/**
+ * Vérifie si un module est disponible pour une identité et un niveau donnés
+ */
+export const isModuleAvailable = async (
+  db: SQLiteDatabase,
+  moduleSlug: string,
+  identityId: string,
+  levelNumber: number
+): Promise<boolean> => {
+  const result = await db.getFirstAsync<{ count: number }>(
+    `SELECT COUNT(*) as count
+     FROM module_availability
+     WHERE module_slug = ?
+       AND identity_id = ?
+       AND is_available = 1
+       AND (level_number = ? OR level_number IS NULL)`,
+    [moduleSlug, identityId, levelNumber]
+  );
+  return (result?.count || 0) > 0;
+};
+
+// ============================================
+// QUERIES ACTIVITY_LOG (Dashboard)
+// ============================================
+
+export const logActivity = async (
+  db: SQLiteDatabase,
+  moduleSlug: string,
+  familyId: number,
+  level: number,
+  familyName: string,
+  icon: string | null,
+  progress: number
+): Promise<void> => {
+  await db.runAsync(
+    `INSERT OR REPLACE INTO activity_log (module_slug, family_id, level, family_name, icon, progress, timestamp)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [moduleSlug, familyId, level, familyName, icon, progress, Date.now()]
+  );
+};
+
+export const getRecentActivity = async (db: SQLiteDatabase, limit: number = 10): Promise<any[]> => {
+  return await db.getAllAsync(
+    `SELECT * FROM activity_log ORDER BY timestamp DESC LIMIT ?`,
+    [limit]
+  );
 };

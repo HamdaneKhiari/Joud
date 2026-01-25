@@ -1,5 +1,9 @@
 // src/database/schema.ts
 
+// ============================================
+// TYPES DE BASE
+// ============================================
+
 export interface Module {
   id: number;
   name: string;
@@ -16,7 +20,7 @@ export interface Module {
 
 export interface Family {
   id?: number;
-  module_id: number;
+  module_slug: string; // ✅ CORRIGÉ : Remplace module_id (INTEGER) par module_slug (TEXT)
   name: string;
   icon?: string;
   emoji?: string;
@@ -28,7 +32,7 @@ export interface Content {
   id?: number;
   family_id: number;
   level: number;
-  content_type: 'word' | 'rule' | 'sentence' | 'dialogue' | 'connector';
+  content_type: 'word' | 'rule' | 'sentence' | 'dialogue' | 'logic' | 'fusion' | 'rephrasing'; // ✅ CORRIGÉ : Ajout des types manquants
   data: string; // JSON stringifié
   difficulty?: 'easy' | 'medium' | 'hard';
   tags?: string;
@@ -58,7 +62,10 @@ export interface Level {
   icon_name?: string;
 }
 
-// White Label Interfaces
+// ============================================
+// TYPES WHITE LABEL (Centralisés depuis queries.ts)
+// ============================================
+
 export interface Branding {
   id: string;
   primary_color: string;
@@ -82,4 +89,48 @@ export interface Branding {
   daily_word_decoration: 'circles' | 'water-drop' | 'none';
   dashboard_level_progress_color: string;
   text_on_main_color: string;
+}
+
+export interface ModuleLabel {
+  id?: number;
+  module_slug: string;
+  identity_id: string;
+  display_title: string;
+  display_description: string;
+  icon_name: string;
+}
+
+export interface LevelLabel {
+  id?: number;
+  level_number: number;
+  identity_id: string;
+  display_title: string;
+  badge_text: string;
+  display_description: string;
+}
+
+export interface IdentityPalette {
+  id?: number;
+  identity_id: string;
+  color_index: number;
+  color_value: string;
+}
+
+export interface ModuleAvailability {
+  id?: number;
+  module_slug: string;
+  identity_id: string;
+  level_number: number | null;
+  is_available: number; // 0 ou 1 (SQLite)
+}
+
+export interface ActivityLog {
+  id?: number;
+  module_slug: string;
+  family_id: number;
+  level: number;
+  family_name: string;
+  icon: string | null;
+  progress: number;
+  timestamp: number;
 }
