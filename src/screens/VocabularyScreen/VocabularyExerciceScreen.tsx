@@ -10,7 +10,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 
 // Composants
 import ExerciseLayout from '../../components/layout/ExerciceLayout/ExerciseLayout';
-import WordCard from './WordCard/WordCard';
+import WordCard from '../../components/pedagogy/Vocabulary/WordCard/WordCard';
 import NavigationButtons from '../../components/common/NavigationButtons';
 import { DynamicIcon } from '../../components/ui/DynamicIcon';
 
@@ -19,9 +19,9 @@ import { useTheme } from '../../themes/ThemeContext';
 import { useProgress } from '../../contexts/ProgressContext';
 import useSafeNavigation from '../../hooks/useSafeNavigation';
 import { useFirstIncompleteIndex } from '../../hooks/exercises/useFirstIncompleteIndex';
-import { useExerciseActivity } from './hooks/useExerciseActivity';
+import { useExerciseActivity } from '../../hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '../../hooks/exercises/useExerciseSaveOnUnmount';
-import { useExerciseContent, ContentItem } from './hooks/useExerciseContent';
+import { useExerciseContent, ContentItem } from '../../hooks/exercises/useExerciseContent';
 import { useLevelLabel } from '../../utils/labelMapper';
 
 const EXERCISE_TYPE = 'vocab';

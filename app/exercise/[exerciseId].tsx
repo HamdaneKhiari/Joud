@@ -5,7 +5,7 @@ import { useTheme } from '@/themes/ThemeContext';
 
 // Import des écrans de contenu
 import VocabularyExerciseScreen from '@/screens/VocabularyScreen/VocabularyExerciceScreen';
-import SentenceScreen from '@/screens/SentenceScreen/VocabularyExerciceScreen';
+import SentenceScreen from '@/screens/SentenceScreen/SentenceExerciceScreen';
 import ConnectorExerciseScreen from '@/screens/ConnectorScreen/ConnectorExerciseScreen';
 import ReadingExerciseScreen from '@/screens/ReadingScreen/ReadingExerciseScreen';
 

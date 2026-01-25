@@ -1,14 +1,14 @@
 /**
- * useSafeNavigation - Hook spécialisé pour les actions de navigation
- * Version TypeScript
+ * ============================================
+ * HOOK: useSafeNavigation
+ * Version TypeScript Premium
+ * Gère les transitions de navigation de manière sécurisée (anti-double clic)
+ * ============================================
  */
 
 import { useCallback } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import useSafeAction from './useSafeAction';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface UseSafeNavigationOptions {
   debounceMs?: number;
@@ -24,27 +24,32 @@ interface UseSafeNavigationReturn {
   cleanup: () => void;
 }
 
-// ============================================
-// HOOK
-// ============================================
-
+/**
+ * @param navigationAction - Optionnel. L'action à sécuriser. Par défaut: navigation.goBack()
+ * @param options - Options de debounce et sécurité
+ */
 export default function useSafeNavigation(
-  navigationAction: (...args: any[]) => any | Promise<any>,
+  navigationAction?: (...args: any[]) => any | Promise<any>, // Rendu optionnel avec le "?"
   options: UseSafeNavigationOptions = {}
 ): UseSafeNavigationReturn {
-  const { debounceMs = 200, preventRapidClicks = true } = options;
+  const navigation = useNavigation();
+  const { debounceMs = 250, preventRapidClicks = true } = options;
 
-  const safeAction = useSafeAction(navigationAction, {
+  // Si aucune action n'est fournie, on définit le goBack par défaut
+  const defaultAction = useCallback(() => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    }
+  }, [navigation]);
+
+  // On utilise l'action fournie OU l'action par défaut
+  const actionToExecute = navigationAction || defaultAction;
+
+  const safeAction = useSafeAction(actionToExecute, {
     debounceMs: preventRapidClicks ? debounceMs : 0,
     allowConcurrent: false,
-    onStart: () => {
-      // Navigation démarrée
-    },
-    onEnd: () => {
-      // Navigation terminée
-    },
     onError: (error: Error) => {
-      console.error('Erreur de navigation:', error);
+      console.error('[SafeNavigation] Erreur:', error);
     }
   });
 
@@ -54,7 +59,7 @@ export default function useSafeNavigation(
         const result = await safeAction.execute(...args);
         return result;
       } catch (error) {
-        // Les erreurs sont déjà gérées par useSafeAction
+        // Retourne un objet d'erreur structuré au lieu de faire crasher l'appelant
         return { error: true, message: (error as Error).message };
       }
     },
