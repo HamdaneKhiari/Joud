@@ -13,8 +13,9 @@ interface ValidationParams {
 
 /**
  * Types pour le retour du hook
+ * ✅ Aligné avec ExerciseValidation/types.ts
  */
-export type ValidationState = 'initial' | 'correct' | 'skip' | 'incorrect' | 'retry';
+export type ValidationState = 'initial' | 'correct' | 'incorrect' | 'skip';
 
 interface ValidationResult {
   canSkip: boolean;
@@ -29,7 +30,7 @@ export const useExerciseValidationState = (
   maxAttempts: number = 3,
   hasAnswer: boolean = false
 ): ValidationResult => {
-  
+
   const validationData = useMemo(() => {
     // On peut passer à la suite si c'est correct OU si on a épuisé les tentatives
     const canSkip = isCorrect || attemptCount >= maxAttempts;
@@ -43,11 +44,11 @@ export const useExerciseValidationState = (
         buttonDisabled = false;
       } else if (canSkip) {
         // C'est faux mais on n'a plus d'essais : on affiche la solution/bouton skip
-        validationState = 'skip'; 
+        validationState = 'skip';
         buttonDisabled = false;
       } else {
-        // C'est faux mais il reste des essais
-        validationState = 'retry';
+        // C'est faux mais il reste des essais : on utilise 'incorrect' (= réessayer)
+        validationState = 'incorrect';
         buttonDisabled = false;
       }
     }

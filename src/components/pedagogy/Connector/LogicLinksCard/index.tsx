@@ -33,15 +33,28 @@ const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
     !!selectedOption
   );
 
+  // Convertit FeedbackMessage | null en FeedbackData | undefined
+  const feedbackData = useMemo(() => {
+    const feedback = generateFeedbackMessage(
+      isValidated,
+      isCorrect,
+      canSkip,
+      question.correctAnswer,
+      attemptCount,
+      maxAttempts
+    );
+    return feedback ? { title: feedback.title, message: feedback.message } : undefined;
+  }, [isValidated, isCorrect, canSkip, question.correctAnswer, attemptCount, maxAttempts]);
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={[
-        styles.card, 
-        { 
-          backgroundColor: identity.branding.surface || baseColors.white,
+        styles.card,
+        {
+          backgroundColor: identity.palette.surface || baseColors.white,
           borderTopColor: color,
           borderRadius: identity.ui.cardRadius || tokens.borderRadius.lg,
-          ...tokens.shadows.md 
+          ...tokens.shadows.md
         }
       ]}>
         <View style={[styles.colorBar, { backgroundColor: color }]} />
@@ -81,18 +94,18 @@ const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
 
             // ✅ CORRECTION DES COULEURS (baseColors au lieu de tokens.colors)
             const getButtonStyle = () => {
-              if (showFeedback && isCorrectOption) 
+              if (showFeedback && isCorrectOption)
                 return { backgroundColor: baseColors.green500, borderColor: baseColors.green500 };
-              
-              if (showFeedback && isSelected && !isCorrect) 
-                return { backgroundColor: identity.ai.error, borderColor: identity.ai.error };
-              
-              if (!showFeedback && isSelected) 
+
+              if (showFeedback && isSelected && !isCorrect)
+                return { backgroundColor: identity.aiDiagnostic.error, borderColor: identity.aiDiagnostic.error };
+
+              if (!showFeedback && isSelected)
                 return { backgroundColor: withOpacity(color, 0.1), borderColor: color };
-              
-              return { 
-                backgroundColor: identity.branding.surface || baseColors.white, 
-                borderColor: withOpacity(identity.text.tertiary, 0.2) 
+
+              return {
+                backgroundColor: identity.palette.surface || baseColors.white,
+                borderColor: withOpacity(identity.text.tertiary, 0.2)
               };
             };
 
@@ -130,14 +143,7 @@ const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
         onSkip={onNext}
         disabled={buttonDisabled}
         isLastQuestion={isLastQuestion}
-        feedbackMessage={generateFeedbackMessage(
-          isValidated,
-          isCorrect,
-          canSkip,
-          question.correctAnswer,
-          attemptCount,
-          maxAttempts
-        )}
+        feedbackMessage={feedbackData}
       />
     </ScrollView>
   );

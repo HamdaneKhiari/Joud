@@ -4,7 +4,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
@@ -182,14 +182,13 @@ const ExerciceNavBar: React.FC<ExerciceNavBarProps> = ({
       {/* Bouton retour */}
       <View style={styles.navLeft}>
         {onBack ? (
-          <TouchableOpacity
+          <Pressable
             onPress={onBack}
             style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            activeOpacity={0.7}
           >
             <Text style={styles.backIcon}>‹</Text>
-          </TouchableOpacity>
+          </Pressable>
         ) : (
           <View style={styles.backButtonPlaceholder} />
         )}
@@ -218,19 +217,18 @@ const ExerciceNavBar: React.FC<ExerciceNavBarProps> = ({
       {/* Icône droite */}
       <View style={styles.navRight}>
         {rightIcon ? (
-          <TouchableOpacity
+          <Pressable
             onPress={onRightIconPress}
             style={styles.rightIconButton}
             disabled={!onRightIconPress}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            activeOpacity={0.7}
           >
             {typeof rightIcon === 'string' ? (
               <Text style={styles.rightIconText}>{rightIcon}</Text>
             ) : (
               rightIcon
             )}
-          </TouchableOpacity>
+          </Pressable>
         ) : (
           <View style={styles.rightIconPlaceholder} />
         )}

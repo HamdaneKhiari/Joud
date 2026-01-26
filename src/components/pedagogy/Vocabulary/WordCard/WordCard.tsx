@@ -53,7 +53,7 @@ const WordCard: FC<WordCardProps> = ({
             key={index}
             style={
               part.toLowerCase() === highlightWord.toLowerCase()
-                ? { color: identity.branding.accent, fontWeight: '700' }
+                ? { color: identity.palette.accent, fontWeight: '700' }
                 : {}
             }
           >

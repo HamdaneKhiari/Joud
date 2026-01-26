@@ -23,17 +23,17 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   const { identity } = useTheme();
   const [showHint, setShowHint] = useState(false);
   
-  const brandColor = moduleColor || identity.branding.main;
+  const brandColor = moduleColor || identity.palette.primary;
   const styles = useMemo(() => getStyles(identity, brandColor), [identity, brandColor]);
 
   const texts = {
-    hintShow: i18n?.hintShow || identity.i18n?.hintShow || "Besoin d'aide ?",
-    hintHide: i18n?.hintHide || identity.i18n?.hintHide || "Masquer l'indice",
+    hintShow: i18n?.hintShow || "Besoin d'aide ?",
+    hintHide: i18n?.hintHide || "Masquer l'indice",
   };
 
   const icons = {
-    hint: identity.icons?.hint || "bulb-outline",
-    hideHint: identity.icons?.hideHint || "eye-off-outline",
+    hint: (identity.icons?.hint || "bulb-outline") as any,
+    hideHint: (identity.icons?.hideHint || "eye-off-outline") as any,
   };
 
   // ✅ Transforme l'index en lettre (0 -> A, 1 -> B, etc.)
@@ -72,10 +72,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
             style={styles.hintToggleButton}
             onPress={() => setShowHint(!showHint)}
           >
-            <Ionicons 
-              name={showHint ? icons.hideHint : icons.hint} 
-              size={identity.ui?.iconSize || 18}
-              color={brandColor} 
+            <Ionicons
+              name={showHint ? icons.hideHint : icons.hint}
+              size={identity.iconSize?.md || 18}
+              color={brandColor}
             />
             <Text style={styles.hintToggleText}>
               {showHint ? texts.hintHide : texts.hintShow}

@@ -28,14 +28,14 @@ export const getBadgeConfig = (
 ): BadgeConfig | null => {
   if (!badge) return null;
 
-  const configs: Record<BadgeType, BadgeConfig> = {
+  const configs: Record<Exclude<BadgeType, null>, BadgeConfig> = {
     or: {
       label: identity.id === 'lycee' ? 'GOLD' : 'OR', // ✅ No-Media Premium
       color: '#10B981' // Vert succès
     },
     argent: {
       label: identity.id === 'lycee' ? 'SILVER' : 'ARGENT', // ✅ No-Media Premium
-      color: identity.branding.accent // Couleur accent de l'identité
+      color: identity.palette.accent // Couleur accent de l'identité
     },
     bronze: {
       label: 'BRONZE', // ✅ No-Media Premium (identique FR/EN)
@@ -43,11 +43,7 @@ export const getBadgeConfig = (
     },
     nouveau: {
       label: identity.id === 'lycee' ? 'NEW' : 'NOUVEAU',
-      color: identity.branding.main // Couleur principale
-    },
-    null: {
-      label: '',
-      color: '#6B7280'
+      color: identity.palette.primary // Couleur principale
     }
   };
 

@@ -49,7 +49,7 @@ const SentenceExerciseScreen: React.FC = () => {
   const currentItem = contentItems[currentIndex];
   
   // Correction erreur Module.color : on utilise l'identité branding main
-  const moduleColor = identity.branding.main;
+  const moduleColor = identity.palette.primary;
 
   // 4. Suivi de l'activité
   useExerciseActivity({
@@ -110,7 +110,7 @@ const SentenceExerciseScreen: React.FC = () => {
   if (isLoading || !currentItem || !family) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color={identity.branding.main} />
+        <ActivityIndicator size="large" color={identity.palette.primary} />
       </View>
     );
   }
@@ -120,7 +120,7 @@ const SentenceExerciseScreen: React.FC = () => {
       headerProps={{
         variant: "exercise",
         onBack: safeGoBack.navigate, // Branchement direct sur le hook
-        rightIcon: <DynamicIcon name={module?.icon} size={28} color={identity.branding.headerAccent} fallback="message-text" />,
+        rightIcon: <DynamicIcon name={module?.icon} size={28} color={identity.header.accent} fallback="message-text" />,
         showLevelBadge: true,
         levelTitle: `Niveau ${levelId}`,
         exerciseTitle: family.name,

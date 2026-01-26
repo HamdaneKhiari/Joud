@@ -3,7 +3,9 @@
     "allow": [
       "Bash(tree:*)",
       "Bash(ls:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npx tsc:*)",
+      "Bash(cut:*)"
     ],
     "deny": [],
     "ask": []

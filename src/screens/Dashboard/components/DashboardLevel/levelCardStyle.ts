@@ -5,7 +5,7 @@ import { tokens } from '@/themes/tokens';
 export const createStyles = (identity: Identity) =>
   StyleSheet.create({
     card: {
-      backgroundColor: identity.branding.main,
+      backgroundColor: identity.palette.primary,
       borderRadius: tokens.borderRadius.md, // ✅ Réduit pour look plus compact
       paddingVertical: tokens.spacing.sm, // ✅ 8px au lieu de 16px
       paddingHorizontal: tokens.spacing.md, // ✅ 12px

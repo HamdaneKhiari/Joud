@@ -39,28 +39,21 @@ interface ExerciseHeaderProps {
 }
 
 // ============================================
-// CONFIGURATION DES VARIANTS (Clean & DRY)
+// CONFIGURATION DES VARIANTS
 // ============================================
 
-/**
- * Configuration centralisée des hauteurs par identité
- * Réduit de 20-30% par rapport à l'original pour un look plus moderne
- */
 const HEADER_HEIGHTS = {
-  primary: 130,   // ↓ de 160
-  college: 115,   // ↓ de 140
-  lycee: 100,     // ↓ de 120
-  adult: 100,     // ↓ de 120
+  primary: 130,
+  college: 115,
+  lycee: 100,
+  adult: 100,
 } as const;
 
-/**
- * Configuration centralisée des espacements par identité
- */
 const HEADER_SPACING = {
-  primary: { top: tokens.spacing.md, bottom: tokens.spacing.md },     // ↓ bottom réduit
-  college: { top: tokens.spacing.sm, bottom: tokens.spacing.sm },     // ↓ bottom réduit
-  lycee: { top: tokens.spacing.xs, bottom: tokens.spacing.xs },       // Minimal
-  adult: { top: tokens.spacing.xs, bottom: tokens.spacing.xs },       // Minimal
+  primary: { top: tokens.spacing.md, bottom: tokens.spacing.md },
+  college: { top: tokens.spacing.sm, bottom: tokens.spacing.sm },
+  lycee: { top: tokens.spacing.xs, bottom: tokens.spacing.xs },
+  adult: { top: tokens.spacing.xs, bottom: tokens.spacing.xs },
 } as const;
 
 // ============================================
@@ -68,9 +61,9 @@ const HEADER_SPACING = {
 // ============================================
 
 const createStyles = (identity: Identity) => {
-  // Fallback safe si l'ID n'est pas dans la liste (ex: 'business')
-  const spacing = HEADER_SPACING[identity.id as keyof typeof HEADER_SPACING] || HEADER_SPACING.college;
-  const minHeight = HEADER_HEIGHTS[identity.id as keyof typeof HEADER_HEIGHTS] || HEADER_HEIGHTS.college;
+  const identityId = identity.id as keyof typeof HEADER_SPACING;
+  const spacing = HEADER_SPACING[identityId] || HEADER_SPACING.college;
+  const minHeight = HEADER_HEIGHTS[identityId] || HEADER_HEIGHTS.college;
 
   return StyleSheet.create({
     headerContainer: {
@@ -82,7 +75,6 @@ const createStyles = (identity: Identity) => {
       overflow: 'hidden',
       borderBottomLeftRadius: identity.ui.cardRadius,
       borderBottomRightRadius: identity.ui.cardRadius,
-      // ✅ Ombres premium via tokens
       ...tokens.shadows.md,
     }
   });
@@ -111,21 +103,24 @@ const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({
   const { identity } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
 
-  // ✅ WHITE LABEL: Utilise uniquement identity.branding.main pour le gradient
-  const gradient = useMemo(() => {
-    // Si l'identité a un gradient défini, on l'utilise
-    if (Array.isArray(identity.header.background)) {
-      return identity.header.background;
+  /**
+   * ✅ Correction TS2769 & Sonar S4325
+   * Le typage explicite du retour élimine le besoin d'assertions "as"
+   */
+  const gradientColors = useMemo((): [string, string, ...string[]] => {
+    const primary = identity.palette.primary || '#4F46E5';
+    const bg = identity.header.background;
+
+    if (Array.isArray(bg) && bg.length >= 2) {
+      const [first, second, ...rest] = bg;
+      return [first, second, ...rest];
     }
-    // Sinon, couleur unie basée sur identity.branding.main
-    return [identity.palette.primary, identity.palette.primary];
+
+    return [primary, primary];
   }, [identity]);
 
-  // Badge niveau
-  const displayBadge = showLevelBadge && levelTitle;
-
-  // ✅ Contenu central selon variant (logique simplifiée)
-  const getContentProps = () => {
+  // Contenu central mappé selon le variant
+  const contentProps = useMemo(() => {
     switch (variant) {
       case 'exercise':
         return { title: exerciseTitle, subtitle };
@@ -138,34 +133,29 @@ const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({
       default:
         return { title: title || exerciseTitle || categoryTitle, subtitle };
     }
-  };
-
-  const contentProps = getContentProps();
+  }, [variant, title, exerciseTitle, categoryTitle, subcategoryTitle, subtitle]);
 
   return (
     <LinearGradient
-      colors={gradient}
+      colors={gradientColors}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.headerContainer}
     >
-      {/* Barre de navigation */}
       <ExerciceNavBar
         onBack={onBack}
         levelTitle={levelTitle}
-        showBadge={!!displayBadge} // Force boolean
+        showBadge={!!(showLevelBadge && levelTitle)}
         rightIcon={rightIcon}
         onRightIconPress={onRightIconPress}
       />
 
-      {/* Contenu central */}
       <ExerciseHeaderContent
         title={contentProps.title}
         subtitle={contentProps.subtitle}
-        variant={variant === 'simple' ? 'selection' : variant} // Map 'simple' to 'selection' for content
+        variant={variant === 'simple' ? 'selection' : variant}
       />
 
-      {/* Élément décoratif */}
       {showDecorative && decorativeIcon && identity.ui.showDecorativeShapes && (
         <ExerciseDecorative icon={decorativeIcon} position={decorativePosition} />
       )}

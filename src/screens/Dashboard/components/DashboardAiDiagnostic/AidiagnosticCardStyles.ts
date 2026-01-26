@@ -29,13 +29,13 @@ export const createStyles = (identity: Identity) =>
       marginLeft: tokens.spacing.sm,
     },
     masteryBadge: {
-      backgroundColor: withOpacity(identity.ai.accent, 0.1),
+      backgroundColor: withOpacity(identity.aiDiagnostic.accent, 0.1),
       paddingHorizontal: tokens.spacing.md,
       paddingVertical: 4,
       borderRadius: tokens.borderRadius.md,
     },
     masteryText: {
-      color: identity.ai.accent,
+      color: identity.aiDiagnostic.accent,
       fontWeight: tokens.fontWeight.extrabold,
       fontSize: tokens.fontSize.sm,
     },
@@ -52,12 +52,12 @@ export const createStyles = (identity: Identity) =>
     bubble: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: withOpacity(identity.ai.error, 0.1),
+      backgroundColor: withOpacity(identity.aiDiagnostic.error, 0.1),
       padding: tokens.spacing.md,
       borderRadius: tokens.borderRadius.md,
     },
     bubbleText: {
-      color: identity.ai.error,
+      color: identity.aiDiagnostic.error,
       fontSize: tokens.fontSize.sm,
       marginLeft: tokens.spacing.sm,
       flex: 1,
@@ -69,7 +69,7 @@ export const createStyles = (identity: Identity) =>
       padding: tokens.spacing.lg,
       borderRadius: tokens.borderRadius.lg,
       borderWidth: 1,
-      borderColor: withOpacity(identity.ai.accent, 0.2),
+      borderColor: withOpacity(identity.aiDiagnostic.accent, 0.2),
     },
     coachMessage: {
       fontSize: tokens.fontSize.sm,
@@ -79,7 +79,7 @@ export const createStyles = (identity: Identity) =>
       marginBottom: tokens.spacing.lg,
     },
     ctaButton: {
-      backgroundColor: identity.ai.accent,
+      backgroundColor: identity.aiDiagnostic.accent,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',

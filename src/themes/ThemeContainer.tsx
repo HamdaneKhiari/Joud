@@ -30,10 +30,10 @@ export default function ThemeContainer({
   ];
 
   // Cas avec Gradient
-  if (identity.ui.hasGradient && identity.ui.gradientColors) {
+  if (Array.isArray(identity.header.background)) {
     return (
       <LinearGradient
-        colors={identity.ui.gradientColors}
+        colors={identity.header.background}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={finalStyle}
@@ -45,7 +45,7 @@ export default function ThemeContainer({
 
   // Cas sans Gradient (Couleur unie)
   return (
-    <View style={[finalStyle, { backgroundColor: identity.branding.main }]}>
+    <View style={[finalStyle, { backgroundColor: identity.palette.primary }]}>
       {children}
     </View>
   );

@@ -67,17 +67,25 @@ const createStyles = (identity: Identity) => {
       case 'lycee':
       case 'adult':
         return { top: tokens.spacing.lg, bottom: tokens.spacing.lg, horizontal: tokens.spacing.md };
+      default:
+        // Fallback pour identités non reconnues
+        return { top: tokens.spacing.xl, bottom: tokens.spacing.xl, horizontal: tokens.spacing.lg };
     }
   };
 
   const padding = getContentPadding();
 
+  // ✅ SonarLint S3358: Extraction des ternaires imbriqués
+  const getSafeAreaBackground = () => {
+    if (identity.id === 'lycee') return '#0A0A0A';
+    if (identity.id === 'adult') return '#F9FAFB';
+    return '#FFFFFF';
+  };
+
   return StyleSheet.create({
     safeArea: {
       flex: 1,
-      backgroundColor: identity.id === 'lycee' ? '#0A0A0A' :
-                       identity.id === 'adult' ? '#F9FAFB' :
-                       '#FFFFFF'
+      backgroundColor: getSafeAreaBackground()
     },
 
     gradientContainer: {
@@ -124,20 +132,28 @@ const ExerciseLayout: React.FC<ExerciseLayoutProps> = ({
   };
 
   // Gradient dynamique selon l'identité
-  const getGradientColors = (): string[] => {
-    if (gradientColors) return gradientColors;
-
-    // Gradient par défaut selon l'identité
-    if (identity.ui.hasGradient && identity.ui.gradientColors) {
-      return identity.ui.gradientColors;
+  const getGradientColors = (): [string, string, ...string[]] => {
+    // Priorité 1 : gradientColors passé en props
+    if (gradientColors && gradientColors.length >= 2) {
+      const [first, second, ...rest] = gradientColors;
+      return [first, second, ...rest];
     }
 
-    // Couleur unie selon l'identité
-    const bgColor = identity.id === 'lycee' ? '#0F0F0F' :
-                    identity.id === 'adult' ? '#F9FAFB' :
-                    identity.id === 'college' ? '#F3F4F6' :
-                    '#FFFBF5'; // Primary (jaune très clair)
+    // Priorité 2 : header.background de l'identité (si array)
+    if (Array.isArray(identity.header.background) && identity.header.background.length >= 2) {
+      const [first, second, ...rest] = identity.header.background;
+      return [first, second, ...rest];
+    }
 
+    // Priorité 3 : Couleur unie selon l'identité
+    const getDefaultBackground = () => {
+      if (identity.id === 'lycee') return '#0F0F0F';
+      if (identity.id === 'adult') return '#F9FAFB';
+      if (identity.id === 'college') return '#F3F4F6';
+      return '#FFFBF5'; // Primary (jaune très clair)
+    };
+
+    const bgColor = getDefaultBackground();
     return [bgColor, bgColor];
   };
 
@@ -149,7 +165,7 @@ const ExerciseLayout: React.FC<ExerciseLayoutProps> = ({
       <SafeAreaView style={styles.safeArea}>
         <StatusBar
           barStyle={statusBarStyle}
-          backgroundColor={identity.branding.main}
+          backgroundColor={identity.palette.primary}
         />
 
         {/* Header dynamique */}

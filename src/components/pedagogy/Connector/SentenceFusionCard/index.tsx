@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TextInput, ScrollView, StyleSheet } from 'react-native';
 import ExerciseValidation from '../../../common/ExerciseValidation';
 import { useExerciseValidationState } from '../../../../hooks/exercises/useExerciceValidationState';
@@ -33,14 +33,27 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps> = ({
   );
 
   // Définition de la couleur de marque (priorité au module, sinon identité)
-  const brandColor = color || identity.branding.main;
+  const brandColor = color || identity.palette.primary;
+
+  // Convertit FeedbackMessage | null en FeedbackData | undefined
+  const feedbackData = useMemo(() => {
+    const feedback = generateFeedbackMessage(
+      isValidated,
+      isCorrect,
+      canSkip,
+      question.correctAnswer,
+      attemptCount,
+      maxAttempts
+    );
+    return feedback ? { title: feedback.title, message: feedback.message } : undefined;
+  }, [isValidated, isCorrect, canSkip, question.correctAnswer, attemptCount, maxAttempts]);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={[
-        styles.card, 
-        { 
-          backgroundColor: identity.branding.surface || baseColors.white,
+        styles.card,
+        {
+          backgroundColor: identity.palette.surface || baseColors.white,
           borderTopColor: brandColor,
           borderRadius: identity.ui.cardRadius || tokens.borderRadius.lg
         }
@@ -90,13 +103,13 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps> = ({
           <TextInput
             style={[
               styles.answerInput,
-              { 
-                borderColor: withOpacity(identity.text.tertiary, 0.2), 
+              {
+                borderColor: withOpacity(identity.text.tertiary, 0.2),
                 color: identity.text.primary,
-                backgroundColor: identity.branding.surface || baseColors.white 
+                backgroundColor: identity.palette.surface || baseColors.white
               },
               isValidated && isCorrect && { borderColor: baseColors.green500, backgroundColor: baseColors.green50 },
-              isValidated && !isCorrect && canSkip && { borderColor: identity.ai.error, backgroundColor: withOpacity(identity.ai.error, 0.05) },
+              isValidated && !isCorrect && canSkip && { borderColor: identity.aiDiagnostic.error, backgroundColor: withOpacity(identity.aiDiagnostic.error, 0.05) },
             ]}
             value={userAnswer || ''}
             onChangeText={onAnswer}
@@ -139,14 +152,7 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps> = ({
         onSkip={onNext}
         disabled={buttonDisabled}
         isLastQuestion={isLastQuestion}
-        feedbackMessage={generateFeedbackMessage(
-          isValidated,
-          isCorrect,
-          canSkip,
-          question.correctAnswer,
-          attemptCount,
-          maxAttempts
-        )}
+        feedbackMessage={feedbackData}
       />
     </ScrollView>
   );

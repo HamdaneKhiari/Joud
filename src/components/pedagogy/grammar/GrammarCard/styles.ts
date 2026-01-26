@@ -56,7 +56,7 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     letterSpacing: 1.5,
     marginBottom: spacing.md,
     opacity: 0.6,
-    color: identity.text.onMain, // ✅ WHITE LABEL
+    color: identity.text.onPrimary, // ✅ WHITE LABEL
   },
 
   ruleText: {
@@ -64,7 +64,7 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     fontWeight: fontWeight.bold as any,
     lineHeight: fontSize.lg * 1.5,
     letterSpacing: -0.3,
-    color: identity.text.onMain, // ✅ WHITE LABEL
+    color: identity.text.onPrimary, // ✅ WHITE LABEL
   },
 
   // ============================================
@@ -81,7 +81,7 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     letterSpacing: 1.5,
     marginBottom: spacing.md,
     opacity: 0.6,
-    color: identity.text.onMain, // ✅ WHITE LABEL
+    color: identity.text.onPrimary, // ✅ WHITE LABEL
   },
 
   exampleItem: {
@@ -137,7 +137,7 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
   },
 
   optionButtonSelected: {
-    borderColor: identity.branding.main, // ✅ WHITE LABEL
+    borderColor: identity.palette.primary, // ✅ WHITE LABEL
     backgroundColor: withOpacity('#000000', 0.03),
   },
 

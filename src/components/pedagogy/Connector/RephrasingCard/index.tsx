@@ -1,13 +1,20 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TextInput, ScrollView, StyleSheet } from 'react-native';
 import ExerciseValidation from '../../../common/ExerciseValidation';
 import { useExerciseValidationState } from '../../../../hooks/exercises/useExerciceValidationState';
 import { generateFeedbackMessage } from '../../../../utils/feedback';
 import { useTheme } from '@/themes/ThemeContext';
-// ✅ Imports mis en conformité avec tes fichiers
 import { tokens, withOpacity } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors'; 
 import { RephrasingCardProps } from '../types';
+
+/**
+ * ============================================
+ * RephrasingCard (Standardized Edition)
+ * ✅ Zéro "Leaked Values" (Sonar S6439)
+ * ✅ Thème 100% Dynamique
+ * ============================================
+ */
 
 const RephrasingCard: React.FC<RephrasingCardProps> = ({
   question,
@@ -21,27 +28,44 @@ const RephrasingCard: React.FC<RephrasingCardProps> = ({
   onRetry,
   onNext,
   isLastQuestion,
-  color = '#F59E0B',
+  color,
 }) => {
   const { identity } = useTheme();
+
+  // Détermination de la couleur de marque avec fallback safe
+  const brandColor = color || identity.palette.primary || '#F59E0B';
 
   const { canSkip, validationState, buttonDisabled } = useExerciseValidationState(
     isValidated,
     isCorrect,
     attemptCount,
     maxAttempts,
-    !!userAnswer && userAnswer.trim().length > 0
+    !!(userAnswer && userAnswer.trim().length > 0) // Cast boolean explicite
   );
 
-  // Définition de la couleur de marque (soit celle du module, soit le main de l'identity)
-  const brandColor = color || identity.branding.main;
+  // Transformation du feedback pour correspondre au type attendu par ExerciseValidation
+  const feedbackData = useMemo(() => {
+    const feedback = generateFeedbackMessage(
+      isValidated,
+      isCorrect,
+      canSkip,
+      question.correctAnswer,
+      attemptCount,
+      maxAttempts
+    );
+    return feedback ? { title: feedback.title, message: feedback.message } : undefined;
+  }, [isValidated, isCorrect, canSkip, question.correctAnswer, attemptCount, maxAttempts]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView 
+      style={styles.container} 
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+    >
       <View style={[
-        styles.card, 
-        { 
-          backgroundColor: identity.branding.surface || baseColors.white,
+        styles.card,
+        {
+          backgroundColor: identity.palette.surface || baseColors.white,
           borderTopColor: brandColor,
           borderRadius: identity.ui.cardRadius || tokens.borderRadius.lg
         }
@@ -50,10 +74,12 @@ const RephrasingCard: React.FC<RephrasingCardProps> = ({
 
         <View style={styles.titleSection}>
           <Text style={styles.titleIcon}>♻️</Text>
-          <Text style={[styles.titleText, { color: identity.text.primary }]}>Rephrase the sentence</Text>
+          <Text style={[styles.titleText, { color: identity.text.primary }]}>
+            Rephrase the sentence
+          </Text>
         </View>
 
-        {/* Phrase de base : Fond dynamique basé sur le thème */}
+        {/* Phrase de base */}
         <View style={[
           styles.baseSentenceBox, 
           { 
@@ -61,12 +87,16 @@ const RephrasingCard: React.FC<RephrasingCardProps> = ({
             backgroundColor: withOpacity(brandColor, 0.05)
           }
         ]}>
-          <Text style={[styles.baseSentenceLabel, { color: identity.text.secondary }]}>Original sentence:</Text>
-          <Text style={[styles.baseSentenceText, { color: identity.text.primary }]}>{question.baseSentence}</Text>
+          <Text style={[styles.baseSentenceLabel, { color: identity.text.secondary }]}>
+            Original sentence:
+          </Text>
+          <Text style={[styles.baseSentenceText, { color: identity.text.primary }]}>
+            {question.baseSentence}
+          </Text>
         </View>
 
-        {/* Instruction avec le mot à utiliser */}
-        {question.instruction && (
+        {/* Instruction : Correction S6439 (!! force le boolean) */}
+        {!!question.instruction && (
           <View style={[
             styles.instructionBox, 
             { 
@@ -75,24 +105,31 @@ const RephrasingCard: React.FC<RephrasingCardProps> = ({
             }
           ]}>
             <Text style={styles.instructionIcon}>📌</Text>
-            <Text style={[styles.instructionText, { color: brandColor }]}>{question.instruction}</Text>
+            <Text style={[styles.instructionText, { color: brandColor }]}>
+              {question.instruction}
+            </Text>
           </View>
         )}
 
-        {/* Input pour la réponse */}
+        {/* Section Réponse */}
         <View style={styles.answerSection}>
-          <Text style={[styles.answerLabel, { color: identity.text.primary }]}>Your rephrased sentence:</Text>
+          <Text style={[styles.answerLabel, { color: identity.text.primary }]}>
+            Your rephrased sentence:
+          </Text>
           <TextInput
             style={[
               styles.answerInput,
-              { 
-                borderColor: withOpacity(identity.text.tertiary, 0.2), 
+              {
+                borderColor: withOpacity(identity.text.tertiary, 0.2),
                 color: identity.text.primary,
-                backgroundColor: identity.branding.surface || baseColors.white,
+                backgroundColor: identity.palette.surface || baseColors.white,
                 borderRadius: tokens.borderRadius.md
               },
-              isValidated && isCorrect && { borderColor: baseColors.green500, backgroundColor: baseColors.green50 },
-              isValidated && !isCorrect && canSkip && { borderColor: identity.ai.error, backgroundColor: withOpacity(identity.ai.error, 0.05) },
+              isValidated && isCorrect && styles.inputCorrect,
+              isValidated && !isCorrect && canSkip && { 
+                borderColor: identity.aiDiagnostic?.error || baseColors.red500, 
+                backgroundColor: withOpacity(identity.aiDiagnostic?.error || baseColors.red500, 0.05) 
+              },
             ]}
             value={userAnswer || ''}
             onChangeText={onAnswer}
@@ -105,21 +142,20 @@ const RephrasingCard: React.FC<RephrasingCardProps> = ({
           />
         </View>
 
-        {/* Correction si validé et faux */}
-        {isValidated && !isCorrect && canSkip && (
-          <View style={[
-            styles.correctAnswerBox, 
-            { backgroundColor: baseColors.green50, borderColor: baseColors.green500 }
-          ]}>
-            <Text style={[styles.correctAnswerLabel, { color: baseColors.green700 }]}>✅ Correct answer:</Text>
-            <Text style={[styles.correctAnswerText, { color: baseColors.green700 }]}>{question.correctAnswer}</Text>
+        {/* Correction affichée si nécessaire */}
+        {!!(isValidated && !isCorrect && canSkip) && (
+          <View style={styles.correctAnswerBox}>
+            <Text style={styles.correctAnswerLabel}>✅ Correct answer:</Text>
+            <Text style={styles.correctAnswerText}>{question.correctAnswer}</Text>
           </View>
         )}
 
-        {/* Traduction */}
-        {question.translation && (
+        {/* Traduction : Correction S6439 */}
+        {!!question.translation && (
           <View style={[styles.translationBox, { borderTopColor: withOpacity(identity.text.tertiary, 0.1) }]}>
-            <Text style={[styles.translationText, { color: identity.text.secondary }]}>{question.translation}</Text>
+            <Text style={[styles.translationText, { color: identity.text.secondary }]}>
+              {question.translation}
+            </Text>
           </View>
         )}
       </View>
@@ -135,14 +171,7 @@ const RephrasingCard: React.FC<RephrasingCardProps> = ({
         onSkip={onNext}
         disabled={buttonDisabled}
         isLastQuestion={isLastQuestion}
-        feedbackMessage={generateFeedbackMessage(
-          isValidated,
-          isCorrect,
-          canSkip,
-          question.correctAnswer,
-          attemptCount,
-          maxAttempts
-        )}
+        feedbackMessage={feedbackData}
       />
     </ScrollView>
   );
@@ -222,21 +251,29 @@ const styles = StyleSheet.create({
     minHeight: 80, 
     textAlignVertical: 'top' 
   },
+  inputCorrect: {
+    borderColor: baseColors.green500,
+    backgroundColor: baseColors.green50
+  },
   correctAnswerBox: { 
     marginTop: -tokens.spacing.md, 
     marginBottom: tokens.layout.sectionGap, 
     padding: tokens.spacing.md, 
     borderRadius: tokens.borderRadius.md, 
-    borderWidth: 1 
+    borderWidth: 1,
+    backgroundColor: baseColors.green50, 
+    borderColor: baseColors.green500
   },
   correctAnswerLabel: { 
     fontSize: tokens.fontSize.xs, 
     fontWeight: tokens.fontWeight.bold, 
-    marginBottom: tokens.spacing.xs 
+    marginBottom: tokens.spacing.xs,
+    color: baseColors.green700
   },
   correctAnswerText: { 
     fontSize: tokens.fontSize.md, 
-    fontWeight: tokens.fontWeight.bold 
+    fontWeight: tokens.fontWeight.bold,
+    color: baseColors.green700
   },
   translationBox: { 
     alignItems: 'center', 

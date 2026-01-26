@@ -18,7 +18,7 @@ const RevisionScreen = () => {
   return (
     <View style={{
       flex: 1,
-      backgroundColor: identity.branding.surface || '#FFFFFF',
+      backgroundColor: identity.palette.surface || '#FFFFFF',
       justifyContent: 'center',
       alignItems: 'center',
       padding: tokens.spacing.xl
@@ -42,14 +42,14 @@ const RevisionScreen = () => {
       <TouchableOpacity
         onPress={() => router.back()}
         style={{
-          backgroundColor: identity.branding.main,
+          backgroundColor: identity.palette.primary,
           paddingHorizontal: tokens.spacing.xl,
           paddingVertical: tokens.spacing.md,
           borderRadius: tokens.borderRadius.md
         }}
       >
         <Text style={{
-          color: identity.text.onMain,
+          color: identity.text.onPrimary,
           fontWeight: tokens.fontWeight.bold
         }}>
           Retour

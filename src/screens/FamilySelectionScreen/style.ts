@@ -27,7 +27,7 @@ export const createStyles = (identity: Identity) => {
     // =================== LAYOUT ===================
     safeArea: {
       flex: 1,
-      backgroundColor: identity.branding.surface || '#FFFFFF', // ✅ White Label
+      backgroundColor: identity.palette.surface || '#FFFFFF', // ✅ White Label
     },
 
     scrollView: {

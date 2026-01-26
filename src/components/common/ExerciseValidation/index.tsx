@@ -240,7 +240,7 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
           >
             {/* Icône */}
             <View style={styles.buttonIconContainer}>
-              <Ionicons name={buttonConfig.icon as any} size={26} color={identity.text.onMain} />
+              <Ionicons name={buttonConfig.icon as any} size={26} color={identity.text.onPrimary} />
             </View>
 
             {/* Label */}
@@ -249,7 +249,7 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
             {/* Flèche décorative pour "Suivant" */}
             {state === 'correct' && !isLastQuestion && (
               <View style={styles.buttonArrow}>
-                <Ionicons name="chevron-forward" size={20} color={identity.text.onMain} />
+                <Ionicons name="chevron-forward" size={20} color={identity.text.onPrimary} />
               </View>
             )}
           </TouchableOpacity>

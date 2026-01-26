@@ -86,14 +86,15 @@ export const useExerciseContent = <T = any>(
 
         // 2. Récupérer le Module parent (ex: Vocabulaire, Grammaire)
         const moduleResult = await db.getFirstAsync<Module>(
-          `SELECT * FROM modules WHERE id = ?`, 
-          [familyResult.module_id]
+          `SELECT * FROM modules WHERE slug = ?`,
+          [familyResult.module_slug]
         );
         setModule(moduleResult || null);
 
         // 3. Récupérer tous les items de contenu pour ce niveau
+        if (!familyResult.id) throw new Error(`Famille sans ID valide.`);
         const contentResult = await db.getAllAsync<{ id: number; data: string }>(
-          `SELECT id, data FROM content WHERE family_id = ? AND level = ?`, 
+          `SELECT id, data FROM content WHERE family_id = ? AND level = ?`,
           [familyResult.id, levelId]
         );
         

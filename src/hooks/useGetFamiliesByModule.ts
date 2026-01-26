@@ -60,7 +60,7 @@ export const useGetFamiliesByModule = (
         }
 
         // 2. Récupérer les familles qui ont du contenu pour ce niveau
-        const result = await getFamiliesByModuleAndLevel(db, module.id, level);
+        const result = await getFamiliesByModuleAndLevel(db, module.slug, level);
 
         setFamilies(result || []);
         setFamilyIds((result || []).map(f => f.id?.toString() || ''));

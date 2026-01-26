@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ViewStyle } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import { createStyles } from './metricsStyle';
 
@@ -29,8 +29,10 @@ const MetricCard: React.FC<MetricCardProps> = ({
   const styles = useMemo(() => createStyles(identity), [identity]);
 
   const variantKey = variant ? variant.charAt(0).toUpperCase() + variant.slice(1) : '';
-  const cardStyle = variantKey ? styles[`card${variantKey}` as keyof ReturnType<typeof createStyles>] : null;
-  const valueStyle = variantKey ? styles[`value${variantKey}` as keyof ReturnType<typeof createStyles>] : null;
+  const cardStyleKey = `card${variantKey}` as keyof ReturnType<typeof createStyles>;
+  const cardStyle = variantKey && cardStyleKey in styles ? styles[cardStyleKey] : null;
+  const valueStyleKey = `value${variantKey}` as keyof ReturnType<typeof createStyles>;
+  const valueStyle = variantKey && valueStyleKey in styles ? styles[valueStyleKey] : null;
 
   const hasVariant = !!variant;
   const labelVariantKey = variant ? `label${variant.charAt(0).toUpperCase() + variant.slice(1)}` : null;
@@ -40,7 +42,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
     <View style={[
       styles.card,
       isDark && styles.cardDark,
-      cardStyle,
+      cardStyle as ViewStyle,
     ]}>
       {/* ✅ Formes décoratives supprimées (No-Media Premium) */}
 

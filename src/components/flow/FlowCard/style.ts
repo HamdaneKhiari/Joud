@@ -237,7 +237,7 @@ export const createStyles = (identity: Identity) => {
     progressText: {
       fontSize: tokens.fontSize.base,
       fontWeight: tokens.fontWeight.black,
-      color: identity.branding.accent,
+      color: identity.palette.accent,
       letterSpacing: -0.2
     },
 
@@ -246,7 +246,7 @@ export const createStyles = (identity: Identity) => {
       fontSize: identity.id === 'primary' ? tokens.fontSize.xxxl :
                identity.id === 'college' ? tokens.fontSize.xxl + 4 :
                tokens.fontSize.xxl,
-      color: identity.branding.accent,
+      color: identity.palette.accent,
       fontWeight: tokens.fontWeight.bold,
       opacity: identity.id === 'adult' ? 0.4 : 0.6
     }

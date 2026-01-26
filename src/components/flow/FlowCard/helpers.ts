@@ -9,7 +9,7 @@ import type { BadgeType } from '@/utils/badgeHelper';
  * Détermine la couleur de fond du badge en fonction de son contenu
  */
 export const getBadgeColor = (badge: string | null, identity: Identity): string => {
-  if (!badge) return identity.branding.main;
+  if (!badge) return identity.palette.primary;
 
   const lowerCaseBadge = badge.toLowerCase();
 
@@ -20,7 +20,7 @@ export const getBadgeColor = (badge: string | null, identity: Identity): string 
 
   // Badge en cours/nouveau - Couleur principale
   if (lowerCaseBadge.includes('nouveau') || lowerCaseBadge.includes('new') || lowerCaseBadge.includes('en cours')) {
-    return identity.branding.main;
+    return identity.palette.primary;
   }
 
   // Badge bloqué - Gris
@@ -30,7 +30,7 @@ export const getBadgeColor = (badge: string | null, identity: Identity): string 
 
   // Badge argent - Couleur accent
   if (lowerCaseBadge.includes('argent') || lowerCaseBadge.includes('silver')) {
-    return identity.branding.accent;
+    return identity.palette.accent;
   }
 
   // Badge bronze - Orange
@@ -39,5 +39,5 @@ export const getBadgeColor = (badge: string | null, identity: Identity): string 
   }
 
   // Par défaut - Couleur principale
-  return identity.branding.main;
+  return identity.palette.primary;
 };

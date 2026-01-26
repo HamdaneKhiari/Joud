@@ -1,15 +1,8 @@
-/**
- * ============================================
- * ExerciseHeaderContent (Premium Edition)
- * Logique simplifiée avec système de variants propre
- * ============================================
- */
-
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import type { Identity } from '@/themes/ThemeContext';
-import { tokens, withOpacity } from '@/themes/tokens';
+import { tokens } from '@/themes/tokens'; // ✅ withOpacity supprimé car inutilisé
 
 // ============================================
 // TYPES
@@ -21,39 +14,37 @@ interface ExerciseHeaderContentProps {
   variant?: 'exercise' | 'selection' | 'category' | 'subcategory';
 }
 
+// On définit un type pour s'assurer que l'ID de l'identité existe dans notre config
+type IdentityId = Identity['id'];
+
 // ============================================
 // CONFIGURATION DES VARIANTS (DRY)
 // ============================================
 
-/**
- * Configuration typographique par identité
- * Simplifie la logique conditionnelle dans les styles
- * ✅ 100% White Label : aucune couleur hardcodée
- */
-const TYPOGRAPHY_CONFIG = {
+const TYPOGRAPHY_CONFIG: Record<IdentityId, any> = {
   primary: {
-    titleSize: tokens.fontSize.xxxl,      // 36px (↓ de 40px)
+    titleSize: tokens.fontSize.xxxl,
     titleWeight: tokens.fontWeight.black,
     titleLetterSpacing: -0.5,
     titleLineHeight: 40,
     subtitleWeight: tokens.fontWeight.bold,
   },
   college: {
-    titleSize: tokens.fontSize.xxl + 4,   // 32px (↓ de 36px)
+    titleSize: tokens.fontSize.xxl + 4,
     titleWeight: tokens.fontWeight.black,
     titleLetterSpacing: -0.5,
     titleLineHeight: 38,
     subtitleWeight: tokens.fontWeight.extrabold,
   },
   lycee: {
-    titleSize: tokens.fontSize.xxl,       // 28px
+    titleSize: tokens.fontSize.xxl,
     titleWeight: tokens.fontWeight.bold,
     titleLetterSpacing: 0,
     titleLineHeight: 34,
     subtitleWeight: tokens.fontWeight.semibold,
   },
   adult: {
-    titleSize: tokens.fontSize.xxl,       // 28px
+    titleSize: tokens.fontSize.xxl,
     titleWeight: tokens.fontWeight.bold,
     titleLetterSpacing: 0,
     titleLineHeight: 34,
@@ -66,13 +57,15 @@ const TYPOGRAPHY_CONFIG = {
 // ============================================
 
 const createStyles = (identity: Identity) => {
-  const config = TYPOGRAPHY_CONFIG[identity.id];
-  const isDark = identity.branding.themeMode === 'dark';
+  // ✅ Correction TS : On force le type ou on utilise un fallback
+  const config = TYPOGRAPHY_CONFIG[identity.id] || TYPOGRAPHY_CONFIG.adult;
+  const isDark = identity.themeMode === 'dark';
 
-  // ✅ Couleurs sémantiques adaptatives
-  const textColor = identity.id === 'adult'
-    ? (isDark ? '#F9FAFB' : '#1F2937')
-    : '#FFFFFF';
+  // ✅ Correction Sonar : Extraction de la ternaire imbriquée
+  let textColor = '#FFFFFF';
+  if (identity.id === 'adult') {
+    textColor = isDark ? '#F9FAFB' : '#1F2937';
+  }
 
   const textShadow = identity.id === 'adult'
     ? { shadowColor: 'transparent', shadowOpacity: 0 }
@@ -87,11 +80,9 @@ const createStyles = (identity: Identity) => {
     contentContainer: {
       flex: 1,
       alignItems: 'center',
-      justifyContent: 'center', // ✅ Centré verticalement pour équilibre
+      justifyContent: 'center',
       paddingHorizontal: tokens.spacing.md,
     },
-
-    // ✅ Titre optimisé : plus de logique conditionnelle inline
     exerciseTitle: {
       fontSize: config.titleSize,
       fontWeight: config.titleWeight,
@@ -102,22 +93,16 @@ const createStyles = (identity: Identity) => {
       lineHeight: config.titleLineHeight,
       ...textShadow,
     },
-
-    // ✅ Variante pour selection (légèrement plus grand)
     selectionTitle: {
       fontSize: config.titleSize + 2,
     },
-
-    // ✅ Sous-titre optimisé (100% White Label)
     exerciseSubtitle: {
       fontSize: tokens.fontSize.sm,
       fontWeight: config.subtitleWeight,
-      // ✅ Utilise l'accent de l'identité (caméléon pur)
-      color: identity.branding.accent,
+      color: identity.header.accent,
       textAlign: 'center',
       letterSpacing: 0.3,
       lineHeight: 20,
-      // Ombre plus subtile pour le sous-titre
       ...(identity.id !== 'adult' && {
         shadowColor: '#000000',
         shadowOpacity: 0.2,
@@ -140,21 +125,18 @@ const ExerciseHeaderContent: React.FC<ExerciseHeaderContentProps> = ({
   const { identity } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
 
-  // ✅ Détermine le style du titre selon la variante (simplifié)
   const titleStyle = variant === 'selection'
     ? [styles.exerciseTitle, styles.selectionTitle]
     : styles.exerciseTitle;
 
   return (
     <View style={styles.contentContainer}>
-      {/* Titre principal */}
       {title && (
         <Text style={titleStyle} numberOfLines={2}>
           {title}
         </Text>
       )}
 
-      {/* Sous-titre optionnel */}
       {subtitle && subtitle.length > 0 && (
         <Text style={styles.exerciseSubtitle} numberOfLines={1}>
           {subtitle}

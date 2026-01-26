@@ -30,7 +30,7 @@ export const createStyles = (identity: Identity) => StyleSheet.create({
     width: '200%',
     height: '100%',
     // ✅ Effet subtil adapté au mode sombre/clair
-    backgroundColor: identity.branding.themeMode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: identity.themeMode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.3)',
     transform: [{ skewX: '-20deg' }],
   },
   // On utilise tes shadows définis dans tokens.ts

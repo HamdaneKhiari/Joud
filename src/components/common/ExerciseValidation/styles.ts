@@ -73,7 +73,7 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
 
   feedbackTitle: {
     fontSize: fontSize.lg,
-    fontWeight: fontWeight.extraBold as any,
+    fontWeight: fontWeight.extrabold as any,
     marginBottom: spacing.xs,
     letterSpacing: 0.3,
   },
@@ -143,8 +143,8 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
 
   buttonLabel: {
     fontSize: fontSize.lg,
-    fontWeight: fontWeight.extraBold as any,
-    color: identity.text.onMain, // ✅ WHITE LABEL
+    fontWeight: fontWeight.extrabold as any,
+    color: identity.text.onPrimary, // ✅ WHITE LABEL
     textTransform: 'uppercase' as any,
     letterSpacing: 1,
     flex: 1,
@@ -167,7 +167,7 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
 
   // État INITIAL (Valider) - Utilise la couleur principale de l'identité
   buttonInitial: {
-    backgroundColor: identity.branding.main, // ✅ WHITE LABEL
+    backgroundColor: identity.palette.primary, // ✅ WHITE LABEL
     borderWidth: borderWidths.thick,
     borderColor: withOpacity(baseColors.white, 0.3),
   },

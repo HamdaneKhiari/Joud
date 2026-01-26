@@ -22,22 +22,22 @@ export const useFirstIncompleteIndex = (
 
     // Construction de la clé de niveau (ex: 'level1')
     const levelKey = `level${levelId}`;
-    
+
     // Accès sécurisé à la progression de la famille
-    // Structure: progress.level1.vocab.familyId.items
-    const familyData = progress?.[levelKey]?.[exerciseType]?.[familyId];
+    // Structure: progress.level1.vocab.familyId
+    const familyData = progress?.[levelKey as keyof typeof progress]?.[exerciseType as keyof typeof progress[keyof typeof progress]]?.[familyId];
 
     // Si aucune donnée, on commence au début
-    if (!familyData?.items) return 0;
+    if (!familyData) return 0;
 
-    // On parcourt les items pour trouver le premier 'false' ou 'undefined'
-    for (let i = 0; i < totalItems; i++) {
-      if (!familyData.items[i]) {
-        return i;
-      }
+    // FamilyProgress a completed (nombre d'items complétés) et total
+    // Si completed < totalItems, on retourne completed (prochain item à faire)
+    // Si completed >= totalItems, tout est fini, on retourne 0 pour réviser
+    if (familyData.completed < totalItems) {
+      return familyData.completed;
     }
 
-    // Si tout est fini, on retourne 0 pour permettre de réviser (ou totalItems - 1)
+    // Si tout est fini, on retourne 0 pour permettre de réviser
     return 0;
   }, [progress, levelId, exerciseType, familyId, totalItems]);
 

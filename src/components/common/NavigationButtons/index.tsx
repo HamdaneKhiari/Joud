@@ -36,7 +36,7 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
           <MaterialCommunityIcons
             name="chevron-left"
             size={32}
-            color={identity.branding.textOnMain}
+            color={identity.text.onPrimary}
           />
         </TouchableOpacity>
       ) : (
@@ -69,7 +69,7 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
             <MaterialCommunityIcons
               name="chevron-right"
               size={32}
-              color={identity.branding.textOnMain}
+              color={identity.text.onPrimary}
             />
         </TouchableOpacity>
       )}

@@ -76,7 +76,7 @@ const FlowCard: React.FC<FlowCardProps> = ({
 
   // Couleurs
   const badgeColor = getBadgeColor(badge, identity);
-  const cardColor = locked ? getLockedColor() : (color || identity.branding.main);
+  const cardColor = locked ? getLockedColor() : (color || identity.palette.primary);
   const lockedIconColor = getLockedIconColor();
 
   // Animation simple (pas besoin de hook custom ici)

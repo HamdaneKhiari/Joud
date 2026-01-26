@@ -30,17 +30,17 @@ export const createStyles = (identity: Identity) =>
 
     // ========== CARD VARIANTS - AVEC COULEURS THÉMATIQUES ==========
     cardWordsLearned: {
-      backgroundColor: identity.branding.accent,
+      backgroundColor: identity.palette.accent,
       ...tokens.shadows.elevated,
     },
 
     cardBadges: {
-      backgroundColor: identity.branding.main,
+      backgroundColor: identity.palette.primary,
       ...tokens.shadows.elevated,
     },
 
     cardStreak: {
-      backgroundColor: identity.ai.accent,
+      backgroundColor: identity.aiDiagnostic.accent,
       ...tokens.shadows.elevated,
     },
 
@@ -145,7 +145,7 @@ export const createStyles = (identity: Identity) =>
     },
 
     encouragementLight: {
-      color: identity.branding.accent,
+      color: identity.palette.accent,
       opacity: 1,
       textShadowColor: 'rgba(0, 0, 0, 0.2)',
       textShadowOffset: { width: 0, height: 1 },

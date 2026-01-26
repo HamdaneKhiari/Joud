@@ -30,7 +30,7 @@ const ConnectorCardRenderer: React.FC<ConnectorCardRendererProps> = ({
   }
 
   // ✅ Fallback : si la famille n'a pas de couleur, on prend la couleur principale de l'identité
-  const displayColor = exerciseFamily?.color || identity.branding.main;
+  const displayColor = exerciseFamily?.color || identity.palette.primary;
 
   switch (exerciseType) {
     case 'logic':

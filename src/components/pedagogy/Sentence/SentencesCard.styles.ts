@@ -8,8 +8,8 @@ import { tokens, withOpacity } from '@/themes/tokens';
  * @param moduleColor - La couleur du module actuel (ex: bleu pour sentences)
  */
 export const getSentenceCardStyles = (identity: Identity, moduleColor: string) => {
-  const { branding, text, ui } = identity;
-  const isDark = branding.themeMode === 'dark';
+  const { palette, text, ui, themeMode } = identity;
+  const isDark = themeMode === 'dark';
 
   return StyleSheet.create({
     container: {

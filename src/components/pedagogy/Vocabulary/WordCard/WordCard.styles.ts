@@ -25,26 +25,26 @@ interface WordCardStyles {
  * ✅ 100% White Label : Liées à l'identité via withOpacity
  */
 const getSemanticColors = (identity: Identity) => {
-  const isDark = identity.branding.themeMode === 'dark';
+  const isDark = identity.themeMode === 'dark';
 
   return {
     // Couleur de la traduction (liée à main avec opacité)
-    translation: withOpacity(identity.branding.main, 0.6),
+    translation: withOpacity(identity.palette.primary, 0.6),
     // Couleur du texte d'exemple (liée à main avec opacité plus légère)
-    example: withOpacity(identity.branding.main, 0.7),
+    example: withOpacity(identity.palette.primary, 0.7),
     // Bordure subtile de la card
     cardBorder: isDark ? withOpacity('#FFFFFF', 0.1) : withOpacity('#000000', 0.05),
   };
 };
 
 export const getWordCardStyles = (identity: Identity): WordCardStyles => {
-  const { branding, ui } = identity;
+  const { palette, ui } = identity;
   const colors = getSemanticColors(identity);
 
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: branding.surface || '#FFFFFF',
+      backgroundColor: palette.surface || '#FFFFFF',
       borderRadius: ui.cardRadius,
       padding: tokens.layout.cardPadding,
       marginHorizontal: tokens.spacing.xs,
@@ -73,7 +73,7 @@ export const getWordCardStyles = (identity: Identity): WordCardStyles => {
       // ✅ Utilise fontSize.huge (48) mais réduit légèrement pour équilibre visuel
       fontSize: tokens.fontSize.huge - 6, // 42px (proche de l'original)
       fontWeight: tokens.fontWeight.extrabold,
-      color: branding.main, // Couleur principale de la marque
+      color: palette.primary, // Couleur principale de la marque
       textAlign: 'center',
       letterSpacing: 0.5,
     },
@@ -87,15 +87,13 @@ export const getWordCardStyles = (identity: Identity): WordCardStyles => {
     separator: {
       width: 40,
       height: 4,
-      backgroundColor: branding.accent, // Touche de couleur d'accent
+      backgroundColor: palette.accent, // Touche de couleur d'accent
       borderRadius: tokens.borderRadius.sm / 4, // Arrondi subtil (2px)
       marginBottom: tokens.spacing.xxxl,
       opacity: tokens.opacity.overlay,
     },
     exampleContainer: {
-      backgroundColor: ui.hasGradient
-        ? withOpacity('#000000', 0.03)
-        : 'transparent',
+      backgroundColor: withOpacity('#000000', 0.03),
       padding: tokens.spacing.lg,
       borderRadius: ui.cardRadius / 1.5,
       width: '100%',

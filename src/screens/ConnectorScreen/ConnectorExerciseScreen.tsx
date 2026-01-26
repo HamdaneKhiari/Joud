@@ -26,7 +26,7 @@ const ConnectorExerciseScreen: React.FC = () => {
   const params = route.params as ConnectorExerciseParams;
   const familyId = params?.familyId;
   
-  const moduleColor = params?.moduleColor || identity.branding.main;
+  const moduleColor = params?.moduleColor || identity.palette.primary;
   const title = params?.title || 'Exercise';
   const levelId = params?.levelId || 1;
 
@@ -96,7 +96,7 @@ const ConnectorExerciseScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: identity.branding.surface }]}>
+      <View style={[styles.loadingContainer, { backgroundColor: identity.palette.surface }]}>
         <ActivityIndicator size="large" color={moduleColor} />
         <Text style={[styles.loadingText, { color: identity.text.secondary }]}>Preparing your session...</Text>
       </View>
@@ -105,19 +105,19 @@ const ConnectorExerciseScreen: React.FC = () => {
 
   if (!currentItem) {
     return (
-      <View style={[styles.errorContainer, { backgroundColor: identity.branding.surface }]}>
+      <View style={[styles.errorContainer, { backgroundColor: identity.palette.surface }]}>
         <Text style={[styles.errorText, { color: identity.text.primary }]}>Question introuvable</Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: identity.branding.surface }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: identity.palette.surface }]}>
       {/* Header White Label */}
       <View style={[
         styles.header, 
         { 
-          backgroundColor: identity.branding.surface,
+          backgroundColor: identity.palette.surface,
           borderBottomColor: withOpacity(identity.text.tertiary, 0.1) 
         }
       ]}>
