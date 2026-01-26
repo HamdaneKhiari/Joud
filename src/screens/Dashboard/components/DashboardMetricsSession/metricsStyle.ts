@@ -1,6 +1,13 @@
+/**
+ * ============================================
+ * MetricsStyle - 100% White Label
+ * Toutes les couleurs pilotées par Identity
+ * ============================================
+ */
+
 import { StyleSheet } from 'react-native';
 import type { Identity } from '@/themes/ThemeContext';
-import { tokens } from '@/themes/tokens';
+import { tokens, withOpacity } from '@/themes/tokens';
 
 export const createStyles = (identity: Identity) =>
   StyleSheet.create({
@@ -14,7 +21,7 @@ export const createStyles = (identity: Identity) =>
     // ========== CARD BASE ==========
     card: {
       flex: 1,
-      backgroundColor: '#FFFFFF',
+      backgroundColor: identity.palette.surface,
       borderRadius: identity.ui.cardRadius,
       paddingVertical: tokens.spacing.xl + 4,
       paddingHorizontal: tokens.spacing.lg,
@@ -25,7 +32,7 @@ export const createStyles = (identity: Identity) =>
     },
 
     cardDark: {
-      backgroundColor: '#1F2937',
+      backgroundColor: identity.palette.surface,
     },
 
     // ========== CARD VARIANTS - AVEC COULEURS THÉMATIQUES ==========
@@ -44,14 +51,11 @@ export const createStyles = (identity: Identity) =>
       ...tokens.shadows.elevated,
     },
 
-    // ========== ÉLÉMENTS DÉCORATIFS ==========
-    // ✅ Supprimés (No-Media Premium)
-
     // ========== BADGE TYPOGRAPHIQUE (No-Media) ==========
     badgeLabel: {
       fontSize: tokens.fontSize.xs,
       fontWeight: tokens.fontWeight.extrabold,
-      color: 'rgba(255, 255, 255, 0.5)',
+      color: withOpacity(identity.text.onPrimary, 0.5),
       letterSpacing: 2,
       marginBottom: tokens.spacing.sm,
       textAlign: 'center',
@@ -72,42 +76,42 @@ export const createStyles = (identity: Identity) =>
     value: {
       fontSize: 36,
       fontWeight: tokens.fontWeight.black,
-      color: '#1F2937',
+      color: identity.text.primary,
       marginBottom: tokens.spacing.xs,
       letterSpacing: -0.5,
       zIndex: 2,
     },
 
     valueWordsLearned: {
-      color: '#FFFFFF',
+      color: identity.text.onPrimary,
       textShadowColor: 'rgba(0, 0, 0, 0.2)',
       textShadowOffset: { width: 0, height: 2 },
       textShadowRadius: 4,
     },
 
     valueBadges: {
-      color: '#FFFFFF',
+      color: identity.text.onPrimary,
       textShadowColor: 'rgba(0, 0, 0, 0.2)',
       textShadowOffset: { width: 0, height: 2 },
       textShadowRadius: 4,
     },
 
     valueStreak: {
-      color: '#FFFFFF',
+      color: identity.text.onPrimary,
       textShadowColor: 'rgba(0, 0, 0, 0.2)',
       textShadowOffset: { width: 0, height: 2 },
       textShadowRadius: 4,
     },
 
     valueDark: {
-      color: '#F3F4F6',
+      color: identity.text.primary,
     },
 
     // ========== LABEL (LE TEXTE DESCRIPTIF) ==========
     label: {
       fontSize: 12,
       fontWeight: tokens.fontWeight.bold,
-      color: '#6B7280',
+      color: identity.text.secondary,
       textAlign: 'center',
       marginBottom: tokens.spacing.xs,
       letterSpacing: 0.2,
@@ -115,29 +119,29 @@ export const createStyles = (identity: Identity) =>
     },
 
     labelWordsLearned: {
-      color: '#FFFFFF',
+      color: identity.text.onPrimary,
       opacity: 0.95,
     },
 
     labelBadges: {
-      color: '#FFFFFF',
+      color: identity.text.onPrimary,
       opacity: 0.95,
     },
 
     labelStreak: {
-      color: '#FFFFFF',
+      color: identity.text.onPrimary,
       opacity: 0.95,
     },
 
     labelDark: {
-      color: '#9CA3AF',
+      color: identity.text.tertiary,
     },
 
     // ========== ENCOURAGEMENT TEXT ==========
     encouragement: {
       fontSize: tokens.fontSize.xs,
       fontWeight: tokens.fontWeight.bold,
-      color: '#10B981',
+      color: identity.palette.accent,
       textAlign: 'center',
       marginTop: tokens.spacing.xs,
       letterSpacing: 0.3,
@@ -153,6 +157,6 @@ export const createStyles = (identity: Identity) =>
     },
 
     encouragementDark: {
-      color: '#34D399',
+      color: identity.palette.accent,
     },
   });

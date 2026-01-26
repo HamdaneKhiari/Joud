@@ -1,32 +1,34 @@
+/**
+ * ============================================
+ * LevelCard Styles - 100% White Label
+ * Toutes les couleurs pilotées par Identity
+ * ============================================
+ */
+
 import { StyleSheet } from 'react-native';
 import type { Identity } from '@/themes/ThemeContext';
-import { tokens } from '@/themes/tokens';
+import { tokens, withOpacity } from '@/themes/tokens';
 
 export const createStyles = (identity: Identity) =>
   StyleSheet.create({
     card: {
       backgroundColor: identity.palette.primary,
-      borderRadius: tokens.borderRadius.md, // ✅ Réduit pour look plus compact
-      paddingVertical: tokens.spacing.sm, // ✅ 8px au lieu de 16px
-      paddingHorizontal: tokens.spacing.md, // ✅ 12px
-      marginBottom: tokens.spacing.xs, // ✅ 4px au lieu de 12px (Timeline serrée)
+      borderRadius: tokens.borderRadius.md,
+      paddingVertical: tokens.spacing.sm,
+      paddingHorizontal: tokens.spacing.md,
+      marginBottom: tokens.spacing.xs,
       position: 'relative',
       overflow: 'hidden',
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      minHeight: 48, // ✅ Hauteur minimale garantie
-      // ✅ Ombre subtile pour affordance
+      minHeight: 48,
       ...tokens.shadows.sm,
     },
 
     cardDark: {
-      backgroundColor: '#1F2937',
-      borderColor: '#374151',
+      backgroundColor: identity.palette.primary,
     },
-
-    // ========== ÉLÉMENTS DÉCORATIFS ==========
-    // ✅ decorativeCircle supprimé (No-Media Premium)
 
     // ========== STRUCTURE PRINCIPALE ==========
     mainContainer: {
@@ -36,7 +38,7 @@ export const createStyles = (identity: Identity) =>
     },
 
     levelBadge: {
-      width: 32, // ✅ 32px au lieu de 54px
+      width: 32,
       height: 32,
       borderRadius: 16,
       backgroundColor: 'rgba(255, 255, 255, 0.2)',
@@ -46,8 +48,8 @@ export const createStyles = (identity: Identity) =>
     },
 
     levelNumber: {
-      color: '#FFFFFF',
-      fontSize: 16, // ✅ 16px au lieu de 24px (proportionnel au badge)
+      color: identity.text.onPrimary,
+      fontSize: 16,
       fontWeight: tokens.fontWeight.extrabold,
       textShadowColor: 'rgba(0, 0, 0, 0.2)',
       textShadowOffset: { width: 0, height: 1 },
@@ -56,14 +58,14 @@ export const createStyles = (identity: Identity) =>
 
     infoContainer: {
       flex: 1,
-      marginLeft: tokens.spacing.md, // ✅ 12px au lieu de 16px
+      marginLeft: tokens.spacing.md,
       justifyContent: 'center',
     },
 
     levelTitle: {
-      fontSize: tokens.fontSize.md, // ✅ 14px au lieu de 18px (compact)
+      fontSize: tokens.fontSize.md,
       fontWeight: tokens.fontWeight.bold,
-      color: '#FFFFFF',
+      color: identity.text.onPrimary,
       textShadowColor: 'rgba(0, 0, 0, 0.1)',
       textShadowOffset: { width: 0, height: 1 },
       textShadowRadius: 2,
@@ -79,7 +81,7 @@ export const createStyles = (identity: Identity) =>
     },
 
     difficultyText: {
-      color: '#FFFFFF',
+      color: identity.text.onPrimary,
       fontSize: tokens.fontSize.xs,
       fontWeight: tokens.fontWeight.medium,
       textTransform: 'uppercase',
@@ -92,11 +94,11 @@ export const createStyles = (identity: Identity) =>
       alignItems: 'center',
     },
 
-    // ✅ Badges typographiques (No-Media Premium)
+    // ========== BADGES TYPOGRAPHIQUES ==========
     statusTextCompleted: {
       fontSize: tokens.fontSize.xs,
       fontWeight: tokens.fontWeight.bold,
-      color: '#FFFFFF',
+      color: identity.text.onPrimary,
       letterSpacing: 1,
       opacity: 0.9,
     },
@@ -104,7 +106,7 @@ export const createStyles = (identity: Identity) =>
     statusTextProgress: {
       fontSize: tokens.fontSize.xs,
       fontWeight: tokens.fontWeight.bold,
-      color: 'rgba(255, 255, 255, 0.7)',
+      color: withOpacity(identity.text.onPrimary, 0.7),
       letterSpacing: 1,
     },
 
@@ -115,16 +117,16 @@ export const createStyles = (identity: Identity) =>
 
     timelineLine: {
       position: 'absolute',
-      left: 16, // ✅ Aligné avec le centre du badge (16px + 16px badge center)
-      top: 48, // ✅ Commence après la première card
+      left: 16,
+      top: 48,
       bottom: 0,
-      width: 2, // ✅ Ligne fine et élégante
-      backgroundColor: 'rgba(0, 0, 0, 0.1)', // ✅ Subtile
+      width: 2,
+      backgroundColor: 'rgba(0, 0, 0, 0.1)',
     },
 
     // ========== AFFORDANCE (État pressed) ==========
     cardPressed: {
       opacity: 0.85,
-      transform: [{ scale: 0.98 }], // ✅ Léger shrink au tap
+      transform: [{ scale: 0.98 }],
     },
   });

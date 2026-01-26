@@ -6,7 +6,7 @@ import { useUser } from '@/contexts/UserContext';
 
 export interface FamilyWithProgress {
   id: number;
-  module_id: number;
+  module_slug: string; // ✅ CORRIGÉ : module_slug (TEXT) au lieu de module_id (INTEGER)
   name: string;
   icon: string;
   emoji: string;
@@ -33,25 +33,24 @@ export default function useFamiliesWithProgress(moduleId: string | number, level
 
     setIsLoading(true);
     try {
-      // 💡 MAGIE SQL : Cette requête fonctionne que moduleId soit "1" (ID) ou "vocab" (Slug)
-      // Elle cherche d'abord l'ID du module correspondant, puis charge les familles.
+      // ✅ CORRIGÉ : Requête simplifiée avec module_slug directement
       const query = `
-        SELECT 
-          f.*, 
-          p.score, 
-          p.completed 
+        SELECT
+          f.*,
+          p.score,
+          p.completed
         FROM families f
         LEFT JOIN progress p ON f.id = p.family_id AND p.level = ?
-        WHERE f.module_id = (
-          SELECT id FROM modules WHERE CAST(id AS TEXT) = ? OR slug = ? LIMIT 1
+        WHERE f.module_slug = (
+          SELECT slug FROM modules WHERE CAST(id AS TEXT) = ? OR slug = ? LIMIT 1
         )
         ORDER BY f.order_index ASC;
       `;
 
       // On passe moduleId.toString() deux fois : une pour comparer à l'ID, une pour le slug
       const results = await db.getAllAsync<FamilyWithProgress>(query, [
-        levelId, 
-        moduleId.toString(), 
+        levelId,
+        moduleId.toString(),
         moduleId.toString()
       ]);
 

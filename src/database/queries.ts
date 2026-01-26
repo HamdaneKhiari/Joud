@@ -35,10 +35,15 @@ export const getModuleBySlug = async (db: SQLiteDatabase, slug: string): Promise
 // ============================================
 
 export const getLevelsByAudience = async (db: SQLiteDatabase, audience: string): Promise<Level[]> => {
-  return await db.getAllAsync<Level>(
-    `SELECT * FROM levels WHERE target_audience = ? ORDER BY level`,
-    [audience]
-  );
+  try {
+    return await db.getAllAsync<Level>(
+      `SELECT * FROM levels WHERE target_audience = ? ORDER BY level`,
+      [audience]
+    );
+  } catch (error) {
+    console.warn('getLevelsByAudience error (DB might not be ready):', error);
+    return [];
+  }
 };
 
 // ============================================
@@ -124,10 +129,15 @@ export const getProgressByFamily = async (db: SQLiteDatabase, userId: string, fa
 // ============================================
 
 export const getBrandingById = async (db: SQLiteDatabase, identityId: string): Promise<Branding | null> => {
-  return await db.getFirstAsync<Branding>(
-    `SELECT * FROM branding WHERE id = ?`,
-    [identityId]
-  );
+  try {
+    return await db.getFirstAsync<Branding>(
+      `SELECT * FROM branding WHERE id = ?`,
+      [identityId]
+    );
+  } catch (error) {
+    console.warn('getBrandingById error (DB might not be ready):', error);
+    return null;
+  }
 };
 
 // ============================================

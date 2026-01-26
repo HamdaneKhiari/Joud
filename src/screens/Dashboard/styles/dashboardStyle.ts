@@ -21,26 +21,10 @@ export const createStyles = (identity: Identity) => {
     }
   };
 
-  // Couleur de fond selon l'identité
-  const getBackgroundColor = () => {
-    switch (identity.id) {
-      case 'primary':
-        return '#FFF9E6'; // Fond légèrement jaune pour Primary
-      case 'college':
-        return '#F5F7FA'; // Fond gris très clair pour College
-      case 'lycee':
-        return '#F8F9FA'; // Fond gris ultra clair pour Lycée
-      case 'adult':
-        return '#FFFFFF'; // Fond blanc pur pour Adult
-      default:
-        return '#F5F7FA';
-    }
-  };
-
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: getBackgroundColor(),
+      backgroundColor: identity.palette.surface,
     },
 
     scrollContent: {

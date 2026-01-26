@@ -1,8 +1,17 @@
+/**
+ * ============================================
+ * DashboardHeader - Version Minimaliste
+ * Gauche: Bonjour [Nom]
+ * Droite: Nom de l'organisation (White Label)
+ * 100% piloté par Identity
+ * ============================================
+ */
+
 import React from 'react';
 import { View, Text } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import ThemeContainer from '@/themes/ThemeContainer';
-import { styles } from './headerStyles';
+import { createStyles } from './headerStyles';
 
 interface DashboardHeaderProps {
   user: {
@@ -10,27 +19,29 @@ interface DashboardHeaderProps {
   };
 }
 
-/**
- * DashboardHeader - Premium No-Media Edition
- * Design sobre et typographique inspiré Apple
- */
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
   const { identity } = useTheme();
+  const styles = createStyles(identity);
 
-  // Sécurité si l'identité n'est pas encore chargée
   if (!identity) return null;
 
   return (
     <ThemeContainer identity={identity} style={styles.header} rounded>
       <View style={styles.headerContent}>
-        <View style={styles.textSection}>
-          {/* ✅ Correction : onMain -> onPrimary */}
-          <Text style={[styles.greeting, { color: identity.text.onPrimary }]}>
+        {/* Gauche: Bonjour [Nom] */}
+        <View style={styles.welcomeSection}>
+          <Text style={styles.greeting}>
             {identity.header.welcomeText}
           </Text>
-          {/* ✅ Correction : onMain -> onPrimary */}
-          <Text style={[styles.userName, { color: identity.text.onPrimary }]}>
+          <Text style={styles.userName}>
             {user.name}
+          </Text>
+        </View>
+
+        {/* Droite: Nom de l'organisation */}
+        <View style={styles.organizationSection}>
+          <Text style={styles.organizationName}>
+            {identity.organizationName}
           </Text>
         </View>
       </View>

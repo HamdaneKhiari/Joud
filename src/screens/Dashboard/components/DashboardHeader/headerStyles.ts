@@ -1,38 +1,61 @@
-import { StyleSheet } from 'react-native';
-import { spacing, fontSize, fontWeight } from '@/themes/tokens';
+/**
+ * ============================================
+ * DashboardHeader Styles - Version Minimaliste
+ * Simple et élégant - 100% White Label
+ * ============================================
+ */
 
-export const styles = StyleSheet.create({
-  header: {
-    paddingHorizontal: spacing.xl,
-    paddingTop: 60, // Pour passer sous la barre de statut
-    paddingBottom: spacing.xl,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-  },
-  headerContent: {
-    flexDirection: 'column', // ✅ Vertical layout (Apple style)
-    alignItems: 'flex-start',
-  },
-  textSection: {
-    flex: 1,
-    width: '100%',
-  },
-  // ✅ NO-MEDIA PREMIUM: Typographie sobre et élégante
-  greeting: {
-    fontSize: fontSize.sm, // ✅ Petit et discret (13px)
-    fontWeight: fontWeight.medium as any,
-    letterSpacing: 0.5,
-    opacity: 0.9, // ✅ Légèrement transparent
-    marginBottom: spacing.xs, // ✅ 4px
-    textTransform: 'uppercase' as any, // ✅ Petites capitales
-  },
-  userName: {
-    fontSize: fontSize.xxxl + 4, // ✅ Grand et imposant (40px)
-    fontWeight: fontWeight.black as any,
-    letterSpacing: -1, // ✅ Tighter spacing (Apple style)
-    lineHeight: fontSize.xxxl + 8, // ✅ 44px line height
-  },
-});
+import { StyleSheet } from 'react-native';
+import type { Identity } from '@/themes/ThemeContext';
+import { tokens, withOpacity } from '@/themes/tokens';
+
+export const createStyles = (identity: Identity) => {
+  return StyleSheet.create({
+    // ========== CONTAINER ==========
+    header: {
+      paddingHorizontal: tokens.spacing.xl,
+      paddingTop: 60, // Pour passer sous la barre de statut
+      paddingBottom: tokens.spacing.xl,
+      ...tokens.shadows.elevated,
+    },
+
+    headerContent: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+
+    // ========== GAUCHE : BONJOUR [NOM] ==========
+    welcomeSection: {
+      gap: tokens.spacing.xs,
+      flex: 1,
+    },
+
+    greeting: {
+      fontSize: tokens.fontSize.sm,
+      fontWeight: tokens.fontWeight.medium,
+      color: withOpacity(identity.text.onPrimary, 0.9),
+      letterSpacing: 0.5,
+    },
+
+    userName: {
+      fontSize: tokens.fontSize.xxxl,
+      fontWeight: tokens.fontWeight.black,
+      color: identity.text.onPrimary,
+      letterSpacing: -0.5,
+    },
+
+    // ========== DROITE : NOM DE L'ORGANISATION ==========
+    organizationSection: {
+      alignItems: 'flex-end',
+    },
+
+    organizationName: {
+      fontSize: tokens.fontSize.md,
+      fontWeight: tokens.fontWeight.bold,
+      color: withOpacity(identity.text.onPrimary, 0.95),
+      letterSpacing: 0.3,
+      textAlign: 'right',
+    },
+  });
+};

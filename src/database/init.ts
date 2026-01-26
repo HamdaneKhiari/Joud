@@ -7,12 +7,12 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
 
     // ✅ FIX: Activation du mode WAL pour éviter les erreurs "database is locked"
     await db.execAsync('PRAGMA journal_mode = WAL;');
-    
-    // ✅ FIX: Augmentation du timeout (5s) pour attendre si la DB est occupée par une autre requête
-    await db.execAsync('PRAGMA busy_timeout = 5000;');
 
-    // ✅ FIX: Petit délai pour laisser les connexions fantômes se fermer (Hack de stabilité dev)
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // ✅ FIX: Augmentation du timeout (10s) pour attendre si la DB est occupée par une autre requête
+    await db.execAsync('PRAGMA busy_timeout = 10000;');
+
+    // ✅ FIX: Délai pour laisser les connexions fantômes se fermer et éviter les race conditions
+    await new Promise(resolve => setTimeout(resolve, 200));
 
     // Activation des contraintes d'intégrité
     await db.execAsync(`PRAGMA foreign_keys = ON;`);

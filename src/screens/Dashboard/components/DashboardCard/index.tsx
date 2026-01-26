@@ -1,47 +1,77 @@
+/**
+ * ============================================
+ * DashboardCard - Composant Générique
+ * 100% White Label - Aucune couleur en dur
+ * ============================================
+ */
+
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
-import ThemeContainer from '@/themes/ThemeContainer';
-import { styles } from './styles';
+import { createStyles } from './styles';
 
 interface DashboardCardProps {
+  icon: string; // Emoji
   title: string;
-  icon?: string; // ✅ Optionnel (No-Media)
   subtitle?: string;
+  buttonText?: string;
+  variantColor: 'primary' | 'accent'; // Clé stricte du palette (primary ou accent)
   onPress?: () => void;
-  children: React.ReactNode;
-  variant: 'daily-word' | 'continue' | 'revision' | 'ai-tutor';
+  children?: React.ReactNode;
+  showArrow?: boolean;
 }
 
-const DashboardCard: React.FC<DashboardCardProps> = ({ 
-  title, icon, subtitle, onPress, children, variant 
+const DashboardCard: React.FC<DashboardCardProps> = ({
+  icon,
+  title,
+  subtitle,
+  buttonText,
+  variantColor,
+  onPress,
+  children,
+  showArrow = true,
 }) => {
   const { identity } = useTheme();
+  const styles = createStyles(identity, variantColor);
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
-      <ThemeContainer
-        identity={identity}
-        style={[styles.card, { borderRadius: identity.ui.cardRadius }]}
-      >
-        {/* Header commun */}
-        <View style={styles.cardHeader}>
-          <View style={styles.exerciseInfo}>
-            {icon && <Text style={styles.exerciseIcon}>{icon}</Text>}
-            <View>
-              <Text style={styles.exerciseTitle}>{title}</Text>
-              {subtitle && (
-                <Text style={{ color: identity.text.secondary }}>{subtitle}</Text>
-              )}
-            </View>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={onPress}
+      activeOpacity={0.8}
+      disabled={!onPress}
+    >
+      {/* Cercles décoratifs (signature visuelle) */}
+      <View style={styles.decorativeCircle} />
+      <View style={styles.decorativeCircleSmall} />
+
+      {/* Header */}
+      <View style={styles.cardHeader}>
+        <View style={styles.exerciseInfo}>
+          <Text style={styles.exerciseIcon}>{icon}</Text>
+          <View>
+            <Text style={styles.exerciseTitle}>{title}</Text>
+            {subtitle && (
+              <Text style={styles.levelText}>{subtitle}</Text>
+            )}
           </View>
         </View>
 
-        {/* Contenu spécifique injecté */}
-        <View style={{ zIndex: 2 }}>
-          {children}
+        {/* Flèche indicateur */}
+        {showArrow && onPress && (
+          <Text style={styles.arrowIndicator}>➔</Text>
+        )}
+      </View>
+
+      {/* Contenu custom (optionnel) */}
+      {children}
+
+      {/* Bouton CTA (si fourni) */}
+      {buttonText && (
+        <View style={styles.button}>
+          <Text style={styles.buttonText}>{buttonText}</Text>
         </View>
-      </ThemeContainer>
+      )}
     </TouchableOpacity>
   );
 };

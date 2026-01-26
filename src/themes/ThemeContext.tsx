@@ -21,6 +21,7 @@ import { tokens, withOpacity } from '@/themes/tokens';
 export interface Identity {
   id: string;
   themeMode: 'light' | 'dark';
+  organizationName: string; // Nom de l'organisation/client (ex: "Joud Primaire", "Joud Collège")
 
   // Palette de couleurs de base de l'identité
   palette: {
@@ -110,6 +111,24 @@ const parseJson = <T = any>(jsonStr?: string): T | undefined => {
 };
 
 /**
+ * Helper : Nom d'organisation selon l'identité
+ */
+const getOrganizationName = (identityId: string): string => {
+  switch (identityId) {
+    case 'primary':
+      return 'Joud Primaire';
+    case 'college':
+      return 'Joud Collège';
+    case 'lycee':
+      return 'Joud Lycée';
+    case 'adult':
+      return 'Joud Adulte';
+    default:
+      return 'Joud';
+  }
+};
+
+/**
  * MAPPING : Branding (DB) -> Identity (App)
  */
 const brandingToIdentity = (branding: Branding): Identity => {
@@ -122,6 +141,7 @@ const brandingToIdentity = (branding: Branding): Identity => {
   return {
     id: branding.id,
     themeMode: branding.theme_mode,
+    organizationName: getOrganizationName(branding.id),
 
     palette: {
       primary: branding.primary_color,
@@ -181,6 +201,7 @@ const brandingToIdentity = (branding: Branding): Identity => {
 const defaultIdentity: Identity = {
   id: 'college',
   themeMode: 'light',
+  organizationName: 'Joud Collège',
   palette: { primary: '#34495E', accent: '#FFD700', surface: '#FFFFFF' },
   text: {
     primary: '#1F2937',

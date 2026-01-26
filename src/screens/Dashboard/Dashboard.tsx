@@ -12,6 +12,8 @@ import AITutorCard from './components/DashboardAiTutorCard/AiTutorCard';
 import MetricsSection from './components/DashboardMetricsSession/metricsSession';
 import LevelCard from './components/DashboardLevel/levelCard';
 import DashboardCard from './components/DashboardCard';
+import ContinueLearningCard from './components/ContinueLearningCard';
+import RevisionCard from './components/RevisionCard';
 
 // Hooks et Logique
 import { getLevelsByAudience } from '@/database/queries';
@@ -34,7 +36,7 @@ export default function Dashboard() {
   const [levelLabels, setLevelLabels] = useState<Record<number, { title: string; badge: string; description: string }>>({});
   const [dataLoading, setDataLoading] = useState(true);
 
-  // Simulation ou récupération du mot du jour
+  // TODO: Récupérer le mot du jour depuis la DB ou API
   const [dailyWord] = useState({
     english: "Resilience",
     french: "Résilience",
@@ -43,21 +45,25 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function loadDashboardData() {
-      if (db && user) {
-        try {
-          const data = await getLevelsByAudience(db, user.audience);
-          setLevels(data);
-          const labels: Record<number, { title: string; badge: string; description: string }> = {};
-          for (const level of data) {
-            const label = await getLevelLabel(level.level, identity.id, db);
-            labels[level.level] = label;
-          }
-          setLevelLabels(labels);
-        } catch (error) {
-          console.error('Error loading dashboard data:', error);
-        } finally {
-          setDataLoading(false);
+      if (!db || !user) {
+        setDataLoading(false);
+        return;
+      }
+
+      try {
+        const data = await getLevelsByAudience(db, user.audience);
+        setLevels(data);
+
+        const labels: Record<number, { title: string; badge: string; description: string }> = {};
+        for (const level of data) {
+          const label = await getLevelLabel(level.level, identity.id, db);
+          labels[level.level] = label;
         }
+        setLevelLabels(labels);
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      } finally {
+        setDataLoading(false);
       }
     }
     loadDashboardData();
@@ -69,7 +75,7 @@ export default function Dashboard() {
     }, [fetchLastActivity])
   );
 
-  if (userLoading || dataLoading || !user) {
+  if (userLoading || dataLoading || !user || !db) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: identity.palette.surface }}>
         <ActivityIndicator size="large" color={identity.palette.primary} />
@@ -83,34 +89,37 @@ export default function Dashboard() {
       contentContainerStyle={styles.scrollContent}
     >
       
-      <DashboardHeader user={{ name: user.firstName }} />
+      <DashboardHeader
+        user={{ name: user.firstName }}
+      />
 
       {/* 1. DÉCOUVRIR : Mot du jour (RECODÉ EN FULL WHITE LABEL) */}
       <View style={styles.section}>
         <DailyWordCard word={dailyWord} />
       </View>
 
-      {/* 2. ENTRETENIR : Révisions (Utilisation des couleurs sémantiques) */}
+      {/* 2. REPRENDRE : Activité récente / Commencer l'aventure */}
       <View style={styles.section}>
-        <DashboardCard
-          title="Révisions"
-          variant="revision"
-          onPress={() => router.push('/revision' as any)}
-        >
-          <Text style={[styles.revisionTitle, { color: identity.text.primary }]}>
-            12 mots à réviser
-          </Text>
-          <Text style={[styles.revisionSubtitle, { color: identity.text.secondary }]}>
-            Renforce ta mémoire par la répétition
-          </Text>
-        </DashboardCard>
+        <ContinueLearningCard
+          activity={lastActivity}
+          onPress={lastActivity ? () => navigateToExerciseSelection(router, lastActivity.level) : undefined}
+          onStartPress={() => navigateToExerciseSelection(router, 1)}
+        />
       </View>
 
-      {/* 3. ANALYSER & AGIR : Pôle IA */}
+      {/* 3. ENTRETENIR : Révisions */}
+      <View style={styles.section}>
+        <RevisionCard
+          wordsToReview={12} // TODO: Calculer depuis le système de révisions
+          onPress={() => router.push('/revision' as any)}
+        />
+      </View>
+
+      {/* 4. ANALYSER & AGIR : Pôle IA */}
       {user.audience !== 'primary' && (
         <View style={styles.section}>
           <AIDiagnosticCard
-            errorPatterns={{ verb_conjugation: { count: 8, severity: 2 } }}
+            errorPatterns={{ verb_conjugation: { count: 8, severity: 2 } }} // TODO: Analyser les erreurs réelles de l'utilisateur
             challenge={{ userMessage: identity.aiTutor.subtitle }}
             onTakeChallenge={() => console.log('Challenge accepted')}
           />
@@ -118,29 +127,17 @@ export default function Dashboard() {
         </View>
       )}
 
-      {/* 4. BILAN : Metrics */}
+      {/* 5. BILAN : Metrics */}
       <View style={styles.section}>
-        <MetricsSection metrics={{ wordsLearned: 127, badges: 3, streak: 7 }} theme={identity.themeMode} />
+        <MetricsSection
+          metrics={{
+            wordsLearned: 127, // TODO: Depuis ProgressContext
+            badges: 3,         // TODO: Depuis BadgeSystem
+            streak: 7          // TODO: Depuis ProgressContext
+          }}
+          theme={identity.themeMode}
+        />
       </View>
-
-      {/* 5. REPRENDRE : Activité récente */}
-      {lastActivity && (
-        <View style={styles.section}>
-          <DashboardCard title="Reprendre le cours" variant="continue">
-            <View style={styles.resumeContainer}>
-              <Text style={[styles.resumeFamilyName, { color: identity.text.primary }]}>
-                {lastActivity.familyName}
-              </Text>
-              <Text style={[styles.resumeLevelText, { color: identity.text.secondary }]}>
-                Niveau {lastActivity.level}
-              </Text>
-            </View>
-            <View style={[styles.progressBarContainer, { backgroundColor: identity.text.tertiary + '33' }]}>
-              <View style={[styles.progressBarFill, { width: `${lastActivity.progress}%`, backgroundColor: identity.palette.primary }]} />
-            </View>
-          </DashboardCard>
-        </View>
-      )}
 
       {/* 6. PARCOURS : La timeline */}
       <View style={styles.sectionHeader}>

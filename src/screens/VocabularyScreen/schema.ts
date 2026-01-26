@@ -1,6 +1,9 @@
 /**
- * Fichier centralisant les types de données correspondant au schéma de la base de données SQLite.
- * Assure la cohérence du typage à travers toute l'application.
+ * ============================================
+ * DÉPRÉCIÉ - Utilisez @/database/schema à la place
+ * ============================================
+ * Ce fichier est conservé pour compatibilité arrière mais
+ * tous les nouveaux imports doivent utiliser @/database/schema
  */
 
 export interface Module {
@@ -16,7 +19,7 @@ export interface Module {
 
 export interface Family {
   id: number;
-  module_id: number;
+  module_slug: string; // ✅ CORRIGÉ : module_slug (TEXT) au lieu de module_id (INTEGER)
   name: string;
   icon?: string;
   emoji?: string;

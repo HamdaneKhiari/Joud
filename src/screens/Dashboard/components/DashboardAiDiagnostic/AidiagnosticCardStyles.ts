@@ -5,7 +5,7 @@ import { tokens, withOpacity } from '@/themes/tokens';
 export const createStyles = (identity: Identity) =>
   StyleSheet.create({
     container: {
-      backgroundColor: '#FFFFFF',
+      backgroundColor: identity.palette.surface,
       borderRadius: identity.ui.cardRadius,
       padding: tokens.spacing.lg,
       marginHorizontal: tokens.spacing.xl,
@@ -25,7 +25,7 @@ export const createStyles = (identity: Identity) =>
     title: {
       fontSize: tokens.fontSize.base,
       fontWeight: tokens.fontWeight.bold,
-      color: '#1F2937',
+      color: identity.text.primary,
       marginLeft: tokens.spacing.sm,
     },
     masteryBadge: {
@@ -45,7 +45,7 @@ export const createStyles = (identity: Identity) =>
     sectionLabel: {
       fontSize: 10,
       fontWeight: tokens.fontWeight.black,
-      color: '#9CA3AF',
+      color: identity.text.tertiary,
       marginBottom: tokens.spacing.sm,
       letterSpacing: 1,
     },
@@ -73,7 +73,7 @@ export const createStyles = (identity: Identity) =>
     },
     coachMessage: {
       fontSize: tokens.fontSize.sm,
-      color: '#4B5563',
+      color: identity.text.secondary,
       fontStyle: 'italic',
       lineHeight: 20,
       marginBottom: tokens.spacing.lg,
@@ -87,7 +87,7 @@ export const createStyles = (identity: Identity) =>
       borderRadius: tokens.borderRadius.md,
     },
     ctaText: {
-      color: '#FFFFFF',
+      color: identity.text.onPrimary,
       fontWeight: tokens.fontWeight.bold,
       fontSize: tokens.fontSize.sm,
       marginRight: tokens.spacing.sm,
