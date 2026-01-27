@@ -6,12 +6,11 @@ import { createStyles } from './styles/dashboardStyle';
 
 // Composants spécialisés
 import DashboardHeader from './components/DashboardHeader/DashboardHeader';
-import DailyWordCard from './DashboardDailyWordCard/DailyWordCard'; // ✅ Nouveau composant
+import DailyWordCard from './components/DashboardDailyWordCard/DailyWordCard'; // ✅ Nouveau composant
 import AIDiagnosticCard from './components/DashboardAiDiagnostic/AidiagnosticCard';
 import AITutorCard from './components/DashboardAiTutorCard/AiTutorCard';
 import MetricsSection from './components/DashboardMetricsSession/metricsSession';
 import LevelCard from './components/DashboardLevel/levelCard';
-import DashboardCard from './components/DashboardCard';
 import ContinueLearningCard from './components/ContinueLearningCard';
 import RevisionCard from './components/RevisionCard';
 

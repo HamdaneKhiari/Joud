@@ -9,7 +9,8 @@
       "Bash(npx expo install react-native-reanimated)",
       "Bash(npm start)",
       "Bash(npx expo install:*)",
-      "Bash(npx expo start -c)"
+      "Bash(npx expo start -c)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []

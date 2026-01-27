@@ -25,11 +25,27 @@ const LevelCard: React.FC<LevelCardProps> = ({ data, onPress }) => {
 
   const isCompleted = data?.status === 'completed';
 
+  const handlePress = () => {
+    console.log('[LevelCard] 🎯 Click détecté - Level:', data.level, 'Title:', data.title);
+    if (onPress) {
+      console.log('[LevelCard] ✅ onPress existe, on appelle la fonction');
+      onPress();
+    } else {
+      console.warn('[LevelCard] ⚠️ onPress est undefined !');
+    }
+  };
+
   return (
     <TouchableOpacity
-      onPress={onPress}
-      onPressIn={() => setIsPressed(true)}
-      onPressOut={() => setIsPressed(false)}
+      onPress={handlePress}
+      onPressIn={() => {
+        console.log('[LevelCard] 👇 PressIn détecté');
+        setIsPressed(true);
+      }}
+      onPressOut={() => {
+        console.log('[LevelCard] 👆 PressOut détecté');
+        setIsPressed(false);
+      }}
       activeOpacity={1} // ✅ Désactivé pour utiliser notre propre feedback
       style={[styles.card, isPressed && styles.cardPressed]}
     >
