@@ -1,73 +1,93 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@/themes/ThemeContext';
 import { createStyles } from './levelCardStyle';
 
 interface LevelData {
   id: number;
   level: number;
-  status?: 'completed' | 'in_progress';
+  status?: 'completed' | 'in_progress' | 'locked';
   title?: string;
+  score?: number;
 }
 
 interface LevelCardProps {
   data: LevelData;
   onPress: () => void;
+  isLast?: boolean;
 }
 
-const LevelCard: React.FC<LevelCardProps> = ({ data, onPress }) => {
+const LevelCard: React.FC<LevelCardProps> = ({ data, onPress, isLast = false }) => {
   const { identity } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
   const [isPressed, setIsPressed] = useState(false);
 
-  // Sécurité anti-crash : si data est undefined, on ne rend rien
+  const isPlayful = identity.ui.mood === 'playful';
+  const isCompleted = data?.status === 'completed';
+  const isLocked = data?.status === 'locked';
+
+  // Config visuelle selon l'état
+  const config = useMemo(() => {
+    if (isCompleted) {
+      return {
+        badgeColor: isPlayful ? '#FFD700' : identity.palette.primary,
+        icon: isPlayful ? 'star' : 'check-decagram',
+        label: isPlayful ? 'Bravo !' : 'Terminé',
+        content: data.score ? `${data.score}%` : 'OK'
+      };
+    }
+    return {
+      badgeColor: isLocked ? '#E0E0E0' : identity.palette.primary,
+      icon: isPlayful ? 'rocket-launch' : 'play-circle',
+      label: isLocked ? 'Bientôt' : (isPlayful ? 'C\'est parti !' : 'À démarrer'),
+      content: data.level
+    };
+  }, [isCompleted, isLocked, isPlayful, identity, data]);
+
   if (!data) return null;
 
-  const isCompleted = data?.status === 'completed';
-
-  const handlePress = () => {
-    console.log('[LevelCard] 🎯 Click détecté - Level:', data.level, 'Title:', data.title);
-    if (onPress) {
-      console.log('[LevelCard] ✅ onPress existe, on appelle la fonction');
-      onPress();
-    } else {
-      console.warn('[LevelCard] ⚠️ onPress est undefined !');
-    }
-  };
-
   return (
-    <TouchableOpacity
-      onPress={handlePress}
-      onPressIn={() => {
-        console.log('[LevelCard] 👇 PressIn détecté');
-        setIsPressed(true);
-      }}
-      onPressOut={() => {
-        console.log('[LevelCard] 👆 PressOut détecté');
-        setIsPressed(false);
-      }}
-      activeOpacity={1} // ✅ Désactivé pour utiliser notre propre feedback
-      style={[styles.card, isPressed && styles.cardPressed]}
-    >
-      <View style={styles.mainContainer}>
-        {/* Badge circulaire avec le numéro de niveau */}
-        <View style={styles.levelBadge}>
-          <Text style={styles.levelNumber}>{data.level || '?'}</Text>
-        </View>
-
-        <View style={styles.infoContainer}>
-          <Text style={styles.levelTitle}>
-            {data.title || `Niveau ${data.level}`}
+    <View style={styles.container}>
+      {/* SECTION TIMELINE */}
+      <View style={styles.timelineContainer}>
+        <View style={[styles.badge, { borderColor: config.badgeColor }]}>
+          <Text style={[styles.badgeText, isCompleted && { color: config.badgeColor }]}>
+            {config.content}
           </Text>
         </View>
-
-        <View style={styles.statusContainer}>
-          <Text style={isCompleted ? styles.statusTextCompleted : styles.statusTextProgress}>
-            {isCompleted ? "DONE" : "START"}
-          </Text>
-        </View>
+        {!isLast && <View style={styles.line} />}
       </View>
-    </TouchableOpacity>
+
+      {/* SECTION CARTE CLICKABLE */}
+      <View style={styles.cardWrapper}>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={onPress}
+          onPressIn={() => setIsPressed(true)}
+          onPressOut={() => setIsPressed(false)}
+          disabled={isLocked}
+          style={[
+            styles.card,
+            isPressed && { transform: [{ scale: 0.98 }] },
+            !isPlayful && { borderLeftColor: config.badgeColor }
+          ]}
+        >
+          <View style={styles.textContainer}>
+            <Text style={styles.title}>{data.title || `Niveau ${data.level}`}</Text>
+            <Text style={styles.subtitle}>{config.label}</Text>
+          </View>
+
+          <View style={styles.iconContainer}>
+            <MaterialCommunityIcons 
+              name={config.icon as any} 
+              size={26} 
+              color={config.badgeColor} 
+            />
+          </View>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 

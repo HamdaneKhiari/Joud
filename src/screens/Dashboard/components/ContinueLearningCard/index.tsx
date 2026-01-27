@@ -8,6 +8,7 @@
 import React, { useMemo } from 'react';
 import DashboardCard from '../DashboardCard';
 import { ActivityData } from '@/hooks/useLastActivity';
+import { useTheme } from '@/themes/ThemeContext';
 
 interface ContinueLearningCardProps {
   activity: ActivityData | null;
@@ -20,6 +21,34 @@ const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
   onPress,
   onStartPress,
 }) => {
+  const { identity } = useTheme();
+  const isPlayful = identity.ui.mood === 'playful';
+
+  // Configuration du contenu textuel et visuel selon le Mood
+  const content = useMemo(() => {
+    if (isPlayful) {
+      return {
+        emptyTitle: "Commencer l'aventure",
+        emptySubtitle: "Choisis ton premier exercice !",
+        emptyButton: "Découvrir le niveau 1",
+        emptyIcon: "🚀",
+        activeTitle: "Continuer",
+        activeButton: "Reprendre"
+      };
+    }
+    return {
+      emptyTitle: "Démarrer le parcours",
+      emptySubtitle: "Sélectionnez un module pour débuter",
+      emptyButton: "Accéder au contenu",
+      emptyIcon: "⏩", // Plus sobre que la fusée
+      activeTitle: "Reprendre l'activité",
+      activeButton: "Continuer"
+    };
+  }, [isPlayful]);
+
+  // Icône par défaut si l'activité n'en a pas (Feu pour le jeu, Play pour le sérieux)
+  const fallbackIcon = isPlayful ? '🔥' : 'play-circle';
+
   // Logique des badges (type d'exercice)
   const typeLetter = useMemo(() => {
     if (!activity) return '';
@@ -46,10 +75,10 @@ const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
   if (!activity) {
     return (
       <DashboardCard
-        icon="🚀"
-        title="Commencer l'aventure"
-        subtitle="Choisis ton premier exercice !"
-        buttonText="Découvrir le niveau 1"
+        icon={content.emptyIcon}
+        title={content.emptyTitle}
+        subtitle={content.emptySubtitle}
+        buttonText={content.emptyButton}
         variantColor="primary"
         onPress={onStartPress}
         showArrow
@@ -62,10 +91,10 @@ const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
 
   return (
     <DashboardCard
-      icon={activity.icon || '🔥'}
-      title="Continuer"
+      icon={activity.icon || fallbackIcon}
+      title={content.activeTitle}
       subtitle={displayLabel}
-      buttonText="Reprendre"
+      buttonText={content.activeButton}
       variantColor="primary"
       onPress={onPress}
       showArrow
