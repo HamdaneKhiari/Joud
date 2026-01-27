@@ -1,9 +1,17 @@
 /**
- * FlowCard Helpers - Couleurs dynamiques des badges
+ * FlowCard Helpers - Utilitaires pour FlowCard
  */
 
 import type { Identity } from '@/themes/ThemeContext';
 import type { BadgeType } from '@/utils/badgeHelper';
+
+/**
+ * Détermine si une string est un emoji ou un nom d'icône
+ */
+export const isEmoji = (str: string): boolean => {
+  const iconNamePattern = /^[a-z0-9-]+$/;
+  return !iconNamePattern.test(str);
+};
 
 /**
  * Détermine la couleur de fond du badge en fonction de son contenu

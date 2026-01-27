@@ -1,6 +1,6 @@
 /**
- * ExerciceSelectionScreen Styles - Coquille layout uniquement
- * FlowCard gère ses propres styles, l'écran ne fait que le layout
+ * ExerciceSelectionScreen Styles (Version Premium)
+ * Support Mood : Playful vs Clean
  */
 
 import { StyleSheet } from 'react-native';
@@ -8,59 +8,80 @@ import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 
 export const createStyles = (identity: Identity) => {
-  // Espacement du container selon l'identité
-  const getContainerPadding = () => {
-    switch (identity.id) {
-      case 'primary':
-        return tokens.spacing.xl;
-      case 'college':
-        return tokens.spacing.lg;
-      case 'lycee':
-      case 'adult':
-        return tokens.spacing.md;
-    }
-  };
-
-  const containerPadding = getContainerPadding();
+  const isPlayful = identity.ui.mood === 'playful';
 
   return StyleSheet.create({
     // =================== LAYOUT ===================
     safeArea: {
       flex: 1,
-      backgroundColor: identity.palette.surface || '#FFFFFF', // ✅ White Label
+      backgroundColor: identity.palette.background || '#F9FAFB',
     },
 
-    scrollView: {
-      flex: 1
+    listContent: {
+      paddingBottom: tokens.spacing.xxxl,
     },
 
-    scrollViewContent: {
-      padding: containerPadding,
-      paddingBottom: tokens.spacing.xxxl
+    columnWrapper: {
+      paddingHorizontal: tokens.spacing.sm,
     },
 
-    // =================== LISTE (FlowCard gère son propre spacing) ===================
-    listContainer: {
-      // FlowCard a déjà son marginBottom intégré
+    // =================== HEADER SECTION ===================
+    headerSection: {
+      marginBottom: tokens.spacing.md,
     },
 
-    // =================== LOADING ===================
-    loadingContainer: {
-      marginTop: 100,
-      alignItems: 'center'
+    sectionTitle: {
+      fontSize: isPlayful ? tokens.fontSize.lg : tokens.fontSize.md,
+      fontWeight: tokens.fontWeight.black,
+      color: identity.text.primary,
+      marginHorizontal: tokens.spacing.md,
+      marginTop: tokens.spacing.lg,
+      marginBottom: tokens.spacing.md,
+      letterSpacing: isPlayful ? -0.5 : 0,
     },
 
-    loadingText: {
+    // =================== SKELETON LOADING ===================
+    skeletonContainer: {
+      flex: 1,
+      paddingTop: tokens.spacing.lg,
+    },
+
+    gridSkeleton: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      paddingHorizontal: tokens.spacing.sm,
+      gap: tokens.spacing.xs,
+    },
+
+    // =================== EMPTY STATE ===================
+    emptyContainer: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: tokens.spacing.xl,
+      paddingTop: 100,
+    },
+
+    emptyEmoji: {
+      fontSize: 64,
+      marginBottom: tokens.spacing.lg,
+    },
+
+    emptyTitle: {
+      fontSize: tokens.fontSize.xl,
+      fontWeight: tokens.fontWeight.black,
+      color: identity.text.primary,
+      textAlign: 'center',
+      marginBottom: tokens.spacing.sm,
+    },
+
+    emptyText: {
       fontSize: tokens.fontSize.base,
-      fontWeight: tokens.fontWeight.bold,
-      color: identity.text.secondary, // ✅ White Label
-      marginTop: tokens.spacing.md,
-      letterSpacing: 0.2
+      fontWeight: tokens.fontWeight.medium,
+      color: identity.text.secondary,
+      textAlign: 'center',
+      lineHeight: 24,
+      maxWidth: 320,
     },
-
-    // =================== BOTTOM SPACER ===================
-    bottomSpacer: {
-      height: tokens.spacing.xxxl
-    }
   });
 };

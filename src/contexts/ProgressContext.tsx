@@ -68,6 +68,8 @@ interface ProgressContextValue {
   getExerciseProgress: (levelId: number, exerciseType: string, allFamilyIds?: string[] | null) => number;
   getLevelProgress: (levelId: number) => number;
   getRevisionFamilies: (levelId: number, mode: string) => any[];
+  getLastActivity: (levelId: number, exerciseType: string) => { familyId: string; progress: number; lastReviewed: number } | null;
+  getRecommendedModule: (levelId: number) => { exerciseType: string; progress: number; lastReviewed: number } | null;
 }
 
 // ============================================
@@ -298,6 +300,60 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return filterRevisionFamilies(progress, levelId, mode);
   }, [progress]);
 
+  const getLastActivity = useCallback((
+    levelId: number,
+    exerciseType: string
+  ): { familyId: string; progress: number; lastReviewed: number } | null => {
+    const levelKey = `level${levelId}`;
+    const exerciseData = progress?.[levelKey]?.[exerciseType as keyof LevelProgress];
+
+    if (!exerciseData) return null;
+
+    let mostRecent: { familyId: string; progress: number; lastReviewed: number } | null = null;
+
+    Object.entries(exerciseData).forEach(([familyId, family]) => {
+      if (family.lastReviewed) {
+        if (!mostRecent || family.lastReviewed > mostRecent.lastReviewed) {
+          mostRecent = {
+            familyId,
+            progress: Math.round((family.completed / family.total) * 100),
+            lastReviewed: family.lastReviewed,
+          };
+        }
+      }
+    });
+
+    return mostRecent;
+  }, [progress]);
+
+  const getRecommendedModule = useCallback((
+    levelId: number
+  ): { exerciseType: string; progress: number; lastReviewed: number } | null => {
+    const levelKey = `level${levelId}`;
+    const levelData = progress?.[levelKey];
+
+    if (!levelData) return null;
+
+    let mostRecent: { exerciseType: string; progress: number; lastReviewed: number } | null = null;
+
+    Object.entries(levelData).forEach(([exerciseType, exerciseData]) => {
+      Object.entries(exerciseData as ExerciseProgress).forEach(([familyId, family]) => {
+        if (family.lastReviewed) {
+          if (!mostRecent || family.lastReviewed > mostRecent.lastReviewed) {
+            const totalProgress = getExerciseProgress(levelId, exerciseType, null);
+            mostRecent = {
+              exerciseType,
+              progress: totalProgress,
+              lastReviewed: family.lastReviewed,
+            };
+          }
+        }
+      });
+    });
+
+    return mostRecent;
+  }, [progress, getExerciseProgress]);
+
   // Valeur du contexte
   const value = useMemo<ProgressContextValue>(() => ({
     progress,
@@ -308,7 +364,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     getFamilyProgress,
     getExerciseProgress,
     getLevelProgress,
-    getRevisionFamilies
+    getRevisionFamilies,
+    getLastActivity,
+    getRecommendedModule
   }), [
     progress,
     isLoading,
@@ -318,7 +376,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     getFamilyProgress,
     getExerciseProgress,
     getLevelProgress,
-    getRevisionFamilies
+    getRevisionFamilies,
+    getLastActivity,
+    getRecommendedModule
   ]);
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;

@@ -43,6 +43,7 @@ export interface Identity {
   ui: {
     cardRadius: number;
     showDecorativeShapes: boolean;
+    mood: 'playful' | 'clean'; // Design mood: playful (rounded, centered) vs clean (sharp, left-aligned)
   };
 
   // Configurations spécifiques aux composants
@@ -161,6 +162,7 @@ const brandingToIdentity = (branding: Branding): Identity => {
     ui: {
       cardRadius: branding.ui_card_radius,
       showDecorativeShapes: branding.ui_show_decorative_shapes === 1,
+      mood: (branding.id === 'primary' || branding.id === 'college') ? 'playful' : 'clean',
     },
 
     header: {
@@ -211,7 +213,7 @@ const defaultIdentity: Identity = {
     tertiary: '#9CA3AF',
     onPrimary: '#FFFFFF',
   },
-  ui: { cardRadius: 12, showDecorativeShapes: true },
+  ui: { cardRadius: 12, showDecorativeShapes: true, mood: 'playful' },
   header: { background: '#34495E', accent: '#FFD700', emoji: '📚', welcomeText: 'Bonjour !' },
   dailyWord: { background: '#FFF9C4', decoration: 'none' },
   aiTutor: { title: "Tuteur IA", subtitle: "Aide aux devoirs" },

@@ -2,7 +2,7 @@
 // types.ts - Types mis à jour
 // ============================================
 
-export type ModuleType = 'grammar' | 'reading' | 'vocab' | 'phrase_types';
+export type ModuleType = 'grammar' | 'reading' | 'vocab' | 'phrase_types' | 'dialogue' | 'dialogues';
 
 // 🆕 Interface i18n pour les textes
 export interface QuestionCardI18n {

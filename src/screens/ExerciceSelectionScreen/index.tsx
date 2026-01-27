@@ -1,17 +1,20 @@
 /**
- * ExerciceSelectionScreen - Sélection des exercices d'un niveau
- * Version finale : Nettoyée, typée et sécurisée
+ * ExerciceSelectionScreen - Sélection des exercices d'un niveau (Version Premium)
+ * Hiérarchie : Section "Continuer" + Grille 2 colonnes
+ * Support Mood : Playful (rounded, centered) vs Clean (sharp, left-aligned)
  */
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { View, ScrollView, StatusBar, ActivityIndicator, Text } from 'react-native';
+import { View, StatusBar, Text, FlatList } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 // Composants
 import ExerciseHeader from '@/components/layout/ExerciseHeader';
-import FlowCard from '@/components/flow/FlowCard';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
+import ModuleCard from '@/components/modules/ModuleCard';
+import RecentModuleCard from '@/components/modules/RecentModuleCard';
+import SkeletonLoader from '@/components/ui/SkeletonLoader';
 
 // Hooks & Contexts
 import { useTheme } from '@/themes/ThemeContext';
@@ -30,10 +33,10 @@ import { getModuleColor } from '@/utils/moduleHelper';
 import { createStyles } from './style';
 
 // ============================================
-// COMPOSANT HELPER : UNE CARTE D'EXERCICE
+// COMPOSANT HELPER : UNE CARTE DE MODULE
 // ============================================
 
-interface ExerciseItemProps {
+interface ModuleItemProps {
   exercise: {
     id: string; // Slug (ex: 'vocab')
     icon: string;
@@ -42,13 +45,15 @@ interface ExerciseItemProps {
   };
   levelId: number;
   identity: any;
+  index: number;
   onPress: () => void;
 }
 
-const ExerciseItem: React.FC<ExerciseItemProps> = ({
+const ModuleItem: React.FC<ModuleItemProps> = ({
   exercise,
   levelId,
   identity,
+  index,
   onPress
 }) => {
   const { getExerciseProgress } = useProgress();
@@ -69,8 +74,7 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({
         const color = await getModuleColor(exercise.id, identity.id, db, availableModules);
         setModuleColor(color);
       } catch (error) {
-        // ✅ Correction SonarLint : On gère l'exception explicitement
-        console.warn(`[ExerciseItem] Impossible de charger la couleur pour : ${exercise.id}`, error);
+        console.warn(`[ModuleItem] Impossible de charger la couleur pour : ${exercise.id}`, error);
         setModuleColor(identity.palette.primary);
       }
     };
@@ -86,13 +90,14 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({
   const badge = getBadgeLabel(badgeType, identity);
 
   return (
-    <FlowCard
+    <ModuleCard
       icon={exercise.icon}
       title={exercise.title}
       subtitle={exercise.description}
       color={moduleColor}
       badge={badge}
       onPress={onPress}
+      animationDelay={index * 50} // Staggered animation
     />
   );
 };
@@ -106,7 +111,7 @@ const ExerciseSelectionScreen: React.FC = () => {
   const params = useLocalSearchParams<{ levelId: string }>();
   const { identity } = useTheme();
   const { db } = useUser();
-  const { isLoading } = useProgress();
+  const { isLoading, getRecommendedModule, getExerciseProgress } = useProgress();
   const safeNavigate = useSafeAction();
 
   const numLevelId = Number.parseInt(params.levelId || '1', 10);
@@ -115,6 +120,20 @@ const ExerciseSelectionScreen: React.FC = () => {
   const [levelLabel, setLevelLabel] = useState({ title: '', badge: '', description: '' });
   const [exercises, setExercises] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+
+  // Module recommandé (dernière activité)
+  const recommendedModule = useMemo(() => {
+    const recommended = getRecommendedModule(numLevelId);
+    if (!recommended || !exercises.length) return null;
+
+    const exercise = exercises.find(ex => ex.id === recommended.exerciseType);
+    if (!exercise) return null;
+
+    return {
+      ...exercise,
+      progress: recommended.progress,
+    };
+  }, [numLevelId, exercises, getRecommendedModule]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -133,11 +152,15 @@ const ExerciseSelectionScreen: React.FC = () => {
         const exercisesData = await Promise.all(
           moduleSlugs.map(async (slug: string) => {
             const mLabel = await getModuleLabel(slug, identity.id, db);
+            const availableModules = await getAvailableModules(identity.id, numLevelId, db);
+            const color = await getModuleColor(slug, identity.id, db, availableModules);
+
             return {
               id: slug, // On utilise le SLUG comme identifiant
               icon: mLabel.icon,
               title: mLabel.title,
-              description: mLabel.description
+              description: mLabel.description,
+              color,
             };
           })
         );
@@ -163,6 +186,70 @@ const ExerciseSelectionScreen: React.FC = () => {
     });
   };
 
+  // =================== RENDER FUNCTIONS ===================
+  const renderHeader = () => {
+    if (isLoading || loadingData) return null;
+
+    return (
+      <View style={styles.headerSection}>
+        {recommendedModule && (
+          <>
+            <Text style={styles.sectionTitle}>Continuer</Text>
+            <RecentModuleCard
+              icon={recommendedModule.icon}
+              title={recommendedModule.title}
+              subtitle={recommendedModule.description}
+              color={recommendedModule.color || identity.palette.primary}
+              progress={recommendedModule.progress}
+              onPress={() => handleExercisePress(recommendedModule)}
+            />
+            <Text style={styles.sectionTitle}>Tous les modules</Text>
+          </>
+        )}
+      </View>
+    );
+  };
+
+  const renderSkeleton = () => (
+    <View style={styles.skeletonContainer}>
+      <SkeletonLoader variant="recent-activity" />
+      <View style={styles.gridSkeleton}>
+        <SkeletonLoader variant="grid-item" />
+        <SkeletonLoader variant="grid-item" />
+        <SkeletonLoader variant="grid-item" />
+        <SkeletonLoader variant="grid-item" />
+      </View>
+    </View>
+  );
+
+  const renderEmptyState = () => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyEmoji}>📚</Text>
+      <Text style={styles.emptyTitle}>Aucun module disponible</Text>
+      <Text style={styles.emptyText}>
+        Revenez plus tard pour découvrir de nouveaux modules d'apprentissage.
+      </Text>
+    </View>
+  );
+
+  const renderItem = ({ item, index }: { item: any; index: number }) => {
+    // Ne pas afficher le module dans la grille s'il est dans "Continuer"
+    if (recommendedModule && item.id === recommendedModule.id) {
+      return null;
+    }
+
+    return (
+      <ModuleItem
+        exercise={item}
+        levelId={numLevelId}
+        identity={identity}
+        index={index}
+        onPress={() => handleExercisePress(item)}
+      />
+    );
+  };
+
+  // =================== RENDER ===================
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
@@ -175,43 +262,32 @@ const ExerciseSelectionScreen: React.FC = () => {
           variant="simple"
           onBack={() => router.back()}
           rightIcon={
-            <DynamicIcon 
-              name="book-open" 
-              size={28} 
-              color={identity.header.accent} 
+            <DynamicIcon
+              name="book-open"
+              size={28}
+              color={identity.header.accent}
             />
           }
           showLevelBadge
           levelTitle={numLevelId.toString()}
           exerciseTitle={levelLabel.title}
-          // levelColor a été retiré car non présent dans les types de ExerciseHeader
         />
 
-        <ScrollView 
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollViewContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {(isLoading || loadingData) ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={identity.palette.primary} />
-              <Text style={styles.loadingText}>Chargement des modules...</Text>
-            </View>
-          ) : (
-            <View style={styles.listContainer}>
-              {exercises.map(exercise => (
-                <ExerciseItem
-                  key={exercise.id}
-                  exercise={exercise}
-                  levelId={numLevelId}
-                  identity={identity}
-                  onPress={() => handleExercisePress(exercise)}
-                />
-              ))}
-            </View>
-          )}
-          <View style={styles.bottomSpacer} />
-        </ScrollView>
+        {(isLoading || loadingData) ? (
+          renderSkeleton()
+        ) : (
+          <FlatList
+            data={exercises}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            numColumns={2}
+            ListHeaderComponent={renderHeader}
+            ListEmptyComponent={renderEmptyState}
+            contentContainerStyle={styles.listContent}
+            columnWrapperStyle={styles.columnWrapper}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </SafeAreaView>
     </SafeAreaProvider>
   );
