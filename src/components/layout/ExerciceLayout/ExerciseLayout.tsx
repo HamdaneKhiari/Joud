@@ -48,7 +48,6 @@ interface ExerciseLayoutProps {
   children: React.ReactNode;
   headerProps: HeaderProps;
   progressProps?: ProgressProps;
-  gradientColors?: string[];
   footer?: React.ReactNode;
 }
 
@@ -75,17 +74,10 @@ const createStyles = (identity: Identity) => {
 
   const padding = getContentPadding();
 
-  // ✅ SonarLint S3358: Extraction des ternaires imbriqués
-  const getSafeAreaBackground = () => {
-    if (identity.id === 'lycee') return '#0A0A0A';
-    if (identity.id === 'adult') return '#F9FAFB';
-    return '#FFFFFF';
-  };
-
   return StyleSheet.create({
     safeArea: {
       flex: 1,
-      backgroundColor: getSafeAreaBackground()
+      backgroundColor: identity.palette.background // ✅ Fond général
     },
 
     gradientContainer: {
@@ -115,7 +107,6 @@ const ExerciseLayout: React.FC<ExerciseLayoutProps> = ({
   children,
   headerProps,
   progressProps,
-  gradientColors,
   footer
 }) => {
   const { identity } = useTheme();
@@ -131,34 +122,13 @@ const ExerciseLayout: React.FC<ExerciseLayoutProps> = ({
     return 'dark-content';
   };
 
-  // Gradient dynamique selon l'identité
-  const getGradientColors = (): [string, string, ...string[]] => {
-    // Priorité 1 : gradientColors passé en props
-    if (gradientColors && gradientColors.length >= 2) {
-      const [first, second, ...rest] = gradientColors;
-      return [first, second, ...rest];
-    }
-
-    // Priorité 2 : header.background de l'identité (si array)
-    if (Array.isArray(identity.header.background) && identity.header.background.length >= 2) {
-      const [first, second, ...rest] = identity.header.background;
-      return [first, second, ...rest];
-    }
-
-    // Priorité 3 : Couleur unie selon l'identité
-    const getDefaultBackground = () => {
-      if (identity.id === 'lycee') return '#0F0F0F';
-      if (identity.id === 'adult') return '#F9FAFB';
-      if (identity.id === 'college') return '#F3F4F6';
-      return '#FFFBF5'; // Primary (jaune très clair)
-    };
-
-    const bgColor = getDefaultBackground();
-    return [bgColor, bgColor];
-  };
-
-  const gradient = getGradientColors();
   const statusBarStyle = getStatusBarStyle();
+
+  // Gradient subtil background → surface pour effet premium
+  const gradientColors: [string, string] = [
+    identity.palette.background,
+    identity.palette.surface
+  ];
 
   return (
     <SafeAreaProvider>
@@ -174,11 +144,11 @@ const ExerciseLayout: React.FC<ExerciseLayoutProps> = ({
         {/* Barre de progression (optionnelle) */}
         {progressProps && <ExerciseProgressBar {...progressProps} />}
 
-        {/* Gradient background + contenu scrollable */}
+        {/* Gradient subtil background → surface pour effet premium */}
         <LinearGradient
-          colors={gradient}
+          colors={gradientColors}
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          end={{ x: 0, y: 1 }}
           style={styles.gradientContainer}
         >
           <ScrollView

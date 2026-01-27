@@ -128,10 +128,8 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
 
   // ✅ Correction TS : headerProps obligatoire même pendant le chargement
   if (isLoading || !family || !currentContentItem) {
-    const loaderBg = Array.isArray(identity.header.background) ? identity.header.background : [identity.palette.primary, identity.palette.primary];
     return (
-      <ExerciseLayout 
-        gradientColors={loaderBg}
+      <ExerciseLayout
         headerProps={{
           variant: "exercise",
           onBack: () => { safeGoBack.navigate(); },
@@ -147,7 +145,6 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
 
   return (
     <ExerciseLayout
-      gradientColors={Array.isArray(identity.header.background) ? identity.header.background : [identity.palette.primary, identity.palette.primary]}
       headerProps={{
         variant: "exercise",
         onBack: () => { safeGoBack.navigate(); },

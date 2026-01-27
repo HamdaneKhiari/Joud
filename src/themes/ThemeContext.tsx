@@ -28,6 +28,7 @@ export interface Identity {
     primary: string;
     accent: string;
     surface: string;
+    background: string; // Fond général de l'app (plus clair que surface)
   };
 
   // Couleurs de texte pour différents contextes
@@ -147,6 +148,7 @@ const brandingToIdentity = (branding: Branding): Identity => {
       primary: branding.primary_color,
       accent: branding.accent_color,
       surface: branding.surface_color || (isDark ? '#1F2937' : '#FFFFFF'),
+      background: isDark ? '#111827' : '#F9FAFB', // Fond plus clair que surface
     },
 
     text: {
@@ -202,7 +204,7 @@ const defaultIdentity: Identity = {
   id: 'college',
   themeMode: 'light',
   organizationName: 'Joud Collège',
-  palette: { primary: '#34495E', accent: '#FFD700', surface: '#FFFFFF' },
+  palette: { primary: '#34495E', accent: '#FFD700', surface: '#FFFFFF', background: '#F9FAFB' },
   text: {
     primary: '#1F2937',
     secondary: '#6B7280',

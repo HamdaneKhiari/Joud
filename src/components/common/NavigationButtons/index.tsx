@@ -55,9 +55,9 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
           disabled={isLoading}
         >
           {isLoading ? (
-            <ActivityIndicator color="#FFFFFF" />
+            <ActivityIndicator color={identity.text.onPrimary} />
           ) : (
-            <MaterialCommunityIcons name="check" size={24} color="#FFFFFF" />
+            <MaterialCommunityIcons name="check" size={24} color={identity.text.onPrimary} />
           )}
         </TouchableOpacity>
       ) : (

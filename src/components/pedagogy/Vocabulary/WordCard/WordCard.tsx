@@ -69,10 +69,17 @@ const WordCard: FC<WordCardProps> = ({
       {/* Zone du mot principal */}
       <View style={styles.wordContainer}>
         <View style={styles.wordRow}>
-          <Text style={styles.englishWord}>{englishWord}</Text>
-          <AudioButton 
+          <Text
+            style={styles.englishWord}
+            adjustsFontSizeToFit
+            numberOfLines={1}
+            minimumFontScale={0.7}
+          >
+            {englishWord}
+          </Text>
+          <AudioButton
             text={englishWord}
-            size="small"
+            size="medium"
             audioUrl={audio}
             variant="default"
           />

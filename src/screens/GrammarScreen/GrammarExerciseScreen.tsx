@@ -52,11 +52,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
   const { db } = useUser();
   const { trackItemCompletion, getFamilyProgress } = useProgress();
 
-  // ✅ WHITE LABEL: Couleurs dynamiques
-  const gradientColors = useMemo(() => {
-    if (Array.isArray(identity.header.background)) return identity.header.background;
-    return [identity.palette.primary, identity.palette.primary];
-  }, [identity]);
+  // ✅ Plus besoin de gradientColors - ExerciseLayout gère le gradient automatiquement
 
   const safeGoBack = useSafeNavigation(useCallback(() => { navigation.goBack(); }, [navigation]));
 
@@ -210,7 +206,6 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
 
   return (
     <ExerciseLayout
-      gradientColors={gradientColors}
       headerProps={{
         variant: 'exercise',
         onBack: () => { safeGoBack.navigate(); },

@@ -44,23 +44,23 @@ export const getWordCardStyles = (identity: Identity): WordCardStyles => {
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: palette.surface || '#FFFFFF',
+      backgroundColor: palette.surface,
       borderRadius: ui.cardRadius,
       padding: tokens.layout.cardPadding,
-      marginHorizontal: tokens.spacing.xs,
-      marginVertical: tokens.spacing.sm,
-      // ✅ Ombre Premium (lg pour un effet dramatique)
+      marginHorizontal: tokens.spacing.md,
+      marginVertical: tokens.spacing.lg,
+      // ✅ Ombre Premium via tokens (pas de valeurs en dur)
       ...tokens.shadows.lg,
-      // ✅ Centrage vertical parfait (No-Media)
-      justifyContent: 'space-evenly',
+      // ✅ Centrage vertical optimisé avec espacement équilibré
+      justifyContent: 'center',
       alignItems: 'center',
+      gap: tokens.spacing.xl,
       borderWidth: 1,
       borderColor: colors.cardBorder,
     },
     wordContainer: {
       alignItems: 'center',
-      // ✅ Réduit car plus d'emoji au-dessus
-      marginBottom: tokens.spacing.lg,
+      width: '100%',
     },
     wordRow: {
       flexDirection: 'row',
@@ -70,12 +70,13 @@ export const getWordCardStyles = (identity: Identity): WordCardStyles => {
       marginBottom: tokens.spacing.sm,
     },
     englishWord: {
-      // ✅ Utilise fontSize.huge (48) mais réduit légèrement pour équilibre visuel
-      fontSize: tokens.fontSize.huge - 6, // 42px (proche de l'original)
+      fontSize: tokens.fontSize.huge - 6, // 42px
       fontWeight: tokens.fontWeight.extrabold,
-      color: palette.primary, // Couleur principale de la marque
+      color: palette.primary,
       textAlign: 'center',
       letterSpacing: 0.5,
+      // ✅ Responsive : adapte la taille si le mot est trop long
+      flexShrink: 1,
     },
     frenchWord: {
       fontSize: tokens.fontSize.xl,
@@ -85,17 +86,15 @@ export const getWordCardStyles = (identity: Identity): WordCardStyles => {
       fontStyle: 'italic',
     },
     separator: {
-      width: 40,
+      width: 60,
       height: 4,
-      backgroundColor: palette.accent, // Touche de couleur d'accent
-      borderRadius: tokens.borderRadius.sm / 4, // Arrondi subtil (2px)
-      marginBottom: tokens.spacing.xxxl,
-      opacity: tokens.opacity.overlay,
+      backgroundColor: palette.accent,
+      borderRadius: tokens.borderRadius.sm,
     },
     exampleContainer: {
-      backgroundColor: withOpacity('#000000', 0.03),
-      padding: tokens.spacing.lg,
-      borderRadius: ui.cardRadius / 1.5,
+      backgroundColor: withOpacity(palette.primary, 0.05),
+      padding: tokens.spacing.xl,
+      borderRadius: ui.cardRadius,
       width: '100%',
     },
     exampleText: {
