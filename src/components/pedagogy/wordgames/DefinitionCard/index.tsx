@@ -1,0 +1,153 @@
+/**
+ * ============================================
+ * DEFINITION CARD (White Label)
+ * Jeu : Lire une définition et trouver le bon mot
+ * ============================================
+ */
+
+import React, { useMemo } from 'react';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+
+// Composants
+import ExerciseValidation from '@/components/exercise-common/ExerciseValidation';
+
+// Hooks & Utils
+import { useTheme } from '@/themes/ThemeContext';
+import { useExerciseValidationState } from '@/hooks/useExerciseValidationState';
+import { generateFeedbackMessage } from '@/utils/exerciseFeedback';
+
+// Styles
+import { createWordGameStyles } from '../shared/commonWordGameStyles';
+
+// Types
+import type { DefinitionQuestion } from '@/screens/WordGames/schema';
+
+// ============================================
+// TYPES
+// ============================================
+
+export interface DefinitionCardProps {
+  question: DefinitionQuestion;
+  selectedOption: string | null;
+  isValidated: boolean;
+  isCorrect: boolean;
+  attemptCount: number;
+  maxAttempts: number;
+  onAnswer: (option: string) => void;
+  onValidate: () => void;
+  onRetry: () => void;
+  onNext: () => void;
+  isLastQuestion: boolean;
+}
+
+// ============================================
+// COMPOSANT
+// ============================================
+
+const DefinitionCard: React.FC<DefinitionCardProps> = ({
+  question,
+  selectedOption,
+  isValidated,
+  isCorrect,
+  attemptCount,
+  maxAttempts,
+  onAnswer,
+  onValidate,
+  onRetry,
+  onNext,
+  isLastQuestion,
+}) => {
+  const { identity } = useTheme();
+  const styles = useMemo(() => createWordGameStyles(identity), [identity]);
+
+  // Hook de validation
+  const { canSkip, validationState, buttonDisabled } = useExerciseValidationState(
+    isValidated,
+    isCorrect,
+    attemptCount,
+    maxAttempts,
+    !!selectedOption
+  );
+
+  // Afficher feedback SEULEMENT si correct OU dernière tentative
+  const showFeedback = isValidated && (isCorrect || canSkip);
+
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Card principale */}
+      <View style={styles.card}>
+        {/* Barre couleur (white label) */}
+        <View style={styles.colorBar} />
+
+        {/* Titre */}
+        <View style={styles.titleSection}>
+          <Text style={styles.titleIcon}>{question.image || '📖'}</Text>
+          <Text style={styles.titleText}>What is this?</Text>
+        </View>
+
+        {/* Définition */}
+        <View style={styles.contentBox}>
+          <Text style={styles.contentText}>{question.definition}</Text>
+        </View>
+
+        {/* Options */}
+        <View style={styles.optionsContainer}>
+          {question.options.map((option) => {
+            const isSelected = selectedOption === option;
+            const isCorrectOption = option === question.correctAnswer;
+
+            // Style dynamique selon l'état
+            const buttonStyle = [
+              styles.optionButton,
+              showFeedback && isCorrectOption && styles.optionButtonCorrect,
+              showFeedback && isSelected && !isCorrect && styles.optionButtonIncorrect,
+              !showFeedback && isSelected && styles.optionButtonSelected,
+            ];
+
+            const textStyle = [
+              styles.optionText,
+              (showFeedback && (isCorrectOption || (isSelected && !isCorrect))) &&
+                styles.optionTextWhite,
+            ];
+
+            return (
+              <TouchableOpacity
+                key={option}
+                style={buttonStyle}
+                onPress={() => !isValidated && onAnswer(option)}
+                disabled={isValidated}
+                activeOpacity={0.7}
+              >
+                <Text style={textStyle}>{option}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+
+      {/* ExerciseValidation */}
+      <ExerciseValidation
+        state={validationState}
+        attemptCount={attemptCount}
+        maxAttempts={maxAttempts}
+        correctAnswer={question.correctAnswer}
+        onValidate={onValidate}
+        onNext={onNext}
+        onRetry={onRetry}
+        onSkip={onNext}
+        disabled={buttonDisabled}
+        isLastQuestion={isLastQuestion}
+        feedbackMessage={generateFeedbackMessage(
+          isValidated,
+          isCorrect,
+          canSkip,
+          question.correctAnswer,
+          attemptCount,
+          maxAttempts
+        )}
+      />
+    </ScrollView>
+  );
+};
+
+export default DefinitionCard;

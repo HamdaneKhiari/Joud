@@ -32,7 +32,20 @@ export interface Content {
   id?: number;
   family_id: number;
   level: number;
-  content_type: 'word' | 'rule' | 'sentence' | 'dialogue' | 'logic' | 'fusion' | 'rephrasing'; // ✅ CORRIGÉ : Ajout des types manquants
+  content_type:
+    | 'word'        // Vocabulaire
+    | 'rule'        // Règles de grammaire
+    | 'sentence'    // Phrases types
+    | 'dialogue'    // Dialogues
+    | 'logic'       // Exercices logiques
+    | 'fusion'      // Fusion de phrases
+    | 'rephrasing'  // Reformulation
+    // WordGames types
+    | 'definition'  // Jeu de définitions
+    | 'blanks'      // Phrases à trous
+    | 'speed'       // Speed match
+    | 'detective'   // Trouver l'erreur
+    | 'idioms';     // Expressions idiomatiques
   data: string; // JSON stringifié
   difficulty?: 'easy' | 'medium' | 'hard';
   tags?: string;
