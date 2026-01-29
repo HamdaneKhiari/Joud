@@ -46,6 +46,7 @@ export default createMigration(
 
       CREATE TABLE IF NOT EXISTS families (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        slug TEXT NOT NULL UNIQUE,
         module_slug TEXT NOT NULL,
         name TEXT NOT NULL,
         icon TEXT,

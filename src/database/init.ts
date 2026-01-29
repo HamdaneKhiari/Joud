@@ -13,33 +13,49 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
   try {
     const db = await SQLite.openDatabaseAsync('janacore.db');
 
-    // ✅ FIX: Activation du mode WAL pour éviter les erreurs "database is locked"
+    // ============================================
+    // CONFIGURATION SQLITE
+    // ============================================
+    
+    // Mode WAL pour la gestion des accès concurrents (IA + UI)
     await db.execAsync('PRAGMA journal_mode = WAL;');
-
-    // ✅ FIX: Augmentation du timeout (10s) pour attendre si la DB est occupée par une autre requête
+    
+    // Timeout pour éviter les erreurs "database is locked"
     await db.execAsync('PRAGMA busy_timeout = 10000;');
+    
+    // Sécurité pour les relations entre tables
+    await db.execAsync('PRAGMA foreign_keys = ON;');
 
-    // ✅ FIX: Délai pour laisser les connexions fantômes se fermer et éviter les race conditions
+    // Petit délai de sécurité pour stabiliser la connexion
     await new Promise(resolve => setTimeout(resolve, 200));
 
-    // Activation des contraintes d'intégrité
-    await db.execAsync(`PRAGMA foreign_keys = ON;`);
-
     // ============================================
-    // RUN MIGRATIONS
+    // SYSTÈME DE MIGRATIONS
     // ============================================
+    
     const runner = new MigrationRunner(db);
 
-    await runner.runMigration(migration001);
-    await runner.runMigration(migration002);
-    await runner.runMigration(migration003);
-    await runner.runMigration(migration004);
-    await runner.runMigration(migration005);
-    await runner.runMigration(migration006);
-    await runner.runMigration(migration007);
+    // 1. Initialisation (CRITIQUE : Crée la table de tracking si elle n'existe pas)
+    await runner.initialize();
 
-    console.log('✅ JanaCore Engine Initialized - Migration System Active');
+    // 2. Liste ordonnée des migrations
+    const migrations = [
+      migration001,
+      migration002,
+      migration003,
+      migration004,
+      migration005,
+      migration006,
+      migration007,
+    ];
+
+    // 3. Exécution automatique de toutes les migrations
+    console.log('[JanaCore] 🚀 Starting database migrations...');
+    await runner.runMigrations(migrations);
+
+    console.log('✅ JanaCore Engine Initialized - All systems go');
     return db;
+    
   } catch (error) {
     console.error('❌ Init Database Error:', error);
     throw error;

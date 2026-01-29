@@ -52,7 +52,7 @@ export default createMigration(
 
     for (const mod of modulesSeed) {
       await db.runAsync(
-        `INSERT INTO modules (slug, name, icon_name, description, order_index, is_core, target_audience)
+        `INSERT OR IGNORE INTO modules (slug, name, icon_name, description, order_index, is_core, target_audience)
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
         mod
       );
@@ -287,7 +287,7 @@ export default createMigration(
     ];
 
     for (const lvl of levelsSeed) {
-      await db.runAsync(`INSERT INTO levels VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, lvl);
+      await db.runAsync(`INSERT OR IGNORE INTO levels VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, lvl);
     }
 
     console.log('[Migration 002] ✓ Modules and levels seeded');

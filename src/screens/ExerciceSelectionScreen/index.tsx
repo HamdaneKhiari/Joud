@@ -1,7 +1,5 @@
 /**
  * ExerciceSelectionScreen - Sélection des exercices d'un niveau (Version Premium)
- * Hiérarchie : Section "Continuer" + Grille 2 colonnes
- * Support Mood : Playful (rounded, centered) vs Clean (sharp, left-aligned)
  */
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -60,7 +58,6 @@ const ModuleItem: React.FC<ModuleItemProps> = ({
   const { db } = useUser();
   const [moduleColor, setModuleColor] = useState<string>(identity.palette.primary);
 
-  // Récupération des familles via le Slug technique (ex: 'phrase_types')
   const { familyIds, isLoading: loadingFamilies } = useGetFamiliesByModule(
     exercise.id,
     levelId
@@ -70,7 +67,8 @@ const ModuleItem: React.FC<ModuleItemProps> = ({
     const loadColor = async () => {
       if (!db) return;
       try {
-        const availableModules = await getAvailableModules(identity.id, levelId, db);
+        // ✅ CORRIGÉ : db en premier
+        const availableModules = await getAvailableModules(db, identity.id, levelId);
         const color = await getModuleColor(exercise.id, identity.id, db, availableModules);
         setModuleColor(color);
       } catch (error) {
@@ -97,7 +95,7 @@ const ModuleItem: React.FC<ModuleItemProps> = ({
       color={moduleColor}
       badge={badge}
       onPress={onPress}
-      animationDelay={index * 50} // Staggered animation
+      animationDelay={index * 50}
     />
   );
 };
@@ -111,7 +109,7 @@ const ExerciseSelectionScreen: React.FC = () => {
   const params = useLocalSearchParams<{ levelId: string }>();
   const { identity } = useTheme();
   const { db } = useUser();
-  const { isLoading, getRecommendedModule, getExerciseProgress } = useProgress();
+  const { isLoading, getRecommendedModule } = useProgress(); // Nettoyage SonarLint
   const safeNavigate = useSafeAction();
 
   const numLevelId = Number.parseInt(params.levelId || '1', 10);
@@ -121,7 +119,6 @@ const ExerciseSelectionScreen: React.FC = () => {
   const [exercises, setExercises] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
-  // Module recommandé (dernière activité)
   const recommendedModule = useMemo(() => {
     const recommended = getRecommendedModule(numLevelId);
     if (!recommended || !exercises.length) return null;
@@ -129,10 +126,7 @@ const ExerciseSelectionScreen: React.FC = () => {
     const exercise = exercises.find(ex => ex.id === recommended.exerciseType);
     if (!exercise) return null;
 
-    return {
-      ...exercise,
-      progress: recommended.progress,
-    };
+    return { ...exercise, progress: recommended.progress };
   }, [numLevelId, exercises, getRecommendedModule]);
 
   useEffect(() => {
@@ -141,22 +135,23 @@ const ExerciseSelectionScreen: React.FC = () => {
       try {
         setLoadingData(true);
 
-        // 1. Charger le nom du niveau (ex: Mastery)
-        const labelData = await getLevelLabel(numLevelId, identity.id, db);
+        // 1. ✅ CORRIGÉ : db en premier (getLevelLabel)
+        const labelData = await getLevelLabel(db, numLevelId, identity.id);
         setLevelLabel(labelData);
 
-        // 2. Modules Autorisés (Filtrage Identity + Level)
-        const moduleSlugs = await getAvailableModules(identity.id, numLevelId, db);
+        // 2. ✅ CORRIGÉ : db en premier (getAvailableModules)
+        const moduleSlugs = await getAvailableModules(db, identity.id, numLevelId);
 
         // 3. Charger les détails visuels de chaque module
         const exercisesData = await Promise.all(
           moduleSlugs.map(async (slug: string) => {
-            const mLabel = await getModuleLabel(slug, identity.id, db);
-            const availableModules = await getAvailableModules(identity.id, numLevelId, db);
+            // ✅ CORRIGÉS : db en premier partout
+            const mLabel = await getModuleLabel(db, slug, identity.id);
+            const availableModules = await getAvailableModules(db, identity.id, numLevelId);
             const color = await getModuleColor(slug, identity.id, db, availableModules);
 
             return {
-              id: slug, // On utilise le SLUG comme identifiant
+              id: slug,
               icon: mLabel.icon,
               title: mLabel.title,
               description: mLabel.description,
@@ -176,20 +171,18 @@ const ExerciseSelectionScreen: React.FC = () => {
     loadData();
   }, [db, numLevelId, identity.id]);
 
+  // ... (Reste des fonctions renderHeader, renderSkeleton, etc. inchangé)
   const handleExercisePress = (exercise: any) => {
     safeNavigate.execute(() => {
-      // Redirection vers FamilySelection avec le SLUG technique
       navigateToExercise(router, {
-        type: exercise.id, // Envoie 'vocab', 'phrase_types', etc.
+        type: exercise.id,
         levelId: numLevelId
       });
     });
   };
 
-  // =================== RENDER FUNCTIONS ===================
   const renderHeader = () => {
     if (isLoading || loadingData) return null;
-
     return (
       <View style={styles.headerSection}>
         {recommendedModule && (
@@ -214,10 +207,8 @@ const ExerciseSelectionScreen: React.FC = () => {
     <View style={styles.skeletonContainer}>
       <SkeletonLoader variant="recent-activity" />
       <View style={styles.gridSkeleton}>
-        <SkeletonLoader variant="grid-item" />
-        <SkeletonLoader variant="grid-item" />
-        <SkeletonLoader variant="grid-item" />
-        <SkeletonLoader variant="grid-item" />
+        <SkeletonLoader variant="grid-item" /><SkeletonLoader variant="grid-item" />
+        <SkeletonLoader variant="grid-item" /><SkeletonLoader variant="grid-item" />
       </View>
     </View>
   );
@@ -226,18 +217,12 @@ const ExerciseSelectionScreen: React.FC = () => {
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyEmoji}>📚</Text>
       <Text style={styles.emptyTitle}>Aucun module disponible</Text>
-      <Text style={styles.emptyText}>
-        Revenez plus tard pour découvrir de nouveaux modules d'apprentissage.
-      </Text>
+      <Text style={styles.emptyText}>Revenez plus tard pour découvrir de nouveaux modules.</Text>
     </View>
   );
 
   const renderItem = ({ item, index }: { item: any; index: number }) => {
-    // Ne pas afficher le module dans la grille s'il est dans "Continuer"
-    if (recommendedModule && item.id === recommendedModule.id) {
-      return null;
-    }
-
+    if (recommendedModule && item.id === recommendedModule.id) return null;
     return (
       <ModuleItem
         exercise={item}
@@ -249,33 +234,19 @@ const ExerciseSelectionScreen: React.FC = () => {
     );
   };
 
-  // =================== RENDER ===================
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
-        <StatusBar
-          barStyle={identity.themeMode === 'dark' ? 'light-content' : 'dark-content'}
-          backgroundColor={Array.isArray(identity.header.background) ? identity.header.background[0] : identity.header.background}
-        />
-
+        <StatusBar barStyle={identity.themeMode === 'dark' ? 'light-content' : 'dark-content'} />
         <ExerciseHeader
           variant="simple"
           onBack={() => router.back()}
-          rightIcon={
-            <DynamicIcon
-              name="book-open"
-              size={28}
-              color={identity.header.accent}
-            />
-          }
+          rightIcon={<DynamicIcon name="book-open" size={28} color={identity.header.accent} />}
           showLevelBadge
           levelTitle={numLevelId.toString()}
           exerciseTitle={levelLabel.title}
         />
-
-        {(isLoading || loadingData) ? (
-          renderSkeleton()
-        ) : (
+        {(isLoading || loadingData) ? renderSkeleton() : (
           <FlatList
             data={exercises}
             renderItem={renderItem}

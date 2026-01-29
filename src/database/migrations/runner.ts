@@ -74,7 +74,7 @@ export class MigrationRunner {
    */
   private async recordMigration(migration: Migration): Promise<void> {
     await this.db.runAsync(
-      'INSERT INTO schema_migrations (version, name, executed_at) VALUES (?, ?, ?)',
+      'INSERT OR REPLACE INTO schema_migrations (version, name, executed_at) VALUES (?, ?, ?)',
       [migration.version, migration.name, Date.now()]
     );
   }

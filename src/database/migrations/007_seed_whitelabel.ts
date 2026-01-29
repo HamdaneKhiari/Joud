@@ -23,7 +23,7 @@ export default createMigration(
 
     for (const brand of brandingSeed) {
       await db.runAsync(
-        `INSERT INTO branding VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT OR IGNORE INTO branding VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         brand
       );
     }
@@ -73,7 +73,7 @@ export default createMigration(
 
     for (const palette of allPalettes) {
       await db.runAsync(
-        `INSERT INTO identity_palettes (identity_id, color_index, color_value) VALUES (?, ?, ?)`,
+        `INSERT OR IGNORE INTO identity_palettes (identity_id, color_index, color_value) VALUES (?, ?, ?)`,
         palette
       );
     }
@@ -114,7 +114,7 @@ export default createMigration(
 
     for (const label of allLevelLabels) {
       await db.runAsync(
-        `INSERT INTO level_labels (level_number, identity_id, display_title, badge_text, display_description) VALUES (?, ?, ?, ?, ?)`,
+        `INSERT OR IGNORE INTO level_labels (level_number, identity_id, display_title, badge_text, display_description) VALUES (?, ?, ?, ?, ?)`,
         label
       );
     }
@@ -124,7 +124,7 @@ export default createMigration(
     const primaryModules = ['vocab', 'phrase_types', 'grammar', 'reading', 'dialogues', 'word_games', 'assessment'];
     for (const moduleSlug of primaryModules) {
       await db.runAsync(
-        `INSERT INTO module_availability (module_slug, identity_id, level_number, is_available) VALUES (?, ?, ?, ?)`,
+        `INSERT OR IGNORE INTO module_availability (module_slug, identity_id, level_number, is_available) VALUES (?, ?, ?, ?)`,
         [moduleSlug, 'primary', null, 1]
       );
     }
@@ -133,7 +133,7 @@ export default createMigration(
     const collegeModules = [...primaryModules];
     for (const moduleSlug of collegeModules) {
       await db.runAsync(
-        `INSERT INTO module_availability (module_slug, identity_id, level_number, is_available) VALUES (?, ?, ?, ?)`,
+        `INSERT OR IGNORE INTO module_availability (module_slug, identity_id, level_number, is_available) VALUES (?, ?, ?, ?)`,
         [moduleSlug, 'college', null, 1]
       );
     }
@@ -142,7 +142,7 @@ export default createMigration(
     const lyceeModules = [...collegeModules, 'connector'];
     for (const moduleSlug of lyceeModules) {
       await db.runAsync(
-        `INSERT INTO module_availability (module_slug, identity_id, level_number, is_available) VALUES (?, ?, ?, ?)`,
+        `INSERT OR IGNORE INTO module_availability (module_slug, identity_id, level_number, is_available) VALUES (?, ?, ?, ?)`,
         [moduleSlug, 'lycee', null, 1]
       );
     }
@@ -152,7 +152,7 @@ export default createMigration(
     for (const moduleSlug of adultStandardModules) {
       for (let level = 1; level <= 6; level++) {
         await db.runAsync(
-          `INSERT INTO module_availability (module_slug, identity_id, level_number, is_available) VALUES (?, ?, ?, ?)`,
+          `INSERT OR IGNORE INTO module_availability (module_slug, identity_id, level_number, is_available) VALUES (?, ?, ?, ?)`,
           [moduleSlug, 'adult', level, 1]
         );
       }
@@ -160,11 +160,11 @@ export default createMigration(
 
     // ADULT Niveau 7: Uniquement vocab et phrase_types
     await db.runAsync(
-      `INSERT INTO module_availability (module_slug, identity_id, level_number, is_available) VALUES (?, ?, ?, ?)`,
+      `INSERT OR IGNORE INTO module_availability (module_slug, identity_id, level_number, is_available) VALUES (?, ?, ?, ?)`,
       ['vocab', 'adult', 7, 1]
     );
     await db.runAsync(
-      `INSERT INTO module_availability (module_slug, identity_id, level_number, is_available) VALUES (?, ?, ?, ?)`,
+      `INSERT OR IGNORE INTO module_availability (module_slug, identity_id, level_number, is_available) VALUES (?, ?, ?, ?)`,
       ['phrase_types', 'adult', 7, 1]
     );
 

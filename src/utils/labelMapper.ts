@@ -11,6 +11,7 @@ import {
   getAvailableModules as getAvailableModulesFromDB
 } from '@/database/queries';
 import { useState, useEffect } from 'react';
+import { SQLiteDatabase } from 'expo-sqlite';
 
 // ============================================
 // TYPES
@@ -46,7 +47,8 @@ export const useModuleLabel = (moduleSlug: string): ModuleLabel => {
 
   useEffect(() => {
     const loadLabel = async () => {
-      if (!db || !moduleSlug) return;
+      // Sécurité : on vérifie que db est un objet valide (SharedObject)
+      if (!db || typeof db === 'number' || !moduleSlug) return;
 
       try {
         const moduleLabel = await getModuleLabelWithFallback(db, moduleSlug, currentApp);
@@ -80,7 +82,7 @@ export const useLevelLabel = (levelNumber: number): LevelLabel => {
 
   useEffect(() => {
     const loadLabel = async () => {
-      if (!db || !levelNumber) return;
+      if (!db || typeof db === 'number' || !levelNumber) return;
 
       try {
         const levelLabel = await getLevelLabelWithFallback(db, levelNumber, currentApp);
@@ -101,24 +103,20 @@ export const useLevelLabel = (levelNumber: number): LevelLabel => {
 };
 
 // ============================================
-// FONCTIONS SYNCHRONES (pour compatibilité)
+// FONCTIONS ASYNCHRONES (CORRIGÉES : db en 1er)
 // ============================================
 
 /**
- * Récupère le label d'un module selon l'identité (synchronisé)
- * ⚠️ Utilise useModuleLabel dans les composants React pour la réactivité
+ * Récupère le label d'un module selon l'identité
+ * ✅ CORRIGÉ : db est maintenant le premier argument
  */
 export const getModuleLabel = async (
+  db: SQLiteDatabase | null,
   moduleSlug: string,
-  identityId: string,
-  db: any
+  identityId: string
 ): Promise<ModuleLabel> => {
-  if (!db) {
-    return {
-      title: moduleSlug,
-      description: 'Module',
-      icon: 'book'
-    };
+  if (!db || typeof db === 'number') {
+    return { title: moduleSlug, description: 'Module', icon: 'book' };
   }
 
   try {
@@ -130,29 +128,21 @@ export const getModuleLabel = async (
     };
   } catch (error) {
     console.error('Error in getModuleLabel:', error);
-    return {
-      title: moduleSlug,
-      description: 'Module',
-      icon: 'book'
-    };
+    return { title: moduleSlug, description: 'Module', icon: 'book' };
   }
 };
 
 /**
- * Récupère le label d'un niveau selon l'identité (synchronisé)
- * ⚠️ Utilise useLevelLabel dans les composants React pour la réactivité
+ * Récupère le label d'un niveau selon l'identité
+ * ✅ CORRIGÉ : db est maintenant le premier argument
  */
 export const getLevelLabel = async (
+  db: SQLiteDatabase | null,
   levelNumber: number,
-  identityId: string,
-  db: any
+  identityId: string
 ): Promise<LevelLabel> => {
-  if (!db) {
-    return {
-      title: `Niveau ${levelNumber}`,
-      badge: `N${levelNumber}`,
-      description: 'Niveau'
-    };
+  if (!db || typeof db === 'number') {
+    return { title: `Niveau ${levelNumber}`, badge: `N${levelNumber}`, description: 'Niveau' };
   }
 
   try {
@@ -164,26 +154,20 @@ export const getLevelLabel = async (
     };
   } catch (error) {
     console.error('Error in getLevelLabel:', error);
-    return {
-      title: `Niveau ${levelNumber}`,
-      badge: `N${levelNumber}`,
-      description: 'Niveau'
-    };
+    return { title: `Niveau ${levelNumber}`, badge: `N${levelNumber}`, description: 'Niveau' };
   }
 };
 
 /**
- * Récupère la liste des modules disponibles pour une identité et un niveau
- * 100% SQL - Plus de hardcoding
+ * Récupère la liste des modules disponibles
+ * ✅ CORRIGÉ : db est maintenant le premier argument
  */
 export const getAvailableModules = async (
+  db: SQLiteDatabase | null,
   identityId: string,
-  levelNumber: number,
-  db: any
+  levelNumber: number
 ): Promise<string[]> => {
-  if (!db) {
-    return [];
-  }
+  if (!db || typeof db === 'number') return [];
 
   try {
     return await getAvailableModulesFromDB(db, identityId, levelNumber);
@@ -194,14 +178,15 @@ export const getAvailableModules = async (
 };
 
 /**
- * Vérifie si un module est disponible pour une identité/niveau
+ * Vérifie si un module est disponible
+ * ✅ CORRIGÉ : db est maintenant le premier argument
  */
 export const isModuleAvailable = async (
+  db: SQLiteDatabase | null,
   moduleSlug: string,
   identityId: string,
-  levelNumber: number,
-  db: any
+  levelNumber: number
 ): Promise<boolean> => {
-  const availableModules = await getAvailableModules(identityId, levelNumber, db);
+  const availableModules = await getAvailableModules(db, identityId, levelNumber);
   return availableModules.includes(moduleSlug);
 };
