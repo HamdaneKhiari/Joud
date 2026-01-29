@@ -297,7 +297,9 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
       // WordGames families
       ['word_games', 'Quick Match', 'lightning-bolt', '⚡', 'Associe rapidement les mots', 1],
       ['word_games', 'Grammar Detective', 'magnify', '🔍', 'Trouve les erreurs', 2],
-      ['word_games', 'Definition Master', 'book-open-variant', '📖', 'Maîtrise les définitions', 3]
+      ['word_games', 'Definition Master', 'book-open-variant', '📖', 'Maîtrise les définitions', 3],
+      // Assessment family
+      ['assessment', 'Assessment Pool', 'chart-box', '🎯', 'Pool de questions pour évaluation', 1]
     ];
 
     for (const fam of familiesSeed) {
@@ -822,6 +824,320 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
           difficulty: 'hard'
         }),
         'hard', 'verbs,academic'
+      ],
+
+      // =================== ASSESSMENT POOL (20 questions) ===================
+      // Assessment Definition Questions (7)
+      [
+        14, 1, 'assessment_definition',
+        JSON.stringify({
+          type: 'assessment_definition',
+          theme: 'vocabulary',
+          question: 'What does "grateful" mean?',
+          questionFr: 'Que signifie "grateful" ?',
+          options: ['Thankful', 'Angry', 'Sad', 'Confused'],
+          correctAnswer: 'Thankful',
+          explanation: '"Grateful" means thankful or appreciative.',
+          explanationFr: '"Grateful" signifie reconnaissant ou appréciatif.'
+        }),
+        'easy', 'vocabulary,emotions'
+      ],
+      [
+        14, 1, 'assessment_definition',
+        JSON.stringify({
+          type: 'assessment_definition',
+          theme: 'vocabulary',
+          question: 'What is the meaning of "examine"?',
+          questionFr: 'Quelle est la signification de "examine" ?',
+          options: ['To look at closely', 'To ignore', 'To break', 'To throw away'],
+          correctAnswer: 'To look at closely',
+          explanation: '"Examine" means to look at something closely and carefully.',
+          explanationFr: '"Examine" signifie regarder quelque chose de près et avec attention.'
+        }),
+        'easy', 'vocabulary,actions'
+      ],
+      [
+        14, 1, 'assessment_definition',
+        JSON.stringify({
+          type: 'assessment_definition',
+          theme: 'vocabulary',
+          question: 'What does "ancient" mean?',
+          questionFr: 'Que signifie "ancient" ?',
+          options: ['Very old', 'New', 'Modern', 'Future'],
+          correctAnswer: 'Very old',
+          explanation: '"Ancient" means very old, from a long time ago.',
+          explanationFr: '"Ancient" signifie très vieux, d\'il y a longtemps.'
+        }),
+        'easy', 'vocabulary,time'
+      ],
+      [
+        14, 1, 'assessment_definition',
+        JSON.stringify({
+          type: 'assessment_definition',
+          theme: 'vocabulary',
+          question: 'What is a "journey"?',
+          questionFr: 'Qu\'est-ce qu\'un "journey" ?',
+          options: ['A trip', 'A house', 'A book', 'A color'],
+          correctAnswer: 'A trip',
+          explanation: 'A "journey" is a trip from one place to another.',
+          explanationFr: 'Un "journey" est un voyage d\'un endroit à un autre.'
+        }),
+        'easy', 'vocabulary,travel'
+      ],
+      [
+        14, 1, 'assessment_definition',
+        JSON.stringify({
+          type: 'assessment_definition',
+          theme: 'vocabulary',
+          question: 'What does "beneath" mean?',
+          questionFr: 'Que signifie "beneath" ?',
+          options: ['Under', 'Above', 'Beside', 'Inside'],
+          correctAnswer: 'Under',
+          explanation: '"Beneath" means under or below something.',
+          explanationFr: '"Beneath" signifie sous ou en dessous de quelque chose.'
+        }),
+        'medium', 'vocabulary,position'
+      ],
+      [
+        14, 1, 'assessment_definition',
+        JSON.stringify({
+          type: 'assessment_definition',
+          theme: 'vocabulary',
+          question: 'What is "courage"?',
+          questionFr: 'Qu\'est-ce que "courage" ?',
+          options: ['Bravery', 'Fear', 'Weakness', 'Laziness'],
+          correctAnswer: 'Bravery',
+          explanation: '"Courage" is the quality of being brave.',
+          explanationFr: '"Courage" est la qualité d\'être courageux.'
+        }),
+        'medium', 'vocabulary,character'
+      ],
+      [
+        14, 1, 'assessment_definition',
+        JSON.stringify({
+          type: 'assessment_definition',
+          theme: 'vocabulary',
+          question: 'What does "accomplish" mean?',
+          questionFr: 'Que signifie "accomplish" ?',
+          options: ['To achieve', 'To fail', 'To forget', 'To delay'],
+          correctAnswer: 'To achieve',
+          explanation: '"Accomplish" means to achieve or complete something successfully.',
+          explanationFr: '"Accomplish" signifie réaliser ou compléter quelque chose avec succès.'
+        }),
+        'medium', 'vocabulary,achievement'
+      ],
+
+      // Assessment Blanks Questions (7)
+      [
+        14, 1, 'assessment_blanks',
+        JSON.stringify({
+          type: 'assessment_blanks',
+          theme: 'grammar',
+          question: 'I ___ to school every day.',
+          questionFr: 'Je ___ à l\'école tous les jours.',
+          correctAnswer: 'go',
+          options: ['go', 'goes', 'going', 'went'],
+          explanation: 'Use "go" with "I" in present tense.',
+          explanationFr: 'Utilise "go" avec "I" au présent.'
+        }),
+        'easy', 'grammar,present'
+      ],
+      [
+        14, 1, 'assessment_blanks',
+        JSON.stringify({
+          type: 'assessment_blanks',
+          theme: 'grammar',
+          question: 'She ___ a teacher.',
+          questionFr: 'Elle ___ professeur.',
+          correctAnswer: 'is',
+          options: ['is', 'are', 'am', 'be'],
+          explanation: 'Use "is" with "she".',
+          explanationFr: 'Utilise "is" avec "she".'
+        }),
+        'easy', 'grammar,to-be'
+      ],
+      [
+        14, 1, 'assessment_blanks',
+        JSON.stringify({
+          type: 'assessment_blanks',
+          theme: 'grammar',
+          question: 'They ___ playing football yesterday.',
+          questionFr: 'Ils ___ au football hier.',
+          correctAnswer: 'were',
+          options: ['were', 'was', 'are', 'is'],
+          explanation: 'Use "were" with "they" in past tense.',
+          explanationFr: 'Utilise "were" avec "they" au passé.'
+        }),
+        'medium', 'grammar,past'
+      ],
+      [
+        14, 1, 'assessment_blanks',
+        JSON.stringify({
+          type: 'assessment_blanks',
+          theme: 'grammar',
+          question: 'I have ___ this movie before.',
+          questionFr: 'J\'ai ___ ce film avant.',
+          correctAnswer: 'seen',
+          options: ['seen', 'saw', 'see', 'seeing'],
+          explanation: 'Use "seen" after "have" (present perfect).',
+          explanationFr: 'Utilise "seen" après "have" (present perfect).'
+        }),
+        'medium', 'grammar,perfect'
+      ],
+      [
+        14, 1, 'assessment_blanks',
+        JSON.stringify({
+          type: 'assessment_blanks',
+          theme: 'grammar',
+          question: 'She will ___ tomorrow.',
+          questionFr: 'Elle ___ demain.',
+          correctAnswer: 'arrive',
+          options: ['arrive', 'arrives', 'arriving', 'arrived'],
+          explanation: 'Use base form after "will".',
+          explanationFr: 'Utilise la forme de base après "will".'
+        }),
+        'medium', 'grammar,future'
+      ],
+      [
+        14, 1, 'assessment_blanks',
+        JSON.stringify({
+          type: 'assessment_blanks',
+          theme: 'grammar',
+          question: 'This is ___ interesting book.',
+          questionFr: 'Ceci est ___ livre intéressant.',
+          correctAnswer: 'an',
+          options: ['an', 'a', 'the', 'some'],
+          explanation: 'Use "an" before words starting with a vowel sound.',
+          explanationFr: 'Utilise "an" avant les mots commençant par une voyelle.'
+        }),
+        'easy', 'grammar,articles'
+      ],
+      [
+        14, 1, 'assessment_blanks',
+        JSON.stringify({
+          type: 'assessment_blanks',
+          theme: 'grammar',
+          question: 'If I ___ rich, I would travel the world.',
+          questionFr: 'Si j\'___ riche, je voyagerais dans le monde.',
+          correctAnswer: 'were',
+          options: ['were', 'was', 'am', 'be'],
+          explanation: 'Use "were" in hypothetical situations (second conditional).',
+          explanationFr: 'Utilise "were" dans les situations hypothétiques.'
+        }),
+        'hard', 'grammar,conditional'
+      ],
+
+      // Assessment Sentence Questions (6)
+      [
+        14, 1, 'assessment_sentence',
+        JSON.stringify({
+          type: 'assessment_sentence',
+          theme: 'conversations',
+          passage: 'John: Hi Mary, how are you?\nMary: I am fine, thanks! How about you?\nJohn: I am great. Do you want to go to the cinema tonight?',
+          passageFr: 'John: Salut Mary, comment vas-tu ?\nMary: Je vais bien, merci ! Et toi ?\nJohn: Je vais très bien. Tu veux aller au cinéma ce soir ?',
+          question: 'What does John ask Mary?',
+          questionFr: 'Que demande John à Mary ?',
+          options: [
+            'If she wants to go to the cinema',
+            'If she is hungry',
+            'If she likes movies',
+            'If she has money'
+          ],
+          correctAnswer: 'If she wants to go to the cinema',
+          explanation: 'John asks if Mary wants to go to the cinema tonight.',
+          explanationFr: 'John demande si Mary veut aller au cinéma ce soir.'
+        }),
+        'easy', 'conversations,invitation'
+      ],
+      [
+        14, 1, 'assessment_sentence',
+        JSON.stringify({
+          type: 'assessment_sentence',
+          theme: 'reading',
+          passage: 'The sun rises in the east and sets in the west. It provides light and warmth to the Earth.',
+          passageFr: 'Le soleil se lève à l\'est et se couche à l\'ouest. Il fournit lumière et chaleur à la Terre.',
+          question: 'Where does the sun rise?',
+          questionFr: 'Où se lève le soleil ?',
+          options: ['In the east', 'In the west', 'In the north', 'In the south'],
+          correctAnswer: 'In the east',
+          explanation: 'The sun rises in the east.',
+          explanationFr: 'Le soleil se lève à l\'est.'
+        }),
+        'easy', 'reading,nature'
+      ],
+      [
+        14, 1, 'assessment_sentence',
+        JSON.stringify({
+          type: 'assessment_sentence',
+          theme: 'reading',
+          passage: 'Emma loves to read books. She visits the library every week to borrow new ones. Her favorite genre is mystery.',
+          passageFr: 'Emma adore lire des livres. Elle visite la bibliothèque chaque semaine pour en emprunter de nouveaux. Son genre préféré est le mystère.',
+          question: 'How often does Emma visit the library?',
+          questionFr: 'À quelle fréquence Emma visite-t-elle la bibliothèque ?',
+          options: ['Every week', 'Every day', 'Every month', 'Every year'],
+          correctAnswer: 'Every week',
+          explanation: 'Emma visits the library every week.',
+          explanationFr: 'Emma visite la bibliothèque chaque semaine.'
+        }),
+        'easy', 'reading,hobbies'
+      ],
+      [
+        14, 1, 'assessment_sentence',
+        JSON.stringify({
+          type: 'assessment_sentence',
+          theme: 'conversations',
+          passage: 'Teacher: Please open your books to page 45.\nStudents: Yes, teacher.\nTeacher: Now, let us read the first paragraph together.',
+          passageFr: 'Professeur: Ouvrez vos livres à la page 45 s\'il vous plaît.\nÉlèves: Oui, professeur.\nProfesseur: Maintenant, lisons le premier paragraphe ensemble.',
+          question: 'What page should the students open?',
+          questionFr: 'À quelle page les élèves doivent-ils ouvrir ?',
+          options: ['Page 45', 'Page 54', 'Page 44', 'Page 50'],
+          correctAnswer: 'Page 45',
+          explanation: 'The teacher asks students to open page 45.',
+          explanationFr: 'Le professeur demande aux élèves d\'ouvrir la page 45.'
+        }),
+        'easy', 'conversations,classroom'
+      ],
+      [
+        14, 1, 'assessment_sentence',
+        JSON.stringify({
+          type: 'assessment_sentence',
+          theme: 'reading',
+          passage: 'Climate change is a global issue that affects everyone. Rising temperatures cause ice caps to melt, leading to higher sea levels.',
+          passageFr: 'Le changement climatique est un problème mondial qui affecte tout le monde. L\'augmentation des températures fait fondre les calottes glaciaires, entraînant une élévation du niveau de la mer.',
+          question: 'What causes sea levels to rise?',
+          questionFr: 'Qu\'est-ce qui cause l\'élévation du niveau de la mer ?',
+          options: [
+            'Melting ice caps',
+            'Heavy rain',
+            'Ocean waves',
+            'Strong winds'
+          ],
+          correctAnswer: 'Melting ice caps',
+          explanation: 'Melting ice caps cause sea levels to rise.',
+          explanationFr: 'La fonte des calottes glaciaires fait monter le niveau de la mer.'
+        }),
+        'medium', 'reading,science'
+      ],
+      [
+        14, 1, 'assessment_sentence',
+        JSON.stringify({
+          type: 'assessment_sentence',
+          theme: 'reading',
+          passage: 'Shakespeare was a famous playwright who lived in England during the 16th century. His works include tragedies like Hamlet and comedies like A Midsummer Night\'s Dream.',
+          passageFr: 'Shakespeare était un dramaturge célèbre qui vivait en Angleterre au 16ème siècle. Ses œuvres incluent des tragédies comme Hamlet et des comédies comme Le Songe d\'une nuit d\'été.',
+          question: 'When did Shakespeare live?',
+          questionFr: 'Quand Shakespeare a-t-il vécu ?',
+          options: [
+            'In the 16th century',
+            'In the 17th century',
+            'In the 18th century',
+            'In the 19th century'
+          ],
+          correctAnswer: 'In the 16th century',
+          explanation: 'Shakespeare lived in the 16th century.',
+          explanationFr: 'Shakespeare vivait au 16ème siècle.'
+        }),
+        'medium', 'reading,history'
       ]
     ];
 

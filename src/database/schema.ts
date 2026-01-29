@@ -45,7 +45,11 @@ export interface Content {
     | 'blanks'      // Phrases à trous
     | 'speed'       // Speed match
     | 'detective'   // Trouver l'erreur
-    | 'idioms';     // Expressions idiomatiques
+    | 'idioms'      // Expressions idiomatiques
+    // Assessment types
+    | 'assessment_definition'  // Assessment choix multiples
+    | 'assessment_blanks'      // Assessment input texte
+    | 'assessment_sentence';   // Assessment avec passage
   data: string; // JSON stringifié
   difficulty?: 'easy' | 'medium' | 'hard';
   tags?: string;

@@ -37,10 +37,12 @@ const LevelCard: React.FC<LevelCardProps> = ({ data, onPress, isLast = false }) 
         content: data.score ? `${data.score}%` : 'OK'
       };
     }
+
+    const activeLabel = isPlayful ? 'C\'est parti !' : 'À démarrer';
     return {
       badgeColor: isLocked ? '#E0E0E0' : identity.palette.primary,
       icon: isPlayful ? 'rocket-launch' : 'play-circle',
-      label: isLocked ? 'Bientôt' : (isPlayful ? 'C\'est parti !' : 'À démarrer'),
+      label: isLocked ? 'Bientôt' : activeLabel,
       content: data.level
     };
   }, [isCompleted, isLocked, isPlayful, identity, data]);
