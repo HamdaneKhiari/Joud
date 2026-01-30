@@ -145,24 +145,21 @@ export const createStyles = (identity: Identity) => {
       color: identity.text.tertiary,
     },
 
-    // ========== ENCOURAGEMENT TEXT - SUPPRIMÉ ==========
-    // ✅ Trop d'info, on supprime pour gagner de l'espace
+    // ========== ENCOURAGEMENT TEXT - NON UTILISÉ ==========
+    // ✅ Styles conservés pour compatibilité mais le texte n'est plus rendu
     encouragement: {
-      fontSize: 0, // ✅ Caché
-      height: 0,
-      opacity: 0,
+      fontSize: tokens.fontSize.xs,
+      color: identity.palette.accent,
     },
 
     encouragementLight: {
-      fontSize: 0,
-      height: 0,
-      opacity: 0,
+      fontSize: tokens.fontSize.xs,
+      color: identity.palette.accent,
     },
 
     encouragementDark: {
-      fontSize: 0,
-      height: 0,
-      opacity: 0,
+      fontSize: tokens.fontSize.xs,
+      color: identity.palette.accent,
     },
   });
 };

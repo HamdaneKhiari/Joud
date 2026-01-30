@@ -67,7 +67,8 @@ const MetricCard: React.FC<MetricCardProps> = ({
       ]}>
         {label}
       </Text>
-      {encouragement && (
+      {/* ✅ ENCOURAGEMENT DÉSACTIVÉ - Gagne de l'espace */}
+      {/* {encouragement && (
         <Text style={[
           styles.encouragement,
           isDark && styles.encouragementDark,
@@ -75,7 +76,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
         ]}>
           {encouragement}
         </Text>
-      )}
+      )} */}
     </Animated.View>
   );
 };
