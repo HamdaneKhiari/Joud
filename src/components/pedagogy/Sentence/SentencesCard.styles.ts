@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { Identity } from '@/themes/ThemeContext';
 import { tokens, withOpacity } from '@/themes/tokens';
+import { getExerciseConfig } from '@/utils/exerciseMoodHelper';
 
 /**
  * Génère les styles dynamiques pour la carte de traduction.
@@ -8,12 +9,13 @@ import { tokens, withOpacity } from '@/themes/tokens';
  * @param moduleColor - La couleur du module actuel (ex: bleu pour sentences)
  */
 export const getSentenceCardStyles = (identity: Identity, moduleColor: string) => {
-  const { palette, text, ui, themeMode } = identity;
+  const { palette, text, themeMode } = identity;
   const isDark = themeMode === 'dark';
+  const config = getExerciseConfig(identity);
 
   return StyleSheet.create({
     container: {
-      padding: tokens.spacing.xl,
+      padding: config.padding.container,
     },
     // --- SECTION ÉNONCÉ ---
     questionBox: {
@@ -28,21 +30,20 @@ export const getSentenceCardStyles = (identity: Identity, moduleColor: string) =
       textTransform: 'uppercase',
     },
     phraseSource: {
-      fontSize: tokens.fontSize.xxl,
+      fontSize: config.fontSize.title,
       fontWeight: tokens.fontWeight.bold,
-      color: text.primary, // S'adapte au mode sombre/clair
-      lineHeight: 34,
+      color: text.primary,
+      lineHeight: config.fontSize.title * 1.3,
     },
     // --- ZONE DE SAISIE LIBRE ---
     input: {
-      fontSize: tokens.fontSize.lg,
+      fontSize: config.fontSize.body,
       color: text.primary,
-      minHeight: 140, // Assez haut pour voir plusieurs lignes
+      minHeight: config.padding.container * 4,
       textAlignVertical: 'top',
-      padding: tokens.spacing.lg,
-      borderRadius: ui.cardRadius || tokens.borderRadius.lg,
+      padding: config.padding.card,
+      borderRadius: config.borderRadius.input,
       borderWidth: 2,
-      // Fond très légèrement teinté pour détacher la zone de saisie
       backgroundColor: withOpacity(text.primary, 0.03),
     },
     // --- ZONE DE RÉVÉLATION (AUTO-CORRECTION) ---
@@ -72,10 +73,9 @@ export const getSentenceCardStyles = (identity: Identity, moduleColor: string) =
     },
     // --- BLOCS PÉDAGOGIQUES (CONCRÈTEMENT / BUILD) ---
     pedagogyCard: {
-      // Utilise moduleColor avec opacité pour rester dans l'univers visuel du module
       backgroundColor: withOpacity(moduleColor, 0.07),
-      padding: tokens.spacing.lg,
-      borderRadius: ui.cardRadius || tokens.borderRadius.md,
+      padding: config.padding.card,
+      borderRadius: config.borderRadius.input,
       borderWidth: 1,
       borderColor: withOpacity(moduleColor, 0.1),
     },

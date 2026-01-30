@@ -18,6 +18,7 @@ interface WordCardProps {
   exampleSentence?: string;
   highlightWord?: string;
   audio?: string;
+  moduleSlug?: string; // Pour détecter Fast Vocabulary
 }
 
 const WordCard: FC<WordCardProps> = ({
@@ -26,8 +27,13 @@ const WordCard: FC<WordCardProps> = ({
   exampleSentence,
   highlightWord,
   audio,
+  moduleSlug,
 }) => {
   const { identity } = useTheme();
+
+  // Fast Vocabulary : mode minimaliste sans exemple
+  const isFastMode = moduleSlug === 'fastvocab';
+  const showExample = exampleSentence && !isFastMode;
   
   // Génération des styles basés sur l'identité actuelle
   const styles = useMemo(() => getWordCardStyles(identity), [identity]);
@@ -88,10 +94,10 @@ const WordCard: FC<WordCardProps> = ({
       </View>
 
       {/* Séparateur décoratif aux couleurs de la marque */}
-      <View style={styles.separator} />
+      {showExample && <View style={styles.separator} />}
 
-      {/* Zone d'exemple */}
-      {exampleSentence && (
+      {/* Zone d'exemple (masquée en mode Fast Vocabulary) */}
+      {showExample && (
         <View style={styles.exampleContainer}>
           {renderExample()}
         </View>

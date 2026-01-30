@@ -10,20 +10,24 @@ import { StyleSheet } from 'react-native';
 import { spacing, fontSize, fontWeight, borderRadius, shadows, withOpacity } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
 import type { Identity } from '@/themes/ThemeContext';
+import { getExerciseConfig } from '@/utils/exerciseMoodHelper';
 
 /**
  * Génère les styles dynamiquement en fonction de l'Identity
  * ✅ WHITE LABEL: Utilise identity.text pour les couleurs de texte
  * ✅ NO-MEDIA: Design typographique sans emojis
  */
-export const getStyles = (identity: Identity) => StyleSheet.create({
+export const getStyles = (identity: Identity) => {
+  const config = getExerciseConfig(identity);
+
+  return StyleSheet.create({
   // ============================================
   // THEME CONTAINER (Section colorée)
   // ============================================
   themeContainer: {
     marginHorizontal: spacing.xl,
     marginVertical: spacing.md,
-    borderRadius: identity.ui.cardRadius,
+    borderRadius: config.borderRadius.card,
   },
 
   // ============================================
@@ -33,13 +37,13 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     marginHorizontal: spacing.xl,
     marginVertical: spacing.md,
     backgroundColor: baseColors.white,
-    borderRadius: identity.ui.cardRadius,
+    borderRadius: config.borderRadius.card,
     overflow: 'hidden',
     ...shadows.md,
   },
 
   cardContent: {
-    padding: spacing.xxl,
+    padding: config.padding.container,
   },
 
   // ============================================
@@ -60,11 +64,11 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
   },
 
   ruleText: {
-    fontSize: fontSize.lg,
+    fontSize: config.fontSize.subtitle,
     fontWeight: fontWeight.bold as any,
-    lineHeight: fontSize.lg * 1.5,
+    lineHeight: config.fontSize.subtitle * 1.5,
     letterSpacing: -0.3,
-    color: identity.text.onPrimary, // ✅ WHITE LABEL
+    color: identity.text.onPrimary,
   },
 
   // ============================================
@@ -192,4 +196,4 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     backgroundColor: withOpacity('#000000', 0.08),
     marginVertical: spacing.xl,
   },
-});
+});};

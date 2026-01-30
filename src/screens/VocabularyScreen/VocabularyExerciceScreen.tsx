@@ -174,6 +174,7 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
         exampleSentence={currentContentItem.data.example}
         highlightWord={currentContentItem.data.word}
         audio={currentContentItem.data.audio}
+        moduleSlug={module?.slug}
       />
     </ExerciseLayout>
   );

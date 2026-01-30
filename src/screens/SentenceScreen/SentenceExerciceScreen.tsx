@@ -21,6 +21,7 @@ import useSafeNavigation from '@/hooks/useSafeNavigation';
 import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
 import SentenceCard from '../../components/pedagogy/Sentence/SentenceCard';
+import SentenceBlanksCard from '../../components/pedagogy/Sentence/SentenceBlanksCard';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
 import { ValidationState, FeedbackData } from '@/components/common/ExerciseValidation/types';
 
@@ -43,10 +44,12 @@ const SentenceExerciseScreen: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isRevealed, setIsRevealed] = useState(false);
   const [userDraft, setUserDraft] = useState('');
+  const [selectedOption, setSelectedOption] = useState<string | null>(null); // Pour mode blanks
   const [validationState, setValidationState] = useState<ValidationState>('initial');
   const [customFeedback, setCustomFeedback] = useState<FeedbackData | null>(null);
 
   const currentItem = contentItems[currentIndex];
+  const mode = currentItem?.data?.mode || 'free'; // Détection du mode
   
   // Correction erreur Module.color : on utilise l'identité branding main
   const moduleColor = identity.palette.primary;
@@ -69,23 +72,35 @@ const SentenceExerciseScreen: React.FC = () => {
   // --- LOGIQUE DE VALIDATION ---
 
   const handleValidate = () => {
-    const cleanUser = userDraft.trim().toLowerCase().replace(/[.,!?;]/g, "");
-    const cleanTarget = currentItem.data.phrase_en.trim().toLowerCase().replace(/[.,!?;]/g, "");
-
     setIsRevealed(true);
 
-    if (cleanUser === cleanTarget) {
-      setValidationState('correct');
-      setCustomFeedback({
-        title: "EXACT !",
-        message: "Ta traduction est parfaitement fidèle à la structure."
-      });
+    if (mode === 'blanks') {
+      // Mode BLANKS : Vérification de l'option sélectionnée
+      const isCorrect = selectedOption === currentItem.data.correctAnswer;
+      setValidationState(isCorrect ? 'correct' : 'incorrect');
+      setCustomFeedback(
+        isCorrect
+          ? { title: "BRAVO !", message: "C'est la bonne réponse !" }
+          : { title: "PAS TOUT À FAIT", message: "Regarde bien la bonne réponse." }
+      );
     } else {
-      setValidationState('incorrect'); // Déclenche l'état Orange (Attention/Nuance)
-      setCustomFeedback({
-        title: "OBSERVE LA NUANCE",
-        message: "Ton sens est peut-être bon, mais compare bien avec la structure attendue."
-      });
+      // Mode FREE : Vérification de la saisie libre
+      const cleanUser = userDraft.trim().toLowerCase().replace(/[.,!?;]/g, "");
+      const cleanTarget = currentItem.data.phrase_en?.trim().toLowerCase().replace(/[.,!?;]/g, "") || "";
+
+      if (cleanUser === cleanTarget) {
+        setValidationState('correct');
+        setCustomFeedback({
+          title: "EXACT !",
+          message: "Ta traduction est parfaitement fidèle à la structure."
+        });
+      } else {
+        setValidationState('incorrect');
+        setCustomFeedback({
+          title: "OBSERVE LA NUANCE",
+          message: "Ton sens est peut-être bon, mais compare bien avec la structure attendue."
+        });
+      }
     }
   };
 
@@ -93,6 +108,7 @@ const SentenceExerciseScreen: React.FC = () => {
     if (currentIndex < contentItems.length - 1) {
       setIsRevealed(false);
       setUserDraft('');
+      setSelectedOption(null); // Reset pour mode blanks
       setValidationState('initial');
       setCustomFeedback(null);
       setCurrentIndex(prev => prev + 1);
@@ -105,6 +121,7 @@ const SentenceExerciseScreen: React.FC = () => {
     setIsRevealed(false);
     setValidationState('initial');
     setCustomFeedback(null);
+    // On ne reset pas userDraft ni selectedOption pour permettre la correction
   };
 
   if (isLoading || !currentItem || !family) {
@@ -138,21 +155,36 @@ const SentenceExerciseScreen: React.FC = () => {
           feedbackMessage={customFeedback || undefined}
           showFeedback={isRevealed}
           isLastQuestion={currentIndex === contentItems.length - 1}
-          disabled={userDraft.trim().length < 2 || safeGoBack.disabled}
+          disabled={
+            mode === 'blanks'
+              ? !selectedOption || safeGoBack.disabled
+              : userDraft.trim().length < 2 || safeGoBack.disabled
+          }
         />
       }
     >
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
       >
-        <SentenceCard
-          data={currentItem.data}
-          isRevealed={isRevealed}
-          userDraft={userDraft}
-          setUserDraft={setUserDraft}
-          moduleColor={moduleColor}
-        />
+        {mode === 'blanks' ? (
+          <SentenceBlanksCard
+            data={currentItem.data}
+            selectedOption={selectedOption}
+            onSelectOption={setSelectedOption}
+            isValidated={isRevealed}
+            isCorrect={validationState === 'correct'}
+            moduleColor={moduleColor}
+          />
+        ) : (
+          <SentenceCard
+            data={currentItem.data}
+            isRevealed={isRevealed}
+            userDraft={userDraft}
+            setUserDraft={setUserDraft}
+            moduleColor={moduleColor}
+          />
+        )}
       </KeyboardAvoidingView>
     </ExerciseLayout>
   );

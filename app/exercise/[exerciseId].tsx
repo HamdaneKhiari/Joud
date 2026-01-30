@@ -8,6 +8,10 @@ import VocabularyExerciseScreen from '@/screens/VocabularyScreen/VocabularyExerc
 import SentenceScreen from '@/screens/SentenceScreen/SentenceExerciceScreen';
 import ConnectorExerciseScreen from '@/screens/ConnectorScreen/ConnectorExerciseScreen';
 import ReadingExerciseScreen from '@/screens/ReadingScreen/ReadingExerciseScreen';
+import DialogueExerciseScreen from '@/screens/DialoguesScreen/DialogueExerciseScreen';
+import WordGamesExerciseScreen from '@/screens/WordGames/WordGamesExerciseScreen';
+import AssessmentScreen from '@/screens/Assessment/AssessmentScreen';
+import GrammarExerciseScreen from '@/screens/GrammarScreen/GrammarExerciseScreen';
 
 export default function ExerciseDispatcher() {
   const params = useLocalSearchParams();
@@ -57,19 +61,33 @@ export default function ExerciseDispatcher() {
     case 'vocab':
       return <VocabularyExerciseScreen {...(screenProps as any)} />;
 
+    case 'fastvocab':
+      // Fast Vocabulary utilise le même composant que Vocabulary
+      return <VocabularyExerciseScreen {...(screenProps as any)} />;
+
     case 'phrases':
+    case 'phrase_types':
+      // Sentences (phrases types) - Supporte mode free et blanks
       return <SentenceScreen {...(screenProps as any)} />;
-    
-    case 'connector':
-      return <ConnectorExerciseScreen {...(screenProps as any)} />;
+
+    case 'grammar':
+      return <GrammarExerciseScreen {...(screenProps as any)} />;
 
     case 'reading':
       return <ReadingExerciseScreen {...(screenProps as any)} />;
-    
-    case 'grammar':
-      // On réutilise le moteur Connector qui gère parfaitement les QCM (Logic) et textes à trous
+
+    case 'dialogues':
+      return <DialogueExerciseScreen {...(screenProps as any)} />;
+
+    case 'connector':
       return <ConnectorExerciseScreen {...(screenProps as any)} />;
-    
+
+    case 'word_games':
+      return <WordGamesExerciseScreen {...(screenProps as any)} />;
+
+    case 'assessment':
+      return <AssessmentScreen {...(screenProps as any)} />;
+
     default:
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

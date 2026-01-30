@@ -8,6 +8,7 @@
 import { StyleSheet, TextStyle, ViewStyle } from 'react-native';
 import { Identity } from '@/themes/ThemeContext';
 import { tokens, withOpacity } from '@/themes/tokens';
+import { getExerciseConfig } from '@/utils/exerciseMoodHelper';
 
 interface WordCardStyles {
   container: ViewStyle;
@@ -38,28 +39,27 @@ const getSemanticColors = (identity: Identity) => {
 };
 
 export const getWordCardStyles = (identity: Identity): WordCardStyles => {
-  const { palette, ui } = identity;
+  const { palette } = identity;
   const colors = getSemanticColors(identity);
+  const config = getExerciseConfig(identity);
 
   return StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: palette.surface,
-      borderRadius: ui.cardRadius,
-      padding: tokens.layout.cardPadding,
+      borderRadius: config.borderRadius.card,
+      padding: config.padding.container,
       marginHorizontal: tokens.spacing.md,
       marginVertical: tokens.spacing.lg,
-      // ✅ Ombre Premium via tokens (pas de valeurs en dur)
       ...tokens.shadows.lg,
-      // ✅ Centrage vertical optimisé avec espacement équilibré
       justifyContent: 'center',
-      alignItems: 'center',
-      gap: tokens.spacing.xl,
+      alignItems: config.alignment,
+      gap: config.spacing,
       borderWidth: 1,
       borderColor: colors.cardBorder,
     },
     wordContainer: {
-      alignItems: 'center',
+      alignItems: config.alignment,
       width: '100%',
     },
     wordRow: {
@@ -70,19 +70,18 @@ export const getWordCardStyles = (identity: Identity): WordCardStyles => {
       marginBottom: tokens.spacing.sm,
     },
     englishWord: {
-      fontSize: tokens.fontSize.huge - 6, // 42px
+      fontSize: config.fontSize.title,
       fontWeight: tokens.fontWeight.extrabold,
       color: palette.primary,
-      textAlign: 'center',
+      textAlign: config.alignment === 'center' ? 'center' : 'left',
       letterSpacing: 0.5,
-      // ✅ Responsive : adapte la taille si le mot est trop long
       flexShrink: 1,
     },
     frenchWord: {
-      fontSize: tokens.fontSize.xl,
+      fontSize: config.fontSize.subtitle,
       fontWeight: tokens.fontWeight.medium,
-      color: colors.translation, // ✅ Couleur sémantique
-      textAlign: 'center',
+      color: colors.translation,
+      textAlign: config.alignment === 'center' ? 'center' : 'left',
       fontStyle: 'italic',
     },
     separator: {
@@ -93,14 +92,14 @@ export const getWordCardStyles = (identity: Identity): WordCardStyles => {
     },
     exampleContainer: {
       backgroundColor: withOpacity(palette.primary, 0.05),
-      padding: tokens.spacing.xl,
-      borderRadius: ui.cardRadius,
+      padding: config.padding.card,
+      borderRadius: config.borderRadius.input,
       width: '100%',
     },
     exampleText: {
-      fontSize: tokens.fontSize.md,
-      color: colors.example, // ✅ Couleur sémantique
-      textAlign: 'center',
+      fontSize: config.fontSize.body,
+      color: colors.example,
+      textAlign: config.alignment === 'center' ? 'center' : 'left',
       lineHeight: 26,
     },
   });

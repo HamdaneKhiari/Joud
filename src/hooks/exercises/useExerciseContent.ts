@@ -23,12 +23,28 @@ export interface VocabularyData {
   audio?: string;
 }
 
-/** Structure pour le module Sentences (ton nouvel objectif) */
+/**
+ * Structure pour le module Sentences
+ * Support 2 modes : 'free' (saisie libre) et 'blanks' (trous à remplir)
+ */
 export interface SentenceData {
-  phrase_fr: string;
-  phrase_en: string;
-  concretement: string;
-  build: string;
+  // Mode de l'exercice
+  mode: 'free' | 'blanks';
+
+  // ===== MODE FREE (Collège, Lycée, Adulte) =====
+  phrase_fr?: string;              // Phrase en français à traduire
+  phrase_en?: string;              // Traduction attendue en anglais
+  concretement?: string;           // Explication pédagogique
+  build?: string;                  // Structure grammaticale
+
+  // ===== MODE BLANKS (Primaire) =====
+  sentence_with_blank?: string;    // Phrase avec trou : "I ___ a cat"
+  options?: string[];              // Options de réponse : ["have", "has", "had", "having"]
+  correctAnswer?: string;          // Bonne réponse : "have"
+  translation?: string;            // Traduction FR (optionnel) : "J'ai un chat"
+  explanation?: string;            // Explication pédagogique : "Avec 'I', on utilise 'have'"
+
+  // Commun aux deux modes
   audio?: string;
 }
 
