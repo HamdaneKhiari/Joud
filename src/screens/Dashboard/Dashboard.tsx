@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { ScrollView, View, ActivityIndicator, Text } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useTheme } from '@/themes/ThemeContext';
 import { createStyles } from './styles/dashboardStyle';
@@ -55,7 +56,8 @@ export default function Dashboard() {
 
         const labels: Record<number, { title: string; badge: string; description: string }> = {};
         for (const level of data) {
-          const label = await getLevelLabel(level.level, identity.id, db);
+          // ✅ CORRIGÉ : db en premier argument (db, levelNumber, identityId)
+          const label = await getLevelLabel(db, level.level, identity.id);
           labels[level.level] = label;
         }
         setLevelLabels(labels);
@@ -83,19 +85,19 @@ export default function Dashboard() {
   }
 
   return (
-    <ScrollView 
-      style={[styles.container, { backgroundColor: identity.palette.surface }]} 
+    <ScrollView
+      style={[styles.container, { backgroundColor: identity.palette.background }]}
       contentContainerStyle={styles.scrollContent}
     >
-      
+
       <DashboardHeader
         user={{ name: user.firstName }}
       />
 
       {/* 1. DÉCOUVRIR : Mot du jour (RECODÉ EN FULL WHITE LABEL) */}
-      <View style={styles.section}>
+      <Animated.View entering={FadeInDown.delay(0).springify()} style={styles.section}>
         <DailyWordCard word={dailyWord} />
-      </View>
+      </Animated.View>
 
       {/* 2. REPRENDRE : Activité récente / Commencer l'aventure */}
       <View style={styles.section}>
@@ -116,18 +118,18 @@ export default function Dashboard() {
 
       {/* 4. ANALYSER & AGIR : Pôle IA */}
       {user.audience !== 'primary' && (
-        <View style={styles.section}>
+        <Animated.View entering={FadeInDown.delay(300).springify()} style={styles.section}>
           <AIDiagnosticCard
             errorPatterns={{ verb_conjugation: { count: 8, severity: 2 } }} // TODO: Analyser les erreurs réelles de l'utilisateur
             challenge={{ userMessage: identity.aiTutor.subtitle }}
             onTakeChallenge={() => console.log('Challenge accepted')}
           />
           <AITutorCard />
-        </View>
+        </Animated.View>
       )}
 
       {/* 5. BILAN : Metrics */}
-      <View style={styles.section}>
+      <Animated.View entering={FadeInDown.delay(400).springify()} style={styles.section}>
         <MetricsSection
           metrics={{
             wordsLearned: 127, // TODO: Depuis ProgressContext
@@ -136,28 +138,41 @@ export default function Dashboard() {
           }}
           theme={identity.themeMode}
         />
-      </View>
+      </Animated.View>
 
       {/* 6. PARCOURS : La timeline */}
-      <View style={styles.sectionHeader}>
+      <Animated.View entering={FadeInDown.delay(500).springify()} style={styles.sectionHeader}>
         <Text style={[styles.sectionTitle, { color: identity.text.primary }]}>Parcours</Text>
         <View style={styles.levelsGrid}>
           {levels.length > 1 && <View style={[styles.timelineLine, { backgroundColor: identity.palette.primary + '40' }]} />}
-          {levels.map((level) => {
-            const levelLabel = levelLabels[level.level] || { title: `Niveau ${level.level}`, badge: `N${level.level}`, description: 'Niveau' };
+          {levels.map((level, index) => {
+            // ✅ Récupération du titre depuis la DB (ex: "Les Bases", "L'Essentiel", etc.)
+            // Fallback uniquement si le chargement a échoué
+            const levelLabel = levelLabels[level.level] || {
+              title: `Niveau ${level.level}`,
+              badge: `${level.level}`,
+              description: 'Niveau'
+            };
             const progress = getLevelProgress(level.level);
             const status = progress === 100 ? 'completed' : 'in_progress';
 
             return (
               <LevelCard
                 key={level.id}
-                data={{ id: level.id || 0, level: level.level, title: levelLabel.title, status }}
+                data={{
+                  id: level.id || 0,
+                  level: level.level, // ✅ Badge rond : 1, 2, 3, 4
+                  title: levelLabel.title, // ✅ Titre complet : "Les Bases", "L'Essentiel"
+                  status
+                }}
                 onPress={() => navigateToExerciseSelection(router, level.level)}
+                isLast={index === levels.length - 1}
+                animationDelay={index * 100}
               />
             );
           })}
         </View>
-      </View>
+      </Animated.View>
     </ScrollView>
   );
 }

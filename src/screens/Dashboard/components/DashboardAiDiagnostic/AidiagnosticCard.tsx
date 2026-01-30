@@ -1,5 +1,11 @@
+/**
+ * AIDiagnosticCard - Version améliorée
+ * 100% White Label + Mood-Aware + Animations
+ */
+
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/themes/ThemeContext';
@@ -55,50 +61,76 @@ const AIDiagnosticCard: React.FC<AIDiagnosticCardProps> = ({
   // Si aucune donnée à analyser et aucun défi en cours, on n'affiche rien
   if (!diagnostic && !challenge) return null;
 
+  const isPlayful = identity.ui.mood === 'playful';
+
   return (
-    <View style={styles.container}>
+    <Animated.View entering={FadeInDown.springify()} style={styles.container}>
       {/* HEADER : Titre et Score de Maîtrise */}
-      <View style={styles.header}>
+      <Animated.View entering={FadeInDown.delay(100).springify()} style={styles.header}>
         <View style={styles.titleRow}>
-          <MaterialCommunityIcons name="brain" size={24} color={identity.aiDiagnostic.accent} />
-          <Text style={styles.title}>Analyse Coach IA</Text>
+          <MaterialCommunityIcons
+            name="brain"
+            size={isPlayful ? 28 : 24}
+            color={identity.aiDiagnostic.accent}
+          />
+          <Text style={styles.title}>
+            {isPlayful ? 'Coach IA' : 'Analyse Coach IA'}
+          </Text>
         </View>
         <View style={styles.masteryBadge}>
           <Text style={styles.masteryText}>{diagnostic?.mastery || '--'}%</Text>
         </View>
-      </View>
+      </Animated.View>
 
       {/* SECTION CONSTAT : Affiche la difficulté principale */}
-      <View style={styles.section}>
-        <Text style={styles.sectionLabel}>CONSTAT</Text>
+      <Animated.View entering={FadeInDown.delay(200).springify()} style={styles.section}>
+        <Text style={styles.sectionLabel}>
+          {isPlayful ? 'Constat' : 'CONSTAT'}
+        </Text>
         <View style={styles.bubble}>
-          <MaterialCommunityIcons name="alert-circle-outline" size={18} color={identity.aiDiagnostic.error} />
+          <MaterialCommunityIcons
+            name="alert-circle-outline"
+            size={isPlayful ? 22 : 18}
+            color={identity.aiDiagnostic.error}
+          />
           <Text style={styles.bubbleText} numberOfLines={1}>
             Difficulté : <Text style={styles.bold}>{diagnostic?.topWeakness?.name || 'Analyse...'}</Text>
           </Text>
         </View>
-      </View>
+      </Animated.View>
 
       {/* SECTION SOLUTION : Le message du coach et le bouton d'action */}
       {challenge && (
-        <LinearGradient
-          colors={identity.aiDiagnostic.solutionBackground}
-          style={styles.solutionBox}
-        >
-          <Text style={styles.sectionLabel}>SOLUTION</Text>
-          <Text style={styles.coachMessage}>"{challenge.userMessage}"</Text>
-
-          <TouchableOpacity 
-            style={styles.ctaButton} 
-            onPress={onTakeChallenge} 
-            activeOpacity={0.8}
+        <Animated.View entering={FadeInDown.delay(300).springify()}>
+          <LinearGradient
+            colors={identity.aiDiagnostic.solutionBackground}
+            style={styles.solutionBox}
           >
-            <Text style={styles.ctaText}>Relever le défi</Text>
-            <MaterialCommunityIcons name="arrow-right" size={18} color={identity.text.onPrimary} />
-          </TouchableOpacity>
-        </LinearGradient>
+            <Text style={styles.sectionLabel}>
+              {isPlayful ? 'Solution' : 'SOLUTION'}
+            </Text>
+            <Text style={styles.coachMessage}>
+              {isPlayful ? challenge.userMessage : `"${challenge.userMessage}"`}
+            </Text>
+
+            <TouchableOpacity
+              style={styles.ctaButton}
+              onPress={onTakeChallenge}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.ctaText}>
+                {isPlayful ? 'Relever le défi !' : 'Relever le défi'}
+              </Text>
+              <MaterialCommunityIcons
+                name="arrow-right"
+                size={20}
+                color={identity.text.onPrimary}
+              />
+            </TouchableOpacity>
+          </LinearGradient>
+        </Animated.View>
       )}
-    </View>
+    </Animated.View>
   );
 };
 

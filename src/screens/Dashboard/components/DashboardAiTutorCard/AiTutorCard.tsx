@@ -1,40 +1,42 @@
-import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+/**
+ * AITutorCard - Version FlowCard
+ * 100% White Label + Mood-Aware
+ */
+
+import React from 'react';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/themes/ThemeContext';
-import { createStyles } from './AiTutorCardStyles';
+import FlowCard from '@/components/flow/FlowCard';
 
 const AITutorCard: React.FC = () => {
   const { identity } = useTheme();
-  const styles = useMemo(() => createStyles(identity), [identity]);
+  const isPlayful = identity.ui.mood === 'playful';
+
+  // ============================================
+  // CONFIG SELON LE MOOD (100% White Label)
+  // ============================================
+  const config = {
+    icon: isPlayful ? '🤖' : 'robot',
+    title: identity.aiTutor.title || 'Tuteur IA',
+    subtitle: identity.aiTutor.subtitle || 'Ton assistant personnel',
+    description: isPlayful ? 'Intelligence Artificielle' : undefined,
+    badge: isPlayful ? 'IA' : null,
+    color: identity.palette.primary,
+  };
 
   return (
-    <TouchableOpacity style={styles.container} activeOpacity={0.8}>
-      <View style={styles.content}>
-        <View style={styles.iconWrapper}>
-          <MaterialCommunityIcons 
-            name="robot" 
-            size={24} 
-            color={identity.palette.primary} 
-          />
-        </View>
-
-        <View style={styles.textBody}>
-          <Text style={styles.title}>
-            {identity.aiTutor.title}
-          </Text>
-          <Text style={styles.subtitle}>
-            {identity.aiTutor.subtitle}
-          </Text>
-        </View>
-
-        <MaterialCommunityIcons 
-          name="chevron-right" 
-          size={22} 
-          color={identity.text.tertiary} 
-        />
-      </View>
-    </TouchableOpacity>
+    <Animated.View entering={FadeInDown.delay(100).springify()}>
+      <FlowCard
+        variant="horizontal"
+        icon={config.icon}
+        title={config.title}
+        subtitle={config.subtitle}
+        description={config.description}
+        color={config.color}
+        badge={config.badge}
+        onPress={() => console.log('Ouvrir Tuteur IA')}
+      />
+    </Animated.View>
   );
 };
 

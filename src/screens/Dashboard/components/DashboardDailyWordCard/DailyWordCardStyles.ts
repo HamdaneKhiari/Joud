@@ -1,60 +1,70 @@
+/**
+ * DailyWordCard Styles - 100% White Label + Mood-Aware
+ */
+
 import { StyleSheet } from 'react-native';
 import { tokens } from '@/themes/tokens';
 import type { Identity } from '@/themes/ThemeContext';
 
-export const createStyles = (identity: Identity) =>
-  StyleSheet.create({
+export const createStyles = (identity: Identity) => {
+  const isPlayful = identity.ui.mood === 'playful';
+  const cardRadius = isPlayful ? 24 : identity.ui.cardRadius;
+
+  return StyleSheet.create({
     container: {
-      // On utilise 'background' qui peut être une couleur ou un dégradé (géré dans le composant)
-      padding: tokens.spacing.xl,
-      marginHorizontal: tokens.spacing.xl,
+      padding: isPlayful ? tokens.spacing.xl : tokens.spacing.lg,
+      marginHorizontal: tokens.spacing.lg,
       marginVertical: tokens.spacing.md,
-      borderRadius: identity.ui.cardRadius,
+      borderRadius: cardRadius,
       position: 'relative',
       overflow: 'hidden',
-      // Bordure décorative à gauche utilisant la palette primaire
-      borderLeftWidth: 5,
+      // Bordure uniquement en mode clean
+      borderLeftWidth: isPlayful ? 0 : 4,
       borderLeftColor: identity.palette.primary,
-      // Ombre portée
-      elevation: 4,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
+      // Ombre adaptée
+      ...tokens.shadows.md,
+      // Alignement selon le mood
+      ...(isPlayful && { alignItems: 'center' }),
     },
     watermark: {
       position: 'absolute',
-      right: -10,
+      right: isPlayful ? '50%' : -10,
       bottom: -10,
-      fontSize: 80,
-      opacity: 0.05,
+      fontSize: isPlayful ? 100 : 80,
+      opacity: isPlayful ? 0.08 : 0.05,
+      ...(isPlayful && { transform: [{ translateX: 50 }] }),
     },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: tokens.spacing.xs,
+      marginBottom: tokens.spacing.sm,
+      ...(isPlayful && { justifyContent: 'center' }),
     },
     tag: {
-      fontSize: 10,
-      fontWeight: tokens.fontWeight.bold as any,
-      textTransform: 'uppercase',
-      letterSpacing: 1.2,
+      fontSize: isPlayful ? tokens.fontSize.xs : 10,
+      fontWeight: tokens.fontWeight.black as any,
+      textTransform: isPlayful ? undefined : 'uppercase',
+      letterSpacing: isPlayful ? 0.5 : 1.2,
       color: identity.palette.primary,
     },
     wordRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginTop: tokens.spacing.xs,
+      marginTop: tokens.spacing.sm,
+      ...(isPlayful && { justifyContent: 'center' }),
     },
     englishWord: {
-      fontSize: 32,
+      fontSize: isPlayful ? tokens.fontSize.xxxl : tokens.fontSize.xxl,
       fontWeight: tokens.fontWeight.black as any,
       color: identity.text.primary,
+      letterSpacing: -0.5,
     },
     frenchTranslation: {
-      fontSize: 18,
-      fontWeight: tokens.fontWeight.medium as any,
+      fontSize: isPlayful ? tokens.fontSize.lg : tokens.fontSize.md,
+      fontWeight: tokens.fontWeight.semibold as any,
       color: identity.text.secondary,
-      marginTop: 2,
+      marginTop: tokens.spacing.xs,
+      ...(isPlayful && { textAlign: 'center' }),
     }
   });
+};

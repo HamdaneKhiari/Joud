@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, ViewStyle } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/themes/ThemeContext';
 import { createStyles } from './metricsStyle';
 
@@ -11,10 +12,11 @@ interface MetricCardProps {
   encouragement?: string;
   isDark: boolean;
   variant?: 'wordsLearned' | 'badges' | 'streak';
+  animationDelay?: number;
 }
 
 /**
- * MetricCard - Une carte metric individuelle
+ * MetricCard - Une carte metric individuelle (Animated)
  */
 const MetricCard: React.FC<MetricCardProps> = ({
   emoji,
@@ -23,7 +25,8 @@ const MetricCard: React.FC<MetricCardProps> = ({
   label,
   encouragement,
   isDark,
-  variant
+  variant,
+  animationDelay = 0
 }) => {
   const { identity } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
@@ -39,13 +42,14 @@ const MetricCard: React.FC<MetricCardProps> = ({
   const labelVariantStyle = labelVariantKey ? styles[labelVariantKey as keyof ReturnType<typeof createStyles>] : null;
 
   return (
-    <View style={[
-      styles.card,
-      isDark && styles.cardDark,
-      cardStyle as ViewStyle,
-    ]}>
-      {/* ✅ Formes décoratives supprimées (No-Media Premium) */}
-
+    <Animated.View
+      entering={FadeInDown.delay(animationDelay).springify()}
+      style={[
+        styles.card,
+        isDark && styles.cardDark,
+        cardStyle as ViewStyle,
+      ]}
+    >
       {/* ✅ Badge typographique au lieu d'emoji */}
       {badgeLabel && <Text style={styles.badgeLabel}>{badgeLabel}</Text>}
       {emoji && !badgeLabel && <Text style={styles.emoji}>{emoji}</Text>}
@@ -72,7 +76,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
           {encouragement}
         </Text>
       )}
-    </View>
+    </Animated.View>
   );
 };
 
@@ -142,6 +146,7 @@ const MetricsSection: React.FC<MetricsSectionProps> = ({
         encouragement={getEncouragement(metrics.wordsLearned, 'wordsLearned')}
         isDark={isDark}
         variant="wordsLearned"
+        animationDelay={0}
       />
 
       {/* Badges uniquement pour Primary et College */}
@@ -153,6 +158,7 @@ const MetricsSection: React.FC<MetricsSectionProps> = ({
           encouragement={getEncouragement(metrics.badges, 'badges')}
           isDark={isDark}
           variant="badges"
+          animationDelay={100}
         />
       )}
 
@@ -163,6 +169,7 @@ const MetricsSection: React.FC<MetricsSectionProps> = ({
         encouragement={getEncouragement(metrics.streak, 'streak')}
         isDark={isDark}
         variant="streak"
+        animationDelay={isStudent ? 200 : 100}
       />
     </View>
   );

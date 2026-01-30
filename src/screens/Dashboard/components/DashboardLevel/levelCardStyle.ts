@@ -8,34 +8,34 @@ export const createStyles = (identity: Identity) => {
   return StyleSheet.create({
     container: {
       flexDirection: 'row',
-      minHeight: 80,
+      minHeight: isPlayful ? 90 : 80, // ✅ Plus haut si playful
     },
     // --- Colonne de gauche (Timeline) ---
     timelineContainer: {
-      width: 50,
+      width: isPlayful ? 56 : 50, // ✅ Plus large si playful
       alignItems: 'center',
     },
     badge: {
-      width: 38,
-      height: 38,
-      borderRadius: 19,
+      width: isPlayful ? 44 : 38, // ✅ Plus grand si playful
+      height: isPlayful ? 44 : 38,
+      borderRadius: isPlayful ? 22 : 19,
       backgroundColor: identity.palette.surface,
-      borderWidth: 2,
+      borderWidth: isPlayful ? 3 : 2, // ✅ Bordure plus épaisse si playful
       justifyContent: 'center',
       alignItems: 'center',
       zIndex: 2,
-      ...tokens.shadows.sm,
+      ...tokens.shadows.md,
     },
     badgeText: {
-      fontSize: tokens.fontSize.sm,
-      fontWeight: tokens.fontWeight.bold,
+      fontSize: isPlayful ? tokens.fontSize.lg : tokens.fontSize.sm, // ✅ Plus grand si playful
+      fontWeight: tokens.fontWeight.black, // ✅ Plus bold
       color: identity.text.primary,
     },
     line: {
-      width: 2,
+      width: isPlayful ? 3 : 2, // ✅ Plus épaisse si playful
       flex: 1,
       backgroundColor: withOpacity(identity.palette.primary, 0.2),
-      marginTop: -2, // Pour bien coller au badge
+      marginTop: -2,
     },
     // --- Colonne de droite (Contenu) ---
     cardWrapper: {
@@ -45,12 +45,11 @@ export const createStyles = (identity: Identity) => {
     card: {
       flexDirection: 'row',
       alignItems: 'center',
-      padding: tokens.spacing.md,
+      padding: isPlayful ? tokens.spacing.lg : tokens.spacing.md, // ✅ Plus de padding si playful
       backgroundColor: identity.palette.surface,
-      // ADAPTATION MOOD
       borderRadius: isPlayful ? 24 : tokens.borderRadius.md,
-      ...(isPlayful 
-        ? tokens.shadows.md 
+      ...(isPlayful
+        ? tokens.shadows.md
         : {
             borderWidth: 1,
             borderColor: withOpacity(identity.palette.primary, 0.1),
@@ -62,16 +61,17 @@ export const createStyles = (identity: Identity) => {
       flex: 1,
     },
     title: {
-      fontSize: tokens.fontSize.md,
-      fontWeight: tokens.fontWeight.bold,
+      fontSize: isPlayful ? tokens.fontSize.lg : tokens.fontSize.md, // ✅ Plus grand si playful
+      fontWeight: tokens.fontWeight.black, // ✅ Plus bold
       color: identity.text.primary,
-      marginBottom: 2,
+      marginBottom: tokens.spacing.xs,
     },
     subtitle: {
-      fontSize: tokens.fontSize.xs,
+      fontSize: isPlayful ? tokens.fontSize.sm : tokens.fontSize.xs, // ✅ Plus grand si playful
+      fontWeight: isPlayful ? tokens.fontWeight.semibold : tokens.fontWeight.medium,
       color: identity.text.secondary,
-      textTransform: 'uppercase',
-      letterSpacing: 0.5,
+      textTransform: isPlayful ? undefined : 'uppercase', // ✅ Pas d'uppercase si playful
+      letterSpacing: isPlayful ? 0 : 0.5,
     },
     iconContainer: {
       marginLeft: tokens.spacing.sm,

@@ -1,3 +1,7 @@
+/**
+ * DailyWordCard - 100% White Label + Mood-Aware
+ */
+
 import React, { useMemo } from 'react';
 import { View, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,11 +21,13 @@ const DailyWordCard: React.FC<DailyWordProps> = ({ word }) => {
   const { identity } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
 
+  const isPlayful = identity.ui.mood === 'playful';
+
   // Gestion du fond : Couleur unie ou Dégradé
   const isGradient = Array.isArray(identity.dailyWord.background);
   const Container: any = isGradient ? LinearGradient : View;
-  
-  const containerProps = isGradient 
+
+  const containerProps = isGradient
     ? { colors: identity.dailyWord.background, start: { x: 0, y: 0 }, end: { x: 1, y: 1 } }
     : { style: [styles.container, { backgroundColor: identity.dailyWord.background as string }] };
 
@@ -33,17 +39,20 @@ const DailyWordCard: React.FC<DailyWordProps> = ({ word }) => {
       </Text>
 
       <View style={styles.header}>
-        <Text style={{ fontSize: 18, marginRight: 8 }}>{word.emoji || '🌱'}</Text>
-        <Text style={styles.tag}>Mot du jour</Text>
+        <Text style={{ fontSize: isPlayful ? 24 : 18, marginRight: 8 }}>
+          {word.emoji || '🌱'}
+        </Text>
+        <Text style={styles.tag}>
+          {isPlayful ? 'Mot du jour' : 'MOT DU JOUR'}
+        </Text>
       </View>
 
       <View style={styles.wordRow}>
-        <Text style={[styles.englishWord, { color: identity.text.primary }]}>{word.english}</Text>
-        {/* Utilisation du mode "Icône Seule" validé à l'étape précédente */}
-        <AudioButton 
-          text={word.english} 
-          size="small" 
-          style={{ marginLeft: 12 }} 
+        <Text style={styles.englishWord}>{word.english}</Text>
+        <AudioButton
+          text={word.english}
+          size="small"
+          style={{ marginLeft: 12 }}
         />
       </View>
 

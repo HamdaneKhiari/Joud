@@ -3,28 +3,20 @@ import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 
 export const createStyles = (identity: Identity) => {
-  // Espacement dynamique selon l'identité
-  // Primary (enfants) : plus aéré et ludique
-  // Adult : plus compact et sobre
-  const getSectionSpacing = () => {
-    switch (identity.id) {
-      case 'primary':
-        return tokens.spacing.xl; // 20px - plus aéré
-      case 'college':
-        return tokens.spacing.lg; // 16px - équilibré
-      case 'lycee':
-        return tokens.spacing.md; // 12px - plus compact
-      case 'adult':
-        return tokens.spacing.md; // 12px - sobre
-      default:
-        return tokens.spacing.lg;
-    }
-  };
+  // ============================================
+  // CONFIGURATION MOOD-AWARE
+  // ============================================
+  const isPlayful = identity.ui.mood === 'playful';
+
+  // 🎯 Espacement dynamique basé sur le mood
+  const sectionSpacing = isPlayful ? tokens.spacing.xl : tokens.spacing.md;
+  const cardRadius = isPlayful ? 24 : 16;
+  const contentPadding = isPlayful ? tokens.spacing.lg : tokens.spacing.md;
 
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: identity.palette.surface,
+      backgroundColor: identity.palette.background, // ✅ background au lieu de surface
     },
 
     scrollContent: {
@@ -32,30 +24,30 @@ export const createStyles = (identity: Identity) => {
     },
 
     section: {
-      marginTop: getSectionSpacing(),
+      marginTop: sectionSpacing, // ✅ Mood-aware
     },
 
     sectionHeader: {
       marginTop: tokens.spacing.xl,
-      paddingHorizontal: tokens.spacing.xl,
+      paddingHorizontal: contentPadding, // ✅ Mood-aware
     },
 
     levelsGrid: {
-      position: 'relative', // ✅ Pour la ligne Timeline
-      gap: tokens.spacing.md,
+      position: 'relative',
+      gap: isPlayful ? tokens.spacing.lg : tokens.spacing.md, // ✅ Mood-aware
     },
 
     // ========== TIMELINE ==========
     timelineLine: {
       position: 'absolute',
-      left: 16, // ✅ Aligné avec le centre du badge (32px/2 = 16px)
-      top: 48, // ✅ Commence après la première card
+      left: isPlayful ? 24 : 16, // ✅ Adapté au mood
+      top: isPlayful ? 64 : 48,
       bottom: 0,
-      width: 2,
+      width: isPlayful ? 3 : 2, // ✅ Plus épaisse si playful
       backgroundColor: identity.themeMode === 'dark'
         ? 'rgba(255, 255, 255, 0.1)'
-        : 'rgba(0, 0, 0, 0.08)', // ✅ Ligne subtile adaptative
-      zIndex: 0, // ✅ Derrière les cards
+        : 'rgba(0, 0, 0, 0.08)',
+      zIndex: 0,
     },
 
     // ========== DAILY WORD (Mot du jour) ==========
@@ -89,10 +81,12 @@ export const createStyles = (identity: Identity) => {
 
     // ========== SECTION TITLES ==========
     sectionTitle: {
-      fontSize: tokens.fontSize.xl,
-      fontWeight: tokens.fontWeight.bold,
+      fontSize: isPlayful ? tokens.fontSize.xxl : tokens.fontSize.lg, // ✅ Plus grand si playful
+      fontWeight: tokens.fontWeight.black, // ✅ Plus bold
       color: identity.text.primary,
       marginBottom: tokens.spacing.md,
+      letterSpacing: isPlayful ? -0.5 : 0, // ✅ Condensé si playful
+      ...(isPlayful && { textAlign: 'center' }), // ✅ Centré si playful
     },
 
     // ========== RESUME LESSON ==========

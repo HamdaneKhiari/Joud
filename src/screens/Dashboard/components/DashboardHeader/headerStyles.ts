@@ -1,7 +1,7 @@
 /**
  * ============================================
- * DashboardHeader Styles - Version Minimaliste
- * Simple et élégant - 100% White Label
+ * DashboardHeader Styles - Version Dynamique
+ * 100% White Label + Mood-Aware
  * ============================================
  */
 
@@ -10,19 +10,46 @@ import type { Identity } from '@/themes/ThemeContext';
 import { tokens, withOpacity } from '@/themes/tokens';
 
 export const createStyles = (identity: Identity) => {
+  const isPlayful = identity.ui.mood === 'playful';
+
   return StyleSheet.create({
     // ========== CONTAINER ==========
     header: {
-      paddingHorizontal: tokens.spacing.xl,
-      paddingTop: 60, // Pour passer sous la barre de statut
-      paddingBottom: tokens.spacing.xl,
+      paddingHorizontal: tokens.spacing.lg,
+      paddingTop: 48, // ✅ Réduit de 60 à 48
+      paddingBottom: tokens.spacing.md, // ✅ Réduit
       ...tokens.shadows.elevated,
+      position: 'relative',
+      overflow: 'hidden',
+    },
+
+    // ========== DÉCORATIONS (Playful) - Réduites ==========
+    decorativeCircle: {
+      position: 'absolute',
+      top: -30,
+      right: -30,
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      backgroundColor: withOpacity(identity.text.onPrimary, 0.08), // ✅ White Label
+    },
+
+    decorativeCircleSmall: {
+      position: 'absolute',
+      bottom: -15,
+      left: -15,
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      backgroundColor: withOpacity(identity.text.onPrimary, 0.05), // ✅ White Label
     },
 
     headerContent: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      alignItems: 'center',
+      alignItems: isPlayful ? 'flex-start' : 'center',
+      position: 'relative',
+      zIndex: 1,
     },
 
     // ========== GAUCHE : BONJOUR [NOM] ==========
@@ -31,31 +58,47 @@ export const createStyles = (identity: Identity) => {
       flex: 1,
     },
 
+    emojiContainer: {
+      marginBottom: tokens.spacing.xs,
+    },
+
+    emoji: {
+      fontSize: isPlayful ? 24 : 20, // ✅ Réduit
+    },
+
     greeting: {
-      fontSize: tokens.fontSize.sm,
+      fontSize: tokens.fontSize.sm, // ✅ Unifié et réduit
       fontWeight: tokens.fontWeight.medium,
-      color: withOpacity(identity.text.onPrimary, 0.9),
-      letterSpacing: 0.5,
+      color: withOpacity(identity.text.onPrimary, 0.85),
+      letterSpacing: 0.3,
     },
 
     userName: {
-      fontSize: tokens.fontSize.xxxl,
+      fontSize: isPlayful ? tokens.fontSize.xxl : tokens.fontSize.xl, // ✅ Réduit de huge/xxxl à xxl/xl
       fontWeight: tokens.fontWeight.black,
       color: identity.text.onPrimary,
       letterSpacing: -0.5,
+      textShadowColor: isPlayful ? 'rgba(0, 0, 0, 0.08)' : undefined, // ✅ Plus subtil
+      textShadowOffset: isPlayful ? { width: 0, height: 1 } : undefined,
+      textShadowRadius: isPlayful ? 2 : undefined,
     },
 
     // ========== DROITE : NOM DE L'ORGANISATION ==========
     organizationSection: {
       alignItems: 'flex-end',
+      backgroundColor: isPlayful ? withOpacity(identity.text.onPrimary, 0.12) : undefined, // ✅ White Label
+      paddingHorizontal: isPlayful ? tokens.spacing.sm : 0,
+      paddingVertical: isPlayful ? tokens.spacing.xs : 0,
+      borderRadius: isPlayful ? 12 : 0,
     },
 
     organizationName: {
-      fontSize: tokens.fontSize.md,
+      fontSize: tokens.fontSize.sm, // ✅ Unifié et réduit
       fontWeight: tokens.fontWeight.bold,
-      color: withOpacity(identity.text.onPrimary, 0.95),
-      letterSpacing: 0.3,
+      color: identity.text.onPrimary,
+      letterSpacing: 0.2,
       textAlign: 'right',
+      opacity: 0.9,
     },
   });
 };
