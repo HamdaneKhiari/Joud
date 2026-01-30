@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { getDatabase } from '@/database/db';
+import { useUser } from '@/contexts/UserContext';
 
 // ============================================
 // TYPES
@@ -61,17 +61,18 @@ export interface StudentAnalysisData {
  * - Les statistiques globales
  */
 export const useStudentAnalysis = (userId: string = 'default_user', level: number = 1) => {
+  const { db } = useUser();
   const [analysis, setAnalysis] = useState<StudentAnalysisData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const analyzeProgress = async () => {
+      if (!db) return;
+
       try {
         setIsLoading(true);
         setError(null);
-
-        const db = await getDatabase();
 
         // =================== 1. WEAK AREAS (Requête SQL) ===================
         // Identifier les familles où l'élève a échoué plusieurs fois
@@ -203,7 +204,7 @@ export const useStudentAnalysis = (userId: string = 'default_user', level: numbe
     };
 
     analyzeProgress();
-  }, [userId, level]);
+  }, [userId, level, db]);
 
   return {
     analysis,

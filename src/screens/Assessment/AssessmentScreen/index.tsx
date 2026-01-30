@@ -10,8 +10,8 @@ import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 // Layout & UI
-import ExerciseLayout from '@/components/layout/ExerciseLayout';
-import ExerciseValidation from '@/components/exercise-common/ExerciseValidation';
+import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
+import ExerciseValidation from '@/components/common/ExerciseValidation';
 
 // Composants questions
 import QuestionDefinition from '../components/QuestionDefinition';

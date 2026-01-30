@@ -9,12 +9,12 @@ import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 
 // Composants
-import ExerciseValidation from '@/components/exercise-common/ExerciseValidation';
+import ExerciseValidation from '@/components/common/ExerciseValidation';
 
 // Hooks & Utils
 import { useTheme } from '@/themes/ThemeContext';
-import { useExerciseValidationState } from '@/hooks/useExerciseValidationState';
-import { generateFeedbackMessage } from '@/utils/exerciseFeedback';
+import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
+import { generateFeedbackMessage } from '@/utils/feedback';
 
 // Styles
 import { createWordGameStyles } from '../shared/commonWordGameStyles';

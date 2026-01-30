@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { getDatabase } from '@/database/db';
+import { useUser } from '@/contexts/UserContext';
 import type {
   AssessmentQuestion,
   AssessmentPool,
@@ -42,17 +42,18 @@ const generatePoolId = (level: number): string => {
  * @param maxQuestions - Nombre maximum de questions (default: 20)
  */
 export const useAssessmentGenerator = (level: number, maxQuestions: number = 20) => {
+  const { db } = useUser();
   const [pool, setPool] = useState<AssessmentPool | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const generatePool = async () => {
+      if (!db) return;
+
       try {
         setIsLoading(true);
         setError(null);
-
-        const db = await getDatabase();
 
         // 1. Récupérer la famille "assessment"
         const family = await db.getFirstAsync<{ id: number }>(
@@ -128,7 +129,7 @@ export const useAssessmentGenerator = (level: number, maxQuestions: number = 20)
     };
 
     generatePool();
-  }, [level, maxQuestions]);
+  }, [level, maxQuestions, db]);
 
   return {
     pool,
