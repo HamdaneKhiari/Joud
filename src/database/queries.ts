@@ -533,4 +533,177 @@ export const calculateUserMetrics = async (
   return metrics;
 };
 
+// ============================================
+// QUERIES RÉVISIONS (SPACED REPETITION)
+// ============================================
+
+/**
+ * Configuration du nombre de mots quotidiens selon l'audience
+ */
+const DAILY_WORDS_COUNT: Record<string, number> = {
+  primary: 5,
+  college: 10,
+  lycee: 15,
+  adult: 15,
+};
+
+/**
+ * Récupère les mots pour la révision quotidienne
+ * Prend des mots aléatoires depuis le contenu du niveau actuel
+ */
+export const getDailyReviewWords = async (
+  db: SQLiteDatabase,
+  userId: string,
+  audience: string,
+  level: number
+): Promise<Content[]> => {
+  const limit = DAILY_WORDS_COUNT[audience] || 10;
+
+  // Récupérer des mots aléatoires du niveau
+  const words = await db.getAllAsync<Content>(
+    `SELECT c.* FROM content c
+     INNER JOIN families f ON c.family_id = f.id
+     INNER JOIN modules m ON f.module_slug = m.slug
+     WHERE c.content_type = 'word'
+       AND c.level = ?
+       AND (m.target_audience = ? OR m.target_audience = 'all')
+     ORDER BY RANDOM()
+     LIMIT ?`,
+    [level, audience, limit]
+  );
+
+  return words;
+};
+
+/**
+ * Récupère les mots à réviser selon le système SRS (spaced repetition)
+ */
+export const getSpacedReviewWords = async (
+  db: SQLiteDatabase,
+  userId: string
+): Promise<Array<Content & { sr_id: number; ease_factor: number; review_count: number }>> => {
+  const today = new Date().toISOString().split('T')[0];
+
+  const words = await db.getAllAsync<Content & { sr_id: number; ease_factor: number; review_count: number }>(
+    `SELECT c.*, sr.id as sr_id, sr.ease_factor, sr.review_count
+     FROM spaced_repetition sr
+     INNER JOIN content c ON sr.content_id = c.id
+     WHERE sr.user_id = ?
+       AND sr.next_review_date <= ?
+       AND c.content_type = 'word'
+     ORDER BY sr.next_review_date ASC
+     LIMIT 50`,
+    [userId, today]
+  );
+
+  return words;
+};
+
+/**
+ * Ajoute un mot au système de révisions espacées
+ */
+export const addWordToSRS = async (
+  db: SQLiteDatabase,
+  userId: string,
+  contentId: number
+): Promise<void> => {
+  const today = new Date().toISOString().split('T')[0];
+
+  await db.runAsync(
+    `INSERT OR IGNORE INTO spaced_repetition
+     (user_id, content_id, content_type, last_review_date, next_review_date, ease_factor, review_count, correct_count)
+     VALUES (?, ?, 'word', ?, ?, 2.5, 0, 0)`,
+    [userId, contentId, today, today]
+  );
+};
+
+/**
+ * Met à jour le résultat d'une révision (algorithme SM-2)
+ * @param wasCorrect - true si l'utilisateur a réussi, false sinon
+ */
+export const updateSpacedRepetitionResult = async (
+  db: SQLiteDatabase,
+  userId: string,
+  contentId: number,
+  wasCorrect: boolean
+): Promise<void> => {
+  // Récupérer les données actuelles
+  const current = await db.getFirstAsync<SpacedRepetition>(
+    `SELECT * FROM spaced_repetition WHERE user_id = ? AND content_id = ?`,
+    [userId, contentId]
+  );
+
+  if (!current) {
+    // Si pas encore dans le système, l'ajouter
+    await addWordToSRS(db, userId, contentId);
+    return;
+  }
+
+  // Algorithme SM-2 simplifié
+  let newEaseFactor = current.ease_factor;
+  let intervalDays = 1;
+
+  if (wasCorrect) {
+    // Augmenter la difficulté
+    newEaseFactor = Math.min(3.0, current.ease_factor + 0.1);
+
+    // Calculer l'intervalle selon le nombre de révisions
+    if (current.review_count === 0) {
+      intervalDays = 1;
+    } else if (current.review_count === 1) {
+      intervalDays = 3;
+    } else {
+      intervalDays = Math.round(current.review_count * newEaseFactor);
+    }
+  } else {
+    // Diminuer la difficulté et recommencer
+    newEaseFactor = Math.max(1.3, current.ease_factor - 0.2);
+    intervalDays = 1;
+  }
+
+  // Calculer la prochaine date de révision
+  const nextReviewDate = new Date();
+  nextReviewDate.setDate(nextReviewDate.getDate() + intervalDays);
+  const nextReviewDateStr = nextReviewDate.toISOString().split('T')[0];
+
+  const today = new Date().toISOString().split('T')[0];
+
+  // Mettre à jour
+  await db.runAsync(
+    `UPDATE spaced_repetition
+     SET ease_factor = ?,
+         review_count = review_count + 1,
+         correct_count = correct_count + ?,
+         last_review_date = ?,
+         next_review_date = ?
+     WHERE user_id = ? AND content_id = ?`,
+    [
+      newEaseFactor,
+      wasCorrect ? 1 : 0,
+      today,
+      nextReviewDateStr,
+      userId,
+      contentId
+    ]
+  );
+};
+
+/**
+ * Compte le nombre de mots à réviser pour l'espacée
+ */
+export const getSpacedReviewCount = async (
+  db: SQLiteDatabase,
+  userId: string
+): Promise<number> => {
+  const today = new Date().toISOString().split('T')[0];
+
+  const result = await db.getFirstAsync<{ count: number }>(
+    `SELECT COUNT(*) as count FROM spaced_repetition
+     WHERE user_id = ? AND next_review_date <= ?`,
+    [userId, today]
+  );
+
+  return result?.count || 0;
+};
+
 export type { Branding, FeedbackMessage, DailyWord, UserBadge, SpacedRepetition, UserMetrics } from './schema';

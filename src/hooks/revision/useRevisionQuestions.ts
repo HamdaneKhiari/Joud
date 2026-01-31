@@ -1,0 +1,298 @@
+/**
+ * ============================================
+ * HOOK: useRevisionQuestions
+ * Transforme les mots en questions QCM pour révisions
+ * ============================================
+ */
+
+import { useState, useEffect, useCallback } from 'react';
+import { useUser } from '@/contexts/UserContext';
+import {
+  getDailyReviewWords,
+  getSpacedReviewWords,
+  updateSpacedRepetitionResult,
+  addWordToSRS,
+} from '@/database/queries';
+import { Content } from '@/database/schema';
+
+export type RevisionMode = 'daily' | 'spaced';
+
+export interface RevisionQuestion {
+  id: number;
+  questionText: string;
+  correctAnswer: string;
+  options: string[];
+  word: string;
+  emoji?: string;
+}
+
+interface UseRevisionQuestionsReturn {
+  mode: RevisionMode | null;
+  questions: RevisionQuestion[];
+  currentIndex: number;
+  currentQuestion: RevisionQuestion | null;
+  isLoading: boolean;
+  selectedAnswer: string | null;
+  isValidated: boolean;
+  isCorrect: boolean;
+  attemptCount: number;
+
+  // Actions
+  startSession: (mode: RevisionMode) => void;
+  selectAnswer: (answer: string) => void;
+  validateAnswer: () => void;
+  nextQuestion: () => void;
+  retryQuestion: () => void;
+  resetSession: () => void;
+
+  // Navigation
+  isFirstQuestion: boolean;
+  isLastQuestion: boolean;
+  totalQuestions: number;
+  progress: number;
+
+  // Résultats
+  correctCount: number;
+  incorrectCount: number;
+  isSessionCompleted: boolean;
+}
+
+/**
+ * Hook pour gérer une session de révision avec questions QCM
+ */
+export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
+  const { db, user } = useUser();
+  const [mode, setMode] = useState<RevisionMode | null>(null);
+  const [questions, setQuestions] = useState<RevisionQuestion[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // État de la question actuelle
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [isValidated, setIsValidated] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
+  const [attemptCount, setAttemptCount] = useState(0);
+  const [results, setResults] = useState<boolean[]>([]);
+
+  const currentQuestion = questions[currentIndex] || null;
+  const totalQuestions = questions.length;
+  const isFirstQuestion = currentIndex === 0;
+  const isLastQuestion = currentIndex === totalQuestions - 1;
+  const progress = totalQuestions > 0 ? Math.round(((currentIndex + 1) / totalQuestions) * 100) : 0;
+  const correctCount = results.filter(r => r === true).length;
+  const incorrectCount = results.filter(r => r === false).length;
+  const isSessionCompleted = currentIndex >= totalQuestions && totalQuestions > 0;
+
+  /**
+   * Génère des distractors aléatoires (mauvaises réponses)
+   */
+  const generateDistractors = useCallback((words: Content[], correctAnswer: string, count: number = 3): string[] => {
+    const distractors: string[] = [];
+    const allTranslations = words
+      .map(w => {
+        try {
+          const data = typeof w.data === 'string' ? JSON.parse(w.data) : w.data;
+          return data.french || data.translation || '';
+        } catch {
+          return '';
+        }
+      })
+      .filter(t => t && t !== correctAnswer);
+
+    // Sélectionner 3 traductions aléatoires
+    while (distractors.length < count && allTranslations.length > 0) {
+      const randomIndex = Math.floor(Math.random() * allTranslations.length);
+      const distractor = allTranslations.splice(randomIndex, 1)[0];
+      if (!distractors.includes(distractor)) {
+        distractors.push(distractor);
+      }
+    }
+
+    // Si pas assez de mots, ajouter des distractors génériques
+    const genericDistractors = ['Maison', 'Voiture', 'Livre', 'Ordinateur', 'Téléphone', 'Chat', 'Chien'];
+    while (distractors.length < count) {
+      const random = genericDistractors[Math.floor(Math.random() * genericDistractors.length)];
+      if (!distractors.includes(random) && random !== correctAnswer) {
+        distractors.push(random);
+      }
+    }
+
+    return distractors.slice(0, count);
+  }, []);
+
+  /**
+   * Mélange un tableau (Fisher-Yates)
+   */
+  const shuffle = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  /**
+   * Transforme les mots en questions QCM
+   */
+  const wordsToQuestions = useCallback((words: Content[]): RevisionQuestion[] => {
+    return words.map(word => {
+      try {
+        const data = typeof word.data === 'string' ? JSON.parse(word.data) : word.data;
+        const english = data.english || data.word || '';
+        const french = data.french || data.translation || '';
+        const emoji = data.emoji || '📚';
+
+        const distractors = generateDistractors(words, french, 3);
+        const options = shuffle([french, ...distractors]);
+
+        return {
+          id: word.id!,
+          questionText: `Que signifie "${english}" ?`,
+          correctAnswer: french,
+          options,
+          word: english,
+          emoji,
+        };
+      } catch (err) {
+        console.error('[useRevisionQuestions] Error parsing word:', err);
+        return null;
+      }
+    }).filter(q => q !== null) as RevisionQuestion[];
+  }, [generateDistractors]);
+
+  /**
+   * Charge les mots et génère les questions
+   */
+  const loadQuestions = useCallback(async (selectedMode: RevisionMode) => {
+    if (!db || !user) return;
+
+    try {
+      setIsLoading(true);
+      let words: Content[] = [];
+
+      if (selectedMode === 'daily') {
+        const level = 1; // TODO: Récupérer niveau actuel
+        words = await getDailyReviewWords(db, user.id, user.audience, level);
+      } else {
+        words = await getSpacedReviewWords(db, user.id);
+      }
+
+      const generatedQuestions = wordsToQuestions(words);
+      setQuestions(generatedQuestions);
+      setCurrentIndex(0);
+      setResults([]);
+      resetQuestionState();
+    } catch (err) {
+      console.error('[useRevisionQuestions] Error loading questions:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [db, user, wordsToQuestions]);
+
+  /**
+   * Réinitialise l'état de la question actuelle
+   */
+  const resetQuestionState = useCallback(() => {
+    setSelectedAnswer(null);
+    setIsValidated(false);
+    setIsCorrect(false);
+    setAttemptCount(0);
+  }, []);
+
+  /**
+   * Démarre une session
+   */
+  const startSession = useCallback((selectedMode: RevisionMode) => {
+    setMode(selectedMode);
+    loadQuestions(selectedMode);
+  }, [loadQuestions]);
+
+  /**
+   * Sélectionne une réponse
+   */
+  const selectAnswer = useCallback((answer: string) => {
+    if (!isValidated) {
+      setSelectedAnswer(answer);
+    }
+  }, [isValidated]);
+
+  /**
+   * Valide la réponse sélectionnée
+   */
+  const validateAnswer = useCallback(async () => {
+    if (!selectedAnswer || !currentQuestion || !db || !user) return;
+
+    const correct = selectedAnswer === currentQuestion.correctAnswer;
+    setIsCorrect(correct);
+    setIsValidated(true);
+    setAttemptCount(prev => prev + 1);
+
+    // Enregistrer le résultat
+    setResults(prev => [...prev, correct]);
+
+    // Mettre à jour le système SRS
+    if (mode === 'daily') {
+      await addWordToSRS(db, user.id, currentQuestion.id);
+      await updateSpacedRepetitionResult(db, user.id, currentQuestion.id, correct);
+    } else {
+      await updateSpacedRepetitionResult(db, user.id, currentQuestion.id, correct);
+    }
+  }, [selectedAnswer, currentQuestion, db, user, mode]);
+
+  /**
+   * Passe à la question suivante
+   */
+  const nextQuestion = useCallback(() => {
+    if (currentIndex < totalQuestions) {
+      setCurrentIndex(prev => prev + 1);
+      resetQuestionState();
+    }
+  }, [currentIndex, totalQuestions, resetQuestionState]);
+
+  /**
+   * Réessayer la question actuelle
+   */
+  const retryQuestion = useCallback(() => {
+    resetQuestionState();
+  }, [resetQuestionState]);
+
+  /**
+   * Réinitialise la session
+   */
+  const resetSession = useCallback(() => {
+    setMode(null);
+    setQuestions([]);
+    setCurrentIndex(0);
+    setResults([]);
+    resetQuestionState();
+  }, [resetQuestionState]);
+
+  return {
+    mode,
+    questions,
+    currentIndex,
+    currentQuestion,
+    isLoading,
+    selectedAnswer,
+    isValidated,
+    isCorrect,
+    attemptCount,
+
+    startSession,
+    selectAnswer,
+    validateAnswer,
+    nextQuestion,
+    retryQuestion,
+    resetSession,
+
+    isFirstQuestion,
+    isLastQuestion,
+    totalQuestions,
+    progress,
+
+    correctCount,
+    incorrectCount,
+    isSessionCompleted,
+  };
+};
