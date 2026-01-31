@@ -5,7 +5,7 @@
  * ============================================
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 
 // Composants
@@ -14,7 +14,8 @@ import ExerciseValidation from '@/components/common/ExerciseValidation';
 // Hooks & Utils
 import { useTheme } from '@/themes/ThemeContext';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
-import { generateFeedbackMessage } from '@/utils/feedback';
+import { useFeedbackMessages, getFeedbackState } from '@/hooks/exercises/useFeedbackMessages';
+import type { FeedbackData } from '@/hooks/exercises/useFeedbackMessages';
 
 // Styles
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
@@ -68,6 +69,25 @@ const BlanksCard: React.FC<BlanksCardProps> = ({
     maxAttempts,
     !!selectedOption
   );
+
+  // Hook White Label Feedback
+  const { getFeedback } = useFeedbackMessages();
+  const [feedbackMessage, setFeedbackMessage] = useState<FeedbackData | null>(null);
+
+  // Charger le feedback depuis la DB selon l'état
+  useEffect(() => {
+    const loadFeedback = async () => {
+      const feedbackState = getFeedbackState(isValidated, isCorrect, attemptCount, maxAttempts);
+      if (feedbackState) {
+        const feedback = await getFeedback('wordgames', feedbackState);
+        setFeedbackMessage(feedback);
+      } else {
+        setFeedbackMessage(null);
+      }
+    };
+
+    loadFeedback();
+  }, [isValidated, isCorrect, attemptCount, maxAttempts, getFeedback]);
 
   // Afficher feedback SEULEMENT si correct OU dernière tentative
   const showFeedback = isValidated && (isCorrect || canSkip);
@@ -142,14 +162,7 @@ const BlanksCard: React.FC<BlanksCardProps> = ({
         onSkip={onNext}
         disabled={buttonDisabled}
         isLastQuestion={isLastQuestion}
-        feedbackMessage={generateFeedbackMessage(
-          isValidated,
-          isCorrect,
-          canSkip,
-          question.correctAnswer,
-          attemptCount,
-          maxAttempts
-        )}
+        feedbackMessage={feedbackMessage}
       />
     </ScrollView>
   );

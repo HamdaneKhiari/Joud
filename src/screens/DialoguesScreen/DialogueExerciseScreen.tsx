@@ -113,10 +113,10 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
   useEffect(() => {
     const loadLabels = async () => {
       if (db) {
-        const lLabel = await getLevelLabel(numLevelId, identity.id, db);
+        const lLabel = await getLevelLabel(db, numLevelId, identity.id);
         setLevelLabel(lLabel);
 
-        const mLabel = await getModuleLabel(EXERCISE_TYPE, identity.id, db);
+        const mLabel = await getModuleLabel(db, EXERCISE_TYPE, identity.id);
         setModuleLabel(mLabel);
       }
     };

@@ -49,6 +49,7 @@ export type GameState = OptionGameState | SentenceGameState | DetectiveGameState
 
 /**
  * Mapping des types de jeux aux états
+ * Note: 'speed' n'a pas d'état car il gère son état en interne
  */
 export interface AllGameStates {
   builder: OptionGameState;
@@ -155,9 +156,11 @@ export const useGameState = (gameType: GameType): UseGameStateReturn => {
 
   /**
    * Retourne l'état actif selon le type de jeu
+   * Note: retourne null pour les jeux sans état (ex: speed)
    */
   const getCurrentState = useCallback((): GameState | null => {
-    return allStates[gameType] || null;
+    if (gameType === 'speed') return null;
+    return (allStates[gameType as keyof AllGameStates] as GameState) || null;
   }, [gameType, allStates]);
 
   return {

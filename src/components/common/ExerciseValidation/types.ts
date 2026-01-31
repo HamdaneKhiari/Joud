@@ -8,6 +8,7 @@
 export type ValidationState = 'initial' | 'correct' | 'incorrect' | 'skip';
 
 export interface FeedbackData {
+  icon?: string;
   title: string;
   message: string;
 }
@@ -20,7 +21,7 @@ export interface ExerciseValidationProps {
   onSkip?: () => void;
   disabled?: boolean;
   showFeedback?: boolean;
-  feedbackMessage?: FeedbackData;
+  feedbackMessage?: FeedbackData | null;
   isLastQuestion?: boolean;
   attemptCount?: number;
   maxAttempts?: number;

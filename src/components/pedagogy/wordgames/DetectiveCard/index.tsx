@@ -5,7 +5,7 @@
  * ============================================
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
 // Composants
@@ -14,7 +14,8 @@ import ExerciseValidation from '@/components/common/ExerciseValidation';
 // Hooks & Utils
 import { useTheme } from '@/themes/ThemeContext';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
-import { generateFeedbackMessage } from '@/utils/feedback';
+import { useFeedbackMessages, getFeedbackState } from '@/hooks/exercises/useFeedbackMessages';
+import type { FeedbackData } from '@/hooks/exercises/useFeedbackMessages';
 import { tokens } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
 
@@ -70,6 +71,25 @@ const DetectiveCard: React.FC<DetectiveCardProps> = ({
     maxAttempts,
     selectedWord !== null && selectedWord !== undefined
   );
+
+  // Hook White Label Feedback
+  const { getFeedback } = useFeedbackMessages();
+  const [feedbackMessage, setFeedbackMessage] = useState<FeedbackData | null>(null);
+
+  // Charger le feedback depuis la DB selon l'état
+  useEffect(() => {
+    const loadFeedback = async () => {
+      const feedbackState = getFeedbackState(isValidated, isCorrect, attemptCount, maxAttempts);
+      if (feedbackState) {
+        const feedback = await getFeedback('wordgames', feedbackState);
+        setFeedbackMessage(feedback);
+      } else {
+        setFeedbackMessage(null);
+      }
+    };
+
+    loadFeedback();
+  }, [isValidated, isCorrect, attemptCount, maxAttempts, getFeedback]);
 
   const words = question.sentence.split(' ');
   const errorIndex = question.errorWordIndex;
@@ -214,7 +234,7 @@ const DetectiveCard: React.FC<DetectiveCardProps> = ({
                 activeOpacity={0.7}
               >
                 <Text style={textStyle}>{word}</Text>
-                {showFeedback && isError && question.correctWord && (
+                {showFeedback && isError && !!question.correctWord && (
                   <Text style={styles.correctionText}>→ {question.correctWord}</Text>
                 )}
               </TouchableOpacity>
@@ -259,14 +279,7 @@ const DetectiveCard: React.FC<DetectiveCardProps> = ({
         onSkip={onNext}
         disabled={buttonDisabled}
         isLastQuestion={isLastQuestion}
-        feedbackMessage={generateFeedbackMessage(
-          isValidated,
-          isCorrect,
-          canSkip,
-          words[errorIndex],
-          attemptCount,
-          maxAttempts
-        )}
+        feedbackMessage={feedbackMessage}
       />
     </ScrollView>
   );

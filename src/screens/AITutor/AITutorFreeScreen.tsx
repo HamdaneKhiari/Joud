@@ -100,7 +100,13 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
   const { settings, canSendMessage, incrementUsage, addChatMessage } = useAI();
   const { currentLevel } = useCurrentLevel();
   const safeGoBack = useSafeNavigation(
-    useCallback(() => navigation?.goBack?.() || router.back(), [navigation, router])
+    useCallback(() => {
+      if (navigation?.goBack) {
+        navigation.goBack();
+      } else {
+        router.back();
+      }
+    }, [navigation, router])
   );
 
   const isPlayful = identity.ui.mood === 'playful';

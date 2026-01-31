@@ -224,16 +224,13 @@ const AssessmentScreen: React.FC<Props> = ({ navigation, route }) => {
 
   return (
     <ExerciseLayout
-      gradientColors={identity.ui.hasGradient ? identity.ui.gradientColors : undefined}
       headerProps={{
         variant: 'exercise',
         onBack: safeGoBack.navigate,
         rightIcon: '🎯',
         showLevelBadge: true,
         levelTitle: `Level ${numLevel}`,
-        levelColor: identity.palette.primary,
         exerciseTitle: 'Assessment',
-        gradientColors: identity.ui.hasGradient ? identity.ui.gradientColors : undefined,
       }}
       progressProps={{
         progressPercent: realProgress,

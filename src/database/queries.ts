@@ -9,7 +9,8 @@ import {
   Branding,
   ModuleLabel,
   LevelLabel,
-  IdentityPalette
+  IdentityPalette,
+  FeedbackMessage
 } from './schema';
 
 // ============================================
@@ -326,4 +327,37 @@ export const getRecentActivity = async (db: SQLiteDatabase, limit: number = 10):
   );
 };
 
-export type { Branding } from './schema';
+// ============================================
+// QUERIES FEEDBACK MESSAGES (White Label)
+// ============================================
+
+/**
+ * Récupère un message de feedback selon l'identité, le contexte et l'état
+ */
+export const getFeedbackMessage = async (
+  db: SQLiteDatabase,
+  identityId: string,
+  context: string,
+  state: string
+): Promise<FeedbackMessage | null> => {
+  return await db.getFirstAsync<FeedbackMessage>(
+    `SELECT * FROM feedback_messages WHERE identity_id = ? AND context = ? AND state = ?`,
+    [identityId, context, state]
+  );
+};
+
+/**
+ * Récupère tous les feedbacks pour une identité et un contexte
+ */
+export const getFeedbackMessagesByContext = async (
+  db: SQLiteDatabase,
+  identityId: string,
+  context: string
+): Promise<FeedbackMessage[]> => {
+  return await db.getAllAsync<FeedbackMessage>(
+    `SELECT * FROM feedback_messages WHERE identity_id = ? AND context = ?`,
+    [identityId, context]
+  );
+};
+
+export type { Branding, FeedbackMessage } from './schema';

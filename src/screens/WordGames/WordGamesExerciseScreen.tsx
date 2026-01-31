@@ -13,7 +13,6 @@ import { StackNavigationProp } from '@react-navigation/stack';
 // Composants
 import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
 import GameCardRenderer from '@/components/pedagogy/wordgames/GameCardRendered';
-import NavigationButtons from '@/components/common/NavigationButtons';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
 
 // Helpers & Hooks
@@ -98,7 +97,6 @@ const WordGamesExerciseScreen = ({ navigation, route }: Props) => {
 
   const currentQuestion = contentItems?.[currentQuestionIndex]?.data || null;
   const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
-  const isFirstQuestion = currentQuestionIndex === 0;
   const realProgress = getFamilyProgress(numLevelId, EXERCISE_TYPE, familyId);
 
   // Détecter le type de jeu depuis la première question
@@ -163,24 +161,8 @@ const WordGamesExerciseScreen = ({ navigation, route }: Props) => {
   ]);
 
   // =================== HANDLERS NAVIGATION ===================
-  const handlePrevious = useCallback(() => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev - 1);
-      gameStates.resetAllStates();
-    }
-  }, [currentQuestionIndex, gameStates]);
-
-  const handleFinish = useCallback(() => {
-    const performFinish = async () => {
-      trackItemCompletion(numLevelId, EXERCISE_TYPE, familyId, currentQuestionIndex, totalQuestions);
-      await saveProgressNow();
-      safeGoBack.navigate();
-    };
-
-    performFinish().catch((err) => {
-      console.error('[WordGamesScreen] Erreur lors de la sauvegarde finale:', err);
-    });
-  }, [numLevelId, familyId, currentQuestionIndex, totalQuestions, trackItemCompletion, saveProgressNow, safeGoBack]);
+  // Note: Navigation gérée entièrement par ExerciseValidation dans les cards
+  // Plus besoin de handlers Précédent/Suivant manuels
 
   // =================== RENDU ===================
   if (isLoading || !family || !currentQuestion) {
@@ -224,17 +206,6 @@ const WordGamesExerciseScreen = ({ navigation, route }: Props) => {
         progressPercent: realProgress,
         progressText: `${realProgress}% • Question ${currentQuestionIndex + 1}/${totalQuestions}`,
       }}
-      footer={
-        <NavigationButtons
-          isFirst={isFirstQuestion}
-          isLast={isLastQuestion}
-          onPrevious={handlePrevious}
-          onNext={() => {
-            /* Géré par les handlers internes */
-          }}
-          onFinish={handleFinish}
-        />
-      }
     >
       <GameCardRenderer
         gameType={gameType}

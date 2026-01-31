@@ -1,10 +1,11 @@
 // ============================================
 // UTILS: exerciseFeedback.ts
 // Génère des messages de feedback standardisés pour les exercices
+// ⚠️ LEGACY: Prefer using useFeedbackMessages hook for White Label feedback
 // ============================================
 
 export interface FeedbackMessage {
-  icon: string;
+  icon?: string;
   title: string;
   message: string;
 }

@@ -155,3 +155,17 @@ export interface ActivityLog {
   progress: number;
   timestamp: number;
 }
+
+// ============================================
+// FEEDBACK MESSAGES (White Label)
+// ============================================
+
+export interface FeedbackMessage {
+  id?: number;
+  identity_id: 'primary' | 'college' | 'lycee' | 'adult';
+  context: 'exercise' | 'wordgames' | 'vocabulary' | 'assessment';
+  state: 'correct' | 'incorrect_attempt_1' | 'incorrect_attempt_2' | 'skip';
+  icon?: string;
+  title: string;
+  message: string;
+}

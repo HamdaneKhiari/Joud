@@ -5,7 +5,7 @@
  * ============================================
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
 // Composants
@@ -14,7 +14,8 @@ import ExerciseValidation from '@/components/common/ExerciseValidation';
 // Hooks & Utils
 import { useTheme } from '@/themes/ThemeContext';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
-import { generateFeedbackMessage } from '@/utils/feedback';
+import { useFeedbackMessages, getFeedbackState } from '@/hooks/exercises/useFeedbackMessages';
+import type { FeedbackData } from '@/hooks/exercises/useFeedbackMessages';
 import { tokens } from '@/themes/tokens';
 
 // Styles
@@ -82,6 +83,25 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
     maxAttempts,
     ordered.length > 0
   );
+
+  // Hook White Label Feedback
+  const { getFeedback } = useFeedbackMessages();
+  const [feedbackMessage, setFeedbackMessage] = useState<FeedbackData | null>(null);
+
+  // Charger le feedback depuis la DB selon l'état
+  useEffect(() => {
+    const loadFeedback = async () => {
+      const feedbackState = getFeedbackState(isValidated, isCorrect, attemptCount, maxAttempts);
+      if (feedbackState) {
+        const feedback = await getFeedback('wordgames', feedbackState);
+        setFeedbackMessage(feedback);
+      } else {
+        setFeedbackMessage(null);
+      }
+    };
+
+    loadFeedback();
+  }, [isValidated, isCorrect, attemptCount, maxAttempts, getFeedback]);
 
   // =================== HANDLERS ===================
 
@@ -268,14 +288,7 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
         onSkip={onNext}
         disabled={buttonDisabled}
         isLastQuestion={isLastQuestion}
-        feedbackMessage={generateFeedbackMessage(
-          isValidated,
-          isCorrect,
-          canSkip,
-          question.correctOrder.join(' '),
-          attemptCount,
-          maxAttempts
-        )}
+        feedbackMessage={feedbackMessage}
       />
     </ScrollView>
   );
