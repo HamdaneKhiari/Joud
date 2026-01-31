@@ -47,7 +47,7 @@ export const useModuleLabel = (moduleSlug: string): ModuleLabel => {
 
   useEffect(() => {
     const loadLabel = async () => {
-      // Sécurité : on vérifie que db est un objet valide (SharedObject)
+      // ✅ Sécurité : on vérifie que db est un objet valide (SharedObject)
       if (!db || typeof db === 'number' || !moduleSlug) return;
 
       try {
@@ -58,7 +58,11 @@ export const useModuleLabel = (moduleSlug: string): ModuleLabel => {
           icon: moduleLabel.icon_name
         });
       } catch (error) {
-        console.error('Error loading module label:', error);
+        const errorMsg = String(error);
+        // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
+        if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
+          console.error('Error loading module label:', error);
+        }
       }
     };
 
@@ -82,6 +86,7 @@ export const useLevelLabel = (levelNumber: number): LevelLabel => {
 
   useEffect(() => {
     const loadLabel = async () => {
+      // ✅ Sécurité : on vérifie que db est un objet valide (SharedObject)
       if (!db || typeof db === 'number' || !levelNumber) return;
 
       try {
@@ -92,7 +97,11 @@ export const useLevelLabel = (levelNumber: number): LevelLabel => {
           description: levelLabel.display_description
         });
       } catch (error) {
-        console.error('Error loading level label:', error);
+        const errorMsg = String(error);
+        // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
+        if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
+          console.error('Error loading level label:', error);
+        }
       }
     };
 
@@ -115,6 +124,7 @@ export const getModuleLabel = async (
   moduleSlug: string,
   identityId: string
 ): Promise<ModuleLabel> => {
+  // ✅ Protection renforcée contre les DB invalides
   if (!db || typeof db === 'number') {
     return { title: moduleSlug, description: 'Module', icon: 'book' };
   }
@@ -127,7 +137,11 @@ export const getModuleLabel = async (
       icon: moduleLabel.icon_name
     };
   } catch (error) {
-    console.error('Error in getModuleLabel:', error);
+    const errorMsg = String(error);
+    // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
+    if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
+      console.error('Error in getModuleLabel:', error);
+    }
     return { title: moduleSlug, description: 'Module', icon: 'book' };
   }
 };
@@ -141,6 +155,7 @@ export const getLevelLabel = async (
   levelNumber: number,
   identityId: string
 ): Promise<LevelLabel> => {
+  // ✅ Protection renforcée contre les DB invalides
   if (!db || typeof db === 'number') {
     return { title: `Niveau ${levelNumber}`, badge: `N${levelNumber}`, description: 'Niveau' };
   }
@@ -153,7 +168,11 @@ export const getLevelLabel = async (
       description: levelLabel.display_description
     };
   } catch (error) {
-    console.error('Error in getLevelLabel:', error);
+    const errorMsg = String(error);
+    // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
+    if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
+      console.error('Error in getLevelLabel:', error);
+    }
     return { title: `Niveau ${levelNumber}`, badge: `N${levelNumber}`, description: 'Niveau' };
   }
 };
@@ -167,12 +186,17 @@ export const getAvailableModules = async (
   identityId: string,
   levelNumber: number
 ): Promise<string[]> => {
+  // ✅ Protection renforcée contre les DB invalides
   if (!db || typeof db === 'number') return [];
 
   try {
     return await getAvailableModulesFromDB(db, identityId, levelNumber);
   } catch (error) {
-    console.error('Error in getAvailableModules:', error);
+    const errorMsg = String(error);
+    // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
+    if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
+      console.error('Error in getAvailableModules:', error);
+    }
     return [];
   }
 };

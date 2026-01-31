@@ -28,7 +28,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>({
     id: 'user_01',
     firstName: 'Alex',
-    audience: 'college', // Valeur par défaut
+    audience: 'lycee', // ✅ CHANGÉ : Test mode lycee
   });
 
   // 2. Initialisation de la base de données au démarrage
