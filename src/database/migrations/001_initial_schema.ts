@@ -64,6 +64,7 @@ export default createMigration(
         data TEXT NOT NULL,
         difficulty TEXT,
         tags TEXT,
+        target_audience TEXT DEFAULT 'all',
         FOREIGN KEY (family_id) REFERENCES families(id)
       );
 
@@ -175,6 +176,8 @@ export default createMigration(
       CREATE INDEX IF NOT EXISTS idx_modules_target_audience ON modules(target_audience);
       CREATE INDEX IF NOT EXISTS idx_levels_target_audience ON levels(target_audience);
       CREATE INDEX IF NOT EXISTS idx_families_module_slug ON families(module_slug);
+      CREATE INDEX IF NOT EXISTS idx_content_family_level ON content(family_id, level);
+      CREATE INDEX IF NOT EXISTS idx_content_target_audience ON content(target_audience);
       CREATE INDEX IF NOT EXISTS idx_module_labels_slug_identity ON module_labels(module_slug, identity_id);
       CREATE INDEX IF NOT EXISTS idx_level_labels_level_identity ON level_labels(level_number, identity_id);
       CREATE INDEX IF NOT EXISTS idx_module_availability_slug_identity ON module_availability(module_slug, identity_id);

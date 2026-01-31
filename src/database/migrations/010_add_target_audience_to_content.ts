@@ -1,8 +1,9 @@
 /**
  * ============================================
  * MIGRATION 010: Add target_audience to content
- * Ajoute la colonne target_audience pour différencier
- * le contenu par public (primary, college, lycee, adult)
+ * ⚠️ OBSOLÈTE : La colonne target_audience est maintenant
+ * créée directement dans la migration 001
+ * Cette migration est conservée pour la numérotation
  * ============================================
  */
 
@@ -13,18 +14,9 @@ export default createMigration(
   10,
   'add_target_audience_to_content',
   async (db: SQLite.SQLiteDatabase) => {
-    // Ajouter la colonne target_audience avec valeur par défaut 'all'
-    await db.execAsync(`
-      ALTER TABLE content ADD COLUMN target_audience TEXT DEFAULT 'all';
-    `);
-
-    // Créer un index pour optimiser les requêtes
-    await db.execAsync(`
-      CREATE INDEX IF NOT EXISTS idx_content_target_audience
-      ON content(target_audience);
-    `);
-
-    console.log('[Migration 010] ✓ Column target_audience added to content table');
+    // Migration obsolète - La colonne et l'index sont créés dans migration 001
+    // Cette migration est conservée uniquement pour la numérotation
+    console.log('[Migration 010] ✓ Skipped (target_audience already exists from migration 001)');
   },
   // Rollback - Supprimer la colonne (impossible avec SQLite, on recrée la table)
   async (db: SQLite.SQLiteDatabase) => {
