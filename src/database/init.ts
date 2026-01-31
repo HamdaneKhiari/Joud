@@ -9,6 +9,7 @@ import migration005 from './migrations/005_seed_content_wordgames';
 import migration006 from './migrations/006_seed_content_assessment';
 import migration007 from './migrations/007_seed_whitelabel';
 import migration008 from './migrations/008_seed_feedback_messages';
+import migration009 from './migrations/009_seed_dashboard_data';
 
 export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
   try {
@@ -49,6 +50,7 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
       migration006,
       migration007,
       migration008,
+      migration009,
     ];
 
     // 3. Exécution automatique de toutes les migrations

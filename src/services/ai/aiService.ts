@@ -83,6 +83,30 @@ class AIService {
   }
 
   /**
+   * Construit un message système pour contextualiser l'IA
+   */
+  buildSystemMessage(level: number, topic?: string): string {
+    return `You are an English tutor for level ${level} students${topic ? ` focusing on ${topic}` : ''}. Provide clear, helpful explanations.`;
+  }
+
+  /**
+   * Envoie un message de chat (alias de sendMessage)
+   */
+  async sendChatMessage(request: AIRequest): Promise<AIResponse> {
+    return this.sendMessage(request);
+  }
+
+  /**
+   * Formate une erreur AI en message lisible
+   */
+  formatAIError(error: any): string {
+    if (error?.message) {
+      return `AI Error: ${error.message}`;
+    }
+    return 'An error occurred while communicating with the AI.';
+  }
+
+  /**
    * Utilitaire : Délai simulé
    */
   private delay(ms: number): Promise<void> {

@@ -10,7 +10,11 @@ import {
   ModuleLabel,
   LevelLabel,
   IdentityPalette,
-  FeedbackMessage
+  FeedbackMessage,
+  DailyWord,
+  UserBadge,
+  SpacedRepetition,
+  UserMetrics
 } from './schema';
 
 // ============================================
@@ -360,4 +364,173 @@ export const getFeedbackMessagesByContext = async (
   );
 };
 
-export type { Branding, FeedbackMessage } from './schema';
+// ============================================
+// QUERIES DASHBOARD DATA
+// ============================================
+
+/**
+ * Récupère le mot du jour pour une identité et un niveau
+ */
+export const getDailyWord = async (
+  db: SQLiteDatabase,
+  identityId: string,
+  level: number
+): Promise<DailyWord | null> => {
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+  // Chercher un mot pour aujourd'hui
+  let word = await db.getFirstAsync<DailyWord>(
+    `SELECT * FROM daily_words WHERE identity_id = ? AND level = ? AND date = ?`,
+    [identityId, level, today]
+  );
+
+  // Si pas de mot pour aujourd'hui, prendre un mot aléatoire
+  if (!word) {
+    word = await db.getFirstAsync<DailyWord>(
+      `SELECT * FROM daily_words WHERE identity_id = ? AND level = ? AND date IS NULL ORDER BY RANDOM() LIMIT 1`,
+      [identityId, level]
+    );
+  }
+
+  return word || null;
+};
+
+/**
+ * Récupère les badges d'un utilisateur
+ */
+export const getUserBadges = async (
+  db: SQLiteDatabase,
+  userId: string
+): Promise<UserBadge[]> => {
+  return await db.getAllAsync<UserBadge>(
+    `SELECT * FROM user_badges WHERE user_id = ? ORDER BY earned_date DESC`,
+    [userId]
+  );
+};
+
+/**
+ * Récupère les mots à réviser pour aujourd'hui
+ */
+export const getWordsToReview = async (
+  db: SQLiteDatabase,
+  userId: string
+): Promise<number> => {
+  const today = new Date().toISOString().split('T')[0];
+
+  const result = await db.getFirstAsync<{ count: number }>(
+    `SELECT COUNT(*) as count FROM spaced_repetition
+     WHERE user_id = ? AND next_review_date <= ?`,
+    [userId, today]
+  );
+
+  return result?.count || 0;
+};
+
+/**
+ * Récupère ou crée les métriques utilisateur
+ */
+export const getUserMetrics = async (
+  db: SQLiteDatabase,
+  userId: string
+): Promise<UserMetrics> => {
+  let metrics = await db.getFirstAsync<UserMetrics>(
+    `SELECT * FROM user_metrics WHERE user_id = ?`,
+    [userId]
+  );
+
+  // Si pas de métriques, créer
+  if (!metrics) {
+    await db.runAsync(
+      `INSERT INTO user_metrics (user_id, words_learned, exercises_completed, current_streak, longest_streak, total_time_minutes)
+       VALUES (?, 0, 0, 0, 0, 0)`,
+      [userId]
+    );
+
+    metrics = {
+      user_id: userId,
+      words_learned: 0,
+      exercises_completed: 0,
+      current_streak: 0,
+      longest_streak: 0,
+      total_time_minutes: 0,
+    };
+  }
+
+  return metrics;
+};
+
+/**
+ * Met à jour les métriques utilisateur
+ */
+export const updateUserMetrics = async (
+  db: SQLiteDatabase,
+  userId: string,
+  metrics: Partial<UserMetrics>
+): Promise<void> => {
+  const fields = Object.keys(metrics).filter((k) => k !== 'user_id' && k !== 'id');
+  const values = fields.map((k) => (metrics as any)[k]);
+
+  if (fields.length === 0) return;
+
+  const setClause = fields.map((f) => `${f} = ?`).join(', ');
+
+  await db.runAsync(
+    `UPDATE user_metrics SET ${setClause}, updated_at = ? WHERE user_id = ?`,
+    [...values, new Date().toISOString(), userId]
+  );
+};
+
+/**
+ * Calcule les métriques utilisateur depuis les données réelles
+ */
+export const calculateUserMetrics = async (
+  db: SQLiteDatabase,
+  userId: string
+): Promise<UserMetrics> => {
+  // Mots appris = nombre de contenus de type 'word' complétés
+  const wordsResult = await db.getFirstAsync<{ count: number }>(
+    `SELECT COUNT(DISTINCT c.id) as count
+     FROM content c
+     INNER JOIN progress p ON c.family_id = p.family_id
+     WHERE p.user_id = ? AND p.completed > 0 AND c.content_type = 'word'`,
+    [userId]
+  );
+
+  // Exercices complétés = total de progress.completed
+  const exercisesResult = await db.getFirstAsync<{ total: number }>(
+    `SELECT SUM(completed) as total FROM progress WHERE user_id = ?`,
+    [userId]
+  );
+
+  // Streak = jours consécutifs depuis activity_log
+  const activities = await db.getAllAsync<{ timestamp: number }>(
+    `SELECT DISTINCT DATE(timestamp / 1000, 'unixepoch') as day
+     FROM activity_log
+     ORDER BY day DESC
+     LIMIT 30`
+  );
+
+  let currentStreak = 0;
+  let longestStreak = 0;
+  let tempStreak = 0;
+
+  // TODO: Calculer le streak correctement (logique complexe)
+  // Pour l'instant, on met 0
+
+  const metrics: UserMetrics = {
+    user_id: userId,
+    words_learned: wordsResult?.count || 0,
+    exercises_completed: exercisesResult?.total || 0,
+    current_streak: currentStreak,
+    longest_streak: longestStreak,
+    total_time_minutes: 0, // TODO: Calculer depuis activity_log
+    updated_at: new Date().toISOString(),
+  };
+
+  // Mettre à jour en DB
+  await updateUserMetrics(db, userId, metrics);
+
+  return metrics;
+};
+
+export type { Branding, FeedbackMessage, DailyWord, UserBadge, SpacedRepetition, UserMetrics } from './schema';

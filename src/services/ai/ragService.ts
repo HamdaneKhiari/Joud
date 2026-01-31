@@ -107,6 +107,37 @@ class RAGService {
   }
 
   /**
+   * Détermine si RAG doit être utilisé pour cette requête
+   */
+  shouldUseRAG(query: string): boolean {
+    // Utiliser RAG pour les questions complexes ou longues
+    return query.length > 20 || query.includes('?');
+  }
+
+  /**
+   * Suit l'utilisation du RAG pour analytics
+   */
+  trackRAGUsage(query: string, documentsCount: number): void {
+    // TODO: Implémenter le tracking analytics
+    console.log(`[RAG] Query: "${query}", Found: ${documentsCount} documents`);
+  }
+
+  /**
+   * Formate le contexte RAG pour l'envoyer à l'IA
+   */
+  formatRAGContext(documents: RAGDocument[]): string {
+    if (documents.length === 0) {
+      return '';
+    }
+
+    const contextParts = documents.map(
+      (doc, index) => `[${index + 1}] ${doc.content} (${doc.type})`
+    );
+
+    return `Relevant content from database:\n${contextParts.join('\n')}`;
+  }
+
+  /**
    * Utilitaire : Délai simulé
    */
   private delay(ms: number): Promise<void> {

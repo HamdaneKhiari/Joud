@@ -23,6 +23,9 @@ import { Level } from '@/database/schema';
 import { getLevelLabel } from '@/utils/labelMapper';
 import { navigateToExerciseSelection } from '@/utils/navigationHelper';
 import { useLastActivity } from '../../hooks/useLastActivity';
+import { useDailyWord } from '@/hooks/dashboard/useDailyWord';
+import { useRevisions } from '@/hooks/dashboard/useRevisions';
+import { useUserMetrics } from '@/hooks/dashboard/useUserMetrics';
 
 export default function Dashboard() {
   const { user, db, loading: userLoading } = useUser();
@@ -32,16 +35,14 @@ export default function Dashboard() {
   const styles = useMemo(() => createStyles(identity), [identity]);
   const { lastActivity, fetchLastActivity } = useLastActivity();
 
+  // ✅ Hooks Dashboard - Données réelles depuis DB
+  const { dailyWord } = useDailyWord(1); // Niveau 1 par défaut
+  const { wordsToReview } = useRevisions();
+  const { wordsLearned, badges, streak } = useUserMetrics();
+
   const [levels, setLevels] = useState<Level[]>([]);
   const [levelLabels, setLevelLabels] = useState<Record<number, { title: string; badge: string; description: string }>>({});
   const [dataLoading, setDataLoading] = useState(true);
-
-  // TODO: Récupérer le mot du jour depuis la DB ou API
-  const [dailyWord] = useState({
-    english: "Resilience",
-    french: "Résilience",
-    emoji: "🌱"
-  });
 
   useEffect(() => {
     async function loadDashboardData() {
@@ -95,9 +96,11 @@ export default function Dashboard() {
       />
 
       {/* 1. DÉCOUVRIR : Mot du jour (RECODÉ EN FULL WHITE LABEL) */}
-      <Animated.View entering={FadeInDown.delay(0).springify()} style={styles.section}>
-        <DailyWordCard word={dailyWord} />
-      </Animated.View>
+      {dailyWord && (
+        <Animated.View entering={FadeInDown.delay(0).springify()} style={styles.section}>
+          <DailyWordCard word={dailyWord} />
+        </Animated.View>
+      )}
 
       {/* 2. REPRENDRE : Activité récente / Commencer l'aventure */}
       <View style={styles.section}>
@@ -111,7 +114,7 @@ export default function Dashboard() {
       {/* 3. ENTRETENIR : Révisions */}
       <View style={styles.section}>
         <RevisionCard
-          wordsToReview={12} // TODO: Calculer depuis le système de révisions
+          wordsToReview={wordsToReview}
           onPress={() => router.push('/revision' as any)}
         />
       </View>
@@ -132,9 +135,9 @@ export default function Dashboard() {
       <Animated.View entering={FadeInDown.delay(400).springify()} style={styles.section}>
         <MetricsSection
           metrics={{
-            wordsLearned: 127, // TODO: Depuis ProgressContext
-            badges: 3,         // TODO: Depuis BadgeSystem
-            streak: 7          // TODO: Depuis ProgressContext
+            wordsLearned,
+            badges,
+            streak
           }}
           theme={identity.themeMode}
         />

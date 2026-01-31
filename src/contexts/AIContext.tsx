@@ -18,12 +18,22 @@ interface Message {
   timestamp: Date;
 }
 
+interface AISettings {
+  maxTokens: number;
+  temperature: number;
+  maxDailyMessages: number;
+}
+
 interface AIContextType {
   messages: Message[];
   addMessage: (message: Message) => void;
+  addChatMessage: (content: string, type: 'user' | 'ai') => void;
   clearMessages: () => void;
   isTyping: boolean;
   setIsTyping: (typing: boolean) => void;
+  settings: AISettings;
+  canSendMessage: () => boolean;
+  incrementUsage: () => void;
 }
 
 // ============================================
@@ -39,13 +49,38 @@ const AIContext = createContext<AIContextType | undefined>(undefined);
 export const AIProvider = ({ children }: { children: ReactNode }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [usageCount, setUsageCount] = useState(0);
+
+  const settings: AISettings = {
+    maxTokens: 1000,
+    temperature: 0.7,
+    maxDailyMessages: 50,
+  };
 
   const addMessage = (message: Message) => {
     setMessages((prev) => [...prev, message]);
   };
 
+  const addChatMessage = (content: string, type: 'user' | 'ai') => {
+    const message: Message = {
+      id: Date.now().toString(),
+      type,
+      content,
+      timestamp: new Date(),
+    };
+    addMessage(message);
+  };
+
   const clearMessages = () => {
     setMessages([]);
+  };
+
+  const canSendMessage = () => {
+    return usageCount < settings.maxDailyMessages;
+  };
+
+  const incrementUsage = () => {
+    setUsageCount((prev) => prev + 1);
   };
 
   return (
@@ -53,9 +88,13 @@ export const AIProvider = ({ children }: { children: ReactNode }) => {
       value={{
         messages,
         addMessage,
+        addChatMessage,
         clearMessages,
         isTyping,
         setIsTyping,
+        settings,
+        canSendMessage,
+        incrementUsage,
       }}
     >
       {children}

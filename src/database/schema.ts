@@ -169,3 +169,53 @@ export interface FeedbackMessage {
   title: string;
   message: string;
 }
+
+// ============================================
+// DASHBOARD DATA
+// ============================================
+
+export interface DailyWord {
+  id?: number;
+  identity_id: 'primary' | 'college' | 'lycee' | 'adult';
+  level: number;
+  english: string;
+  french: string;
+  emoji?: string;
+  date?: string; // YYYY-MM-DD
+  category?: 'vocabulary' | 'idiom' | 'expression';
+  difficulty?: 'easy' | 'medium' | 'hard';
+}
+
+export interface UserBadge {
+  id?: number;
+  user_id: string;
+  badge_id: string;
+  badge_name: string;
+  badge_icon?: string;
+  earned_date: string;
+  progress: number;
+}
+
+export interface SpacedRepetition {
+  id?: number;
+  user_id: string;
+  content_id: number;
+  content_type: 'word' | 'rule' | 'sentence';
+  last_review_date?: string;
+  next_review_date?: string;
+  ease_factor: number;
+  review_count: number;
+  correct_count: number;
+}
+
+export interface UserMetrics {
+  id?: number;
+  user_id: string;
+  words_learned: number;
+  exercises_completed: number;
+  current_streak: number;
+  longest_streak: number;
+  last_activity_date?: string;
+  total_time_minutes: number;
+  updated_at?: string;
+}
