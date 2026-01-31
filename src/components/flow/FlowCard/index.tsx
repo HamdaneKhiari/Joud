@@ -1,7 +1,6 @@
 /**
  * FlowCard - Composant carte universel WHITE LABEL
- * Composant maître pour toutes les cartes (Family, Module, etc.)
- * Support : Mood (playful/clean), Variants (grid, horizontal), Animations
+ * Nettoyé de toute dépendance au BadgeHelper
  */
 
 import React, { useMemo } from 'react';
@@ -12,41 +11,22 @@ import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '@/themes/ThemeContext';
 import { createStyles } from './style';
-import { isEmoji, getBadgeColor } from './helpers';
-
-// ============================================
-// TYPES
-// ============================================
+import { isEmoji } from './helpers'; // getBadgeColor a été supprimé ici
 
 export interface FlowCardProps {
-  // Contenu
   icon?: React.ReactElement | string;
   title: string;
   subtitle: string;
   description?: string;
-
-  // Style
   color?: string;
-  badge?: string | null;
+  badge?: string | null; // Utilisé uniquement pour "EN COURS"
   progress?: number | null;
-
-  // États
   locked?: boolean;
-
-  // Comportement
   onPress?: () => void;
-
-  // Layout
-  variant?: 'grid' | 'horizontal'; // grid = grille 2 colonnes, horizontal = pleine largeur
-  animationDelay?: number; // Pour staggered animation
-
-  // Style personnalisé (override)
+  variant?: 'grid' | 'horizontal';
+  animationDelay?: number;
   style?: object;
 }
-
-// ============================================
-// COMPOSANT
-// ============================================
 
 const FlowCard: React.FC<FlowCardProps> = ({
   icon,
@@ -66,9 +46,12 @@ const FlowCard: React.FC<FlowCardProps> = ({
   const isPlayful = identity.ui.mood === 'playful';
   const isHorizontal = variant === 'horizontal';
 
-  // Couleurs
+  // 1. Détermination des couleurs (Logique simplifiée)
   const cardColor = locked ? '#D1D5DB' : (color || identity.palette.primary);
-  const badgeColor = getBadgeColor(badge, identity);
+  
+  // Le badge de statut ("EN COURS") utilise toujours la couleur Accent
+  const statusBadgeColor = identity.palette.accent;
+  const statusBadgeText = identity.id === 'lycee' ? 'IN PROGRESS' : 'EN COURS';
 
   const styles = useMemo(
     () => createStyles(identity, isPlayful, isHorizontal, cardColor),
@@ -83,144 +66,60 @@ const FlowCard: React.FC<FlowCardProps> = ({
     onPress();
   };
 
-  // Rendu de l'icône
   const renderIcon = () => {
     const iconSize = isHorizontal ? 36 : (isPlayful ? 32 : 28);
-    const lockColor = '#9CA3AF';
-
-    if (locked) {
-      return (
-        <MaterialCommunityIcons
-          name="lock"
-          size={iconSize}
-          color={lockColor}
-        />
-      );
-    }
+    if (locked) return <MaterialCommunityIcons name="lock" size={iconSize} color="#9CA3AF" />;
 
     if (typeof icon === 'string') {
-      if (isEmoji(icon)) {
-        return <Text style={styles.iconText}>{icon}</Text>;
-      }
-      return (
-        <MaterialCommunityIcons
-          name={icon as any}
-          size={iconSize}
-          color="#FFFFFF"
-        />
-      );
+      if (isEmoji(icon)) return <Text style={styles.iconText}>{icon}</Text>;
+      return <MaterialCommunityIcons name={icon as any} size={iconSize} color="#FFFFFF" />;
     }
-
-    return icon || (
-      <MaterialCommunityIcons
-        name={isHorizontal ? 'bookmark' : 'folder-open'}
-        size={iconSize}
-        color="#FFFFFF"
-      />
-    );
+    return icon || <MaterialCommunityIcons name={isHorizontal ? 'bookmark' : 'folder-open'} size={iconSize} color="#FFFFFF" />;
   };
-
-  // Rendu du badge/progression
-  const renderIndicator = () => {
-    // Badge de statut (prioritaire sur progression)
-    if (badge) {
-      return (
-        <View style={[styles.badge, { backgroundColor: badgeColor }]}>
-          <Text style={styles.badgeText}>{badge}</Text>
-        </View>
-      );
-    }
-
-    // Progression
-    if (progress !== null && progress !== undefined) {
-      // Mode horizontal : barre de progression
-      if (isHorizontal) {
-        return (
-          <View style={styles.progressContainer}>
-            <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${progress}%` }]} />
-            </View>
-            <Text style={styles.progressText}>{progress}%</Text>
-          </View>
-        );
-      }
-
-      // Mode grid : badge circulaire avec pourcentage
-      if (progress > 0) {
-        return (
-          <View style={[styles.badge, styles.progressBadge, { backgroundColor: cardColor }]}>
-            <Text style={styles.badgeText}>{progress}%</Text>
-          </View>
-        );
-      }
-    }
-
-    return null;
-  };
-
-  // Animation d'entrée selon le variant
-  const AnimationWrapper = isHorizontal
-    ? Animated.createAnimatedComponent(View)
-    : Animated.createAnimatedComponent(View);
-
-  const animationProps = isHorizontal
-    ? { entering: FadeInRight.springify() }
-    : { entering: FadeInDown.delay(animationDelay).springify() };
 
   return (
-    <AnimationWrapper {...animationProps} style={[styles.wrapper, style]}>
+    <Animated.View 
+      entering={isHorizontal ? FadeInRight.springify() : FadeInDown.delay(animationDelay).springify()} 
+      style={[styles.wrapper, style]}
+    >
       <TouchableOpacity
-        style={[
-          styles.card,
-          locked && styles.cardLocked,
-        ]}
+        style={[styles.card, locked && styles.cardLocked]}
         onPress={handlePress}
-        activeOpacity={isHorizontal ? 0.85 : 0.8}
+        activeOpacity={0.8}
         disabled={locked || !onPress}
       >
-        {/* Barre décorative (clean mode ou horizontal) */}
-        {(!isPlayful || isHorizontal) && (
-          <View style={styles.colorBar} />
+        {/* BADGE STATUT (Haut Droite) - Uniquement si explicitement demandé */}
+        {badge === 'EN COURS' && (
+          <View style={[styles.badge, { backgroundColor: statusBadgeColor }]}>
+            <Text style={styles.badgeText}>{statusBadgeText}</Text>
+          </View>
         )}
 
-        {/* Conteneur d'icône */}
+        {(!isPlayful || isHorizontal) && <View style={styles.colorBar} />}
+
         <View style={styles.iconContainer}>
           {renderIcon()}
         </View>
 
-        {/* Contenu texte */}
         <View style={styles.textContainer}>
-          {/* Label optionnel (horizontal uniquement) */}
-          {isHorizontal && description && (
-            <Text style={styles.label}>{description}</Text>
-          )}
-
-          <Text style={styles.title} numberOfLines={1}>
-            {title}
-          </Text>
-
-          <Text
-            style={styles.subtitle}
-            numberOfLines={isHorizontal ? 1 : 2}
-          >
-            {subtitle}
-          </Text>
-
-          {/* Indicateur (badge ou progression) */}
-          {renderIndicator()}
+          {isHorizontal && description && <Text style={styles.label}>{description}</Text>}
+          
+          <Text style={styles.title} numberOfLines={1}>{title}</Text>
+          <Text style={styles.subtitle} numberOfLines={isHorizontal ? 1 : 2}>{subtitle}</Text>
         </View>
 
-        {/* Chevron (horizontal uniquement, si pas de badge) */}
+        {/* BADGE POURCENTAGE (Bas Droite) - La nouvelle logique premium */}
+        {!isHorizontal && progress !== null && progress > 0 && (
+          <View style={[styles.percentageBadge, { backgroundColor: `${cardColor}15` }]}>
+            <Text style={[styles.percentageText, { color: cardColor }]}>{progress}%</Text>
+          </View>
+        )}
+
         {isHorizontal && !badge && (
-          <MaterialCommunityIcons
-            name="chevron-right"
-            size={28}
-            color={identity.palette.primary}
-            style={styles.chevron}
-          />
+          <MaterialCommunityIcons name="chevron-right" size={28} color={cardColor} style={styles.chevron} />
         )}
       </TouchableOpacity>
-    </AnimationWrapper>
+    </Animated.View>
   );
 };
 
