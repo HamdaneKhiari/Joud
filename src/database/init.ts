@@ -23,7 +23,7 @@ import migration016 from './migrations/016_seed_content_connector';
 // ============================================
 
 // ⚠️ Mettre à true pour FORCER le reset de la DB (supprime tout et recrée)
-const FORCE_RESET_DB = false; // ✅ Désactivé après application des nouveaux styles
+const FORCE_RESET_DB = true; // ✅ Désactivé après application des nouveaux styles
 
 // Compteur de retry pour éviter les boucles infinies
 let retryCount = 0;
