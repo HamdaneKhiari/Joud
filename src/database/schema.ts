@@ -46,13 +46,19 @@ export interface Content {
     | 'speed'       // Speed match
     | 'detective'   // Trouver l'erreur
     | 'idioms'      // Expressions idiomatiques
+    | 'syntax'      // Syntax master
+    | 'sentence_blanks'  // Phrases à trous (phrase_types)
+    | 'reading_passage'  // Passages de lecture
+    | 'grammar_rule'     // Règles de grammaire
     // Assessment types
     | 'assessment_definition'  // Assessment choix multiples
     | 'assessment_blanks'      // Assessment input texte
-    | 'assessment_sentence';   // Assessment avec passage
+    | 'assessment_sentence'    // Assessment avec passage
+    | 'assessment_question';   // Assessment question générale
   data: string; // JSON stringifié
   difficulty?: 'easy' | 'medium' | 'hard';
   tags?: string;
+  target_audience?: 'primary' | 'college' | 'lycee' | 'adult' | 'all'; // Nouveau champ
 }
 
 export interface Progress {

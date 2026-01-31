@@ -10,6 +10,13 @@ import migration006 from './migrations/006_seed_content_assessment';
 import migration007 from './migrations/007_seed_whitelabel';
 import migration008 from './migrations/008_seed_feedback_messages';
 import migration009 from './migrations/009_seed_dashboard_data';
+import migration010 from './migrations/010_add_target_audience_to_content';
+import migration011 from './migrations/011_seed_content_fastvocab';
+import migration012 from './migrations/012_seed_content_phrases';
+import migration013 from './migrations/013_seed_content_dialogues';
+import migration014 from './migrations/014_seed_content_grammar';
+import migration015 from './migrations/015_seed_content_reading';
+import migration016 from './migrations/016_seed_content_connector';
 
 export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
   try {
@@ -51,6 +58,13 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
       migration007,
       migration008,
       migration009,
+      migration010, // Ajout colonne target_audience
+      migration011, // Fast Vocabulary
+      migration012, // Phrases
+      migration013, // Dialogues
+      migration014, // Grammar
+      migration015, // Reading
+      migration016, // Connector
     ];
 
     // 3. Exécution automatique de toutes les migrations

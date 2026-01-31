@@ -97,7 +97,23 @@ export const insertFamily = async (db: SQLiteDatabase, family: Omit<Family, 'id'
 // QUERIES CONTENT
 // ============================================
 
-export const getContentByFamilyAndLevel = async (db: SQLiteDatabase, familyId: number, level: number): Promise<Content[]> => {
+export const getContentByFamilyAndLevel = async (
+  db: SQLiteDatabase,
+  familyId: number,
+  level: number,
+  audience?: string
+): Promise<Content[]> => {
+  if (audience) {
+    // Filtre par audience spécifique OU contenu pour 'all'
+    return await db.getAllAsync<Content>(
+      `SELECT * FROM content
+       WHERE family_id = ? AND level = ?
+       AND (target_audience = ? OR target_audience = 'all')
+       ORDER BY id`,
+      [familyId, level, audience]
+    );
+  }
+  // Si pas d'audience spécifiée, retourner tout
   return await db.getAllAsync<Content>(
     `SELECT * FROM content WHERE family_id = ? AND level = ? ORDER BY id`,
     [familyId, level]
@@ -106,8 +122,17 @@ export const getContentByFamilyAndLevel = async (db: SQLiteDatabase, familyId: n
 
 export const insertContent = async (db: SQLiteDatabase, content: Omit<Content, 'id'>): Promise<void> => {
   await db.runAsync(
-    `INSERT INTO content (family_id, level, content_type, data, difficulty, tags) VALUES (?, ?, ?, ?, ?, ?)`,
-    [content.family_id, content.level, content.content_type, content.data, content.difficulty || null, content.tags || null]
+    `INSERT INTO content (family_id, level, content_type, data, difficulty, tags, target_audience)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [
+      content.family_id,
+      content.level,
+      content.content_type,
+      content.data,
+      content.difficulty || null,
+      content.tags || null,
+      content.target_audience || 'all'
+    ]
   );
 };
 
@@ -567,9 +592,10 @@ export const getDailyReviewWords = async (
      WHERE c.content_type = 'word'
        AND c.level = ?
        AND (m.target_audience = ? OR m.target_audience = 'all')
+       AND (c.target_audience = ? OR c.target_audience = 'all')
      ORDER BY RANDOM()
      LIMIT ?`,
-    [level, audience, limit]
+    [level, audience, audience, limit]
   );
 
   return words;
@@ -580,20 +606,30 @@ export const getDailyReviewWords = async (
  */
 export const getSpacedReviewWords = async (
   db: SQLiteDatabase,
-  userId: string
+  userId: string,
+  audience?: string
 ): Promise<Array<Content & { sr_id: number; ease_factor: number; review_count: number }>> => {
   const today = new Date().toISOString().split('T')[0];
 
-  const words = await db.getAllAsync<Content & { sr_id: number; ease_factor: number; review_count: number }>(
-    `SELECT c.*, sr.id as sr_id, sr.ease_factor, sr.review_count
+  let query = `SELECT c.*, sr.id as sr_id, sr.ease_factor, sr.review_count
      FROM spaced_repetition sr
      INNER JOIN content c ON sr.content_id = c.id
      WHERE sr.user_id = ?
        AND sr.next_review_date <= ?
-       AND c.content_type = 'word'
-     ORDER BY sr.next_review_date ASC
-     LIMIT 50`,
-    [userId, today]
+       AND c.content_type = 'word'`;
+
+  const params: any[] = [userId, today];
+
+  if (audience) {
+    query += ` AND (c.target_audience = ? OR c.target_audience = 'all')`;
+    params.push(audience);
+  }
+
+  query += ` ORDER BY sr.next_review_date ASC LIMIT 50`;
+
+  const words = await db.getAllAsync<Content & { sr_id: number; ease_factor: number; review_count: number }>(
+    query,
+    params
   );
 
   return words;
