@@ -12,7 +12,6 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import ExerciseHeader from '@/components/layout/ExerciseHeader';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
 import FamilyCard from '@/components/family/FamilyCard';
-import RecentActivityCard from '@/components/family/RecentActivityCard';
 import SkeletonLoader from '@/components/ui/SkeletonLoader';
 
 // Hooks & Contexts
@@ -122,6 +121,21 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
     return { ...family, progress: lastActivity.progress || 0 };
   }, [families, numLevelId, moduleId, getLastActivity]);
 
+  // ✅ Trier les familles : recentActivity en premier
+  const sortedFamilies = useMemo(() => {
+    if (!families) return [];
+    if (!recentActivity) return families;
+
+    // Séparer recentActivity des autres
+    const others = families.filter((f: any) => f.id !== recentActivity.id);
+
+    // Mettre recentActivity en premier avec son badge "EN COURS"
+    return [
+      { ...recentActivity, badge: 'EN COURS', isRecent: true },
+      ...others
+    ];
+  }, [families, recentActivity]);
+
   if (!moduleId) return null;
 
   const handleFamilyPress = (familyId: string | number) => {
@@ -132,29 +146,6 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   };
 
   // =================== RENDER FUNCTIONS ===================
-  const renderHeader = () => {
-    if (isLoading) return null;
-    return (
-      <View style={styles.headerSection}>
-        {recentActivity && (
-          <>
-            <Text style={styles.sectionTitle}>Dernière activité</Text>
-            <RecentActivityCard
-              icon={recentActivity.icon}
-              title={recentActivity.name || recentActivity.id.toString()}
-              subtitle={recentActivity.description || ''}
-              color={recentActivity.color || moduleColor}
-              progress={recentActivity.progress}
-              badge={recentActivity.badge}
-              onPress={() => handleFamilyPress(recentActivity.id)}
-            />
-            <Text style={styles.sectionTitle}>Toutes les familles</Text>
-          </>
-        )}
-      </View>
-    );
-  };
-
   const renderSkeleton = () => (
     <View style={styles.skeletonContainer}>
       <SkeletonLoader variant="recent-activity" />
@@ -173,9 +164,6 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   );
 
   const renderItem = ({ item, index }: { item: any; index: number }) => {
-    // Évite d'afficher le doublon visuel si la famille est déjà dans "Dernière activité"
-    if (recentActivity && item.id === recentActivity.id) return null;
-
     return (
       <FamilyCard
         icon={item.icon}
@@ -183,6 +171,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
         subtitle={item.description || ''}
         color={item.color || moduleColor}
         badge={item.badge || null}
+        progress={item.progress || null}
         locked={item.locked || false}
         onPress={() => handleFamilyPress(item.id)}
         animationDelay={index * 50}
@@ -206,11 +195,10 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
 
         {isLoading ? renderSkeleton() : (
           <FlatList
-            data={families}
+            data={sortedFamilies}
             renderItem={renderItem}
             keyExtractor={(item) => `family-${item.id}`}
             numColumns={2}
-            ListHeaderComponent={renderHeader}
             ListEmptyComponent={renderEmptyState}
             contentContainerStyle={styles.listContent}
             columnWrapperStyle={styles.columnWrapper}

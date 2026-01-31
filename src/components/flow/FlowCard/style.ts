@@ -186,6 +186,13 @@ export const createStyles = (
       textShadowRadius: 1,
     },
 
+    // Badge de progression (mode grid)
+    progressBadge: {
+      minWidth: 48,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+
     // =================== PROGRESSION ===================
     progressContainer: {
       flexDirection: 'row',

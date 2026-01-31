@@ -122,7 +122,7 @@ const FlowCard: React.FC<FlowCardProps> = ({
 
   // Rendu du badge/progression
   const renderIndicator = () => {
-    // Badge de statut
+    // Badge de statut (prioritaire sur progression)
     if (badge) {
       return (
         <View style={[styles.badge, { backgroundColor: badgeColor }]}>
@@ -131,16 +131,28 @@ const FlowCard: React.FC<FlowCardProps> = ({
       );
     }
 
-    // Barre de progression (horizontal uniquement)
-    if (progress !== null && isHorizontal) {
-      return (
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${progress}%` }]} />
+    // Progression
+    if (progress !== null && progress !== undefined) {
+      // Mode horizontal : barre de progression
+      if (isHorizontal) {
+        return (
+          <View style={styles.progressContainer}>
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, { width: `${progress}%` }]} />
+            </View>
+            <Text style={styles.progressText}>{progress}%</Text>
           </View>
-          <Text style={styles.progressText}>{progress}%</Text>
-        </View>
-      );
+        );
+      }
+
+      // Mode grid : badge circulaire avec pourcentage
+      if (progress > 0) {
+        return (
+          <View style={[styles.badge, styles.progressBadge, { backgroundColor: cardColor }]}>
+            <Text style={styles.badgeText}>{progress}%</Text>
+          </View>
+        );
+      }
     }
 
     return null;
