@@ -10,7 +10,7 @@ import type * as SQLite from 'expo-sqlite';
 import { createMigration } from './runner';
 
 export default createMigration(
-  8,
+  9,
   'seed_feedback_messages',
   async (db: SQLite.SQLiteDatabase) => {
     await db.execAsync(`

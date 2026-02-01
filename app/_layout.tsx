@@ -23,7 +23,7 @@ export default function RootLayout() {
 
             {/* 3. NOUVEAU : Sélection de la Sous-Famille (ex: Colors -> Partie 1, Partie 2...) */}
             <Stack.Screen
-              name="subfamily/[familyId]"
+              name="subfamily/[subfamilyId]"
               options={{
                 headerShown: false,
                 presentation: 'card', // On garde l'animation card pour la continuité

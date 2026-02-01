@@ -9,7 +9,7 @@ import type * as SQLite from 'expo-sqlite';
 import { createMigration } from './runner';
 
 export default createMigration(
-  15,
+  16,
   'seed_content_reading',
   async (db: SQLite.SQLiteDatabase) => {
     // Récupérer les IDs des familles Reading

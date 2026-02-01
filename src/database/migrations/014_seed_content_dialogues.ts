@@ -9,7 +9,7 @@ import type * as SQLite from 'expo-sqlite';
 import { createMigration } from './runner';
 
 export default createMigration(
-  13,
+  14,
   'seed_content_dialogues',
   async (db: SQLite.SQLiteDatabase) => {
     // Récupérer les IDs des familles Dialogues

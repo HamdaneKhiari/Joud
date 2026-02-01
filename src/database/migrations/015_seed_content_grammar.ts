@@ -9,7 +9,7 @@ import type * as SQLite from 'expo-sqlite';
 import { createMigration } from './runner';
 
 export default createMigration(
-  14,
+  15,
   'seed_content_grammar',
   async (db: SQLite.SQLiteDatabase) => {
     // Récupérer les IDs des familles Grammar

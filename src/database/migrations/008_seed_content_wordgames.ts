@@ -9,7 +9,7 @@ import type * as SQLite from 'expo-sqlite';
 import { createMigration } from './runner';
 
 export default createMigration(
-  5,
+  8,
   'seed_content_wordgames',
   async (db: SQLite.SQLiteDatabase) => {
     // Récupérer les family_ids dynamiquement
@@ -72,13 +72,13 @@ export default createMigration(
       );
     }
 
-    console.log('[Migration 005] ✓ WordGames content seeded (30 questions)');
+    console.log('[Migration 007] ✓ WordGames content seeded (30 questions)');
   },
   // Rollback
   async (db: SQLite.SQLiteDatabase) => {
     await db.runAsync(
       `DELETE FROM content WHERE content_type IN ('definition', 'detective', 'speed')`
     );
-    console.log('[Migration 005] ✓ WordGames content cleared');
+    console.log('[Migration 007] ✓ WordGames content cleared');
   }
 );

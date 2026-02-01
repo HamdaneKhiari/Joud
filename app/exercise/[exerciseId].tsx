@@ -1,3 +1,4 @@
+// app/exercise/[exerciseId].tsx
 import React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
@@ -18,56 +19,41 @@ export default function ExerciseDispatcher() {
   const navigation = useNavigation();
   const { identity } = useTheme();
 
-  // 1. Récupération et normalisation des paramètres
-  // Expo Router peut renvoyer string ou string[], on s'assure d'avoir une string
+  // 1. Normalisation des paramètres
   const exerciseId = Array.isArray(params.exerciseId) ? params.exerciseId[0] : params.exerciseId;
   const familyId = Array.isArray(params.familyId) ? params.familyId[0] : params.familyId;
   const levelId = Array.isArray(params.levelId) ? params.levelId[0] : params.levelId;
 
-  // 2. Gestion du chargement ou erreur de paramètres
-  if (!exerciseId || !familyId) {
+  // 2. Sécurité : On attend d'avoir toutes les clés
+  if (!exerciseId || !familyId || !levelId) {
     return (
-      <View style={{ 
-        flex: 1, 
-        justifyContent: 'center', 
-        alignItems: 'center',
-        backgroundColor: identity.palette.surface || '#FFFFFF' // ✅ Fond dynamique
-      }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: identity.palette.surface || '#FFFFFF' }}>
         <ActivityIndicator size="large" color={identity.palette.accent} />
-        <Text style={{ marginTop: 10, color: identity.header.accent }}>
-          Chargement de l'exercice...
-        </Text>
+        <Text style={{ marginTop: 10, color: identity.header.accent }}>Initialisation...</Text>
       </View>
     );
   }
 
-  // 3. Adaptateur (Adapter Pattern)
-  // On construit les props attendues par les écrans existants (navigation + route.params)
-  // Cela évite de modifier VocabularyExerciseScreen pour l'instant.
+  // 3. Préparation des Props (Transmission de familyId et levelId)
   const screenProps = {
     navigation: navigation as any,
     route: {
-      key: `exercise-${exerciseId}-${familyId}`,
-      name: exerciseId === 'phrases' ? 'SentenceExercise' : 'VocabularyExercise',
+      key: `exercise-${exerciseId}-${familyId}-${levelId}`, // Force le refresh si on change de niveau
       params: {
-        familyId,
-        levelId: levelId || '1'
+        familyId: Number(familyId),
+        levelId: Number(levelId)
       }
     } as any
   };
 
-  // 4. Aiguillage (Switch) vers le bon composant
+  // 4. Switch Complet
   switch (exerciseId) {
     case 'vocab':
-      return <VocabularyExerciseScreen {...(screenProps as any)} />;
-
     case 'fastvocab':
-      // Fast Vocabulary utilise le même composant que Vocabulary
       return <VocabularyExerciseScreen {...(screenProps as any)} />;
 
     case 'phrases':
     case 'phrase_types':
-      // Sentences (phrases types) - Supporte mode free et blanks
       return <SentenceScreen {...(screenProps as any)} />;
 
     case 'grammar':

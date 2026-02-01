@@ -117,7 +117,6 @@ export default createMigration(
         daily_word_bg_color TEXT,
         daily_word_gradient TEXT,
         daily_word_decoration TEXT DEFAULT 'none',
-        dashboard_level_progress_color TEXT NOT NULL,
         text_on_main_color TEXT NOT NULL,
         text_primary_color TEXT,
         text_secondary_color TEXT,
@@ -137,16 +136,19 @@ export default createMigration(
         FOREIGN KEY (identity_id) REFERENCES branding(id)
       );
 
-      CREATE TABLE IF NOT EXISTS level_labels (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        level_number INTEGER NOT NULL,
-        identity_id TEXT NOT NULL,
-        display_title TEXT NOT NULL,
-        badge_text TEXT NOT NULL,
-        display_description TEXT NOT NULL,
-        UNIQUE(level_number, identity_id),
-        FOREIGN KEY (identity_id) REFERENCES branding(id)
-      );
+CREATE TABLE IF NOT EXISTS level_labels (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  level_number INTEGER NOT NULL,
+  identity_id TEXT NOT NULL,
+  family_id INTEGER, -- Crucial pour lier au vocabulaire
+  display_title TEXT NOT NULL,
+  badge_text TEXT NOT NULL,
+  display_description TEXT,
+  icon_name TEXT,
+  UNIQUE(level_number, identity_id, family_id),
+  FOREIGN KEY (identity_id) REFERENCES branding(id),
+  FOREIGN KEY (family_id) REFERENCES families(id)
+);
 
       CREATE TABLE IF NOT EXISTS identity_palettes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

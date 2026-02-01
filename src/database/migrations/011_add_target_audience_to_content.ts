@@ -11,7 +11,7 @@ import type * as SQLite from 'expo-sqlite';
 import { createMigration } from './runner';
 
 export default createMigration(
-  10,
+  11,
   'add_target_audience_to_content',
   async (db: SQLite.SQLiteDatabase) => {
     // Migration obsolète - La colonne et l'index sont créés dans migration 001
