@@ -14,18 +14,15 @@ export default createMigration(
   async (db: SQLite.SQLiteDatabase) => {
     // 1. DÉFINITION DES SOUS-FAMILLES
     // Format: [slug_famille, niveau, identity, titre, icone, description]
-    const subfamilySeeds = [
-      // Basics
-      ['salutations', 1, 'adult', 'Social Basics', 'chat-outline', 'Greetings & Socializing'],
-      
-      // FOOD & DRINKS - C'est ici que tes deux boutons apparaissent
-      ['food_drinks', 1, 'adult', 'Le Salé', 'silverware-fork-knife', 'Pain, Eau, Sel, etc.'],
-      ['food_drinks', 2, 'adult', 'Le Sucré', 'cup-water', 'Café, Sucre, Thé, etc.'],
-      
-      // Family
-      ['family', 1, 'adult', 'Close Relatives', 'account-group', 'Parents & Siblings'],
-      ['family', 2, 'adult', 'Extended Family', 'account-multiple-plus', 'Cousins, Aunts, Uncles'],
-    ];
+ const subfamilySeeds = [
+  // Pour les adultes
+  ['food_drinks', 1, 'adult', 'Le Salé', 'silverware-fork-knife', 'Pain, Eau, Sel...'],
+  ['food_drinks', 2, 'adult', 'Le Sucré', 'cup-water', 'Café, Sucre, Thé...'],
+  
+  // AJOUTE CECI pour le mode Lycée
+  ['food_drinks', 1, 'lycee', 'Le Salé', 'silverware-fork-knife', 'Vocabulaire salé'],
+  ['food_drinks', 2, 'lycee', 'Le Sucré', 'cup-water', 'Vocabulaire sucré'],
+];
 
     // 2. NETTOYAGE CIBLÉ
     // On ne supprime que les labels liés à des familles pour ne pas casser le Whitelabel du 002

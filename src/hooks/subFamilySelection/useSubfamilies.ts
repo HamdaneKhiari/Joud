@@ -18,13 +18,18 @@ const useSubfamilies = (familyId: number) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const loadData = useCallback(async () => {
-    if (!db || !familyId) return;
+    // ✅ PROTECTION CRITIQUE : Si identity.id est null, SQLite Android crashe (NullPointer)
+    // On attend que le contexte soit prêt avant de lancer la requête.
+    if (!db || !familyId || !identity?.id) {
+      console.log('[useSubfamilies] En attente des paramètres...', { familyId, identityId: identity?.id });
+      return;
+    }
 
     try {
       setIsLoading(true);
 
       // 1. Source de vérité : La table CONTENT
-      // On ne veut afficher que les niveaux qui ont réellement du contenu
+      // On récupère tous les niveaux qui possèdent du contenu pour cette famille
       const contentLevels = await db.getAllAsync<{ level: number; count: number }>(
         `SELECT level, COUNT(*) as count 
          FROM content 
@@ -35,19 +40,25 @@ const useSubfamilies = (familyId: number) => {
       );
 
       // 2. Décoration : La table LEVEL_LABELS
-      // Pour chaque niveau trouvé, on va chercher son "habit" (titre, icône)
+      // On cherche le label correspondant à l'identité (Lycée/Adult)
       const items = await Promise.all(
         contentLevels.map(async (row) => {
+          // ✅ LOGIQUE DE FALLBACK : 
+          // On cherche le label pour l'identité actuelle (ex: lycee)
+          // OU pour 'adult' par défaut. On trie pour avoir l'identité actuelle en premier.
           const label = await db.getFirstAsync<{ display_title: string; icon_name: string; display_description: string }>(
             `SELECT display_title, icon_name, display_description 
              FROM level_labels 
-             WHERE family_id = ? AND level_number = ? AND identity_id = ?`,
-            [familyId, row.level, identity.id]
+             WHERE family_id = ? AND level_number = ? 
+             AND (identity_id = ? OR identity_id = 'adult')
+             ORDER BY CASE WHEN identity_id = ? THEN 0 ELSE 1 END
+             LIMIT 1`,
+            [familyId, row.level, identity.id, identity.id]
           );
 
           return {
             id: row.level,
-            title: label?.display_title || `Partie ${row.level}`, // Fallback
+            title: label?.display_title || `Partie ${row.level}`, 
             icon: label?.icon_name || 'layers',
             description: label?.display_description || `${row.count} exercices`,
             contentCount: row.count,
@@ -57,11 +68,11 @@ const useSubfamilies = (familyId: number) => {
 
       setSubfamilies(items);
     } catch (error) {
-      console.error('[useSubfamilies] Error:', error);
+      console.error('[useSubfamilies] Erreur SQL fatale:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [db, familyId, identity.id]);
+  }, [db, familyId, identity?.id]);
 
   useFocusEffect(
     useCallback(() => {

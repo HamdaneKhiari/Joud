@@ -138,12 +138,16 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
 
   if (!moduleId) return null;
 
-  const handleFamilyPress = (familyId: string | number) => {
-    router.push({
-      pathname: '/exercise/[exerciseId]',
-      params: { exerciseId: moduleId, familyId, levelId: numLevelId }
-    });
-  };
+ const handleFamilyPress = (familyId: string | number) => {
+  router.push({
+    pathname: '/subfamily/[subfamilyId]', // ✅ On pointe vers l'écran intermédiaire
+    params: { 
+      subfamilyId: familyId.toString(), 
+      moduleId: moduleId, // On garde le contexte du module (ex: vocab)
+      levelId: numLevelId.toString() 
+    }
+  });
+};
 
   // =================== RENDER FUNCTIONS ===================
   const renderSkeleton = () => (
