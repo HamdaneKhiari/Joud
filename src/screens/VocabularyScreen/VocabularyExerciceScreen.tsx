@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, Text } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 
@@ -13,17 +13,14 @@ import { DynamicIcon } from '../../components/ui/DynamicIcon';
 import { useTheme } from '../../themes/ThemeContext';
 import { useProgress } from '../../contexts/ProgressContext';
 import useSafeNavigation from '../../hooks/useSafeNavigation';
-import { useFirstIncompleteIndex } from '../../hooks/exercises/useFirstIncompleteIndex';
+import useFirstIncompleteIndex from '../../hooks/exercises/useFirstIncompleteIndex';
 import { useExerciseActivity } from '../../hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '../../hooks/exercises/useExerciseSaveOnUnmount';
-import { useExerciseContent, ContentItem } from '../../hooks/exercises/useExerciseContent';
+import { useExerciseContent } from '../../hooks/exercises/useExerciseContent';
 import { useLevelLabel } from '../../utils/labelMapper';
 
 const EXERCISE_TYPE = 'vocab';
 
-// =================== TYPES ===================
-
-/** Interface pour les données spécifiques au vocabulaire (ContentItem.data) */
 interface VocabData {
   word: string;
   translation: string;
@@ -33,109 +30,108 @@ interface VocabData {
 
 type VocabularyStackParamList = {
   VocabularyExercise: {
-    familyId: string;
-    levelId?: string;
+    familyId: string | number;
+    levelId?: string | number;
+    level?: string | number;
   };
 };
 
-type VocabularyExerciseRouteProp = RouteProp<VocabularyStackParamList, 'VocabularyExercise'>;
-type VocabularyExerciseNavigationProp = StackNavigationProp<VocabularyStackParamList, 'VocabularyExercise'>;
-
-interface Props {
-  navigation: VocabularyExerciseNavigationProp;
-  route: VocabularyExerciseRouteProp;
-}
+type Props = {
+  navigation: StackNavigationProp<VocabularyStackParamList, 'VocabularyExercise'>;
+  route: RouteProp<VocabularyStackParamList, 'VocabularyExercise'>;
+};
 
 const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
-  // =================== PARAMS & THEME ===================
-  const { familyId, levelId = '1' } = route.params || {};
-  const numLevelId = Number.parseInt(levelId, 10);
   const { identity } = useTheme();
-
-  // =================== PROGRESSION & NAVIGATION ===================
   const { trackItemCompletion, getFamilyProgress, saveProgressNow } = useProgress();
-  const safeGoBack = useSafeNavigation(
-    useCallback(() => navigation.goBack(), [navigation])
-  );
 
-  // ✅ Correction TS : Type générique <VocabData> et suppression de 'error' (S1854)
-  const { module, family, contentItems, isLoading } = useExerciseContent<VocabData>(familyId, numLevelId);
+  // 1. 🛡️ Normalisation des entrées
+  const params = route.params || {};
 
-  const levelLabel = useLevelLabel(numLevelId);
+  // On récupère les valeurs de base
+  const rawFamilyId = params.familyId || (params as any).subfamilyId || '';
+  const familyIdRaw = String(rawFamilyId);
+  const familyIdNum = Number(familyIdRaw);
+
+  // ✅ Le VRAI levelId du Dashboard ("Les Bases", "L'Essentiel"...)
+  const rawDashboardLevelId = Number(params.levelId || '1');
+  const dashboardLevelId = Number.isNaN(rawDashboardLevelId) ? 1 : rawDashboardLevelId;
+
+  // ✅ Protection anti-NaN : Si la conversion échoue, on force à 1
+  // ⚠️ CLARIFICATION : params.subfamilyId contient l'ID de sous-famille (ex: 1 = Le Salé, 2 = Le Sucré)
+  const rawSubfamilyId = Number((params as any).subfamilyId || params.level || '1');
+  const subfamilyId = Number.isNaN(rawSubfamilyId) ? 1 : rawSubfamilyId;
+
+  // 🎯 CORRECTION : Les sous-familles sont stockées avec un familyId composite : "familyId-subfamilyId"
+  const compositeFamilyId = `${familyIdRaw}-${subfamilyId}`; // Ex: "1-1" = food_drinks + Le Salé
+
+  // =================== DATA LOADING ===================
+
+  const { module, family, contentItems, isLoading } = useExerciseContent<VocabData>(familyIdNum, subfamilyId);
+  const levelLabel = useLevelLabel(subfamilyId);
   const [currentWordIndex, setCurrentWordIndex] = useState<number>(0);
 
-  const totalWords = contentItems.length;
-  const getFirstIncompleteIndex = useFirstIncompleteIndex(
-    numLevelId,
+  const totalWords = contentItems?.length || 0;
+
+  // ✅ FIX TS2345 & Sonar S4325 :
+  // On utilise dashboardLevelId (le vrai level du Dashboard) et compositeFamilyId ("1-1")
+  const getInitialIndex = useFirstIncompleteIndex(
+    dashboardLevelId,
     EXERCISE_TYPE,
-    familyId,
+    compositeFamilyId,
     totalWords
   );
 
-  // Initialisation de l'index de départ
   useEffect(() => {
     if (totalWords > 0) {
-      setCurrentWordIndex(getFirstIncompleteIndex());
+      setCurrentWordIndex(getInitialIndex());
     }
-  }, [totalWords, getFirstIncompleteIndex]);
+  }, [totalWords, getInitialIndex]);
 
-  // ✅ Correction TS : Type explicite ContentItem<VocabData>
-  const currentContentItem: ContentItem<VocabData> | null = contentItems?.[currentWordIndex] || null;
-  const isLastWord = currentWordIndex === totalWords - 1;
-  const isFirstWord = currentWordIndex === 0;
-  const realProgress = getFamilyProgress(numLevelId, EXERCISE_TYPE, familyId);
+  // =================== NAVIGATION & ACTIVITY ===================
 
-  // =================== ACTIVITÉ & AUTO-SAVE ===================
-  
-  // ✅ Correction TS : Ajout du moduleSlug requis
+  const safeGoBack = useSafeNavigation(useCallback(() => navigation.goBack(), [navigation]));
+
   useExerciseActivity({
-    levelId: numLevelId,
-    familyId,
-    familyName: family?.name || 'Vocabulaire',
     moduleSlug: module?.slug || 'vocabulary',
+    familyId: compositeFamilyId,
+    levelId: dashboardLevelId,
+    familyName: family?.name || 'Vocabulaire',
     icon: family?.icon || 'book',
     currentIndex: currentWordIndex,
     totalItems: totalWords,
-    enabled: !isLoading && !!family && !!currentContentItem,
+    enabled: !isLoading && totalWords > 0
   });
 
   useExerciseSaveOnUnmount();
 
-  // =================== HANDLERS (S6544 Fixes) ===================
+  // =================== HANDLERS ===================
 
   const handleNext = useCallback(() => {
-    // Cette opération est synchrone dans le ProgressContext
-    trackItemCompletion(numLevelId, EXERCISE_TYPE, familyId, currentWordIndex, totalWords);
-    if (!isLastWord) {
-      setCurrentWordIndex((prev) => prev + 1);
+    trackItemCompletion(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, currentWordIndex, totalWords);
+    if (currentWordIndex < totalWords - 1) {
+      setCurrentWordIndex(prev => prev + 1);
     }
-  }, [numLevelId, familyId, currentWordIndex, totalWords, isLastWord, trackItemCompletion]);
+  }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, trackItemCompletion]);
 
   const handleFinish = useCallback(() => {
-    // ✅ Correction Sonar S6544 : Wrapper synchrone pour la logique asynchrone
-    const performFinish = async () => {
-      trackItemCompletion(numLevelId, EXERCISE_TYPE, familyId, currentWordIndex, totalWords);
+    const executeFinish = async () => {
+      trackItemCompletion(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, currentWordIndex, totalWords);
       await saveProgressNow();
       safeGoBack.navigate();
     };
+    executeFinish().catch(err => console.error("Finish error:", err));
+  }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, trackItemCompletion, saveProgressNow, safeGoBack]);
 
-    performFinish().catch((err) => {
-      console.error("[VocabularyScreen] Erreur lors de la sauvegarde finale:", err);
-    });
-  }, [numLevelId, familyId, currentWordIndex, totalWords, trackItemCompletion, saveProgressNow, safeGoBack]);
+  const handleBack = useCallback(() => {
+    safeGoBack.navigate();
+  }, [safeGoBack]);
 
   // =================== RENDU ===================
 
-  // ✅ Correction TS : headerProps obligatoire même pendant le chargement
-  if (isLoading || !family || !currentContentItem) {
+  if (isLoading) {
     return (
-      <ExerciseLayout
-        headerProps={{
-          variant: "exercise",
-          onBack: () => { safeGoBack.navigate(); },
-          exerciseTitle: "Chargement...",
-        }}
-      >
+      <ExerciseLayout headerProps={{ variant: "exercise", onBack: handleBack, exerciseTitle: "Chargement..." }}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color={identity.palette.accent} />
         </View>
@@ -143,11 +139,27 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
     );
   }
 
+  const currentContentItem = contentItems?.[currentWordIndex];
+
+  if (!family || totalWords === 0 || !currentContentItem) {
+    return (
+      <ExerciseLayout headerProps={{ variant: "exercise", onBack: handleBack, exerciseTitle: family?.name || "Vocabulaire" }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 }}>
+          <Text style={{ color: identity.text.primary, textAlign: 'center', fontSize: 16 }}>
+            Aucun contenu disponible pour ce niveau.
+          </Text>
+        </View>
+      </ExerciseLayout>
+    );
+  }
+
+  const realProgress = getFamilyProgress(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId);
+
   return (
     <ExerciseLayout
       headerProps={{
         variant: "exercise",
-        onBack: () => { safeGoBack.navigate(); },
+        onBack: handleBack,
         rightIcon: <DynamicIcon name={module?.icon} size={28} color={identity.header.accent} fallback="book" />,
         showLevelBadge: true,
         levelTitle: levelLabel.badge,
@@ -159,9 +171,9 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
       }}
       footer={
         <NavigationButtons
-          isFirst={isFirstWord}
-          isLast={isLastWord}
-          onPrevious={() => currentWordIndex > 0 && setCurrentWordIndex((prev) => prev - 1)}
+          isFirst={currentWordIndex === 0}
+          isLast={currentWordIndex === totalWords - 1}
+          onPrevious={() => setCurrentWordIndex(prev => Math.max(0, prev - 1))}
           onNext={handleNext}
           onFinish={handleFinish}
         />

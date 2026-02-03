@@ -1,56 +1,7 @@
-/**
- * ============================================
- * HOOK: useExerciseContent
- * Récupère le contenu complet d'un exercice (module, famille, items) depuis la DB.
- * ✅ Gère n'importe quel type de donnée (Vocab, Sentences, etc.) via Generics.
- * ============================================
- */
-
 import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import type { Family, Module } from '@/database/schema';
 
-// ============================================
-// TYPES DE CONTENU (EXTENSIBLES)
-// ============================================
-
-/** Structure pour le module Vocabulaire */
-export interface VocabularyData {
-  word: string;
-  translation: string;
-  example?: string;
-  image?: string;
-  audio?: string;
-}
-
-/**
- * Structure pour le module Sentences
- * Support 2 modes : 'free' (saisie libre) et 'blanks' (trous à remplir)
- */
-export interface SentenceData {
-  // Mode de l'exercice
-  mode: 'free' | 'blanks';
-
-  // ===== MODE FREE (Collège, Lycée, Adulte) =====
-  phrase_fr?: string;              // Phrase en français à traduire
-  phrase_en?: string;              // Traduction attendue en anglais
-  concretement?: string;           // Explication pédagogique
-  build?: string;                  // Structure grammaticale
-
-  // ===== MODE BLANKS (Primaire) =====
-  sentence_with_blank?: string;    // Phrase avec trou : "I ___ a cat"
-  options?: string[];              // Options de réponse : ["have", "has", "had", "having"]
-  correctAnswer?: string;          // Bonne réponse : "have"
-  translation?: string;            // Traduction FR (optionnel) : "J'ai un chat"
-  explanation?: string;            // Explication pédagogique : "Avec 'I', on utilise 'have'"
-
-  // Commun aux deux modes
-  audio?: string;
-}
-
-/** * Interface générique pour un item de contenu 
- * T représente le type de données stocké dans le JSON 'data'
- */
 export interface ContentItem<T> {
   id: number;
   data: T;
@@ -64,13 +15,16 @@ interface UseExerciseContentReturn<T> {
   error: Error | null;
 }
 
-// ============================================
-// HOOK
-// ============================================
-
+/**
+ * ✅ CLARIFICATION :
+ * - familyId = ID de la famille (ex: food_drinks)
+ * - subfamilyId = ID de la sous-famille (ex: 1 = Le Salé, 2 = Le Sucré)
+ *
+ * ⚠️ Ancien nom "levelId" était trompeur car on confondait avec les "vrais levels" (Primary/Collège)
+ */
 export const useExerciseContent = <T = any>(
-  familyId: string,
-  levelId: number
+  familyId: number,
+  subfamilyId: number
 ): UseExerciseContentReturn<T> => {
   const { db } = useUser();
   const [module, setModule] = useState<Module | null>(null);
@@ -81,8 +35,7 @@ export const useExerciseContent = <T = any>(
 
   useEffect(() => {
     const fetchContent = async () => {
-      // Sécurité : on attend que la DB soit prête et que les IDs soient valides
-      if (!db || !familyId || isNaN(parseInt(familyId))) {
+      if (!db || familyId <= 0) {
         setIsLoading(false);
         return;
       }
@@ -91,38 +44,39 @@ export const useExerciseContent = <T = any>(
         setIsLoading(true);
         setError(null);
 
-        // 1. Récupérer la Famille (ex: "Les salutations", "Present Simple")
         const familyResult = await db.getFirstAsync<Family>(
           `SELECT * FROM families WHERE id = ?`, 
-          [parseInt(familyId, 10)]
+          [familyId]
         );
         
-        if (!familyResult) throw new Error(`Famille ID "${familyId}" introuvable.`);
+        if (familyResult?.id == null) {
+          throw new Error(`Famille ID "${familyId}" introuvable.`);
+        }
+        
+        const validatedFamilyId = familyResult.id;
         setFamily(familyResult);
 
-        // 2. Récupérer le Module parent (ex: Vocabulaire, Grammaire)
         const moduleResult = await db.getFirstAsync<Module>(
           `SELECT * FROM modules WHERE slug = ?`,
           [familyResult.module_slug]
         );
         setModule(moduleResult || null);
 
-        // 3. Récupérer tous les items de contenu pour ce niveau
-        if (!familyResult.id) throw new Error(`Famille sans ID valide.`);
+        // ✅ FIX : Utilise subfamily_id au lieu de level
         const contentResult = await db.getAllAsync<{ id: number; data: string }>(
-          `SELECT id, data FROM content WHERE family_id = ? AND level = ?`,
-          [familyResult.id, levelId]
+          `SELECT id, data FROM content WHERE family_id = ? AND subfamily_id = ?`,
+          [validatedFamilyId, subfamilyId]
         );
         
-        // 4. Parsing sécurisé du JSON 'data'
         const parsedContent = contentResult.map(item => {
           try {
             return { 
               id: item.id, 
-              data: JSON.parse(item.data) as T // ✅ Cast vers le type générique T
+              data: JSON.parse(item.data) as T 
             };
           } catch (e) {
-            console.error(`[useExerciseContent] Erreur parsing JSON (ID: ${item.id}):`, e);
+            // ✅ S2486 Fixed: Exception is now handled with a log
+            console.error(`[useExerciseContent] JSON Parse Error (ID: ${item.id}):`, e);
             return null;
           }
         }).filter((item): item is ContentItem<T> => item !== null);
@@ -130,7 +84,6 @@ export const useExerciseContent = <T = any>(
         setContentItems(parsedContent);
 
       } catch (err) {
-        console.error('[useExerciseContent] Global Error:', err);
         setError(err as Error);
       } finally {
         setIsLoading(false);
@@ -138,7 +91,9 @@ export const useExerciseContent = <T = any>(
     };
 
     fetchContent();
-  }, [db, familyId, levelId]);
+  }, [db, familyId, subfamilyId]);
 
   return { module, family, contentItems, isLoading, error };
 };
+
+export default useExerciseContent;

@@ -114,6 +114,9 @@ const ExerciseSelectionScreen: React.FC = () => {
       if (!db) return;
       try {
         setLoadingData(true);
+        // ✅ FIX: On passe undefined explicitement pour familyId afin de cibler le label GLOBAL du niveau
+        // et éviter de récupérer par erreur une sous-famille (ex: "Le Salé")
+        // ✅ FIX (SonarLint): L'argument `undefined` est redondant car `familyId` est optionnel.
         const labelData = await getLevelLabel(db, numLevelId, identity.id);
         setLevelLabel(labelData);
 

@@ -21,6 +21,12 @@ import migration014 from './migrations/014_seed_content_dialogues';
 import migration015 from './migrations/015_seed_content_grammar';
 import migration016 from './migrations/016_seed_content_reading';
 import migration017 from './migrations/017_seed_content_connector';
+import migration018 from './migrations/018_add_subfamily_id_to_content';
+import migration019 from './migrations/019_seed_phrases_subfamilies';
+import migration020 from './migrations/020_seed_grammar_subfamilies';
+import migration021 from './migrations/021_seed_dialogues_subfamilies';
+import migration022 from './migrations/022_seed_reading_subfamilies';
+import migration023 from './migrations/023_fix_activity_log_family_id';
 
 // ============================================
 // CONFIGURATION
@@ -92,6 +98,12 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
       migration015,
       migration016,
       migration017,
+      migration018,
+      migration019,
+      migration020,
+      migration021,
+      migration022,
+      migration023,
     ];
 
     console.log('[JanaCore] 🚀 Running migrations in sequence...');

@@ -33,15 +33,32 @@ export default createMigration(
 
     // 3. SEED DES NIVEAUX
     const audiences = ['primary', 'college', 'lycee', 'adult'];
-    
+
+    // ✅ Définition des noms de niveaux significatifs
+    const levelNames = [
+      { title: 'Les Bases', description: 'Fondamentaux essentiels', badge: '1' },
+      { title: "L'Essentiel", description: 'Connaissances intermédiaires', badge: '2' },
+      { title: 'Avancé', description: 'Maîtrise approfondie', badge: '3' },
+      { title: 'Expert', description: 'Niveau supérieur', badge: '4' },
+    ];
+
     // ✅ CORRECTION : Ajout du type any[][] pour que TS accepte le push
     const levelsSeed: any[][] = [];
 
-    // On génère 4 niveaux pour chaque audience pour être sûr
+    // On génère 4 niveaux pour chaque audience avec des noms significatifs
     audiences.forEach((aud, index) => {
       const baseId = (index + 1) * 100;
       for (let l = 1; l <= 4; l++) {
-        levelsSeed.push([baseId + l, l, 'Foundations', 'bridge', 'Apprentissage', `Niveau ${l}`, aud]);
+        const levelInfo = levelNames[l - 1];
+        levelsSeed.push([
+          baseId + l,
+          l,
+          levelInfo.title,
+          'bridge',
+          levelInfo.description,
+          levelInfo.badge,
+          aud
+        ]);
       }
     });
 

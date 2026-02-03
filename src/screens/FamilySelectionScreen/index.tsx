@@ -24,6 +24,7 @@ import useFamiliesWithProgress from '@/hooks/familySelection/useFamiliesWithProg
 // Utils
 import { getModuleLabel, getLevelLabel, getAvailableModules } from '@/utils/labelMapper';
 import { getModuleColor } from '@/utils/moduleHelper';
+import { moduleHasSubfamilies } from '@/config/moduleConfig';
 
 // Styles
 import { createStyles } from './style';
@@ -139,14 +140,32 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   if (!moduleId) return null;
 
  const handleFamilyPress = (familyId: string | number) => {
-  router.push({
-    pathname: '/subfamily/[subfamilyId]', // ✅ On pointe vers l'écran intermédiaire
-    params: { 
-      subfamilyId: familyId.toString(), 
-      moduleId: moduleId, // On garde le contexte du module (ex: vocab)
-      levelId: numLevelId.toString() 
-    }
-  });
+  // ✅ Vérifier si ce module a des sous-familles
+  const hasSubfamilies = moduleHasSubfamilies(moduleId);
+
+  if (hasSubfamilies) {
+    // Route vers SubFamilySelectionScreen
+    router.push({
+      pathname: '/subfamily/[subfamilyId]',
+      params: {
+        subfamilyId: familyId.toString(),
+        familyId: familyId.toString(), // Aussi en familyId pour compatibilité
+        moduleId: moduleId,
+        levelId: numLevelId.toString()
+      }
+    });
+  } else {
+    // Route directement vers l'exercice (pas de subfamilies)
+    router.push({
+      pathname: '/exercise/[exerciseId]',
+      params: {
+        exerciseId: moduleId,
+        familyId: familyId.toString(),
+        levelId: numLevelId.toString(),
+        moduleId: moduleId
+      }
+    });
+  }
 };
 
   // =================== RENDER FUNCTIONS ===================

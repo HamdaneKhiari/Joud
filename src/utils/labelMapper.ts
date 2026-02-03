@@ -7,7 +7,6 @@ import { useUser } from '@/contexts/UserContext';
 import { useTheme } from '@/themes/ThemeContext';
 import { 
   getModuleLabelWithFallback, 
-  getLevelLabelWithFallback,
   getAvailableModules as getAvailableModulesFromDB
 } from '@/database/queries';
 import { useState, useEffect } from 'react';
@@ -75,7 +74,7 @@ export const useModuleLabel = (moduleSlug: string): ModuleLabel => {
 /**
  * Hook pour récupérer le label d'un niveau depuis la DB
  */
-export const useLevelLabel = (levelNumber: number): LevelLabel => {
+export const useLevelLabel = (levelNumber: number, familyId?: string): LevelLabel => {
   const { db } = useUser();
   const { currentApp } = useTheme();
   const [label, setLabel] = useState<LevelLabel>({
@@ -90,12 +89,9 @@ export const useLevelLabel = (levelNumber: number): LevelLabel => {
       if (!db || typeof db === 'number' || !levelNumber) return;
 
       try {
-        const levelLabel = await getLevelLabelWithFallback(db, levelNumber, currentApp);
-        setLabel({
-          title: levelLabel.display_title,
-          badge: levelLabel.badge_text,
-          description: levelLabel.display_description
-        });
+        // Utilise la fonction getLevelLabel mise à jour qui gère le familyId
+        const levelLabel = await getLevelLabel(db, levelNumber, currentApp, familyId);
+        setLabel(levelLabel);
       } catch (error) {
         const errorMsg = String(error);
         // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
@@ -106,7 +102,7 @@ export const useLevelLabel = (levelNumber: number): LevelLabel => {
     };
 
     loadLabel();
-  }, [db, levelNumber, currentApp]);
+  }, [db, levelNumber, currentApp, familyId]);
 
   return label;
 };
@@ -153,7 +149,8 @@ export const getModuleLabel = async (
 export const getLevelLabel = async (
   db: SQLiteDatabase | null,
   levelNumber: number,
-  identityId: string
+  identityId: string,
+  familyId?: string
 ): Promise<LevelLabel> => {
   // ✅ Protection renforcée contre les DB invalides
   if (!db || typeof db === 'number') {
@@ -161,12 +158,58 @@ export const getLevelLabel = async (
   }
 
   try {
-    const levelLabel = await getLevelLabelWithFallback(db, levelNumber, identityId);
-    return {
-      title: levelLabel.display_title,
-      badge: levelLabel.badge_text,
-      description: levelLabel.display_description
-    };
+    // 1. Construction de la requête pour level_labels
+    // Si familyId est présent, on cherche la sous-famille (family_id = ?)
+    // Sinon, on cherche le niveau global (family_id IS NULL) pour éviter les conflits
+    let query = `
+      SELECT display_title, badge_text, display_description 
+      FROM level_labels 
+      WHERE level_number = ? AND identity_id = ?
+    `;
+    const params: any[] = [levelNumber, identityId];
+
+    if (familyId) {
+      query += ` AND family_id = ?`;
+      params.push(familyId);
+    } else {
+      query += ` AND family_id IS NULL`;
+    }
+
+    const label = await db.getFirstAsync<{
+      display_title: string;
+      badge_text: string;
+      display_description: string;
+    }>(query, params);
+
+    if (label) {
+      return {
+        title: label.display_title,
+        badge: label.badge_text,
+        description: label.display_description
+      };
+    }
+
+    // 2. Fallback vers la table levels (uniquement pour les niveaux globaux)
+    if (!familyId) {
+      const fallbackLabel = await db.getFirstAsync<{
+        title: string;
+        badge: string;
+        description: string;
+      }>(
+        `SELECT title, badge, description FROM levels WHERE level = ?`,
+        [levelNumber]
+      );
+      
+      if (fallbackLabel) {
+        return {
+          title: fallbackLabel.title,
+          badge: fallbackLabel.badge,
+          description: fallbackLabel.description
+        };
+      }
+    }
+
+    return { title: `Niveau ${levelNumber}`, badge: `N${levelNumber}`, description: 'Niveau' };
   } catch (error) {
     const errorMsg = String(error);
     // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)

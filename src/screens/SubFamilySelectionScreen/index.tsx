@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { View, StatusBar, Text, FlatList } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -9,6 +9,7 @@ import FamilyCard from '@/components/family/FamilyCard';
 import SkeletonLoader from '@/components/ui/SkeletonLoader';
 
 import { useTheme } from '@/themes/ThemeContext';
+import { useUser } from '@/contexts/UserContext';
 import useSubfamilies from '@/hooks/subFamilySelection/useSubfamilies';
 import useSafeNavigation from '@/hooks/useSafeNavigation';
 import { createStyles } from './style';
@@ -17,10 +18,35 @@ const SubfamilySelectionScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
   const { identity } = useTheme();
-  
+
   const moduleId = params.moduleId as string;
-  const familyId = Number(params.familyId);
+  // ✅ FIX: Récupère l'ID depuis 'familyId' (query) OU 'subfamilyId' (route param détecté dans les logs)
+  const familyId = Number(params.familyId || params.subfamilyId);
   const familyName = params.familyName as string;
+  // ✅ FIX: Récupère le vrai levelId du Dashboard (1="Les Bases", 2="L'Essentiel"...)
+  const dashboardLevelId = Number(params.levelId || '1');
+  const { db } = useUser();
+  const [displayTitle, setDisplayTitle] = useState(familyName);
+  const [resolvedModuleId, setResolvedModuleId] = useState(moduleId);
+
+  // ✅ Récupération du titre si manquant (ex: refresh ou navigation directe)
+  useEffect(() => {
+    if ((displayTitle && resolvedModuleId) || !db || !familyId || Number.isNaN(familyId)) return;
+    
+    const loadData = async () => {
+      try {
+        const res = await db.getFirstAsync<{ name: string; slug: string; module_slug: string }>(
+          'SELECT name, slug, module_slug FROM families WHERE id = ?', 
+          [familyId]
+        );
+        if (res && !displayTitle) setDisplayTitle(res.name || res.slug);
+        if (res && !resolvedModuleId) setResolvedModuleId(res.module_slug);
+      } catch (e) {
+        console.error('Error loading family data', e);
+      }
+    };
+    loadData();
+  }, [db, familyId, displayTitle, resolvedModuleId]);
 
   // Utilisation du Hook dédié
   const { subfamilies, isLoading } = useSubfamilies(familyId);
@@ -36,10 +62,21 @@ const SubfamilySelectionScreen = () => {
       title={item.title}
       subtitle={item.description}
       color={identity.palette.primary}
-      onPress={() => router.push({
-        pathname: '/exercise/[exerciseId]',
-        params: { exerciseId: moduleId, familyId, contentLevel: item.id }
-      })}
+      onPress={() => {
+        const targetExerciseId = resolvedModuleId || moduleId;
+        // ✅ Sécurité : On ne navigue que si on a l'ID du module (évite le chargement infini)
+        if (targetExerciseId) {
+          router.push({
+            pathname: '/exercise/[exerciseId]',
+            params: {
+              exerciseId: targetExerciseId,
+              familyId: familyId.toString(),
+              subfamilyId: item.subfamily_id.toString(),  // ✅ Nom clair : subfamilyId
+              levelId: dashboardLevelId.toString()  // ✅ FIX: Passe le vrai levelId du Dashboard
+            }
+          });
+        }
+      }}
       animationDelay={index * 50}
     />
   );
@@ -52,7 +89,7 @@ const SubfamilySelectionScreen = () => {
         <ExerciseHeader
           variant="simple"
           onBack={() => safeGoBack.navigate()}
-          exerciseTitle={familyName || "Sous-catégories"}
+          exerciseTitle={displayTitle || "Sous-catégories"}
           rightIcon={<DynamicIcon name="layers" size={24} color={identity.header.accent} />}
         />
 
@@ -66,7 +103,7 @@ const SubfamilySelectionScreen = () => {
           <FlatList
             data={subfamilies}
             renderItem={renderItem}
-            keyExtractor={(item) => `subfam-${item.id}`}
+            keyExtractor={(item) => `subfam-${item.subfamily_id}`}
             numColumns={2}
             contentContainerStyle={styles.listContent}
             columnWrapperStyle={styles.columnWrapper}
