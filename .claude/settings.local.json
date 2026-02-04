@@ -10,7 +10,8 @@
       "Bash(npm start)",
       "Bash(npx expo install:*)",
       "Bash(npx expo start -c)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

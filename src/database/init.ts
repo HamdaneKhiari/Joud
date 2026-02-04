@@ -29,6 +29,7 @@ import migration022 from './migrations/022_seed_reading_subfamilies';
 import migration023 from './migrations/023_fix_activity_log_family_id';
 import migration024 from './migrations/024_create_exercise_errors';
 import migration025 from './migrations/025_create_chat_conversations';
+import migration026 from './migrations/026_create_vocabulary_seen';
 
 // ============================================
 // SINGLETON — une seule initialisation simultanée
@@ -91,6 +92,7 @@ const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
       migration023,
       migration024,
       migration025,
+      migration026,
     ];
 
     console.log('[JanaCore] 🚀 Running migrations in sequence...');

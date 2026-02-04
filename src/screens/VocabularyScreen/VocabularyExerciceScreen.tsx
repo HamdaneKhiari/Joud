@@ -18,6 +18,7 @@ import { useExerciseActivity } from '../../hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '../../hooks/exercises/useExerciseSaveOnUnmount';
 import { useExerciseContent } from '../../hooks/exercises/useExerciseContent';
 import { useLevelLabel } from '../../utils/labelMapper';
+import { useRecordWordSeen } from '../../hooks/exercises/useRecordWordSeen';
 
 const EXERCISE_TYPE = 'vocab';
 
@@ -44,6 +45,7 @@ type Props = {
 const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
   const { identity } = useTheme();
   const { trackItemCompletion, getFamilyProgress, saveProgressNow } = useProgress();
+  const { recordWordSeen } = useRecordWordSeen();
 
   // 1. 🛡️ Normalisation des entrées
   const params = route.params || {};
@@ -109,19 +111,33 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
 
   const handleNext = useCallback(() => {
     trackItemCompletion(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, currentWordIndex, totalWords);
+    if (contentItems?.[currentWordIndex]) {
+      recordWordSeen({
+        word:        contentItems[currentWordIndex].data.word,
+        translation: contentItems[currentWordIndex].data.translation,
+        familyId:    compositeFamilyId,
+      });
+    }
     if (currentWordIndex < totalWords - 1) {
       setCurrentWordIndex(prev => prev + 1);
     }
-  }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, trackItemCompletion]);
+  }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen]);
 
   const handleFinish = useCallback(() => {
     const executeFinish = async () => {
       trackItemCompletion(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, currentWordIndex, totalWords);
+      if (contentItems?.[currentWordIndex]) {
+        recordWordSeen({
+          word:        contentItems[currentWordIndex].data.word,
+          translation: contentItems[currentWordIndex].data.translation,
+          familyId:    compositeFamilyId,
+        });
+      }
       await saveProgressNow();
       safeGoBack.navigate();
     };
     executeFinish().catch(err => console.error("Finish error:", err));
-  }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, trackItemCompletion, saveProgressNow, safeGoBack]);
+  }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen, saveProgressNow, safeGoBack]);
 
   const handleBack = useCallback(() => {
     safeGoBack.navigate();

@@ -6,7 +6,7 @@
  * ============================================
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, ActivityIndicator, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 
@@ -16,6 +16,8 @@ import { useExerciseContent, SentenceData } from '@/hooks/exercises/useExerciseC
 import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
 import { useRecordError } from '@/hooks/exercises/useRecordError';
+import { useProgress } from '@/contexts/ProgressContext';
+import useFirstIncompleteIndex from '@/hooks/exercises/useFirstIncompleteIndex';
 import useSafeNavigation from '@/hooks/useSafeNavigation';
 
 // UI Components
@@ -36,10 +38,17 @@ const SentenceExerciseScreen: React.FC = () => {
   const safeGoBack = useSafeNavigation();
   
   // Paramètres de route
-  const { familyId, levelId } = route.params as { familyId: string; levelId: number };
+  const params            = route.params as { familyId: string | number; subfamilyId?: string | number; levelId?: string | number };
+  const familyIdNum       = Number(params.familyId    || '1');
+  const dashboardLevelId  = Number(params.levelId     || '1');
+  const subfamilyId       = Number(params.subfamilyId || '1');
+  const compositeFamilyId = `${params.familyId}-${subfamilyId}`;
 
   // 2. Chargement du contenu
-  const { module, family, contentItems, isLoading } = useExerciseContent<SentenceData>(familyId, levelId);
+  const { module, family, contentItems, isLoading } = useExerciseContent<SentenceData>(familyIdNum, subfamilyId);
+
+  // 2b. Progression
+  const { trackItemCompletion, getFamilyProgress, saveProgressNow } = useProgress();
 
   // 3. États de l'exercice
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -49,17 +58,26 @@ const SentenceExerciseScreen: React.FC = () => {
   const [validationState, setValidationState] = useState<ValidationState>('initial');
   const [customFeedback, setCustomFeedback] = useState<FeedbackData | null>(null);
 
+  // 3b. Reprise à l'index non complété
+  const getInitialIndex = useFirstIncompleteIndex(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, contentItems.length);
+  useEffect(() => {
+    if (contentItems.length > 0) {
+      setCurrentIndex(getInitialIndex());
+    }
+  }, [contentItems.length, getInitialIndex]);
+
   const currentItem = contentItems[currentIndex];
   const mode = currentItem?.data?.mode || 'free'; // Détection du mode
   
   // Correction erreur Module.color : on utilise l'identité branding main
-  const moduleColor = identity.palette.primary;
+  const moduleColor  = identity.palette.primary;
+  const realProgress = getFamilyProgress(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId);
 
   // 4. Suivi de l'activité
   useExerciseActivity({
     moduleSlug: EXERCISE_TYPE,
-    familyId,
-    levelId,
+    familyId: compositeFamilyId,
+    levelId: dashboardLevelId,
     familyName: family?.name || '',
     icon: module?.icon || 'message-text',
     currentIndex,
@@ -91,12 +109,12 @@ const SentenceExerciseScreen: React.FC = () => {
       // ✅ Enregistrer l'erreur → Coach IA
       if (!isCorrect) {
         recordError({
-          familyId,
-          moduleSlug: EXERCISE_TYPE,
-          question: currentItem.data.sentence || '',
-          userAnswer: selectedOption || '',
+          familyId:      String(familyIdNum),
+          moduleSlug:    EXERCISE_TYPE,
+          question:      currentItem.data.sentence || '',
+          userAnswer:    selectedOption || '',
           correctAnswer: currentItem.data.correctAnswer || '',
-          level: levelId,
+          level:         dashboardLevelId,
         });
       }
     } else {
@@ -119,18 +137,19 @@ const SentenceExerciseScreen: React.FC = () => {
 
         // ✅ Enregistrer l'erreur (phrase tapée vs correcte) → Coach IA analyse structure/vocab
         recordError({
-          familyId,
-          moduleSlug: EXERCISE_TYPE,
-          question: currentItem.data.phrase_fr || currentItem.data.sentence || '',
-          userAnswer: userDraft.trim(),
+          familyId:      String(familyIdNum),
+          moduleSlug:    EXERCISE_TYPE,
+          question:      currentItem.data.phrase_fr || currentItem.data.sentence || '',
+          userAnswer:    userDraft.trim(),
           correctAnswer: currentItem.data.phrase_en || '',
-          level: levelId,
+          level:         dashboardLevelId,
         });
       }
     }
   };
 
   const handleNext = useCallback(() => {
+    trackItemCompletion(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, currentIndex, contentItems.length);
     if (currentIndex < contentItems.length - 1) {
       setIsRevealed(false);
       setUserDraft('');
@@ -139,9 +158,9 @@ const SentenceExerciseScreen: React.FC = () => {
       setCustomFeedback(null);
       setCurrentIndex(prev => prev + 1);
     } else {
-      safeGoBack.navigate();
+      saveProgressNow().then(() => safeGoBack.navigate());
     }
-  }, [currentIndex, contentItems.length, safeGoBack]);
+  }, [currentIndex, contentItems.length, safeGoBack, trackItemCompletion, dashboardLevelId, compositeFamilyId, saveProgressNow]);
 
   const handleRetry = () => {
     setIsRevealed(false);
@@ -165,12 +184,12 @@ const SentenceExerciseScreen: React.FC = () => {
         onBack: safeGoBack.navigate, // Branchement direct sur le hook
         rightIcon: <DynamicIcon name={module?.icon} size={28} color={identity.header.accent} fallback="message-text" />,
         showLevelBadge: true,
-        levelTitle: `Niveau ${levelId}`,
+        levelTitle: `Niveau ${dashboardLevelId}`,
         exerciseTitle: family.name,
       }}
       progressProps={{
-        progressPercent: Math.round(((currentIndex + 1) / contentItems.length) * 100),
-        progressText: `Phrase ${currentIndex + 1} sur ${contentItems.length}`,
+        progressPercent: realProgress,
+        progressText: `${realProgress}% • Phrase ${currentIndex + 1}/${contentItems.length}`,
       }}
       footer={
         <ExerciseValidation

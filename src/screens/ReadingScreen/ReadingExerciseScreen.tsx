@@ -10,27 +10,34 @@ import ReadingCard from '../../components/pedagogy/reading/ReadingCard';
 import { useReadingState } from './hooks/useReadingState';
 import { useReadingHandlers } from './hooks/useReadingHandlers';
 import { useRecordError } from '@/hooks/exercises/useRecordError';
+import { useProgress } from '@/contexts/ProgressContext';
+import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
+import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
+import ExerciseProgressBar from '@/components/common/ExerciseProgressBar';
 
 interface ReadingExerciseParams {
-  familyId: number;
-  title?: string;
+  familyId:     number;
+  subfamilyId?: number;
+  title?:       string;
   moduleColor?: string;
-  levelId?: number;
+  levelId?:     number;
 }
 
 const MAX_ATTEMPTS = 2;
 
 const ReadingExerciseScreen: React.FC = () => {
   const { identity } = useTheme();
-  const { db, user } = useUser();
+  const { db } = useUser();
   const navigation = useNavigation();
   const route = useRoute();
 
-  const params = route.params as ReadingExerciseParams;
-  const familyId = params?.familyId;
-  const moduleColor = params?.moduleColor || identity.palette.primary;
-  const title = params?.title || 'Reading';
-  const levelId = params?.levelId || 1;
+  const params            = route.params as ReadingExerciseParams;
+  const familyId          = params?.familyId;
+  const subfamilyId       = params?.subfamilyId || 1;
+  const moduleColor       = params?.moduleColor || identity.palette.primary;
+  const title             = params?.title || 'Reading';
+  const dashboardLevelId  = params?.levelId || 1;
+  const compositeFamilyId = `${familyId}-${subfamilyId}`;
 
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -38,6 +45,20 @@ const ReadingExerciseScreen: React.FC = () => {
 
   const { state, setState, resetState } = useReadingState();
   const { recordError } = useRecordError();
+  const { trackItemCompletion, getFamilyProgress, saveProgressNow } = useProgress();
+
+  useExerciseActivity({
+    moduleSlug: 'reading',
+    familyId:   compositeFamilyId,
+    levelId:    dashboardLevelId,
+    familyName: title,
+    icon:       'book-open-variant',
+    currentIndex,
+    totalItems: questions.length,
+    enabled:    !loading && questions.length > 0,
+  });
+
+  useExerciseSaveOnUnmount();
 
   useEffect(() => {
     const loadContent = async () => {
@@ -45,8 +66,8 @@ const ReadingExerciseScreen: React.FC = () => {
       try {
         setLoading(true);
         const result = await db.getAllAsync<{ data: string }>(
-          `SELECT data FROM content WHERE family_id = ?`, 
-          [familyId]
+          `SELECT data FROM content WHERE family_id = ? AND subfamily_id = ?`,
+          [familyId, subfamilyId]
         );
 
         if (result && result.length > 0) {
@@ -67,22 +88,22 @@ const ReadingExerciseScreen: React.FC = () => {
       }
     };
     loadContent();
-  }, [db, familyId, navigation]);
+  }, [db, familyId, subfamilyId, navigation]);
 
-  const handleFinish = useCallback(() => {
-    if (db && familyId && user) {
-      db.runAsync(
-        `INSERT OR REPLACE INTO progress (user_id, family_id, level, completed, score, last_accessed) 
-         VALUES (?, ?, ?, 1, 100, ?)`,
-        [user.id, familyId, levelId, new Date().toISOString()]
-      ).catch(e => console.error('Save progress error:', e));
-    }
+  const trackAndAdvance = useCallback((updater: React.SetStateAction<number>) => {
+    trackItemCompletion(dashboardLevelId, 'reading', compositeFamilyId, currentIndex, questions.length);
+    setCurrentIndex(updater);
+  }, [trackItemCompletion, dashboardLevelId, compositeFamilyId, currentIndex, questions.length]);
+
+  const handleFinish = useCallback(async () => {
+    trackItemCompletion(dashboardLevelId, 'reading', compositeFamilyId, currentIndex, questions.length);
+    await saveProgressNow();
     Alert.alert(
-      "Terminé !", 
-      "Vous avez complété l'analyse de texte.", 
+      "Terminé !",
+      "Vous avez complété l'analyse de texte.",
       [{ text: "OK", onPress: () => navigation.goBack() }]
     );
-  }, [db, familyId, user, levelId, navigation]);
+  }, [trackItemCompletion, dashboardLevelId, compositeFamilyId, currentIndex, questions.length, saveProgressNow, navigation]);
 
   const handleRecordError = useCallback(({ question: q, userAnswer, correctAnswer }: { question: string; userAnswer: string; correctAnswer: string }) => {
     recordError({
@@ -91,15 +112,15 @@ const ReadingExerciseScreen: React.FC = () => {
       question: q,
       userAnswer,
       correctAnswer,
-      level: levelId,
+      level: dashboardLevelId,
     });
-  }, [recordError, familyId, levelId]);
+  }, [recordError, familyId, dashboardLevelId]);
 
   const handlers = useReadingHandlers({
     question: questions[currentIndex],
     isLastQuestion: currentIndex === questions.length - 1,
     onFinish: handleFinish, // ✅ Point crucial pour le White Label
-    setCurrentQuestionIndex: setCurrentIndex, // ✅ Synchronisation de l'index
+    setCurrentQuestionIndex: trackAndAdvance,
     state,
     setState,
     resetState,
@@ -118,8 +139,10 @@ const ReadingExerciseScreen: React.FC = () => {
     );
   }
 
-  const currentQuestion = questions[currentIndex];
+  const currentQuestion  = questions[currentIndex];
   if (!currentQuestion) return null;
+
+  const readingProgress = getFamilyProgress(dashboardLevelId, 'reading', compositeFamilyId);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: identity.palette.surface }]}>
@@ -141,6 +164,11 @@ const ReadingExerciseScreen: React.FC = () => {
 
         <View style={{ width: 24 }} />
       </View>
+
+      <ExerciseProgressBar
+        progressPercent={readingProgress}
+        progressText={`${readingProgress}% • Question ${currentIndex + 1}/${questions.length}`}
+      />
 
       <ReadingCard
         question={currentQuestion}

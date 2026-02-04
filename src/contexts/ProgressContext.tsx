@@ -24,7 +24,7 @@ interface ExerciseProgress {
 interface LevelProgress {
   vocab: ExerciseProgress;
   grammar: ExerciseProgress;
-  phrase_types: ExerciseProgress;
+  sentences: ExerciseProgress;
   reading: ExerciseProgress;
   dialogues: ExerciseProgress;
   word_games: ExerciseProgress;
@@ -152,7 +152,7 @@ const createInitialProgress = (): ProgressState => {
     base[l] = {
       vocab: {},
       grammar: {},
-      phrase_types: {},
+      sentences: {},
       reading: {},
       dialogues: {},
       word_games: {}
@@ -287,7 +287,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [progress, getFamilyProgress]);
 
   const getLevelProgress = useCallback((levelId: number): number => {
-    const types = ['vocab', 'grammar', 'phrase_types', 'reading', 'dialogues', 'word_games'];
+    const types = ['vocab', 'grammar', 'sentences', 'reading', 'dialogues', 'word_games'];
 
     const sum = types.reduce((total, type) => {
       return total + getExerciseProgress(levelId, type, null);
