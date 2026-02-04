@@ -186,8 +186,11 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
     </View>
   );
 
+  // ✅ Détecter si card unique pour layout adaptatif
+  const isSingleCard = sortedFamilies.length === 1;
+
   const renderItem = ({ item, index }: { item: any; index: number }) => {
-    return (
+    const card = (
       <FamilyCard
         icon={item.icon}
         title={item.name || item.id.toString()}
@@ -200,6 +203,10 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
         animationDelay={index * 50}
       />
     );
+
+    // ✅ En mode grid, wrapper chaque card pour éviter l'étirement des cards orphelines
+    // (quand nombre impair, la dernière card seule prend 100% sinon)
+    return <View style={isSingleCard ? styles.singleCardWrapper : styles.gridCardWrapper}>{card}</View>;
   };
 
   return (
@@ -218,13 +225,17 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
 
         {isLoading ? renderSkeleton() : (
           <FlatList
+            key={isSingleCard ? 'single' : 'grid'} // ✅ Force re-render selon layout
             data={sortedFamilies}
             renderItem={renderItem}
             keyExtractor={(item) => `family-${item.id}`}
-            numColumns={2}
+            numColumns={isSingleCard ? 1 : 2} // ✅ 1 colonne si card unique
             ListEmptyComponent={renderEmptyState}
-            contentContainerStyle={styles.listContent}
-            columnWrapperStyle={styles.columnWrapper}
+            contentContainerStyle={[
+              styles.listContent,
+              isSingleCard && styles.singleCardContainer // ✅ Centre la card unique
+            ]}
+            columnWrapperStyle={!isSingleCard ? styles.columnWrapper : undefined}
             showsVerticalScrollIndicator={false}
           />
         )}

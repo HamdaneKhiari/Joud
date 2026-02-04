@@ -8,7 +8,6 @@ import { createStyles } from './styles/dashboardStyle';
 // Composants spécialisés
 import DashboardHeader from './components/DashboardHeader/DashboardHeader';
 import DailyWordCard from './components/DashboardDailyWordCard/DailyWordCard'; // ✅ Nouveau composant
-import AIDiagnosticCard from './components/DashboardAiDiagnostic/AidiagnosticCard';
 import AITutorCard from './components/DashboardAiTutorCard/AiTutorCard';
 import MetricsSection from './components/DashboardMetricsSession/metricsSession';
 import LevelCard from './components/DashboardLevel/levelCard';
@@ -119,14 +118,9 @@ export default function Dashboard() {
         />
       </View>
 
-      {/* 4. ANALYSER & AGIR : Pôle IA */}
+      {/* 4. ANALYSER & AGIR : Tuteur IA */}
       {user.audience !== 'primary' && (
         <Animated.View entering={FadeInDown.delay(300).springify()} style={styles.section}>
-          <AIDiagnosticCard
-            errorPatterns={{ verb_conjugation: { count: 8, severity: 2 } }} // TODO: Analyser les erreurs réelles de l'utilisateur
-            challenge={{ userMessage: identity.aiTutor.subtitle }}
-            onTakeChallenge={() => console.log('Challenge accepted')}
-          />
           <AITutorCard />
         </Animated.View>
       )}

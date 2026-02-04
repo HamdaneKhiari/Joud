@@ -8,6 +8,8 @@ interface UseReadingHandlersProps {
   state: any;
   setState: any;
   resetState: () => void;
+  onError?: (params: { question: string; userAnswer: string; correctAnswer: string }) => void;
+  maxAttempts?: number;
 }
 
 export const useReadingHandlers = ({
@@ -18,6 +20,8 @@ export const useReadingHandlers = ({
   state,
   setState,
   resetState,
+  onError,
+  maxAttempts,
 }: UseReadingHandlersProps) => {
 
   const handleAnswer = useCallback((option: string) => {
@@ -27,17 +31,27 @@ export const useReadingHandlers = ({
 
   const handleValidate = useCallback(() => {
     if (!state.selectedOption) return;
-    
+
     // On compare la lettre choisie (A, B, C...) avec la bonne réponse
     const isCorrect = state.selectedOption === question.correct_answer;
+    const newAttemptCount = state.attemptCount + 1;
 
     setState((prev: any) => ({
       ...prev,
       isValidated: true,
       isCorrect,
-      attemptCount: prev.attemptCount + 1
+      attemptCount: newAttemptCount
     }));
-  }, [state.selectedOption, question, setState]);
+
+    // ✅ Enregistrer l'erreur si dernier essai échoué → Coach IA
+    if (!isCorrect && maxAttempts && newAttemptCount >= maxAttempts && onError) {
+      onError({
+        question: question.question_text || '',
+        userAnswer: state.selectedOption,
+        correctAnswer: question.correct_answer || '',
+      });
+    }
+  }, [state.selectedOption, state.attemptCount, question, setState, onError, maxAttempts]);
 
   const handleNext = useCallback(() => {
     if (isLastQuestion) {

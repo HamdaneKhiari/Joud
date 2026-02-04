@@ -83,17 +83,27 @@ class AIService {
   }
 
   /**
-   * Construit un message système pour contextualiser l'IA
+   * Construit un objet message système pour le contexte chat
    */
-  buildSystemMessage(level: number, topic?: string): string {
-    return `You are an English tutor for level ${level} students${topic ? ` focusing on ${topic}` : ''}. Provide clear, helpful explanations.`;
+  buildSystemMessage(content: string): { role: string; content: string } {
+    return { role: 'system', content };
   }
 
   /**
-   * Envoie un message de chat (alias de sendMessage)
+   * Envoie une conversation multi-messages vers l'API IA
+   * Retourne uniquement le texte de la réponse
    */
-  async sendChatMessage(request: AIRequest): Promise<AIResponse> {
-    return this.sendMessage(request);
+  async sendChatMessage(
+    _provider: string,
+    _apiKey: string,
+    messages: Array<{ role: string; content: string }>,
+    _options?: { model?: string }
+  ): Promise<string> {
+    // TODO: Implémenter l'appel vers provider réel (OpenAI / Mistral / Claude)
+    await this.delay(1200);
+
+    const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
+    return `(Mock) En réponse à : "${lastUserMsg?.content || '...'}" — Je suis ton tuteur anglais. Pose-moi une vraie question et je te répondrai !`;
   }
 
   /**

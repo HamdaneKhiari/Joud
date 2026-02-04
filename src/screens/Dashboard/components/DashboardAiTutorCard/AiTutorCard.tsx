@@ -5,10 +5,12 @@
 
 import React from 'react';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useRouter } from 'expo-router';
 import { useTheme } from '@/themes/ThemeContext';
 import FlowCard from '@/components/flow/FlowCard';
 
 const AITutorCard: React.FC = () => {
+  const router = useRouter();
   const { identity } = useTheme();
   const isPlayful = identity.ui.mood === 'playful';
 
@@ -34,7 +36,7 @@ const AITutorCard: React.FC = () => {
         description={config.description}
         color={config.color}
         badge={config.badge}
-        onPress={() => console.log('Ouvrir Tuteur IA')}
+        onPress={() => router.push('/ai-tutor')}
       />
     </Animated.View>
   );

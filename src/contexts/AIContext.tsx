@@ -18,10 +18,14 @@ interface Message {
   timestamp: Date;
 }
 
-interface AISettings {
+export interface AISettings {
+  isConfigured: boolean;
+  provider: string;
+  apiKey: string;
+  model: string;
   maxTokens: number;
   temperature: number;
-  maxDailyMessages: number;
+  maxMessagesPerDay: number;
 }
 
 interface AIContextType {
@@ -52,9 +56,13 @@ export const AIProvider = ({ children }: { children: ReactNode }) => {
   const [usageCount, setUsageCount] = useState(0);
 
   const settings: AISettings = {
+    isConfigured: true,
+    provider: 'mock',
+    apiKey: '',
+    model: 'mock-model',
     maxTokens: 1000,
     temperature: 0.7,
-    maxDailyMessages: 50,
+    maxMessagesPerDay: 50,
   };
 
   const addMessage = (message: Message) => {
@@ -76,7 +84,7 @@ export const AIProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const canSendMessage = () => {
-    return usageCount < settings.maxDailyMessages;
+    return usageCount < settings.maxMessagesPerDay;
   };
 
   const incrementUsage = () => {

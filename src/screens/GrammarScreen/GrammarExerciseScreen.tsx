@@ -20,6 +20,7 @@ import { useUser } from '@/contexts/UserContext';
 import useSafeNavigation from '@/hooks/useSafeNavigation';
 import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
+import { useRecordError } from '@/hooks/exercises/useRecordError';
 import { useTheme } from '@/themes/ThemeContext';
 
 // Types
@@ -51,6 +52,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
   const { identity } = useTheme();
   const { db } = useUser();
   const { trackItemCompletion, getFamilyProgress } = useProgress();
+  const { recordError } = useRecordError();
 
   // ✅ Plus besoin de gradientColors - ExerciseLayout gère le gradient automatiquement
 
@@ -154,6 +156,18 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
     // Marquer comme complété si correct ou si dernier essai
     if (isCorrect || newAttemptCount >= MAX_ATTEMPTS) {
       trackItemCompletion(numLevelId, EXERCISE_TYPE, safeFamilyId, currentRuleIndex, totalRules);
+    }
+
+    // ✅ Enregistrer l'erreur si dernière tentative échouée → Coach IA
+    if (!isCorrect && newAttemptCount >= MAX_ATTEMPTS && currentRule) {
+      recordError({
+        familyId: safeFamilyId,
+        moduleSlug: EXERCISE_TYPE,
+        question: currentRule.exercise.question || '',
+        userAnswer: exerciseState.selectedOption || '',
+        correctAnswer: currentRule.exercise.correctAnswer || '',
+        level: numLevelId,
+      });
     }
   };
 

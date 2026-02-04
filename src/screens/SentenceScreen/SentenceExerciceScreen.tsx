@@ -15,6 +15,7 @@ import { useTheme } from '@/themes/ThemeContext';
 import { useExerciseContent, SentenceData } from '@/hooks/exercises/useExerciseContent';
 import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
+import { useRecordError } from '@/hooks/exercises/useRecordError';
 import useSafeNavigation from '@/hooks/useSafeNavigation';
 
 // UI Components
@@ -69,6 +70,9 @@ const SentenceExerciseScreen: React.FC = () => {
   // 5. Sauvegarde auto (Appel sans arguments selon ton hook)
   useExerciseSaveOnUnmount();
 
+  // 6. Enregistrement des erreurs pour le Coach IA
+  const { recordError } = useRecordError();
+
   // --- LOGIQUE DE VALIDATION ---
 
   const handleValidate = () => {
@@ -83,6 +87,18 @@ const SentenceExerciseScreen: React.FC = () => {
           ? { title: "BRAVO !", message: "C'est la bonne réponse !" }
           : { title: "PAS TOUT À FAIT", message: "Regarde bien la bonne réponse." }
       );
+
+      // ✅ Enregistrer l'erreur → Coach IA
+      if (!isCorrect) {
+        recordError({
+          familyId,
+          moduleSlug: EXERCISE_TYPE,
+          question: currentItem.data.sentence || '',
+          userAnswer: selectedOption || '',
+          correctAnswer: currentItem.data.correctAnswer || '',
+          level: levelId,
+        });
+      }
     } else {
       // Mode FREE : Vérification de la saisie libre
       const cleanUser = userDraft.trim().toLowerCase().replace(/[.,!?;]/g, "");
@@ -99,6 +115,16 @@ const SentenceExerciseScreen: React.FC = () => {
         setCustomFeedback({
           title: "OBSERVE LA NUANCE",
           message: "Ton sens est peut-être bon, mais compare bien avec la structure attendue."
+        });
+
+        // ✅ Enregistrer l'erreur (phrase tapée vs correcte) → Coach IA analyse structure/vocab
+        recordError({
+          familyId,
+          moduleSlug: EXERCISE_TYPE,
+          question: currentItem.data.phrase_fr || currentItem.data.sentence || '',
+          userAnswer: userDraft.trim(),
+          correctAnswer: currentItem.data.phrase_en || '',
+          level: levelId,
         });
       }
     }

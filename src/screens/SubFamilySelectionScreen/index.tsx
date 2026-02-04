@@ -56,36 +56,44 @@ const SubfamilySelectionScreen = () => {
     router.back();
   });
 
-  const renderItem = ({ item, index }: { item: any; index: number }) => (
-    <FamilyCard
-      icon={item.icon}
-      title={item.title}
-      subtitle={item.description}
-      color={identity.palette.primary}
-      onPress={() => {
-        const targetExerciseId = resolvedModuleId || moduleId;
-        // ✅ Sécurité : On ne navigue que si on a l'ID du module (évite le chargement infini)
-        if (targetExerciseId) {
-          router.push({
-            pathname: '/exercise/[exerciseId]',
-            params: {
-              exerciseId: targetExerciseId,
-              familyId: familyId.toString(),
-              subfamilyId: item.subfamily_id.toString(),  // ✅ Nom clair : subfamilyId
-              levelId: dashboardLevelId.toString()  // ✅ FIX: Passe le vrai levelId du Dashboard
-            }
-          });
-        }
-      }}
-      animationDelay={index * 50}
-    />
-  );
+  // ✅ Détecter si card unique pour layout adaptatif
+  const isSingleCard = subfamilies.length === 1;
+
+  const renderItem = ({ item, index }: { item: any; index: number }) => {
+    const card = (
+      <FamilyCard
+        icon={item.icon}
+        title={item.title}
+        subtitle={item.description}
+        color={identity.palette.primary}
+        onPress={() => {
+          const targetExerciseId = resolvedModuleId || moduleId;
+          // ✅ Sécurité : On ne navigue que si on a l'ID du module (évite le chargement infini)
+          if (targetExerciseId) {
+            router.push({
+              pathname: '/exercise/[exerciseId]',
+              params: {
+                exerciseId: targetExerciseId,
+                familyId: familyId.toString(),
+                subfamilyId: item.subfamily_id.toString(),  // ✅ Nom clair : subfamilyId
+                levelId: dashboardLevelId.toString()  // ✅ FIX: Passe le vrai levelId du Dashboard
+              }
+            });
+          }
+        }}
+        animationDelay={index * 50}
+      />
+    );
+
+    // ✅ En mode grid, wrapper chaque card pour éviter l'étirement des cards orphelines
+    return <View style={isSingleCard ? styles.singleCardWrapper : styles.gridCardWrapper}>{card}</View>;
+  };
 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.safeArea}>
         <StatusBar barStyle={identity.themeMode === 'dark' ? 'light-content' : 'dark-content'} />
-        
+
         <ExerciseHeader
           variant="simple"
           onBack={() => safeGoBack.navigate()}
@@ -101,12 +109,16 @@ const SubfamilySelectionScreen = () => {
           </View>
         ) : (
           <FlatList
+            key={isSingleCard ? 'single' : 'grid'} // ✅ Force re-render selon layout
             data={subfamilies}
             renderItem={renderItem}
             keyExtractor={(item) => `subfam-${item.subfamily_id}`}
-            numColumns={2}
-            contentContainerStyle={styles.listContent}
-            columnWrapperStyle={styles.columnWrapper}
+            numColumns={isSingleCard ? 1 : 2} // ✅ 1 colonne si card unique
+            contentContainerStyle={[
+              styles.listContent,
+              isSingleCard && styles.singleCardContainer // ✅ Centre la card unique
+            ]}
+            columnWrapperStyle={!isSingleCard ? styles.columnWrapper : undefined}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
                 <Text style={styles.emptyTitle}>Bientôt disponible</Text>

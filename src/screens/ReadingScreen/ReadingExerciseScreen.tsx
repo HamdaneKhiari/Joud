@@ -9,6 +9,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ReadingCard from '../../components/pedagogy/reading/ReadingCard';
 import { useReadingState } from './hooks/useReadingState';
 import { useReadingHandlers } from './hooks/useReadingHandlers';
+import { useRecordError } from '@/hooks/exercises/useRecordError';
 
 interface ReadingExerciseParams {
   familyId: number;
@@ -36,6 +37,7 @@ const ReadingExerciseScreen: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const { state, setState, resetState } = useReadingState();
+  const { recordError } = useRecordError();
 
   useEffect(() => {
     const loadContent = async () => {
@@ -82,6 +84,17 @@ const ReadingExerciseScreen: React.FC = () => {
     );
   }, [db, familyId, user, levelId, navigation]);
 
+  const handleRecordError = useCallback(({ question: q, userAnswer, correctAnswer }: { question: string; userAnswer: string; correctAnswer: string }) => {
+    recordError({
+      familyId,
+      moduleSlug: 'reading',
+      question: q,
+      userAnswer,
+      correctAnswer,
+      level: levelId,
+    });
+  }, [recordError, familyId, levelId]);
+
   const handlers = useReadingHandlers({
     question: questions[currentIndex],
     isLastQuestion: currentIndex === questions.length - 1,
@@ -90,6 +103,8 @@ const ReadingExerciseScreen: React.FC = () => {
     state,
     setState,
     resetState,
+    onError: handleRecordError,
+    maxAttempts: MAX_ATTEMPTS,
   });
 
   if (loading) {

@@ -154,15 +154,23 @@ const ExerciseSelectionScreen: React.FC = () => {
   // ✅ renderHeader vidé : Plus de section "Continuer" !
   const renderHeader = () => <View style={{ height: 20 }} />;
 
-  const renderItem = ({ item, index }: { item: any; index: number }) => (
-    <ModuleItem
-      exercise={item}
-      levelId={numLevelId}
-      identity={identity}
-      index={index}
-      onPress={() => handleExercisePress(item)}
-    />
-  );
+  // ✅ Détecter si card unique pour layout adaptatif
+  const isSingleCard = sortedExercises.length === 1;
+
+  const renderItem = ({ item, index }: { item: any; index: number }) => {
+    const card = (
+      <ModuleItem
+        exercise={item}
+        levelId={numLevelId}
+        identity={identity}
+        index={index}
+        onPress={() => handleExercisePress(item)}
+      />
+    );
+
+    // ✅ En mode grid, wrapper chaque card pour éviter l'étirement des cards orphelines
+    return <View style={isSingleCard ? styles.singleCardWrapper : styles.gridCardWrapper}>{card}</View>;
+  };
 
   return (
     <SafeAreaProvider>
@@ -184,13 +192,17 @@ const ExerciseSelectionScreen: React.FC = () => {
           </View>
         ) : (
           <FlatList
+            key={isSingleCard ? 'single' : 'grid'} // ✅ Force re-render selon layout
             data={sortedExercises}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
-            numColumns={2}
+            numColumns={isSingleCard ? 1 : 2} // ✅ 1 colonne si card unique
             ListHeaderComponent={renderHeader}
-            contentContainerStyle={styles.listContent}
-            columnWrapperStyle={styles.columnWrapper}
+            contentContainerStyle={[
+              styles.listContent,
+              isSingleCard && styles.singleCardContainer // ✅ Centre la card unique
+            ]}
+            columnWrapperStyle={!isSingleCard ? styles.columnWrapper : undefined}
             showsVerticalScrollIndicator={false}
           />
         )}

@@ -2,6 +2,7 @@
  * ============================================
  * AI TUTOR FREE SCREEN (TypeScript + White Label + Moods)
  * Chat libre avec l'IA - Mode non guidé
+ * Historique persistant (3 conversations max via useChatConversation)
  * ============================================
  */
 
@@ -19,7 +20,6 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
@@ -29,19 +29,12 @@ import { useAI } from '@/contexts/AIContext';
 import { useCurrentLevel } from '@/contexts/CurrentLevelContext';
 import aiService from '@/services/ai/aiService';
 import ragService from '@/services/ai/ragService';
-import useSafeNavigation from '@/hooks/useSafeNavigation';
-import { tokens } from '@/themes/tokens';
-import { baseColors } from '@/themes/colors';
+import { tokens, withOpacity } from '@/themes/tokens';
+import { useChatConversation, ChatMessage } from './hooks/useChatConversation';
 
 // ============================================
 // TYPES
 // ============================================
-
-type RootStackParamList = {
-  AITutorFree: undefined;
-};
-
-type Props = NativeStackScreenProps<RootStackParamList, 'AITutorFree'>;
 
 interface Message {
   id: string;
@@ -49,24 +42,23 @@ interface Message {
   content: string;
   timestamp: Date;
   source?: 'ai' | 'joud_academy' | 'ai_api';
-  ragContext?: any;
   provider?: string;
 }
 
 // ============================================
-// HELPER FUNCTIONS
+// HELPERS
 // ============================================
 
 function getLevelWelcomeMessage(level: number): string {
   switch (level) {
     case 1:
-      return "Pose-moi des questions simples sur l'anglais, je vais t'aider ! 😊";
+      return "Pose-moi des questions simples sur l'anglais, je vais t'aider !";
     case 2:
-      return 'Tu peux me poser des questions sur la grammaire, le vocabulaire... Je suis là pour toi ! 📚';
+      return 'Tu peux me poser des questions sur la grammaire, le vocabulaire... Je suis là pour toi !';
     case 3:
-      return "N'hésite pas à me demander des explications sur des concepts plus complexes. On va progresser ensemble ! 🚀";
+      return "N'hésite pas à me demander des explications sur des concepts plus complexes. On va progresser ensemble !";
     case 4:
-      return "Discutons en anglais ou en français, je m'adapte à ton niveau avancé. Let's chat! 🎯";
+      return "Discutons en anglais ou en français, je m'adapte à ton niveau avancé. Let's chat!";
     default:
       return "Pose-moi n'importe quelle question sur l'anglais !";
   }
@@ -74,7 +66,7 @@ function getLevelWelcomeMessage(level: number): string {
 
 function buildLevelAdaptedSystemPrompt(level: number): { role: string; content: string } {
   const baseTone: Record<number, string> = {
-    1: 'Utilise un langage très simple et encourageant. Évite les termes complexes. Utilise des émojis pour rendre la conversation fun. Réponds en 2-3 phrases courtes maximum.',
+    1: 'Utilise un langage très simple et encourageant. Évite les termes complexes. Réponds en 2-3 phrases courtes maximum.',
     2: 'Utilise un langage clair et pédagogique. Tu peux introduire quelques termes techniques en les expliquant. Réponds en 3-4 phrases.',
     3: 'Utilise un langage précis. Tu peux utiliser des termes grammaticaux et donner des explications plus nuancées. Réponds en 4-5 phrases.',
     4: "Utilise un langage riche et précis. Tu peux discuter de concepts avancés et donner des exemples variés. N'hésite pas à mélanger français et anglais si pertinent. Réponds en 5-6 phrases.",
@@ -90,40 +82,67 @@ IMPORTANT: If you detect that the question is about a grammar rule or vocabulary
   );
 }
 
+/** Convertit un ChatMessage (DB) en Message (UI) */
+function toUIMessage(msg: ChatMessage): Message {
+  return {
+    id: msg.id.toString(),
+    type: msg.role,
+    content: msg.content,
+    timestamp: new Date(msg.created_at),
+    source: msg.source as Message['source'],
+    provider: msg.provider,
+  };
+}
+
 // ============================================
 // COMPOSANT
 // ============================================
 
-const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
+const AITutorFreeScreen: React.FC = () => {
   const router = useRouter();
   const { identity } = useTheme();
-  const { settings, canSendMessage, incrementUsage, addChatMessage } = useAI();
+  const { settings, canSendMessage, incrementUsage } = useAI();
   const { currentLevel } = useCurrentLevel();
-  const safeGoBack = useSafeNavigation(
-    useCallback(() => {
-      if (navigation?.goBack) {
-        navigation.goBack();
-      } else {
-        router.back();
-      }
-    }, [navigation, router])
-  );
+  const {
+    conversations,
+    currentConversationId,
+    messages: persistedMessages,
+    isLoading: isDBLoading,
+    saveMessage,
+    newConversation,
+    switchConversation,
+  } = useChatConversation('free');
 
   const isPlayful = identity.ui.mood === 'playful';
 
-  // État local
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      type: 'ai',
-      content: `Salut ! Je suis ton AI Tutor. ${getLevelWelcomeMessage(currentLevel)}`,
-      timestamp: new Date(),
-      source: 'ai',
-    },
-  ]);
+  // État local pour le rendu (permet les mises à jour optimistiques)
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
+  // Évite de poster le welcome deux fois pour la même conversation
+  const welcomeSavedRef = useRef<number | null>(null);
+
+  // =================== SYNC depuis la DB ===================
+  useEffect(() => {
+    if (isDBLoading || !currentConversationId) return;
+
+    if (persistedMessages.length > 0) {
+      setMessages(persistedMessages.map(toUIMessage));
+    } else if (welcomeSavedRef.current !== currentConversationId) {
+      // Nouvelle conversation vide → poster le welcome + le persister
+      welcomeSavedRef.current = currentConversationId;
+      const welcomeContent = `Salut ! Je suis ton AI Tutor. ${getLevelWelcomeMessage(currentLevel)}`;
+      setMessages([{
+        id: 'welcome',
+        type: 'ai',
+        content: welcomeContent,
+        timestamp: new Date(),
+        source: 'ai',
+      }]);
+      saveMessage('ai', welcomeContent, 'ai');
+    }
+  }, [persistedMessages, currentConversationId, isDBLoading, currentLevel, saveMessage]);
 
   // =================== STYLES ===================
 
@@ -134,6 +153,8 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
           flex: 1,
           backgroundColor: identity.palette.background,
         },
+
+        // --- Header ---
         header: {
           paddingHorizontal: tokens.spacing.lg,
           paddingVertical: tokens.spacing.md,
@@ -162,9 +183,47 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
           fontWeight: tokens.fontWeight.medium,
           color: identity.text.secondary,
         },
-        settingsButton: {
+        headerActions: {
+          flexDirection: 'row',
+          gap: tokens.spacing.xs,
+        },
+        iconButton: {
           padding: tokens.spacing.sm,
         },
+
+        // --- Barre des conversations ---
+        convBar: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: tokens.spacing.sm,
+          paddingHorizontal: tokens.spacing.lg,
+          paddingVertical: tokens.spacing.sm,
+          backgroundColor: identity.palette.background,
+          borderBottomWidth: 1,
+          borderBottomColor: withOpacity(identity.palette.primary, 0.1),
+        },
+        convChip: {
+          paddingHorizontal: tokens.spacing.md,
+          paddingVertical: tokens.spacing.xs,
+          borderRadius: tokens.borderRadius.round,
+          backgroundColor: identity.palette.surface,
+          borderWidth: 1,
+          borderColor: withOpacity(identity.palette.primary, 0.2),
+        },
+        convChipActive: {
+          backgroundColor: identity.palette.primary,
+          borderColor: identity.palette.primary,
+        },
+        convChipText: {
+          fontSize: tokens.fontSize.xs,
+          fontWeight: tokens.fontWeight.semibold,
+          color: identity.text.secondary,
+        },
+        convChipTextActive: {
+          color: identity.text.onPrimary,
+        },
+
+        // --- Messages ---
         keyboardView: {
           flex: 1,
         },
@@ -205,15 +264,15 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
         messageContentAI: {
           backgroundColor: identity.palette.surface,
           borderWidth: 1,
-          borderColor: identity.palette.primary,
+          borderColor: withOpacity(identity.palette.primary, 0.2),
         },
         messageContentUser: {
           backgroundColor: identity.palette.primary,
         },
         messageContentError: {
-          backgroundColor: baseColors.red100,
+          backgroundColor: withOpacity(identity.aiDiagnostic.error, 0.1),
           borderWidth: 1,
-          borderColor: baseColors.red300,
+          borderColor: withOpacity(identity.aiDiagnostic.error, 0.3),
         },
         ragBadge: {
           flexDirection: 'row',
@@ -223,12 +282,12 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
           paddingHorizontal: tokens.spacing.sm,
           paddingVertical: tokens.spacing.xs,
           borderRadius: tokens.borderRadius.sm,
-          backgroundColor: baseColors.blue100,
+          backgroundColor: withOpacity(identity.palette.accent, 0.15),
         },
         ragBadgeText: {
           fontSize: tokens.fontSize.xs,
           fontWeight: tokens.fontWeight.semibold,
-          color: baseColors.blue800,
+          color: identity.palette.accent,
         },
         messageText: {
           fontSize: tokens.fontSize.base,
@@ -242,7 +301,7 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
           color: identity.text.onPrimary,
         },
         messageTextError: {
-          color: baseColors.red800,
+          color: identity.aiDiagnostic.error,
         },
         messageProvider: {
           fontSize: tokens.fontSize.xs,
@@ -251,13 +310,15 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
           marginTop: tokens.spacing.xs,
           fontStyle: 'italic',
         },
+
+        // --- Input ---
         inputContainer: {
           flexDirection: 'row',
           paddingHorizontal: tokens.spacing.lg,
           paddingVertical: tokens.spacing.md,
           backgroundColor: identity.palette.surface,
           borderTopWidth: 1,
-          borderTopColor: identity.palette.primary,
+          borderTopColor: withOpacity(identity.palette.primary, 0.2),
           gap: tokens.spacing.sm,
         },
         input: {
@@ -266,7 +327,7 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
           paddingVertical: tokens.spacing.sm,
           borderRadius: tokens.borderRadius.md,
           borderWidth: 1,
-          borderColor: identity.palette.primary,
+          borderColor: withOpacity(identity.palette.primary, 0.3),
           backgroundColor: identity.palette.background,
           fontSize: tokens.fontSize.base,
           color: identity.text.primary,
@@ -283,6 +344,13 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
         sendButtonDisabled: {
           opacity: 0.5,
         },
+
+        // --- Loading full screen ---
+        loadingContainer: {
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+        },
       }),
     [identity, isPlayful]
   );
@@ -298,13 +366,10 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
   const checkAIConfiguration = useCallback(() => {
     if (!settings.isConfigured) {
       Alert.alert(
-        '🤖 Configuration requise',
+        'Configuration requise',
         "Tu dois d'abord configurer ton IA pour utiliser le chat.",
         [
-          {
-            text: 'Configurer maintenant',
-            onPress: () => router.push('/settings/ai'),
-          },
+          { text: 'Configurer maintenant', onPress: () => router.push('/settings/ai') },
           { text: 'Plus tard', style: 'cancel' },
         ]
       );
@@ -313,7 +378,7 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
 
     if (!canSendMessage()) {
       Alert.alert(
-        '⏸️ Limite atteinte',
+        'Limite atteinte',
         `Tu as atteint ta limite quotidienne de ${settings.maxMessagesPerDay} messages. Reviens demain !`,
         [{ text: 'OK', style: 'cancel' }]
       );
@@ -325,41 +390,41 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
 
   // =================== SEND MESSAGE ===================
   const handleSend = useCallback(async () => {
-    if (!inputText.trim() || isLoading) return;
-
+    if (!inputText.trim() || isSending) return;
     if (!checkAIConfiguration()) return;
 
-    const userMessage: Message = {
+    const userContent = inputText.trim();
+
+    // Optimiste : ajouter le message utilisateur immédiatement
+    setMessages((prev) => [...prev, {
       id: Date.now().toString(),
       type: 'user',
-      content: inputText.trim(),
+      content: userContent,
       timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    addChatMessage(userMessage as any);
+    }]);
     setInputText('');
-    setIsLoading(true);
+    setIsSending(true);
+
+    // Persister le message utilisateur
+    saveMessage('user', userContent);
 
     try {
       // ========== ÉTAPE 1 : CHECK RAG LOCAL ==========
-      const ragResult = ragService.shouldUseRAG(userMessage.content, currentLevel);
+      const ragResult = ragService.shouldUseRAG(userContent, currentLevel);
 
       if (ragResult.useRAG && ragResult.context) {
         ragService.trackRAGUsage(true, 100);
 
-        const localResponse: Message = {
+        const ragContent = ragService.formatRAGContext(ragResult.context);
+        setMessages((prev) => [...prev, {
           id: (Date.now() + 1).toString(),
           type: 'ai',
-          content: ragService.formatRAGContext(ragResult.context),
+          content: ragContent,
           timestamp: new Date(),
           source: 'joud_academy',
-          ragContext: ragResult.context,
-        };
-
-        setMessages((prev) => [...prev, localResponse]);
-        addChatMessage(localResponse as any);
-        setIsLoading(false);
+        }]);
+        saveMessage('ai', ragContent, 'joud_academy');
+        setIsSending(false);
         return;
       }
 
@@ -375,69 +440,54 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
       const fullMessages = [
         systemPrompt,
         ...recentMessages,
-        {
-          role: 'user',
-          content: userMessage.content,
-        },
+        { role: 'user', content: userContent },
       ];
 
       const aiResponse = await aiService.sendChatMessage(
         settings.provider,
         settings.apiKey,
-        fullMessages as any,
+        fullMessages,
         { model: settings.model }
       );
 
-      const aiMessage: Message = {
+      setMessages((prev) => [...prev, {
         id: (Date.now() + 1).toString(),
         type: 'ai',
         content: aiResponse,
         timestamp: new Date(),
         source: 'ai_api',
         provider: settings.provider,
-      };
-
-      setMessages((prev) => [...prev, aiMessage]);
-      addChatMessage(aiMessage as any);
+      }]);
+      saveMessage('ai', aiResponse, 'ai_api', settings.provider);
       incrementUsage();
     } catch (error: any) {
       console.error('[AITutor] Error:', error);
 
-      const errorMessage: Message = {
+      const errorContent = aiService.formatAIError(error);
+      setMessages((prev) => [...prev, {
         id: (Date.now() + 1).toString(),
         type: 'error',
-        content: aiService.formatAIError(error),
+        content: errorContent,
         timestamp: new Date(),
-      };
+      }]);
+      saveMessage('error', errorContent);
 
-      setMessages((prev) => [...prev, errorMessage]);
-
-      if (error.message.includes('api key') || error.message.includes('401')) {
+      if (error.message?.includes('api key') || error.message?.includes('401')) {
         Alert.alert(
-          '🔑 Problème de clé API',
+          'Problème de clé API',
           'Ta clé API semble invalide. Veux-tu la reconfigurer ?',
           [
-            {
-              text: 'Reconfigurer',
-              onPress: () => router.push('/settings/ai'),
-            },
+            { text: 'Reconfigurer', onPress: () => router.push('/settings/ai') },
             { text: 'Annuler', style: 'cancel' },
           ]
         );
       }
     } finally {
-      setIsLoading(false);
+      setIsSending(false);
     }
   }, [
-    inputText,
-    isLoading,
-    checkAIConfiguration,
-    messages,
-    currentLevel,
-    settings,
-    addChatMessage,
-    incrementUsage,
-    router,
+    inputText, isSending, checkAIConfiguration, messages,
+    currentLevel, settings, saveMessage, incrementUsage, router,
   ]);
 
   // =================== RENDER MESSAGE ===================
@@ -473,7 +523,7 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
         >
           {isAI && message.source === 'joud_academy' && (
             <View style={styles.ragBadge}>
-              <MaterialCommunityIcons name="school" size={12} color={baseColors.blue800} />
+              <MaterialCommunityIcons name="school" size={12} color={identity.palette.accent} />
               <Text style={styles.ragBadgeText}>Source : Joud Academy</Text>
             </View>
           )}
@@ -491,12 +541,7 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
 
           {isAI && message.source === 'ai_api' && message.provider && (
             <Text style={styles.messageProvider}>
-              via{' '}
-              {message.provider === 'openai'
-                ? 'OpenAI'
-                : message.provider === 'mistral'
-                  ? 'Mistral'
-                  : 'Claude'}
+              via {message.provider === 'openai' ? 'OpenAI' : message.provider === 'mistral' ? 'Mistral' : 'Claude'}
             </Text>
           )}
         </View>
@@ -504,31 +549,61 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
     );
   };
 
+  // =================== LOADING ===================
+  if (isDBLoading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={identity.palette.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // =================== RENDER ===================
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={safeGoBack.navigate}
-          activeOpacity={0.7}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()} activeOpacity={0.7}>
           <Ionicons name="arrow-back" size={24} color={identity.palette.primary} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>AI Tutor</Text>
           <Text style={styles.headerSubtitle}>
-            Niveau {currentLevel} • {settings.isConfigured ? '✓ Connecté' : '⚠️ Non configuré'}
+            Niveau {currentLevel} • {settings.isConfigured ? 'Connecté' : 'Non configuré'}
           </Text>
         </View>
-        <TouchableOpacity
-          style={styles.settingsButton}
-          onPress={() => router.push('/settings/ai')}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="settings-outline" size={24} color={identity.palette.primary} />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity style={styles.iconButton} onPress={newConversation} activeOpacity={0.7}>
+            <Ionicons name="add-circle-outline" size={24} color={identity.palette.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/settings/ai')} activeOpacity={0.7}>
+            <Ionicons name="settings-outline" size={24} color={identity.palette.primary} />
+          </TouchableOpacity>
+        </View>
       </View>
+
+      {/* Barre des conversations (affichée si > 1 conversation) */}
+      {conversations.length > 1 && (
+        <View style={styles.convBar}>
+          {conversations.map((conv) => {
+            const isActive = conv.id === currentConversationId;
+            return (
+              <TouchableOpacity
+                key={conv.id}
+                style={[styles.convChip, isActive && styles.convChipActive]}
+                onPress={() => switchConversation(conv.id)}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.convChipText, isActive && styles.convChipTextActive]}>
+                  {conv.title || 'Nouvelle'}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      )}
 
       <KeyboardAvoidingView
         style={styles.keyboardView}
@@ -544,7 +619,7 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
         >
           {messages.map((msg) => renderMessage(msg))}
 
-          {isLoading && (
+          {isSending && (
             <View style={[styles.messageBubble, styles.messageBubbleAI]}>
               <View style={styles.aiAvatarContainer}>
                 <Text style={styles.aiAvatar}>🤖</Text>
@@ -560,22 +635,22 @@ const AITutorFreeScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
-            placeholder="Pose ta question en français ou en anglais..."
-            placeholderTextColor={baseColors.gray400}
+            placeholder="Pose ta question..."
+            placeholderTextColor={identity.text.tertiary}
             value={inputText}
             onChangeText={setInputText}
             multiline
             maxLength={500}
-            editable={!isLoading}
+            editable={!isSending}
             returnKeyType="send"
             blurOnSubmit={false}
             onSubmitEditing={handleSend}
             textAlignVertical="center"
           />
           <TouchableOpacity
-            style={[styles.sendButton, (!inputText.trim() || isLoading) && styles.sendButtonDisabled]}
+            style={[styles.sendButton, (!inputText.trim() || isSending) && styles.sendButtonDisabled]}
             onPress={handleSend}
-            disabled={!inputText.trim() || isLoading}
+            disabled={!inputText.trim() || isSending}
             activeOpacity={0.8}
           >
             <Ionicons name="arrow-forward" size={20} color={identity.text.onPrimary} />

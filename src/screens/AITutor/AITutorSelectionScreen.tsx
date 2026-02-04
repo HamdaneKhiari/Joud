@@ -1,39 +1,60 @@
 /**
  * ============================================
- * AI TUTOR SELECTION SCREEN (TypeScript + White Label + Moods)
- * Screen pour choisir entre Free Chat et Guided Mode
+ * AI TUTOR SELECTION SCREEN
+ * Choix entre Chat libre et Mode guidé
+ * White Label + Moods + 100% français
  * ============================================
  */
 
 import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 // Hooks & Contexts
 import { useTheme } from '@/themes/ThemeContext';
-import { tokens } from '@/themes/tokens';
+import { tokens, withOpacity } from '@/themes/tokens';
 
 // ============================================
-// TYPES
+// CONFIG
 // ============================================
 
-type RootStackParamList = {
-  AITutorSelection: undefined;
-  AITutorFree: undefined;
-  AITutorGuided: undefined;
-};
-
-type Props = NativeStackScreenProps<RootStackParamList, 'AITutorSelection'>;
+const MODES = [
+  {
+    key:         'free',
+    route:       '/ai-tutor/free',
+    emoji:       '💬',
+    title:       'Chat libre',
+    description: "Pose n'importe quelle question sur l'anglais, obtiens une réponse instantanée de l'IA.",
+    features: [
+      'Questions en français ou en anglais',
+      'Explications adaptées à ton niveau',
+      'Accès au contenu Joud Academy',
+    ],
+  },
+  {
+    key:         'guided',
+    route:       '/ai-tutor/guided',
+    emoji:       '🎯',
+    title:       'Mode guidé',
+    description: "L'IA analyse tes dernières erreurs d'exercice et te suggère des pistes pour progresser.",
+    features: [
+      'Analyse automatique de tes points faibles',
+      'Suggestions personnalisées par module',
+      'Suivi de ta progression',
+    ],
+  },
+];
 
 // ============================================
 // COMPOSANT
 // ============================================
 
-const AITutorSelectionScreen: React.FC<Props> = ({ navigation }) => {
+const AITutorSelectionScreen: React.FC = () => {
+  const router     = useRouter();
   const { identity } = useTheme();
-  const isPlayful = identity.ui.mood === 'playful';
+  const isPlayful  = identity.ui.mood === 'playful';
 
   // =================== STYLES ===================
 
@@ -44,123 +65,137 @@ const AITutorSelectionScreen: React.FC<Props> = ({ navigation }) => {
           flex: 1,
           backgroundColor: identity.palette.background,
         },
+
+        // --- Header coloré (même pattern que GuidedScreen) ---
         header: {
+          backgroundColor:   identity.palette.primary,
+          paddingTop:        tokens.spacing.md,
+          paddingBottom:     tokens.spacing.xl,
           paddingHorizontal: tokens.spacing.xl,
-          paddingVertical: tokens.spacing.lg,
-          backgroundColor: identity.palette.surface,
-          borderBottomWidth: 2,
-          borderBottomColor: identity.palette.primary,
         },
-        backButton: {
+        headerTopRow: {
           flexDirection: 'row',
-          alignItems: 'center',
-          gap: tokens.spacing.sm,
-          marginBottom: tokens.spacing.md,
-        },
-        backText: {
-          fontSize: tokens.fontSize.base,
-          fontWeight: tokens.fontWeight.semibold,
-          color: identity.palette.primary,
+          alignItems:    'center',
+          marginBottom:  tokens.spacing.sm,
         },
         headerTitle: {
-          fontSize: tokens.fontSize.xxxl,
-          fontWeight: tokens.fontWeight.black,
-          color: identity.text.primary,
-          marginBottom: tokens.spacing.xs,
-          textAlign: isPlayful ? 'center' : 'left',
+          flex:       1,
+          fontSize:   tokens.fontSize.xl,
+          fontWeight: tokens.fontWeight.bold,
+          color:      identity.text.onPrimary,
+          textAlign:  isPlayful ? 'center' : 'left',
+        },
+        headerEmoji: {
+          fontSize: tokens.emojiSize.md,
         },
         headerSubtitle: {
-          fontSize: tokens.fontSize.base,
+          fontSize:   tokens.fontSize.sm,
           fontWeight: tokens.fontWeight.medium,
-          color: identity.text.secondary,
-          textAlign: isPlayful ? 'center' : 'left',
+          color:      withOpacity(identity.text.onPrimary, 0.7),
+          textAlign:  isPlayful ? 'center' : 'left',
         },
+
+        // --- Content ---
         content: {
-          flex: 1,
+          flex:              1,
           paddingHorizontal: tokens.spacing.xl,
-          paddingTop: tokens.spacing.xxxl,
-          gap: tokens.spacing.lg,
+          paddingTop:        tokens.spacing.lg,
         },
+
+        // --- Carte de mode ---
         modeCard: {
-          padding: tokens.spacing.xl,
-          borderRadius: isPlayful ? tokens.borderRadius.xl : tokens.borderRadius.lg,
-          borderWidth: 2,
-          borderColor: identity.palette.primary,
+          padding:       tokens.spacing.lg,
+          borderRadius:  isPlayful ? tokens.borderRadius.xl : tokens.borderRadius.lg,
           backgroundColor: identity.palette.surface,
+          borderWidth:   1,
+          borderColor:   withOpacity(identity.palette.primary, 0.15),
+          marginBottom:  tokens.spacing.lg,
         },
-        modeCardActive: {
-          transform: [{ scale: 1.02 }],
+
+        // En-tête de la carte
+        modeCardHeader: {
+          flexDirection: 'row',
+          alignItems:    'center',
+          gap:           tokens.spacing.md,
+          marginBottom:  tokens.spacing.sm,
         },
-        modeIcon: {
-          fontSize: tokens.emojiSize.huge,
-          textAlign: isPlayful ? 'center' : 'left',
-          marginBottom: tokens.spacing.md,
+        modeEmojiBg: {
+          width:  52,
+          height: 52,
+          borderRadius: isPlayful ? tokens.borderRadius.lg : tokens.borderRadius.md,
+          backgroundColor: withOpacity(identity.palette.primary, 0.08),
+          alignItems:     'center',
+          justifyContent: 'center',
+        },
+        modeEmoji: {
+          fontSize: tokens.emojiSize.lg,
+        },
+        modeCardTitles: {
+          flex: 1,
         },
         modeTitle: {
-          fontSize: tokens.fontSize.xxl,
-          fontWeight: tokens.fontWeight.black,
-          color: identity.text.primary,
-          marginBottom: tokens.spacing.sm,
-          textAlign: isPlayful ? 'center' : 'left',
+          fontSize:   tokens.fontSize.lg,
+          fontWeight: tokens.fontWeight.bold,
+          color:      identity.text.primary,
         },
+        modeSubtitle: {
+          fontSize:   tokens.fontSize.xs,
+          fontWeight: tokens.fontWeight.semibold,
+          color:      identity.palette.primary,
+          textTransform: 'uppercase',
+          letterSpacing: 0.5,
+        },
+
+        // Description
         modeDescription: {
-          fontSize: tokens.fontSize.base,
+          fontSize:   tokens.fontSize.sm,
           fontWeight: tokens.fontWeight.medium,
-          color: identity.text.secondary,
-          lineHeight: tokens.fontSize.base * 1.5,
+          color:      identity.text.secondary,
+          lineHeight: tokens.fontSize.sm * 1.6,
           marginBottom: tokens.spacing.md,
-          textAlign: isPlayful ? 'center' : 'left',
         },
-        modeFeaturesContainer: {
-          gap: tokens.spacing.sm,
-          marginBottom: tokens.spacing.lg,
-        },
-        modeFeature: {
+
+        // Features checklist
+        featureRow: {
           flexDirection: 'row',
-          alignItems: 'flex-start',
-          gap: tokens.spacing.sm,
+          alignItems:    'center',
+          gap:           tokens.spacing.sm,
+          marginBottom:  tokens.spacing.sm,
         },
-        modeFeatureIcon: {
-          fontSize: tokens.fontSize.lg,
-        },
-        modeFeatureText: {
-          flex: 1,
-          fontSize: tokens.fontSize.sm,
-          fontWeight: tokens.fontWeight.medium,
-          color: identity.text.primary,
-          lineHeight: tokens.fontSize.sm * 1.5,
-        },
-        modeButton: {
-          paddingVertical: tokens.spacing.md,
-          borderRadius: isPlayful ? tokens.borderRadius.lg : tokens.borderRadius.md,
-          backgroundColor: identity.palette.primary,
-          alignItems: 'center',
-          flexDirection: 'row',
+        featureCheck: {
+          width:  20,
+          height: 20,
+          borderRadius: tokens.borderRadius.round,
+          backgroundColor: withOpacity(identity.palette.primary, 0.1),
+          alignItems:     'center',
           justifyContent: 'center',
-          gap: tokens.spacing.sm,
+        },
+        featureText: {
+          flex:       1,
+          fontSize:   tokens.fontSize.sm,
+          fontWeight: tokens.fontWeight.medium,
+          color:      identity.text.primary,
+        },
+
+        // Bouton "Démarrer"
+        modeButton: {
+          flexDirection:  'row',
+          alignItems:     'center',
+          justifyContent: 'center',
+          gap:            tokens.spacing.sm,
+          paddingVertical: tokens.spacing.md,
+          marginTop:      tokens.spacing.md,
+          borderRadius:   isPlayful ? tokens.borderRadius.lg : tokens.borderRadius.md,
+          backgroundColor: identity.palette.primary,
         },
         modeButtonText: {
-          fontSize: tokens.fontSize.lg,
+          fontSize:   tokens.fontSize.base,
           fontWeight: tokens.fontWeight.bold,
-          color: identity.text.onPrimary,
+          color:      identity.text.onPrimary,
         },
       }),
     [identity, isPlayful]
   );
-
-  // =================== HANDLERS ===================
-
-  const handleSelectFree = () => {
-    navigation.navigate('AITutorFree');
-  };
-
-  const handleSelectGuided = () => {
-    navigation.navigate('AITutorGuided');
-  };
-
-  const handleGoBack = () => {
-    navigation.goBack();
-  };
 
   // =================== RENDER ===================
 
@@ -168,89 +203,55 @@ const AITutorSelectionScreen: React.FC<Props> = ({ navigation }) => {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={handleGoBack}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="arrow-back" size={24} color={identity.palette.primary} />
-          <Text style={styles.backText}>Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>AI Tutor</Text>
-        <Text style={styles.headerSubtitle}>Choose your learning mode</Text>
+        <View style={styles.headerTopRow}>
+          <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}>
+            <Ionicons name="arrow-back" size={24} color={identity.text.onPrimary} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Tuteur IA</Text>
+          <Text style={styles.headerEmoji}>🤖</Text>
+        </View>
+        <Text style={styles.headerSubtitle}>Choisis ton mode d'apprentissage</Text>
       </View>
 
-      {/* Content */}
+      {/* Cartes de mode */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Free Chat Mode */}
-        <TouchableOpacity
-          style={styles.modeCard}
-          onPress={handleSelectFree}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.modeIcon}>💬</Text>
-          <Text style={styles.modeTitle}>Free Chat</Text>
-          <Text style={styles.modeDescription}>
-            Ask any question about English, get instant answers from AI
-          </Text>
-          <View style={styles.modeFeaturesContainer}>
-            <View style={styles.modeFeature}>
-              <Text style={styles.modeFeatureIcon}>✓</Text>
-              <Text style={styles.modeFeatureText}>Ask anything in French or English</Text>
+        {MODES.map((mode) => (
+          <View key={mode.key} style={styles.modeCard}>
+            {/* En-tête */}
+            <View style={styles.modeCardHeader}>
+              <View style={styles.modeEmojiBg}>
+                <Text style={styles.modeEmoji}>{mode.emoji}</Text>
+              </View>
+              <View style={styles.modeCardTitles}>
+                <Text style={styles.modeTitle}>{mode.title}</Text>
+                <Text style={styles.modeSubtitle}>Mode {mode.key === 'free' ? 'libre' : 'guidé'}</Text>
+              </View>
             </View>
-            <View style={styles.modeFeature}>
-              <Text style={styles.modeFeatureIcon}>✓</Text>
-              <Text style={styles.modeFeatureText}>
-                Get explanations adapted to your level
-              </Text>
-            </View>
-            <View style={styles.modeFeature}>
-              <Text style={styles.modeFeatureIcon}>✓</Text>
-              <Text style={styles.modeFeatureText}>Access to Joud Academy content</Text>
-            </View>
-          </View>
-          <View style={styles.modeButton}>
-            <Text style={styles.modeButtonText}>Start Free Chat</Text>
-            <Ionicons name="arrow-forward" size={20} color={identity.text.onPrimary} />
-          </View>
-        </TouchableOpacity>
 
-        {/* Guided Mode */}
-        <TouchableOpacity
-          style={styles.modeCard}
-          onPress={handleSelectGuided}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.modeIcon}>🎯</Text>
-          <Text style={styles.modeTitle}>Guided Mode</Text>
-          <Text style={styles.modeDescription}>
-            AI analyzes your progress and suggests personalized exercises
-          </Text>
-          <View style={styles.modeFeaturesContainer}>
-            <View style={styles.modeFeature}>
-              <Text style={styles.modeFeatureIcon}>✓</Text>
-              <Text style={styles.modeFeatureText}>
-                AI analyzes your weak areas (SQL-based)
-              </Text>
-            </View>
-            <View style={styles.modeFeature}>
-              <Text style={styles.modeFeatureIcon}>✓</Text>
-              <Text style={styles.modeFeatureText}>
-                Personalized suggestions to improve
-              </Text>
-            </View>
-            <View style={styles.modeFeature}>
-              <Text style={styles.modeFeatureIcon}>✓</Text>
-              <Text style={styles.modeFeatureText}>
-                Track your progress and celebrate wins
-              </Text>
-            </View>
+            {/* Description */}
+            <Text style={styles.modeDescription}>{mode.description}</Text>
+
+            {/* Features */}
+            {mode.features.map((feature, i) => (
+              <View key={i} style={styles.featureRow}>
+                <View style={styles.featureCheck}>
+                  <Ionicons name="checkmark" size={12} color={identity.palette.primary} />
+                </View>
+                <Text style={styles.featureText}>{feature}</Text>
+              </View>
+            ))}
+
+            {/* Bouton démarrer */}
+            <TouchableOpacity
+              style={styles.modeButton}
+              onPress={() => router.push(mode.route as any)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.modeButtonText}>Démarrer</Text>
+              <Ionicons name="arrow-forward" size={18} color={identity.text.onPrimary} />
+            </TouchableOpacity>
           </View>
-          <View style={styles.modeButton}>
-            <Text style={styles.modeButtonText}>Start Guided Mode</Text>
-            <Ionicons name="arrow-forward" size={20} color={identity.text.onPrimary} />
-          </View>
-        </TouchableOpacity>
+        ))}
       </ScrollView>
     </SafeAreaView>
   );

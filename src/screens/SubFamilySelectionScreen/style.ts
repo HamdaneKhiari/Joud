@@ -25,6 +25,25 @@ export const createStyles = (identity: Identity) => {
       paddingHorizontal: tokens.spacing.sm,
     },
 
+    // ✅ LAYOUT ADAPTATIF : Card unique centrée
+    singleCardContainer: {
+      alignItems: 'center',
+      paddingHorizontal: tokens.spacing.xl,
+    },
+
+    // ✅ Wrapper pour limiter la largeur de la card unique (1 seule card totale)
+    singleCardWrapper: {
+      width: '100%',
+      maxWidth: isPlayful ? 380 : 360,
+      alignSelf: 'center',
+    },
+
+    // ✅ Wrapper pour mode grid - empêche l'étirement des cards orphelines
+    gridCardWrapper: {
+      flex: 1,
+      maxWidth: '50%',
+    },
+
     // =================== HEADER SECTION ===================
     headerSection: {
       marginBottom: tokens.spacing.md,

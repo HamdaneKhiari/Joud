@@ -27,59 +27,44 @@ import migration020 from './migrations/020_seed_grammar_subfamilies';
 import migration021 from './migrations/021_seed_dialogues_subfamilies';
 import migration022 from './migrations/022_seed_reading_subfamilies';
 import migration023 from './migrations/023_fix_activity_log_family_id';
+import migration024 from './migrations/024_create_exercise_errors';
+import migration025 from './migrations/025_create_chat_conversations';
 
 // ============================================
-// CONFIGURATION
+// SINGLETON — une seule initialisation simultanée
+// Empêche la double-invocation de React 18 Strict Mode
 // ============================================
-const FORCE_RESET_DB = true; // Garder à true pour appliquer les changements de structure
-let retryCount = 0;
-const MAX_RETRIES = 1;
+let _initPromise: Promise<SQLite.SQLiteDatabase> | null = null;
+let _retryCount = 0;
 
-const deleteDatabase = async (db?: SQLite.SQLiteDatabase): Promise<void> => {
-  try {
-    if (db) {
-      try {
-        await db.closeAsync();
-        // Petit délai pour laisser le système fermer le descripteur de fichier
-        await new Promise(resolve => setTimeout(resolve, 300));
-      } catch (e) {
-        console.warn('⚠️ Closing error:', e);
-      }
-    }
-    await SQLite.deleteDatabaseAsync('janacore.db');
-    console.log('🗑️ Database deleted successfully');
-  } catch (error) {
-    if (!String(error).includes('does not exist')) {
-      console.warn('⚠️ Deletion error:', error);
-    }
+export const initDatabase = (): Promise<SQLite.SQLiteDatabase> => {
+  if (!_initPromise) {
+    _initPromise = _doInit().catch((err) => {
+      _initPromise = null; // Permet une nouvelle tentative après échec
+      throw err;
+    });
   }
+  return _initPromise;
 };
 
 // ============================================
-// INITIALISATION
+// LOGIQUE D'INITIALISATION
 // ============================================
-export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
+const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
   let db: SQLite.SQLiteDatabase | undefined = undefined;
 
   try {
-    // Dans le cas d'un reset forcé (changement de schéma important)
-    if (__DEV__ && FORCE_RESET_DB && retryCount === 0) {
-      await deleteDatabase();
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-
     db = await SQLite.openDatabaseAsync('janacore.db');
     if (!db) throw new Error('Failed to open database');
 
     // Optimisations SQLite pour Expo
     await db.execAsync('PRAGMA journal_mode = WAL;');
     await db.execAsync('PRAGMA busy_timeout = 15000;');
-    await db.execAsync('PRAGMA foreign_keys = ON;'); // Réactivé car l'ordre est maintenant correct
+    await db.execAsync('PRAGMA foreign_keys = ON;');
 
     const runner = new MigrationRunner(db);
     await runner.initialize();
 
-    // Tableau ordonné des migrations indexées par leur version
     const migrations = [
       migration001,
       migration002,
@@ -104,25 +89,41 @@ export const initDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
       migration021,
       migration022,
       migration023,
+      migration024,
+      migration025,
     ];
 
     console.log('[JanaCore] 🚀 Running migrations in sequence...');
     await runner.runMigrations(migrations);
     console.log('✅ JanaCore Ready and Synchronized');
 
-    retryCount = 0;
+    _retryCount = 0;
     return db;
 
   } catch (error) {
     console.error('❌ Init Error:', error);
 
-    // Stratégie de récupération : on supprime et on recommence une seule fois
-    if (__DEV__ && retryCount < MAX_RETRIES) {
-      retryCount++;
-      console.log('🔄 Error detected in schema, attempting clean reset...');
-      await deleteDatabase(db);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return await initDatabase();
+    // Stratégie de récupération : supprime le fichier et réessaie une seule fois
+    if (__DEV__ && _retryCount < 1) {
+      _retryCount++;
+      console.log('🔄 Attempting clean reset...');
+
+      // Fermer proprement avant de supprimer
+      if (db) {
+        try { await db.closeAsync(); } catch { /* handle déjà invalide */ }
+      }
+      await new Promise(resolve => setTimeout(resolve, 500));
+      try {
+        await SQLite.deleteDatabaseAsync('janacore.db');
+        console.log('🗑️ Database deleted successfully');
+      } catch (e) {
+        if (!String(e).includes('does not exist')) {
+          console.warn('⚠️ Deletion error:', e);
+        }
+      }
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      return await _doInit();
     }
     throw error;
   }

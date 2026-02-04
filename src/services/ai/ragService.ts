@@ -107,34 +107,28 @@ class RAGService {
   }
 
   /**
-   * Détermine si RAG doit être utilisé pour cette requête
+   * Détermine si RAG doit être utilisé pour cette requête.
+   * Retourne { useRAG, context } — context est fourni si un match local existe.
    */
-  shouldUseRAG(query: string): boolean {
-    // Utiliser RAG pour les questions complexes ou longues
-    return query.length > 20 || query.includes('?');
+  shouldUseRAG(query: string, _level: number): { useRAG: boolean; context?: string } {
+    // TODO: recherche vectorielle dans la DB pédagogique
+    // Pour l'instant : aucun match local, tout part vers l'API IA
+    return { useRAG: false };
   }
 
   /**
-   * Suit l'utilisation du RAG pour analytics
+   * Log l'utilisation du RAG pour analytics
    */
-  trackRAGUsage(query: string, documentsCount: number): void {
-    // TODO: Implémenter le tracking analytics
-    console.log(`[RAG] Query: "${query}", Found: ${documentsCount} documents`);
+  trackRAGUsage(used: boolean, confidence?: number): void {
+    console.log(`[RAG] used=${used}, confidence=${confidence ?? 'n/a'}`);
   }
 
   /**
-   * Formate le contexte RAG pour l'envoyer à l'IA
+   * Formate un contexte RAG (string) en texte lisible pour l'utilisateur
    */
-  formatRAGContext(documents: RAGDocument[]): string {
-    if (documents.length === 0) {
-      return '';
-    }
-
-    const contextParts = documents.map(
-      (doc, index) => `[${index + 1}] ${doc.content} (${doc.type})`
-    );
-
-    return `Relevant content from database:\n${contextParts.join('\n')}`;
+  formatRAGContext(context: string): string {
+    if (!context) return '';
+    return `📚 Source Joud Academy :\n${context}`;
   }
 
   /**

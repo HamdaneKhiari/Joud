@@ -2,12 +2,16 @@ import { Stack } from 'expo-router';
 import { ThemeProvider } from '../src/themes/ThemeContext';
 import { UserProvider } from '../src/contexts/UserContext';
 import { ProgressProvider } from '../src/contexts/ProgressContext';
+import { AIProvider } from '../src/contexts/AIContext';
+import { CurrentLevelProvider } from '../src/contexts/CurrentLevelContext';
 
 export default function RootLayout() {
   return (
     <UserProvider>
       <ThemeProvider>
         <ProgressProvider>
+          <AIProvider>
+          <CurrentLevelProvider>
           <Stack screenOptions={{ headerShown: false }}>
             {/* 1. Dashboard (Menu principal) */}
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -26,7 +30,7 @@ export default function RootLayout() {
               name="subfamily/[subfamilyId]"
               options={{
                 headerShown: false,
-                presentation: 'card', // On garde l'animation card pour la continuité
+                presentation: 'card',
               }}
             />
 
@@ -50,9 +54,19 @@ export default function RootLayout() {
             />
             <Stack.Screen
               name="ai-tutor/index"
-              options={{ headerShown: true, title: 'AI Tutor', presentation: 'modal' }}
+              options={{ headerShown: false, presentation: 'modal' }}
+            />
+            <Stack.Screen
+              name="ai-tutor/free"
+              options={{ headerShown: false, presentation: 'card' }}
+            />
+            <Stack.Screen
+              name="ai-tutor/guided"
+              options={{ headerShown: false, presentation: 'card' }}
             />
           </Stack>
+          </CurrentLevelProvider>
+          </AIProvider>
         </ProgressProvider>
       </ThemeProvider>
     </UserProvider>
