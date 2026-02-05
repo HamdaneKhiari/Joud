@@ -55,13 +55,13 @@ const SentenceBlanksCard: React.FC<SentenceBlanksCardProps> = ({
           {
             backgroundColor: isValidated
               ? isCorrect
-                ? identity.palette.accent + '20' // Vert transparent si correct
-                : '#F4433620' // Rouge transparent si incorrect
+                ? identity.palette.accent + '20'
+                : identity.aiDiagnostic.error + '20'
               : identity.text.tertiary + '15',
             borderColor: isValidated
               ? isCorrect
                 ? identity.palette.accent
-                : '#F44336'
+                : identity.aiDiagnostic.error
               : moduleColor,
           },
         ]}>
@@ -72,7 +72,7 @@ const SentenceBlanksCard: React.FC<SentenceBlanksCardProps> = ({
                 color: isValidated
                   ? isCorrect
                     ? identity.palette.accent
-                    : '#F44336'
+                    : identity.aiDiagnostic.error
                   : identity.text.secondary,
               },
             ]}

@@ -20,7 +20,7 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps> = ({
   onRetry,
   onNext,
   isLastQuestion,
-  color = '#10B981',
+  color,
 }) => {
   const { identity } = useTheme();
 

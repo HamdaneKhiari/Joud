@@ -21,9 +21,10 @@ const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
   onRetry,
   onNext,
   isLastQuestion,
-  color = '#3B82F6', 
+  color,
 }) => {
   const { identity } = useTheme();
+  const brandColor = color || identity.palette.primary;
 
   const { canSkip, validationState, buttonDisabled } = useExerciseValidationState(
     isValidated,
@@ -52,12 +53,12 @@ const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
         styles.card,
         {
           backgroundColor: identity.palette.surface || baseColors.white,
-          borderTopColor: color,
+          borderTopColor: brandColor,
           borderRadius: identity.ui.cardRadius || tokens.borderRadius.lg,
           ...tokens.shadows.md
         }
       ]}>
-        <View style={[styles.colorBar, { backgroundColor: color }]} />
+        <View style={[styles.colorBar, { backgroundColor: brandColor }]} />
 
         <View style={styles.titleSection}>
           <Text style={styles.titleIcon}>🔗</Text>
@@ -69,8 +70,8 @@ const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
         <View style={[
           styles.sentenceBox, 
           { 
-            borderColor: withOpacity(color, 0.3),
-            backgroundColor: withOpacity(color, 0.05) 
+            borderColor: withOpacity(brandColor, 0.3),
+            backgroundColor: withOpacity(brandColor, 0.05) 
           }
         ]}>
           <Text style={[styles.sentenceText, { color: identity.text.primary }]}>
@@ -101,7 +102,7 @@ const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
                 return { backgroundColor: identity.aiDiagnostic.error, borderColor: identity.aiDiagnostic.error };
 
               if (!showFeedback && isSelected)
-                return { backgroundColor: withOpacity(color, 0.1), borderColor: color };
+                return { backgroundColor: withOpacity(brandColor, 0.1), borderColor: brandColor };
 
               return {
                 backgroundColor: identity.palette.surface || baseColors.white,
