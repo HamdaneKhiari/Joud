@@ -1,7 +1,7 @@
 /**
  * ============================================
- * AI TUTOR GUIDED SCREEN
- * Coach IA — Orchestrateur
+ * AI TUTOR GUIDED SCREEN (OPTIMIZED)
+ * Coach IA avec analyses SQL → Économie de tokens
  * ============================================
  */
 
@@ -12,8 +12,9 @@ import { useRouter } from 'expo-router';
 
 import { useTheme } from '@/themes/ThemeContext';
 import { useCurrentLevel } from '@/contexts/CurrentLevelContext';
+import { useAI } from '@/contexts/AIContext';
 import { tokens } from '@/themes/tokens';
-import { useErrorAnalysis, ErrorsByModule, MODULE_LABELS } from './hooks/useStudentAnalysis';
+import { useAdvancedErrorAnalysis } from './hooks/useAdvancedErrorAnalysis';
 import { useVocabularyExposure } from './hooks/useVocabularyExposure';
 import aiService from '@/services/ai/aiService';
 
@@ -30,15 +31,17 @@ const AITutorGuidedScreen: React.FC = () => {
   const router         = useRouter();
   const { identity }   = useTheme();
   const { currentLevel } = useCurrentLevel();
+  const { settings }   = useAI();
 
-  const { errorsByModule, totalErrors, isLoading }     = useErrorAnalysis();
-  const { recentWords,  isLoading: isVocabLoading }   = useVocabularyExposure();
+  // ✅ NOUVEAU : Utilise les analyses SQL avancées
+  const { analysis, isLoading: isAnalysisLoading, buildCompactSummary } = useAdvancedErrorAnalysis();
+  const { recentWords, isLoading: isVocabLoading }   = useVocabularyExposure();
 
-  const [selectedModule,   setSelectedModule]   = useState<ErrorsByModule | null>(null);
-  const [isAILoading,      setIsAILoading]      = useState(false);
-  const [aiResponse,       setAIResponse]       = useState<string | null>(null);
-  const [isVocabAILoading, setIsVocabAILoading] = useState(false);
-  const [vocabAIResponse,  setVocabAIResponse]  = useState<string | null>(null);
+  const [selectedModuleSlug, setSelectedModuleSlug] = useState<string | null>(null);
+  const [isAILoading,        setIsAILoading]        = useState(false);
+  const [aiResponse,         setAIResponse]         = useState<string | null>(null);
+  const [isVocabAILoading,   setIsVocabAILoading]   = useState(false);
+  const [vocabAIResponse,    setVocabAIResponse]    = useState<string | null>(null);
 
   // =================== STYLES ===================
 
@@ -88,93 +91,137 @@ const AITutorGuidedScreen: React.FC = () => {
   // =================== HANDLERS ===================
 
   const handleGoBack = useCallback(() => {
-    if (selectedModule) {
-      setSelectedModule(null);
+    if (selectedModuleSlug) {
+      setSelectedModuleSlug(null);
       setAIResponse(null);
     } else {
       router.back();
     }
-  }, [selectedModule, router]);
+  }, [selectedModuleSlug, router]);
 
-  const buildAIPrompt = useCallback((module: ErrorsByModule): string => {
-    const moduleLabel = MODULE_LABELS[module.moduleSlug]?.label || module.moduleSlug;
-    const errorDetails = module.errors
-      .map(e =>
-        `- Question : "${e.question}"\n  Ta réponse : "${e.userAnswer}"\n  Réponse correcte : "${e.correctAnswer}"`
-      )
-      .join('\n');
+  /**
+   * ✅ OPTIMISÉ : Utilise les résumés compacts au lieu du raw data
+   * Passe de ~400 tokens à ~100 tokens (75% d'économie)
+   */
+  const buildOptimizedAIPrompt = useCallback((moduleSlug: string): string => {
+    const compactSummary = buildCompactSummary(moduleSlug);
+
+    if (!compactSummary) {
+      return `Analyse mes erreurs en ${moduleSlug} (niveau ${currentLevel})`;
+    }
 
     return (
-      `Analyse ces ${module.errorCount} erreur(s) en ${moduleLabel} ` +
-      `(niveau ${currentLevel}) et suggère des exercices pour m'aider :\n\n${errorDetails}`
+      `Tu es un coach anglais expert. Analyse ce résumé d'erreurs et suggère 2-3 exercices ciblés pour progresser.\n\n` +
+      `Niveau: ${currentLevel}\n\n` +
+      `RÉSUMÉ D'ANALYSE (SQLite):\n${compactSummary}\n\n` +
+      `Consigne: Réponds en français, sois concis (max 150 mots), donne des exercices concrets.`
     );
-  }, [currentLevel]);
+  }, [buildCompactSummary, currentLevel]);
 
   const handleConsultAI = useCallback(async () => {
-    if (!selectedModule) return;
+    if (!selectedModuleSlug) return;
     setIsAILoading(true);
     setAIResponse(null);
 
     try {
-      const response = await aiService.sendMessage({
-        message: buildAIPrompt(selectedModule),
-        context: 'coach_guided',
-        level:   currentLevel,
-      });
-      setAIResponse(response.content);
-    } catch {
-      setAIResponse("Une erreur est survenue lors de la consultation de l'IA.");
+      const systemPrompt = aiService.buildSystemMessage(
+        `Tu es un coach anglais. L'élève est niveau ${currentLevel}. Analyse son résumé d'erreurs et donne-lui des conseils ciblés et encourageants. Reste concis (max 150 mots).`
+      );
+      const userPrompt = { role: 'user' as const, content: buildOptimizedAIPrompt(selectedModuleSlug) };
+
+      const response = await aiService.sendChatMessage(
+        settings.provider as 'openai' | 'mistral' | 'claude',
+        settings.apiKey,
+        [systemPrompt, userPrompt],
+        { model: settings.model }
+      );
+      setAIResponse(response);
+    } catch (error: any) {
+      setAIResponse(aiService.formatAIError(error));
     } finally {
       setIsAILoading(false);
     }
-  }, [selectedModule, buildAIPrompt, currentLevel]);
+  }, [selectedModuleSlug, buildOptimizedAIPrompt, currentLevel, settings]);
 
-  const buildVocabAIPrompt = useCallback((): string => {
-    const wordList = recentWords
-      .map(w => `${w.word} (${w.translation})`)
-      .join(', ');
+  /**
+   * ✅ OPTIMISÉ : Vocabulaire compact
+   * Au lieu d'envoyer "word (translation)" x 10, on envoie juste les 5 mots les plus difficiles
+   */
+  const buildOptimizedVocabPrompt = useCallback((): string => {
+    // Prend les 5 derniers mots (les plus récents)
+    const recentTop5 = recentWords.slice(0, 5);
+    const wordList = recentTop5.map(w => `${w.word} (${w.translation})`).join(', ');
 
     return (
-      `Voici les ${recentWords.length} derniers mots que j'ai vus en exercice : ${wordList}.\n\n` +
-      `Aide-moi à les pratiquer ! Propose-moi une phrase à construire avec l'un de ces mots, puis on enchaîne.\n` +
-      `Commence par un mot qui semble plus difficile.\n\n` +
-      `(Recommandation : pratiquer le vocabulaire toutes les 3 jours)`
+      `Tu es un coach anglais. L'élève (niveau ${currentLevel}) a vu ces mots récemment : ${wordList}.\n\n` +
+      `Propose-lui UNE phrase à construire avec l'un de ces mots. Sois concis (max 50 mots).`
     );
-  }, [recentWords]);
+  }, [recentWords, currentLevel]);
 
   const handlePracticeVocab = useCallback(async () => {
     setIsVocabAILoading(true);
     setVocabAIResponse(null);
 
     try {
-      const response = await aiService.sendMessage({
-        message: buildVocabAIPrompt(),
-        context: 'coach_guided',
-        level:   currentLevel,
-      });
-      setVocabAIResponse(response.content);
-    } catch {
-      setVocabAIResponse("Une erreur est survenue lors de la consultation de l'IA.");
+      const systemPrompt = aiService.buildSystemMessage(
+        `Tu es un coach anglais. L'élève est niveau ${currentLevel}. Propose-lui un exercice de vocabulaire simple et concis (max 50 mots).`
+      );
+      const userPrompt = { role: 'user' as const, content: buildOptimizedVocabPrompt() };
+
+      const response = await aiService.sendChatMessage(
+        settings.provider as 'openai' | 'mistral' | 'claude',
+        settings.apiKey,
+        [systemPrompt, userPrompt],
+        { model: settings.model }
+      );
+      setVocabAIResponse(response);
+    } catch (error: any) {
+      setVocabAIResponse(aiService.formatAIError(error));
     } finally {
       setIsVocabAILoading(false);
     }
-  }, [buildVocabAIPrompt, currentLevel]);
+  }, [buildOptimizedVocabPrompt, currentLevel, settings]);
 
   // =================== LOADING ===================
 
-  if (isLoading || isVocabLoading) {
+  if (isAnalysisLoading || isVocabLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
         <GuidedHeader onBack={() => router.back()} />
         <View style={styles.emptyContainer}>
           <ActivityIndicator size="large" color={identity.palette.primary} />
           <Text style={[styles.emptyText, { marginTop: tokens.spacing.md }]}>
-            Analyse en cours…
+            Analyse SQL en cours…
           </Text>
         </View>
       </SafeAreaView>
     );
   }
+
+  // =================== ADAPTER LES DONNÉES POUR LES COMPOSANTS EXISTANTS ===================
+
+  // Convertir les analyses en format compatible avec ErrorModuleCard
+  const errorsByModuleCompat = analysis?.moduleAnalyses.map(mod => ({
+    moduleSlug: mod.moduleSlug,
+    errorCount: mod.totalErrors,
+    lastErrorDate: mod.lastErrorDate,
+    errors: mod.patterns.flatMap(p =>
+      p.examples.slice(0, 1).map(ex => ({
+        question: ex,
+        userAnswer: '',
+        correctAnswer: '',
+        familyId: mod.weakestFamilies[0]?.familyId || 0,
+        timestamp: mod.lastErrorDate,
+      }))
+    ),
+  })) || [];
+
+  const totalErrors = analysis?.totalErrors || 0;
+
+  // Module sélectionné pour affichage détail
+  const selectedModule = selectedModuleSlug
+    ? errorsByModuleCompat.find(m => m.moduleSlug === selectedModuleSlug)
+    : null;
 
   // =================== DÉTAIL (module sélectionné) ===================
 
@@ -199,7 +246,7 @@ const AITutorGuidedScreen: React.FC = () => {
       <GuidedHeader
         onBack={()  => router.back()}
         totalErrors={totalErrors}
-        moduleCount={errorsByModule.length}
+        moduleCount={errorsByModuleCompat.length}
       />
 
       {(totalErrors === 0 && recentWords.length === 0) ? (
@@ -217,11 +264,11 @@ const AITutorGuidedScreen: React.FC = () => {
           {totalErrors > 0 && (
             <>
               <Text style={styles.sectionTitle}>Tes points à améliorer</Text>
-              {errorsByModule.map((module) => (
+              {errorsByModuleCompat.map((module) => (
                 <ErrorModuleCard
                   key={module.moduleSlug}
                   module={module}
-                  onPress={() => setSelectedModule(module)}
+                  onPress={() => setSelectedModuleSlug(module.moduleSlug)}
                 />
               ))}
             </>
