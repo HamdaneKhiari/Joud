@@ -1,6 +1,6 @@
 /**
  * FlowCard - Composant carte universel WHITE LABEL
- * Nettoyé de toute dépendance au BadgeHelper
+ * 4 moods: bubbly | playful | minimal | executive
  */
 
 import React, { useMemo } from 'react';
@@ -11,7 +11,7 @@ import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '@/themes/ThemeContext';
 import { createStyles } from './style';
-import { isEmoji } from './helpers'; // getBadgeColor a été supprimé ici
+import { isEmoji } from './helpers';
 
 export interface FlowCardProps {
   icon?: React.ReactElement | string;
@@ -19,7 +19,7 @@ export interface FlowCardProps {
   subtitle: string;
   description?: string;
   color?: string;
-  badge?: string | null; // Utilisé uniquement pour "EN COURS"
+  badge?: string | null;
   progress?: number | null;
   locked?: boolean;
   onPress?: () => void;
@@ -43,19 +43,17 @@ const FlowCard: React.FC<FlowCardProps> = ({
   style = {}
 }) => {
   const { identity } = useTheme();
-  const isPlayful = identity.ui.mood === 'playful';
+  const { cardStyle } = identity.ui;
+  const isCentered = cardStyle === 'bubbly' || cardStyle === 'playful';
   const isHorizontal = variant === 'horizontal';
 
-  // 1. Détermination des couleurs (Logique simplifiée)
   const cardColor = locked ? '#D1D5DB' : (color || identity.palette.primary);
-  
-  // Le badge de statut ("EN COURS") utilise toujours la couleur Accent
   const statusBadgeColor = identity.palette.accent;
   const statusBadgeText = identity.id === 'lycee' ? 'IN PROGRESS' : 'EN COURS';
 
   const styles = useMemo(
-    () => createStyles(identity, isPlayful, isHorizontal, cardColor),
-    [identity, isPlayful, isHorizontal, cardColor]
+    () => createStyles(identity, isHorizontal, cardColor),
+    [identity, isHorizontal, cardColor]
   );
 
   const handlePress = () => {
@@ -67,7 +65,9 @@ const FlowCard: React.FC<FlowCardProps> = ({
   };
 
   const renderIcon = () => {
-    const iconSize = isHorizontal ? 36 : (isPlayful ? 32 : 28);
+    let iconSize = 24;
+    if (isHorizontal) iconSize = 36;
+    else if (isCentered) iconSize = 32;
     if (locked) return <MaterialCommunityIcons name="lock" size={iconSize} color="#9CA3AF" />;
 
     if (typeof icon === 'string') {
@@ -77,9 +77,12 @@ const FlowCard: React.FC<FlowCardProps> = ({
     return icon || <MaterialCommunityIcons name={isHorizontal ? 'bookmark' : 'folder-open'} size={iconSize} color="#FFFFFF" />;
   };
 
+  // Color bar: only for minimal grid + all horizontal variants
+  const showColorBar = isHorizontal || cardStyle === 'minimal';
+
   return (
-    <Animated.View 
-      entering={isHorizontal ? FadeInRight.springify() : FadeInDown.delay(animationDelay).springify()} 
+    <Animated.View
+      entering={isHorizontal ? FadeInRight.springify() : FadeInDown.delay(animationDelay).springify()}
       style={[styles.wrapper, style]}
     >
       <TouchableOpacity
@@ -88,14 +91,13 @@ const FlowCard: React.FC<FlowCardProps> = ({
         activeOpacity={0.8}
         disabled={locked || !onPress}
       >
-        {/* BADGE STATUT (Haut Droite) - Uniquement si explicitement demandé */}
         {badge === 'EN COURS' && (
           <View style={[styles.badge, { backgroundColor: statusBadgeColor }]}>
             <Text style={styles.badgeText}>{statusBadgeText}</Text>
           </View>
         )}
 
-        {(!isPlayful || isHorizontal) && <View style={styles.colorBar} />}
+        {showColorBar && <View style={styles.colorBar} />}
 
         <View style={styles.iconContainer}>
           {renderIcon()}
@@ -103,12 +105,11 @@ const FlowCard: React.FC<FlowCardProps> = ({
 
         <View style={styles.textContainer}>
           {isHorizontal && description && <Text style={styles.label}>{description}</Text>}
-          
+
           <Text style={styles.title} numberOfLines={1}>{title}</Text>
           <Text style={styles.subtitle} numberOfLines={isHorizontal ? 1 : 2}>{subtitle}</Text>
         </View>
 
-        {/* BADGE POURCENTAGE (Bas Droite) - La nouvelle logique premium */}
         {!isHorizontal && progress !== null && progress > 0 && (
           <View style={[styles.percentageBadge, { backgroundColor: `${cardColor}15` }]}>
             <Text style={[styles.percentageText, { color: cardColor }]}>{progress}%</Text>

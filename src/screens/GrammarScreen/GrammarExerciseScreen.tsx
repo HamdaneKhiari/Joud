@@ -75,10 +75,10 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
           [safeFamilyId]
         );
 
-        // 2. Récupérer le contenu (règles/exercices)
+        // 2. Récupérer le contenu (règles/exercices) filtré par sous-famille
         const contentRows = await db.getAllAsync<{ data: string; id: number }>(
-          'SELECT id, data FROM content WHERE family_id = ?',
-          [safeFamilyId]
+          'SELECT id, data FROM content WHERE family_id = ? AND subfamily_id = ?',
+          [safeFamilyId, subfamilyId]
         );
 
         // 3. Parser le JSON

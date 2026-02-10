@@ -51,7 +51,7 @@ const ConnectorExerciseScreen: React.FC = () => {
       try {
         setLoading(true);
         const result = await db.getAllAsync(
-          `SELECT * FROM content WHERE family_id = ?`,
+          `SELECT * FROM content WHERE family_id = ? AND subfamily_id = 0`,
           [familyId]
         );
         

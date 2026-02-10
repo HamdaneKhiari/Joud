@@ -28,7 +28,7 @@ import SentenceBlanksCard from '../../components/pedagogy/Sentence/SentenceBlank
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
 import { ValidationState, FeedbackData } from '@/components/common/ExerciseValidation/types';
 
-const EXERCISE_TYPE = 'sentences';
+const EXERCISE_TYPE = 'phrase_types';
 
 const SentenceExerciseScreen: React.FC = () => {
   const { identity } = useTheme();

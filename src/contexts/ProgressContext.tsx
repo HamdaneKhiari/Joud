@@ -272,17 +272,21 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           if (!family || family.total === 0) continue;
 
           const { familyId, subfamilyId } = parseCompositeKey(compositeKey);
-          if (Number.isNaN(familyId)) continue;
+          if (Number.isNaN(familyId) || familyId <= 0) continue;
 
-          await upsertProgress(db, {
-            user_id: user.id,
-            family_id: familyId,
-            subfamily_id: subfamilyId,
-            level: levelNum,
-            completed: family.completed,
-            total: family.total,
-            score: Math.round((family.completed / family.total) * 100),
-          });
+          try {
+            await upsertProgress(db, {
+              user_id: user.id,
+              family_id: familyId,
+              subfamily_id: subfamilyId,
+              level: levelNum,
+              completed: family.completed,
+              total: family.total,
+              score: Math.round((family.completed / family.total) * 100),
+            });
+          } catch (e) {
+            console.warn(`[syncToSQLite] Skip key="${compositeKey}" (family_id=${familyId}):`, e);
+          }
         }
       }
     }

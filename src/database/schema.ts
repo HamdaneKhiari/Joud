@@ -118,6 +118,7 @@ export interface Branding {
   text_secondary_color: string | null;
   ai_tutor_title: string | null;
   ai_tutor_subtitle: string | null;
+  ui_card_mood: 'bubbly' | 'playful' | 'minimal' | 'executive';
 }
 
 export interface ModuleLabel {

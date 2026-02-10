@@ -36,6 +36,9 @@ import migration029 from './migrations/029_create_core_vocab_subfamilies';
 import migration030 from './migrations/030_restructure_core_vocab_families';
 import migration031 from './migrations/031_add_subfamily_to_progress';
 import migration032 from './migrations/032_add_userid_to_exercise_errors';
+import migration033 from './migrations/033_fix_branding_styles';
+import migration034 from './migrations/034_add_card_mood';
+import migration035 from './migrations/035_adult_light_theme';
 
 // ============================================
 // SINGLETON — une seule initialisation simultanée
@@ -105,6 +108,9 @@ const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
       migration030,
       migration031,
       migration032,
+      migration033,
+      migration034,
+      migration035,
     ];
 
     console.log('[JanaCore] 🚀 Running migrations in sequence...');

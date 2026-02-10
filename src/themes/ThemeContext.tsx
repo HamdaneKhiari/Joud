@@ -43,7 +43,8 @@ export interface Identity {
   ui: {
     cardRadius: number;
     showDecorativeShapes: boolean;
-    mood: 'playful' | 'clean'; // Design mood: playful (rounded, centered) vs clean (sharp, left-aligned)
+    mood: 'playful' | 'clean'; // Binary mood for most components: playful (centered) vs clean (left-aligned)
+    cardStyle: 'bubbly' | 'playful' | 'minimal' | 'executive'; // 4-way card differentiation for FlowCard
   };
 
   // Configurations spécifiques aux composants
@@ -149,7 +150,7 @@ const brandingToIdentity = (branding: Branding): Identity => {
       primary: branding.primary_color,
       accent: branding.accent_color,
       surface: branding.surface_color || (isDark ? '#1F2937' : '#FFFFFF'),
-      background: isDark ? '#111827' : '#F9FAFB', // Fond plus clair que surface
+      background: isDark ? '#162438' : '#F9FAFB', // Dark: soft navy (pas noir)
     },
 
     text: {
@@ -162,7 +163,8 @@ const brandingToIdentity = (branding: Branding): Identity => {
     ui: {
       cardRadius: branding.ui_card_radius,
       showDecorativeShapes: branding.ui_show_decorative_shapes === 1,
-      mood: (branding.id === 'primary' || branding.id === 'college') ? 'playful' : 'clean',
+      mood: (branding.ui_card_mood === 'bubbly' || branding.ui_card_mood === 'playful') ? 'playful' : 'clean',
+      cardStyle: branding.ui_card_mood,
     },
 
     header: {
@@ -213,7 +215,7 @@ const defaultIdentity: Identity = {
     tertiary: '#9CA3AF',
     onPrimary: '#FFFFFF',
   },
-  ui: { cardRadius: 12, showDecorativeShapes: true, mood: 'playful' },
+  ui: { cardRadius: 14, showDecorativeShapes: true, mood: 'playful', cardStyle: 'playful' },
   header: { background: '#34495E', accent: '#FFD700', emoji: '📚', welcomeText: 'Bonjour !' },
   dailyWord: { background: '#FFF9C4', decoration: 'none' },
   aiTutor: { title: "Tuteur IA", subtitle: "Aide aux devoirs" },

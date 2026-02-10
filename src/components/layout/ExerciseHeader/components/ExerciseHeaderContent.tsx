@@ -59,15 +59,12 @@ const TYPOGRAPHY_CONFIG: Record<IdentityId, any> = {
 const createStyles = (identity: Identity) => {
   // ✅ Correction TS : On force le type ou on utilise un fallback
   const config = TYPOGRAPHY_CONFIG[identity.id] || TYPOGRAPHY_CONFIG.adult;
-  const isDark = identity.themeMode === 'dark';
 
-  // ✅ Correction Sonar : Extraction de la ternaire imbriquée
-  let textColor = '#FFFFFF';
-  if (identity.id === 'adult') {
-    textColor = isDark ? '#F9FAFB' : '#1F2937';
-  }
+  // Header est toujours sur fond primary (foncé) → texte onPrimary
+  const textColor = identity.text.onPrimary;
 
-  const textShadow = identity.id === 'adult'
+  const isClean = identity.ui.mood === 'clean';
+  const textShadow = isClean
     ? { shadowColor: 'transparent', shadowOpacity: 0 }
     : {
         shadowColor: '#000000',
@@ -103,7 +100,7 @@ const createStyles = (identity: Identity) => {
       textAlign: 'center',
       letterSpacing: 0.3,
       lineHeight: 20,
-      ...(identity.id !== 'adult' && {
+      ...(!isClean && {
         shadowColor: '#000000',
         shadowOpacity: 0.2,
         shadowOffset: { width: 0, height: 1 },

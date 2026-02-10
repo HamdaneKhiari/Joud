@@ -1,58 +1,104 @@
 /**
- * FlowCard Styles - Machine de guerre White Label
- * Correction FINALE SonarLint : Complexité < 15
+ * FlowCard Styles - 4 Card Moods White Label
+ * bubbly (primary) | playful (college) | minimal (lycee) | executive (adult)
  */
 
 import { StyleSheet, ViewStyle } from 'react-native';
 import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 
-// 1. CONFIGURATION DES DIMENSIONS
-const getDimensions = (isPlayful: boolean, isHorizontal: boolean) => {
+type CardStyle = Identity['ui']['cardStyle'];
+
+// ── Per-mood dimension configs ──
+const getMoodDimensions = (cardStyle: CardStyle, cardRadius: number, isHorizontal: boolean) => {
   if (isHorizontal) {
+    const radiusMap: Record<CardStyle, number> = { bubbly: 36, playful: 20, minimal: 16, executive: 16 };
     return {
       cardRadius: 16, iconSize: 72, cardPadding: tokens.spacing.lg,
-      iconFontSize: 40, titleFontSize: tokens.fontSize.xl, iconRadius: isPlayful ? 36 : 16,
+      iconFontSize: 40, titleFontSize: tokens.fontSize.xl, iconRadius: radiusMap[cardStyle],
     };
   }
-  const size = isPlayful ? 56 : 48;
-  return {
-    cardRadius: isPlayful ? 24 : 12, iconSize: size,
-    cardPadding: isPlayful ? tokens.spacing.lg : tokens.spacing.md,
-    iconFontSize: isPlayful ? 32 : 28, titleFontSize: isPlayful ? tokens.fontSize.lg : tokens.fontSize.md,
-    iconRadius: isPlayful ? size / 2 : 12,
-  };
+
+  switch (cardStyle) {
+    case 'bubbly':
+      return {
+        cardRadius, iconSize: 56, cardPadding: tokens.spacing.lg,
+        iconFontSize: 32, titleFontSize: tokens.fontSize.lg, iconRadius: 28, // circle
+      };
+    case 'playful':
+      return {
+        cardRadius, iconSize: 50, cardPadding: 14,
+        iconFontSize: 28, titleFontSize: tokens.fontSize.md, iconRadius: 14, // rounded square
+      };
+    case 'minimal':
+      return {
+        cardRadius, iconSize: 44, cardPadding: tokens.spacing.md,
+        iconFontSize: 24, titleFontSize: tokens.fontSize.md, iconRadius: 10,
+      };
+    case 'executive':
+      return {
+        cardRadius, iconSize: 44, cardPadding: tokens.spacing.md,
+        iconFontSize: 24, titleFontSize: tokens.fontSize.md, iconRadius: 8, // sharp
+      };
+  }
 };
 
-// 2. EXTRACTION DES BLOCS DE STYLE POUR StyleSheet
-const getComponentStyles = (isHorizontal: boolean, isPlayful: boolean, dim: any) => {
-  const isGridPlayful = isPlayful && !isHorizontal;
+// ── Per-mood layout logic ──
+const getMoodLayout = (cardStyle: CardStyle, isHorizontal: boolean) => {
+  const isCentered = cardStyle === 'bubbly' || cardStyle === 'playful';
+  const isGridCentered = isCentered && !isHorizontal;
 
-  const card: ViewStyle = isHorizontal 
+  const card: ViewStyle = isHorizontal
     ? { flexDirection: 'row', alignItems: 'center', marginHorizontal: tokens.spacing.md, marginBottom: tokens.spacing.lg, minHeight: 120 }
-    : { aspectRatio: isPlayful ? 1 : undefined, justifyContent: isPlayful ? 'center' : 'flex-start' };
+    : {
+        aspectRatio: cardStyle === 'bubbly' ? 1 : undefined,
+        justifyContent: isCentered ? 'center' : 'flex-start',
+      };
 
   const icon: ViewStyle = {
     marginLeft: isHorizontal ? tokens.spacing.sm : 0,
-    alignSelf: isGridPlayful ? 'center' : 'auto',
-    marginBottom: isGridPlayful ? tokens.spacing.md : 0,
+    alignSelf: isGridCentered ? 'center' : 'auto',
+    marginBottom: isGridCentered ? tokens.spacing.md : 0,
   };
 
   const text: ViewStyle = isHorizontal
     ? { marginLeft: tokens.spacing.lg, justifyContent: 'center' }
-    : { marginLeft: isPlayful ? 0 : tokens.spacing.sm, marginTop: isPlayful ? 0 : tokens.spacing.xs };
+    : { marginLeft: isCentered ? 0 : tokens.spacing.sm, marginTop: isCentered ? 0 : tokens.spacing.xs };
 
-  return { card, icon, text, isGridPlayful };
+  return { card, icon, text, isGridCentered };
+};
+
+// ── Shadow/border per mood ──
+const getCardElevation = (cardStyle: CardStyle, isDark: boolean, isHorizontal: boolean): ViewStyle => {
+  if (cardStyle === 'executive' && !isHorizontal) {
+    return {
+      borderWidth: 1,
+      borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+      shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.05, shadowRadius: 4, elevation: 1,
+    };
+  }
+  return {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: isHorizontal ? 4 : 2 },
+    shadowOpacity: isHorizontal ? 0.15 : 0.1,
+    shadowRadius: isHorizontal ? 12 : 8,
+    elevation: isHorizontal ? 6 : 3,
+  };
 };
 
 export const createStyles = (
   identity: Identity,
-  isPlayful: boolean,
   isHorizontal: boolean,
   cardColor: string
 ) => {
-  const dim = getDimensions(isPlayful, isHorizontal);
-  const comp = getComponentStyles(isHorizontal, isPlayful, dim);
+  const { cardStyle } = identity.ui;
+  const dim = getMoodDimensions(cardStyle, identity.ui.cardRadius, isHorizontal);
+  const layout = getMoodLayout(cardStyle, isHorizontal);
+
+  const isDark = identity.themeMode === 'dark';
+  const cardBg = isDark ? identity.palette.surface : '#FFFFFF';
+  const lockedBg = isDark ? '#374151' : '#F3F4F6';
 
   return StyleSheet.create({
     wrapper: {
@@ -60,19 +106,15 @@ export const createStyles = (
       padding: isHorizontal ? 0 : tokens.spacing.xs,
     },
     card: {
-      backgroundColor: '#FFFFFF',
+      backgroundColor: cardBg,
       borderRadius: dim.cardRadius,
       padding: dim.cardPadding,
       position: 'relative',
       overflow: 'hidden',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: isHorizontal ? 4 : 2 },
-      shadowOpacity: isHorizontal ? 0.15 : 0.1,
-      shadowRadius: isHorizontal ? 12 : 8,
-      elevation: isHorizontal ? 6 : 3,
-      ...comp.card,
+      ...getCardElevation(cardStyle, isDark, isHorizontal),
+      ...layout.card,
     },
-    cardLocked: { opacity: 0.5, backgroundColor: '#F3F4F6' },
+    cardLocked: { opacity: 0.5, backgroundColor: lockedBg },
     colorBar: {
       position: 'absolute', left: 0, top: 0, bottom: 0,
       width: isHorizontal ? 8 : 6, backgroundColor: cardColor,
@@ -82,25 +124,29 @@ export const createStyles = (
       width: dim.iconSize, height: dim.iconSize, borderRadius: dim.iconRadius,
       backgroundColor: cardColor, justifyContent: 'center', alignItems: 'center',
       elevation: isHorizontal ? 4 : 2,
-      ...comp.icon,
+      ...layout.icon,
     },
     iconText: {
       fontSize: dim.iconFontSize, textShadowColor: 'rgba(0, 0, 0, 0.15)',
       textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2,
     },
-    textContainer: { flex: 1, ...comp.text },
+    textContainer: { flex: 1, ...layout.text },
     label: {
       fontSize: tokens.fontSize.xs, fontWeight: tokens.fontWeight.bold, color: cardColor,
       textTransform: 'uppercase', letterSpacing: 1, marginBottom: tokens.spacing.xs,
     },
     title: {
-      fontSize: dim.titleFontSize, fontWeight: tokens.fontWeight.black, color: '#1F2937',
-      marginBottom: tokens.spacing.xs, textAlign: comp.isGridPlayful ? 'center' : 'left',
+      fontSize: dim.titleFontSize, fontWeight: tokens.fontWeight.black,
+      color: identity.text.primary,
+      marginBottom: tokens.spacing.xs,
+      textAlign: layout.isGridCentered ? 'center' : 'left',
     },
     subtitle: {
       fontSize: isHorizontal ? tokens.fontSize.sm : tokens.fontSize.xs,
-      fontWeight: tokens.fontWeight.medium, color: '#6B7280', lineHeight: isHorizontal ? 20 : 16,
-      textAlign: comp.isGridPlayful ? 'center' : 'left',
+      fontWeight: tokens.fontWeight.medium,
+      color: identity.text.secondary,
+      lineHeight: isHorizontal ? 20 : 16,
+      textAlign: layout.isGridCentered ? 'center' : 'left',
       marginBottom: isHorizontal ? tokens.spacing.sm : 0,
     },
     badge: {

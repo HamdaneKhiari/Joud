@@ -26,11 +26,11 @@ interface ExerciceNavBarProps {
 // ============================================
 
 const createStyles = (identity: Identity) => {
-  const baseColors = {
-    white: '#FFFFFF',
-    black: '#000000',
-    gray800: '#1F2937'
-  };
+  const isClean = identity.ui.mood === 'clean';
+  // Header fond = primary (toujours foncé) → éléments en blanc/clair
+  const onHeader = identity.text.onPrimary;
+  const overlayLight = 'rgba(255, 255, 255, 0.25)';
+  const overlayLightPressed = 'rgba(255, 255, 255, 0.35)';
 
   return StyleSheet.create({
     navBar: {
@@ -41,125 +41,74 @@ const createStyles = (identity: Identity) => {
       zIndex: 10
     },
 
-    navLeft: {
-      width: 60,
-      alignItems: 'flex-start',
-      paddingLeft: 4
-    },
+    navLeft: { width: 60, alignItems: 'flex-start', paddingLeft: 4 },
+    navCenter: { flex: 1, alignItems: 'center' },
+    navRight: { width: 60, alignItems: 'flex-end', paddingRight: 4 },
 
-    navCenter: {
-      flex: 1,
-      alignItems: 'center'
-    },
-
-    navRight: {
-      width: 60,
-      alignItems: 'flex-end',
-      paddingRight: 4
-    },
-
-    // Bouton retour
     backButton: {
-      width: 48,
-      height: 48,
-      justifyContent: 'center',
-      alignItems: 'center',
+      width: 48, height: 48,
+      justifyContent: 'center', alignItems: 'center',
       borderRadius: 24,
-      backgroundColor: identity.id === 'adult'
-        ? 'rgba(0, 0, 0, 0.15)'
-        : 'rgba(255, 255, 255, 0.25)',
-      borderWidth: identity.id === 'adult' ? 1 : 2,
-      borderColor: identity.id === 'adult'
-        ? 'rgba(0, 0, 0, 0.2)'
-        : 'rgba(255, 255, 255, 0.4)',
-      shadowColor: baseColors.black,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 2
+      backgroundColor: overlayLight,
+      borderWidth: isClean ? 1 : 2,
+      borderColor: 'rgba(255, 255, 255, 0.4)',
+      shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1, shadowRadius: 4, elevation: 2
     },
 
     backButtonPressed: {
-      backgroundColor: identity.id === 'adult'
-        ? 'rgba(0, 0, 0, 0.25)'
-        : 'rgba(255, 255, 255, 0.35)',
+      backgroundColor: overlayLightPressed,
       transform: [{ scale: 0.95 }]
     },
 
     backIcon: {
       fontSize: tokens.fontSize.xxl + 2,
-      color: identity.id === 'adult' ? baseColors.gray800 : baseColors.white,
+      color: onHeader,
       fontWeight: tokens.fontWeight.bold,
       marginLeft: -2
     },
 
-    backButtonPlaceholder: {
-      width: 48,
-      height: 48
-    },
+    backButtonPlaceholder: { width: 48, height: 48 },
 
-    // Badge niveau
     levelBadge: {
       paddingHorizontal: tokens.spacing.lg,
       paddingVertical: tokens.spacing.xs + 2,
-      borderRadius: identity.id === 'primary' ? tokens.borderRadius.xxl :
-                     identity.id === 'college' ? tokens.borderRadius.xl :
-                     tokens.borderRadius.lg,
-      borderWidth: identity.id === 'adult' ? 1 : 2,
-      borderColor: identity.id === 'adult'
-        ? 'rgba(0, 0, 0, 0.2)'
-        : 'rgba(255, 255, 255, 0.5)',
-      shadowColor: identity.id === 'adult' ? baseColors.black : baseColors.white,
-      shadowOffset: { width: 0, height: 0 },
-      shadowOpacity: identity.id === 'adult' ? 0.2 : 0.7,
-      shadowRadius: 10,
-      elevation: 8
+      borderRadius: identity.ui.cardRadius + 8,
+      borderWidth: isClean ? 1 : 2,
+      borderColor: 'rgba(255, 255, 255, 0.5)',
+      shadowColor: '#FFFFFF', shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: isClean ? 0.2 : 0.7,
+      shadowRadius: 10, elevation: 8
     },
 
     levelText: {
-      color: identity.id === 'adult' ? baseColors.gray800 : baseColors.white,
+      color: onHeader,
       fontWeight: tokens.fontWeight.black,
       fontSize: tokens.fontSize.base,
       letterSpacing: 0.8,
-      textShadowColor: identity.id === 'adult' ? 'transparent' : 'rgba(0, 0, 0, 0.3)',
+      textShadowColor: isClean ? 'transparent' : 'rgba(0, 0, 0, 0.3)',
       textShadowOffset: { width: 0, height: 1 },
       textShadowRadius: 3
     },
 
-    badgePlaceholder: {
-      width: 70,
-      height: 36
-    },
+    badgePlaceholder: { width: 70, height: 36 },
 
-    // Icône droite
     rightIconButton: {
-      width: 48,
-      height: 48,
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: identity.id === 'primary' ? tokens.borderRadius.xl :
-                     identity.id === 'college' ? tokens.borderRadius.lg :
-                     tokens.borderRadius.md,
-      backgroundColor: identity.id === 'adult'
-        ? 'rgba(0, 0, 0, 0.1)'
-        : 'rgba(255, 255, 255, 0.2)',
-      shadowColor: baseColors.black,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 2
+      width: 48, height: 48,
+      justifyContent: 'center', alignItems: 'center',
+      borderRadius: identity.ui.cardRadius,
+      backgroundColor: overlayLight,
+      shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1, shadowRadius: 4, elevation: 2
     },
 
     rightIconText: {
       fontSize: 24,
-      color: identity.id === 'adult' ? baseColors.gray800 : baseColors.white,
+      color: onHeader,
       opacity: 0.9
     },
 
-    rightIconPlaceholder: {
-      width: 48,
-      height: 48
-    }
+    rightIconPlaceholder: { width: 48, height: 48 }
   });
 };
 
@@ -200,11 +149,7 @@ const ExerciceNavBar: React.FC<ExerciceNavBarProps> = ({
           <View
             style={[
               styles.levelBadge,
-              {
-                backgroundColor: identity.id === 'adult'
-                  ? 'rgba(0, 0, 0, 0.15)'
-                  : 'rgba(255, 255, 255, 0.3)'
-              }
+              { backgroundColor: 'rgba(255, 255, 255, 0.25)' }
             ]}
           >
             <Text style={styles.levelText}>{levelTitle}</Text>
