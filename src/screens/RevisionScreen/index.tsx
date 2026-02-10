@@ -16,6 +16,9 @@ import SummaryPhase from './components/SummaryPhase';
 
 import { useRevisionQuestions } from '@/hooks/revision/useRevisionQuestions';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
+import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
+import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
+import { useCurrentLevel } from '@/contexts/CurrentLevelContext';
 import { getSpacedReviewCount } from '@/database/queries';
 
 type Phase = 'selection' | 'session' | 'summary';
@@ -24,6 +27,7 @@ const RevisionScreen = () => {
   const router = useRouter();
   const { identity } = useTheme();
   const { db, user } = useUser();
+  const { currentLevel } = useCurrentLevel();
   const [phase, setPhase] = useState<Phase>('selection');
   const [spacedCount, setSpacedCount] = useState(0);
 
@@ -59,6 +63,20 @@ const RevisionScreen = () => {
     maxAttempts,
     !!selectedAnswer
   );
+
+  // Enregistrer l'activité de révision dans activity_log
+  useExerciseActivity({
+    moduleSlug: 'revision',
+    familyId: mode === 'spaced' ? 'spaced' : 'daily',
+    levelId: currentLevel,
+    familyName: mode === 'spaced' ? 'Révision espacée' : 'Révision quotidienne',
+    icon: 'refresh',
+    currentIndex,
+    totalItems: totalQuestions,
+    enabled: phase === 'session' && !isLoading && totalQuestions > 0,
+  });
+
+  useExerciseSaveOnUnmount();
 
   // Charger nombre révisions espacées
   useEffect(() => {

@@ -9,7 +9,6 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { useTheme } from '@/themes/ThemeContext';
 import { getDailyWord } from '@/database/queries';
-import type { DailyWord } from '@/database/schema';
 
 interface UseDailyWordReturn {
   dailyWord: { english: string; french: string; emoji: string } | null;
@@ -17,18 +16,7 @@ interface UseDailyWordReturn {
   error: string | null;
 }
 
-/**
- * Récupère le mot du jour depuis la DB selon l'identité et le niveau
- *
- * @example
- * ```tsx
- * const { dailyWord, isLoading } = useDailyWord();
- * if (dailyWord) {
- *   return <DailyWordCard word={dailyWord} />;
- * }
- * ```
- */
-export const useDailyWord = (level: number = 1): UseDailyWordReturn => {
+export const useDailyWord = (): UseDailyWordReturn => {
   const { db } = useUser();
   const { identity } = useTheme();
   const [dailyWord, setDailyWord] = useState<{ english: string; french: string; emoji: string } | null>(null);
@@ -44,7 +32,7 @@ export const useDailyWord = (level: number = 1): UseDailyWordReturn => {
 
       try {
         setIsLoading(true);
-        const word = await getDailyWord(db, identity.id, level);
+        const word = await getDailyWord(db, identity.id);
 
         if (word) {
           setDailyWord({
@@ -53,7 +41,6 @@ export const useDailyWord = (level: number = 1): UseDailyWordReturn => {
             emoji: word.emoji || '📚',
           });
         } else {
-          // Fallback si aucun mot trouvé
           setDailyWord({
             english: 'Learn',
             french: 'Apprendre',
@@ -74,7 +61,7 @@ export const useDailyWord = (level: number = 1): UseDailyWordReturn => {
     };
 
     fetchDailyWord();
-  }, [db, identity.id, level]);
+  }, [db, identity.id]);
 
   return { dailyWord, isLoading, error };
 };

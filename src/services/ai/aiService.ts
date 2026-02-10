@@ -19,6 +19,9 @@ interface AIRequest {
   message: string;
   context?: string;
   level?: number;
+  provider: Provider;
+  apiKey: string;
+  model?: string;
 }
 
 type Provider = 'openai' | 'mistral' | 'claude';
@@ -40,56 +43,87 @@ interface ChatOptions {
 
 class AIService {
   /**
-   * Envoie un message à l'IA et récupère la réponse
-   *
-   * @param request - Le message et le contexte
-   * @returns La réponse de l'IA
+   * Envoie un message simple à l'IA et récupère la réponse
+   * Utilise sendChatMessage en interne
    */
   async sendMessage(request: AIRequest): Promise<AIResponse> {
-    // TODO: Implémenter l'appel API réel
-    // Pour l'instant, on simule une réponse
+    const messages: ChatMessage[] = [];
 
-    await this.delay(1000); // Simule le temps de réponse
+    if (request.context) {
+      messages.push({ role: 'system', content: request.context });
+    }
 
-    return {
-      content: `Mock AI Response for: "${request.message}"`,
-      confidence: 0.95,
-      suggestions: [
-        'Try to ask more specific questions',
-        'I can help you with English grammar',
-        'Would you like to practice vocabulary?',
+    messages.push({ role: 'user', content: request.message });
+
+    const content = await this.sendChatMessage(
+      request.provider,
+      request.apiKey,
+      messages,
+      { model: request.model }
+    );
+
+    return { content };
+  }
+
+  /**
+   * Analyse un texte pour des erreurs grammaticales via l'IA
+   */
+  async analyzeGrammar(
+    provider: Provider,
+    apiKey: string,
+    text: string,
+    model?: string
+  ): Promise<{ errors: Array<{ type: string; message: string; position: number }> }> {
+    const systemPrompt = `You are a grammar checker for English learners. Analyze the text and return a JSON array of errors.
+Each error should have: {"type": "grammar"|"spelling"|"punctuation", "message": "explanation in French", "position": 0}
+Return ONLY the JSON array, no other text.`;
+
+    const content = await this.sendChatMessage(
+      provider,
+      apiKey,
+      [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: text },
       ],
-    };
+      { model, maxTokens: 300, temperature: 0.3 }
+    );
+
+    try {
+      const errors = JSON.parse(content);
+      return { errors: Array.isArray(errors) ? errors : [] };
+    } catch {
+      return { errors: [] };
+    }
   }
 
   /**
-   * Analyse un texte pour des erreurs grammaticales
-   *
-   * @param text - Le texte à analyser
-   * @returns Liste des erreurs trouvées
+   * Suggère des corrections pour un texte via l'IA
    */
-  async analyzeGrammar(text: string): Promise<{ errors: Array<{ type: string; message: string; position: number }> }> {
-    await this.delay(800);
+  async suggestCorrections(
+    provider: Provider,
+    apiKey: string,
+    text: string,
+    model?: string
+  ): Promise<{ corrected: string; changes: string[] }> {
+    const systemPrompt = `You are an English text corrector for French learners. Correct the text and list changes.
+Return JSON: {"corrected": "corrected text", "changes": ["change 1 in French", "change 2 in French"]}
+Return ONLY the JSON, no other text.`;
 
-    // Mock response
-    return {
-      errors: [],
-    };
-  }
+    const content = await this.sendChatMessage(
+      provider,
+      apiKey,
+      [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: text },
+      ],
+      { model, maxTokens: 300, temperature: 0.3 }
+    );
 
-  /**
-   * Suggère des corrections pour un texte
-   *
-   * @param text - Le texte à corriger
-   * @returns Texte corrigé avec suggestions
-   */
-  async suggestCorrections(text: string): Promise<{ corrected: string; changes: string[] }> {
-    await this.delay(800);
-
-    return {
-      corrected: text,
-      changes: [],
-    };
+    try {
+      return JSON.parse(content);
+    } catch {
+      return { corrected: text, changes: [] };
+    }
   }
 
   /**
@@ -101,13 +135,6 @@ class AIService {
 
   /**
    * Envoie une conversation multi-messages vers l'API IA
-   * Retourne uniquement le texte de la réponse
-   *
-   * @param provider - Provider IA ('openai', 'mistral', 'claude')
-   * @param apiKey - Clé API du provider
-   * @param messages - Historique de conversation
-   * @param options - Options (model, maxTokens, temperature)
-   * @returns Réponse de l'IA
    */
   async sendChatMessage(
     provider: Provider,
@@ -115,6 +142,10 @@ class AIService {
     messages: ChatMessage[],
     options?: ChatOptions
   ): Promise<string> {
+    if (!apiKey) {
+      throw new Error('Clé API manquante. Configure-la dans les paramètres.');
+    }
+
     try {
       switch (provider) {
         case 'openai':
@@ -208,7 +239,6 @@ class AIService {
     messages: ChatMessage[],
     options?: ChatOptions
   ): Promise<string> {
-    // Claude a un format différent : system séparé + messages user/assistant uniquement
     const systemMessage = messages.find(m => m.role === 'system')?.content || '';
     const conversationMessages = messages
       .filter(m => m.role !== 'system')
@@ -247,7 +277,6 @@ class AIService {
    */
   formatAIError(error: any): string {
     if (error?.message) {
-      // Erreurs spécifiques
       if (error.message.includes('401') || error.message.includes('Unauthorized')) {
         return 'Clé API invalide. Vérifie ta clé dans les paramètres.';
       }
@@ -257,16 +286,12 @@ class AIService {
       if (error.message.includes('quota')) {
         return 'Quota API dépassé. Vérifie ton compte provider.';
       }
+      if (error.message.includes('Clé API manquante')) {
+        return error.message;
+      }
       return error.message;
     }
     return 'Erreur de communication avec l\'IA. Vérifie ta connexion.';
-  }
-
-  /**
-   * Utilitaire : Délai simulé
-   */
-  private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 

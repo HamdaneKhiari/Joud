@@ -4,6 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '@/themes/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
+import { useProgress } from '@/contexts/ProgressContext';
+import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
+import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
 import { tokens, withOpacity } from '@/themes/tokens';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ConnectorCardRenderer from '../../components/pedagogy/Connector/ConnectorCardRenderer';
@@ -19,13 +22,15 @@ interface ConnectorExerciseParams {
 
 const ConnectorExerciseScreen: React.FC = () => {
   const { identity } = useTheme();
-  const { db, user } = useUser(); // ✅ Récupération de l'user pour la sauvegarde
+  const { db } = useUser();
+  const { trackItemCompletion, saveProgressNow } = useProgress();
   const navigation = useNavigation();
   const route = useRoute();
-  
+
   const params = route.params as ConnectorExerciseParams;
   const familyId = params?.familyId;
-  
+  const safeFamilyId = String(familyId || '');
+
   const moduleColor = params?.moduleColor || identity.palette.primary;
   const title = params?.title || 'Exercise';
   const levelId = params?.levelId || 1;
@@ -70,18 +75,25 @@ const ConnectorExerciseScreen: React.FC = () => {
     loadContent();
   }, [db, familyId]);
 
-  // ✅ Correction Sauvegarde : Utilisation du vrai ID utilisateur
-  const handleNavigateBack = useCallback(() => {
-    if (db && familyId && user) {
-      db.runAsync(
-        `INSERT OR REPLACE INTO progress (user_id, family_id, level, completed, score, last_accessed) 
-         VALUES (?, ?, ?, 1, ?, ?)`,
-        [user.id, familyId, levelId, 100, new Date().toISOString()]
-      ).catch((e) => console.error("Erreur sauvegarde progression:", e));
-    }
-    // Message de fin plus "Premium"
+  // Activité + auto-save
+  useExerciseActivity({
+    moduleSlug: 'connector',
+    familyId: safeFamilyId,
+    levelId: Number(levelId),
+    familyName: title,
+    icon: 'puzzle',
+    currentIndex,
+    totalItems: questions.length,
+    enabled: !loading && questions.length > 0,
+  });
+
+  useExerciseSaveOnUnmount();
+
+  const handleNavigateBack = useCallback(async () => {
+    trackItemCompletion(Number(levelId), 'connector', safeFamilyId, questions.length - 1, questions.length);
+    await saveProgressNow();
     Alert.alert("Bravo !", "You have finished this series.", [{ text: "Done", onPress: () => navigation.goBack() }]);
-  }, [db, familyId, levelId, navigation, user]);
+  }, [trackItemCompletion, levelId, safeFamilyId, questions.length, saveProgressNow, navigation]);
 
   const handlers = useConnectorHandlers({
     question: currentItem?.data,

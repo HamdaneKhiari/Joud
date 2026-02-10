@@ -23,6 +23,7 @@ export default function ExerciseDispatcher() {
   const exerciseId = Array.isArray(params.exerciseId) ? params.exerciseId[0] : params.exerciseId;
   const familyId = Array.isArray(params.familyId) ? params.familyId[0] : params.familyId;
   const levelId = Array.isArray(params.levelId) ? params.levelId[0] : params.levelId;
+  const subfamilyId = Array.isArray(params.subfamilyId) ? params.subfamilyId[0] : params.subfamilyId;
 
   // 2. Sécurité : On attend d'avoir toutes les clés
   if (!exerciseId || !familyId || !levelId) {
@@ -34,14 +35,15 @@ export default function ExerciseDispatcher() {
     );
   }
 
-  // 3. Préparation des Props (Transmission de familyId et levelId)
+  // 3. Préparation des Props (Transmission de familyId, levelId et subfamilyId)
   const screenProps = {
     navigation: navigation as any,
     route: {
-      key: `exercise-${exerciseId}-${familyId}-${levelId}`, // Force le refresh si on change de niveau
+      key: `exercise-${exerciseId}-${familyId}-${levelId}-${subfamilyId || '0'}`,
       params: {
         familyId: Number(familyId),
-        levelId: Number(levelId)
+        levelId: Number(levelId),
+        subfamilyId: subfamilyId ? Number(subfamilyId) : 0,
       }
     } as any
   };

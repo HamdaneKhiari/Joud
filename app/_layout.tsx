@@ -13,6 +13,9 @@ export default function RootLayout() {
           <AIProvider>
           <CurrentLevelProvider>
           <Stack screenOptions={{ headerShown: false }}>
+            {/* 0. Onboarding (premier lancement) */}
+            <Stack.Screen name="onboarding" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
+
             {/* 1. Dashboard (Menu principal) */}
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 

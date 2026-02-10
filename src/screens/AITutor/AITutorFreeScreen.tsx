@@ -444,8 +444,8 @@ const AITutorFreeScreen: React.FC = () => {
       ];
 
       const aiResponse = await aiService.sendChatMessage(
-        settings.provider,
-        settings.apiKey,
+        settings.provider as 'openai' | 'mistral' | 'claude',
+        settings.apiKey || '',
         fullMessages,
         { model: settings.model }
       );

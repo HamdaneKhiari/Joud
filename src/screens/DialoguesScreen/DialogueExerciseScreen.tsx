@@ -1,7 +1,6 @@
 /**
  * DialogueExerciseScreen - Écran d'exercice dialogue WHITE LABEL
- * Migration TypeScript depuis JS
- * Support : Identity, Mood, Tracking moderne
+ * TypeScript complet avec ExerciseValidation + chargement DB
  */
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
@@ -10,8 +9,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 // Composants
 import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
 import DialogueCard, { Dialogue, Question } from '@/components/pedagogy/dialogues/DialogueCard';
-// TODO: Créer ExerciseValidation en TypeScript
-// import ExerciseValidation from '@/components/exercise-common/ExerciseValidation';
+import ExerciseValidation from '@/components/common/ExerciseValidation';
+import type { ValidationState } from '@/components/common/ExerciseValidation/types';
 
 // Hooks & Contexts
 import { useTheme } from '@/themes/ThemeContext';
@@ -20,12 +19,10 @@ import { useProgress } from '@/contexts/ProgressContext';
 import useSafeNavigation from '@/hooks/useSafeNavigation';
 import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
+import { useRecordError } from '@/hooks/exercises/useRecordError';
 
 // Utils
 import { getModuleLabel, getLevelLabel } from '@/utils/labelMapper';
-
-// TODO: Migrer getFamilyById vers queries DB
-// TODO: Implémenter useErrorTracking ou le remplacer par un système de tracking moderne
 
 // ============================================
 // CONSTANTS
@@ -42,15 +39,14 @@ interface RouteParams {
   familyId?: string;
   moduleId?: string;
   levelId?: string;
-}
-
-interface NavigationProp {
-  navigate?: (screen: string, params: any) => void;
-  goBack?: () => void;
+  subfamilyId?: string;
 }
 
 interface DialogueExerciseScreenProps {
-  navigation?: NavigationProp;
+  navigation?: {
+    navigate?: (screen: string, params: any) => void;
+    goBack?: () => void;
+  };
   route?: {
     params?: RouteParams;
   };
@@ -75,17 +71,20 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
   const expoParams = useLocalSearchParams() as unknown as RouteParams;
   const { identity } = useTheme();
   const { db } = useUser();
+  const { recordError } = useRecordError();
 
-  // =================== PARAMS & DATA ===================
+  // =================== PARAMS ===================
   const rawFamilyId = route?.params?.familyId || expoParams.familyId || '';
   const familyId = Array.isArray(rawFamilyId) ? rawFamilyId[0] : rawFamilyId;
-
-  const rawModuleId = route?.params?.moduleId || expoParams.moduleId || '';
-  const moduleId = Array.isArray(rawModuleId) ? rawModuleId[0] : rawModuleId;
 
   const rawLevelId = route?.params?.levelId || expoParams.levelId || '1';
   const levelId = Array.isArray(rawLevelId) ? rawLevelId[0] : rawLevelId;
   const numLevelId = Number.parseInt(levelId.toString(), 10);
+
+  const rawSubfamilyId = route?.params?.subfamilyId || expoParams.subfamilyId || '1';
+  const subfamilyId = Array.isArray(rawSubfamilyId) ? rawSubfamilyId[0] : rawSubfamilyId;
+  const numSubfamilyId = Number.parseInt(subfamilyId.toString(), 10);
+  const compositeFamilyId = `${familyId}-${numSubfamilyId}`;
 
   // Hooks
   const { trackItemCompletion, getFamilyProgress } = useProgress();
@@ -102,9 +101,54 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
     }, [navigation, router])
   );
 
-  // TODO: Charger dialogueFamily depuis la base de données
-  // const dialogueFamily = useMemo(() => getFamilyById(moduleId, numLevelId, familyId), [moduleId, numLevelId, familyId]);
-  const [dialogueFamily, setDialogueFamily] = useState<Dialogue | null>(null); // TEMPORAIRE: À remplacer par une requête DB
+  // =================== CHARGEMENT DIALOGUE DEPUIS DB ===================
+  const [dialogueFamily, setDialogueFamily] = useState<Dialogue | null>(null);
+  const [isLoadingContent, setIsLoadingContent] = useState(true);
+
+  useEffect(() => {
+    const loadDialogue = async () => {
+      if (!db || !familyId) {
+        setIsLoadingContent(false);
+        return;
+      }
+
+      try {
+        setIsLoadingContent(true);
+        const numFamilyId = Number.parseInt(familyId, 10);
+
+        // Charger les contenus dialogue depuis la DB
+        const rows = await db.getAllAsync<{ id: number; data: string }>(
+          `SELECT id, data FROM content
+           WHERE family_id = ? AND subfamily_id = ? AND content_type = 'dialogue'
+           ORDER BY id`,
+          [numFamilyId, numSubfamilyId]
+        );
+
+        if (rows.length > 0) {
+          // Chaque row.data contient un dialogue JSON
+          const firstDialogue = JSON.parse(rows[0].data) as Dialogue;
+
+          // Charger le nom de la famille
+          const family = await db.getFirstAsync<{ name: string; icon: string }>(
+            `SELECT name, icon FROM families WHERE id = ?`,
+            [numFamilyId]
+          );
+
+          setDialogueFamily({
+            ...firstDialogue,
+            name: firstDialogue.name || family?.name || 'Dialogue',
+            icon: firstDialogue.icon || family?.icon || '💬',
+          });
+        }
+      } catch (e) {
+        console.error('[DialogueExercise] Load error:', e);
+      } finally {
+        setIsLoadingContent(false);
+      }
+    };
+
+    loadDialogue();
+  }, [db, familyId, numSubfamilyId]);
 
   // Labels depuis DB
   const [levelLabel, setLevelLabel] = useState({ badge: '', title: '', description: '' });
@@ -145,13 +189,21 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
   const isLastMessage = currentMessageIndex === totalMessages - 1;
   const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
 
-  const realProgress = getFamilyProgress(numLevelId, EXERCISE_TYPE, familyId);
+  const realProgress = getFamilyProgress(numLevelId, EXERCISE_TYPE, compositeFamilyId);
+
+  // =================== VALIDATION STATE pour ExerciseValidation ===================
+  const validationState: ValidationState = useMemo(() => {
+    if (!exerciseState.isValidated) return 'initial';
+    if (exerciseState.isCorrect) return 'correct';
+    if (exerciseState.attemptCount >= MAX_ATTEMPTS) return 'skip';
+    return 'incorrect';
+  }, [exerciseState.isValidated, exerciseState.isCorrect, exerciseState.attemptCount]);
 
   // =================== HOOKS UTILITAIRES ===================
   useExerciseActivity({
-    moduleSlug: EXERCISE_TYPE, // 'dialogues'
+    moduleSlug: EXERCISE_TYPE,
     levelId: numLevelId,
-    familyId,
+    familyId: compositeFamilyId,
     familyName: dialogueFamily?.name || dialogueFamily?.title || 'Dialogue',
     icon: dialogueFamily?.icon || '💬',
     currentIndex: phase === 'dialogue' ? currentMessageIndex : currentQuestionIndex,
@@ -171,20 +223,20 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
   const handleValidate = () => {
     if (!exerciseState.selectedOption || !currentQuestion) return;
 
-    // Convertir l'index correctAnswer en lettre (A=0, B=1, C=2, D=3)
     const correctLetter = String.fromCharCode(65 + currentQuestion.correctAnswer);
     const isCorrect = exerciseState.selectedOption === correctLetter;
 
-    // TODO: Implémenter tracking d'erreur pour mode voltage
-    // if (!isCorrect) {
-    //   const correctAnswerText = currentQuestion.options?.[currentQuestion.correctAnswer] || correctLetter;
-    //   trackErrorAuto(EXERCISE_TYPE, {
-    //     question: currentQuestion.question || currentQuestion.text,
-    //     userAnswer: exerciseState.selectedOption,
-    //     correctAnswer: correctAnswerText,
-    //     ruleId: familyId,
-    //   });
-    // }
+    if (!isCorrect) {
+      const correctAnswerText = currentQuestion.options?.[currentQuestion.correctAnswer] || correctLetter;
+      recordError({
+        familyId,
+        moduleSlug: EXERCISE_TYPE,
+        question: currentQuestion.question || currentQuestion.text || '',
+        userAnswer: exerciseState.selectedOption,
+        correctAnswer: correctAnswerText,
+        level: numLevelId,
+      });
+    }
 
     setExerciseState(prev => ({
       ...prev,
@@ -194,8 +246,16 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
     }));
   };
 
+  const handleRetry = () => {
+    setExerciseState(prev => ({
+      ...prev,
+      selectedOption: null,
+      isValidated: false,
+    }));
+  };
+
   const handleNextQuestion = () => {
-    trackItemCompletion(numLevelId, EXERCISE_TYPE, familyId, currentQuestionIndex, totalQuestions);
+    trackItemCompletion(numLevelId, EXERCISE_TYPE, compositeFamilyId, currentQuestionIndex, totalQuestions);
 
     if (isLastQuestion) {
       safeGoBack.navigate();
@@ -215,24 +275,14 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
   const feedbackMessage = useMemo(() => {
     if (!exerciseState.isValidated) return null;
     if (exerciseState.isCorrect) {
-      return { icon: '✓', title: 'Correct', message: 'Ta réponse est juste.' };
+      return { title: 'Correct', message: 'Ta réponse est juste.' };
     }
-    const canSkip = exerciseState.attemptCount >= MAX_ATTEMPTS - 1;
-    if (canSkip) {
+    if (exerciseState.attemptCount >= MAX_ATTEMPTS) {
       const correctAnswer = currentQuestion?.options?.[currentQuestion?.correctAnswer];
-      return { icon: 'ℹ', title: 'Réponse', message: `La réponse était : ${correctAnswer}` };
+      return { title: 'Réponse', message: `La réponse était : ${correctAnswer}` };
     }
-    return {
-      icon: '✗',
-      title: 'Incorrect',
-      message: 'Relis le dialogue et réessaie.',
-    };
-  }, [
-    exerciseState.isValidated,
-    exerciseState.isCorrect,
-    exerciseState.attemptCount,
-    currentQuestion,
-  ]);
+    return { title: 'Incorrect', message: 'Relis le dialogue et réessaie.' };
+  }, [exerciseState.isValidated, exerciseState.isCorrect, exerciseState.attemptCount, currentQuestion]);
 
   // =================== RENDER ===================
 
@@ -255,27 +305,19 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
       }}
       footer={
         phase === 'questions' ? (
-          // TODO: Remplacer par ExerciseValidation quand le composant sera migré en TypeScript
-          null
-          // <ExerciseValidation
-          //   isValidated={exerciseState.isValidated}
-          //   isCorrect={exerciseState.isCorrect}
-          //   onValidate={handleValidate}
-          //   onNext={handleNextQuestion}
-          //   onRetry={() =>
-          //     setExerciseState(prev => ({
-          //       ...prev,
-          //       selectedOption: null,
-          //       isValidated: false,
-          //     }))
-          //   }
-          //   onSkip={handleNextQuestion}
-          //   disabled={!exerciseState.isValidated && !exerciseState.selectedOption}
-          //   isLastQuestion={isLastQuestion}
-          //   feedbackMessage={feedbackMessage}
-          //   attemptCount={exerciseState.attemptCount}
-          //   maxAttempts={MAX_ATTEMPTS}
-          // />
+          <ExerciseValidation
+            state={validationState}
+            onValidate={handleValidate}
+            onNext={handleNextQuestion}
+            onRetry={handleRetry}
+            onSkip={handleNextQuestion}
+            disabled={!exerciseState.isValidated && !exerciseState.selectedOption}
+            isLastQuestion={isLastQuestion}
+            feedbackMessage={feedbackMessage}
+            attemptCount={exerciseState.attemptCount}
+            maxAttempts={MAX_ATTEMPTS}
+            correctAnswer={currentQuestion?.options?.[currentQuestion?.correctAnswer] || null}
+          />
         ) : null
       }
     >

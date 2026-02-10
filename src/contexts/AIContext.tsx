@@ -2,10 +2,12 @@
  * ============================================
  * AI CONTEXT
  * Gestion globale de l'état de l'IA Tuteur
+ * Connecté aux vrais settings (useAISettings)
  * ============================================
  */
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
+import { useAISettings, type AISettings } from '@/hooks/useAISettings';
 
 // ============================================
 // TYPES
@@ -18,16 +20,6 @@ interface Message {
   timestamp: Date;
 }
 
-export interface AISettings {
-  isConfigured: boolean;
-  provider: string;
-  apiKey: string;
-  model: string;
-  maxTokens: number;
-  temperature: number;
-  maxMessagesPerDay: number;
-}
-
 interface AIContextType {
   messages: Message[];
   addMessage: (message: Message) => void;
@@ -36,9 +28,30 @@ interface AIContextType {
   isTyping: boolean;
   setIsTyping: (typing: boolean) => void;
   settings: AISettings;
+  isLoadingSettings: boolean;
   canSendMessage: () => boolean;
   incrementUsage: () => void;
+  updateSettings: (partial: Partial<AISettings>) => Promise<void>;
+  deleteAPIKey: () => Promise<void>;
+  getAvailableModels: () => string[];
+  refreshSettings: () => Promise<void>;
 }
+
+// ============================================
+// DEFAULT SETTINGS (quand pas encore configuré)
+// ============================================
+
+const DEFAULT_SETTINGS: AISettings = {
+  provider: 'openai',
+  apiKey: null,
+  model: 'gpt-3.5-turbo',
+  maxTokens: 500,
+  temperature: 0.7,
+  maxMessagesPerDay: 50,
+  currentUsageCount: 0,
+  lastResetDate: 0,
+  isConfigured: false,
+};
 
 // ============================================
 // CONTEXT
@@ -53,58 +66,72 @@ const AIContext = createContext<AIContextType | undefined>(undefined);
 export const AIProvider = ({ children }: { children: ReactNode }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
-  const [usageCount, setUsageCount] = useState(0);
 
-  const settings: AISettings = {
-    isConfigured: true,
-    provider: 'mock',
-    apiKey: '',
-    model: 'mock-model',
-    maxTokens: 1000,
-    temperature: 0.7,
-    maxMessagesPerDay: 50,
-  };
+  // Charger les vrais settings depuis SQLite + SecureStore
+  const {
+    settings: realSettings,
+    isLoading: isLoadingSettings,
+    updateSettings: realUpdateSettings,
+    incrementUsage: realIncrementUsage,
+    canSendMessage: realCanSendMessage,
+    getAvailableModels: realGetAvailableModels,
+    deleteAPIKey: realDeleteAPIKey,
+    refreshSettings: realRefreshSettings,
+  } = useAISettings();
 
-  const addMessage = (message: Message) => {
+  // Utiliser les vrais settings ou le default
+  const settings = realSettings || DEFAULT_SETTINGS;
+
+  const addMessage = useCallback((message: Message) => {
     setMessages((prev) => [...prev, message]);
-  };
+  }, []);
 
-  const addChatMessage = (content: string, type: 'user' | 'ai') => {
+  const addChatMessage = useCallback((content: string, type: 'user' | 'ai') => {
     const message: Message = {
       id: Date.now().toString(),
       type,
       content,
       timestamp: new Date(),
     };
-    addMessage(message);
-  };
+    setMessages((prev) => [...prev, message]);
+  }, []);
 
-  const clearMessages = () => {
+  const clearMessages = useCallback(() => {
     setMessages([]);
-  };
+  }, []);
 
-  const canSendMessage = () => {
-    return usageCount < settings.maxMessagesPerDay;
-  };
+  const canSendMessage = useCallback(() => {
+    return realCanSendMessage();
+  }, [realCanSendMessage]);
 
-  const incrementUsage = () => {
-    setUsageCount((prev) => prev + 1);
-  };
+  const incrementUsage = useCallback(() => {
+    realIncrementUsage();
+  }, [realIncrementUsage]);
+
+  const value = useMemo<AIContextType>(() => ({
+    messages,
+    addMessage,
+    addChatMessage,
+    clearMessages,
+    isTyping,
+    setIsTyping,
+    settings,
+    isLoadingSettings,
+    canSendMessage,
+    incrementUsage,
+    updateSettings: realUpdateSettings,
+    deleteAPIKey: realDeleteAPIKey,
+    getAvailableModels: realGetAvailableModels,
+    refreshSettings: realRefreshSettings,
+  }), [
+    messages, addMessage, addChatMessage, clearMessages,
+    isTyping, settings, isLoadingSettings,
+    canSendMessage, incrementUsage,
+    realUpdateSettings, realDeleteAPIKey, realGetAvailableModels, realRefreshSettings,
+  ]);
 
   return (
-    <AIContext.Provider
-      value={{
-        messages,
-        addMessage,
-        addChatMessage,
-        clearMessages,
-        isTyping,
-        setIsTyping,
-        settings,
-        canSendMessage,
-        incrementUsage,
-      }}
-    >
+    <AIContext.Provider value={value}>
       {children}
     </AIContext.Provider>
   );
@@ -121,3 +148,5 @@ export const useAI = () => {
   }
   return context;
 };
+
+export type { AISettings };

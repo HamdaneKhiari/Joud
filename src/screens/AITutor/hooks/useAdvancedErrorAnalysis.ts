@@ -107,6 +107,28 @@ export const useAdvancedErrorAnalysis = () => {
 
         const moduleAnalyses: ModuleAnalysis[] = [];
 
+        // Pré-charger les noms de modules depuis module_labels ou modules
+        const moduleNamesMap = new Map<string, string>();
+        const allModules = await db.getAllAsync<{ slug: string; name: string }>(
+          `SELECT slug, name FROM modules`
+        );
+        for (const m of allModules) {
+          moduleNamesMap.set(m.slug, m.name);
+        }
+
+        // Pré-calculer le total d'exercices faits par module (pour errorRate)
+        const totalExercisesByModule = new Map<string, number>();
+        const exerciseCounts = await db.getAllAsync<{ module_slug: string; total: number }>(
+          `SELECT f.module_slug, COUNT(DISTINCT p.id) as total
+           FROM progress p
+           JOIN families f ON p.family_id = f.id
+           WHERE p.completed > 0
+           GROUP BY f.module_slug`
+        );
+        for (const ec of exerciseCounts) {
+          totalExercisesByModule.set(ec.module_slug, ec.total);
+        }
+
         for (const stat of moduleStats) {
           // --- Top 3 familles les plus problématiques ---
           const weakestFamilies = await db.getAllAsync<{
@@ -197,12 +219,15 @@ export const useAdvancedErrorAnalysis = () => {
           // Sort patterns by count
           patterns.sort((a, b) => b.count - a.count);
 
+          const totalExercises = totalExercisesByModule.get(stat.module_slug) || 1;
+          const errorRate = Math.round((stat.error_count / totalExercises) * 100);
+
           moduleAnalyses.push({
             moduleSlug: stat.module_slug,
-            moduleName: stat.module_slug, // TODO: récupérer le vrai nom depuis module_labels
+            moduleName: moduleNamesMap.get(stat.module_slug) || stat.module_slug,
             totalErrors: stat.error_count,
             distinctFamilies: stat.distinct_families,
-            errorRate: 0, // TODO: calculer en comparant avec le total d'exercices faits
+            errorRate,
             patterns: patterns.slice(0, 3), // Top 3 patterns
             weakestFamilies: weakestFamilies.map(f => ({
               familyId: f.family_id,
@@ -228,10 +253,14 @@ export const useAdvancedErrorAnalysis = () => {
           trendCounts.improving > trendCounts.declining ? 'improving' :
           trendCounts.declining > trendCounts.improving ? 'declining' : 'stable';
 
+        const averageErrorRate = moduleAnalyses.length > 0
+          ? Math.round(moduleAnalyses.reduce((sum, m) => sum + m.errorRate, 0) / moduleAnalyses.length)
+          : 0;
+
         setAnalysis({
           totalErrors,
           totalModules: moduleAnalyses.length,
-          averageErrorRate: 0, // TODO: calculer
+          averageErrorRate,
           mostProblematicModule: mostProblematic,
           overallTrend,
           moduleAnalyses,

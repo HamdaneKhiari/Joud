@@ -33,25 +33,35 @@ export const useLastActivity = () => {
 
     try {
       const timestamp = Date.now();
-      
+
+      // Décomposer le familyId composite "1-2" en family_id + subfamily_id
+      let familyIdNum = 0;
+      let subfamilyIdNum = 0;
+      const raw = String(activity.familyId);
+      if (raw.includes('-')) {
+        const [fam, sub] = raw.split('-');
+        familyIdNum = Number(fam) || 0;
+        subfamilyIdNum = Number(sub) || 0;
+      } else {
+        familyIdNum = Number(raw) || 0;
+      }
+
       await db.runAsync(`
         INSERT OR REPLACE INTO activity_log (
-          module_slug, family_id, level, family_name, icon, progress, timestamp
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+          module_slug, family_id, subfamily_id, level, family_name, icon, progress, timestamp
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         activity.moduleSlug,
-        activity.familyId,
+        familyIdNum,
+        subfamilyIdNum,
         activity.level,
         activity.familyName,
         activity.icon,
         activity.progress,
         timestamp
       ]);
-      
-      // On log en dev uniquement pour vérifier que ça passe
-      // console.log('✅ Activité sauvegardée:', activity.familyName);
     } catch (error) {
-      console.error('❌ Erreur recordActivity:', error);
+      console.error('[useLastActivity] recordActivity error:', error);
     }
   }, [db]);
 

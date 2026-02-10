@@ -116,6 +116,7 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
         word:        contentItems[currentWordIndex].data.word,
         translation: contentItems[currentWordIndex].data.translation,
         familyId:    compositeFamilyId,
+        contentId:   contentItems[currentWordIndex].id,
       });
     }
     if (currentWordIndex < totalWords - 1) {
@@ -131,6 +132,7 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
           word:        contentItems[currentWordIndex].data.word,
           translation: contentItems[currentWordIndex].data.translation,
           familyId:    compositeFamilyId,
+          contentId:   contentItems[currentWordIndex].id,
         });
       }
       await saveProgressNow();

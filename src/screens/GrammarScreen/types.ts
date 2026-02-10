@@ -11,6 +11,7 @@ export interface GrammarScreenRouteParams {
   familyId: string;
   moduleId: string;
   levelId?: number;
+  subfamilyId?: number;
 }
 
 // Re-export types centraux pour compatibilité

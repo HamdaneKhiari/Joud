@@ -43,10 +43,12 @@ interface GrammarExerciseScreenProps {
 
 const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigation, route }) => {
   // =================== PARAMS & DYNAMISME ===================
-  const { familyId, moduleId, levelId = 1 } = route.params || {};
+  const { familyId, moduleId, levelId = 1, subfamilyId: rawSubfamilyId } = route.params || {};
   const safeFamilyId = familyId || '';
   const safeModuleId = moduleId || '';
   const numLevelId = Number.parseInt(String(levelId), 10);
+  const subfamilyId = Number(rawSubfamilyId || '0');
+  const compositeFamilyId = subfamilyId > 0 ? `${safeFamilyId}-${subfamilyId}` : String(safeFamilyId);
 
   // =================== HOOKS ===================
   const { identity } = useTheme();
@@ -118,12 +120,12 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
   const totalRules = rules.length;
   const currentRule = rules[currentRuleIndex];
   const isLastRule = currentRuleIndex === totalRules - 1;
-  const realProgress = getFamilyProgress(numLevelId, EXERCISE_TYPE, safeFamilyId);
+  const realProgress = getFamilyProgress(numLevelId, EXERCISE_TYPE, compositeFamilyId);
 
   // =================== HOOKS UTILITAIRES ===================
   useExerciseActivity({
     levelId: numLevelId,
-    familyId: safeFamilyId,
+    familyId: compositeFamilyId,
     moduleSlug: safeModuleId,
     familyName: grammarFamily?.title || 'Grammaire',
     icon: grammarFamily?.icon || 'book',
@@ -155,7 +157,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
 
     // Marquer comme complété si correct ou si dernier essai
     if (isCorrect || newAttemptCount >= MAX_ATTEMPTS) {
-      trackItemCompletion(numLevelId, EXERCISE_TYPE, safeFamilyId, currentRuleIndex, totalRules);
+      trackItemCompletion(numLevelId, EXERCISE_TYPE, compositeFamilyId, currentRuleIndex, totalRules);
     }
 
     // ✅ Enregistrer l'erreur si dernière tentative échouée → Coach IA

@@ -35,7 +35,7 @@ export default function Dashboard() {
   const { lastActivity, fetchLastActivity } = useLastActivity();
 
   // ✅ Hooks Dashboard - Données réelles depuis DB
-  const { dailyWord } = useDailyWord(1); // Niveau 1 par défaut
+  const { dailyWord } = useDailyWord();
   const { wordsToReview } = useRevisions();
   const { wordsLearned, badges, streak } = useUserMetrics();
 

@@ -142,16 +142,56 @@ export const insertContent = async (db: SQLiteDatabase, content: Omit<Content, '
 
 export const upsertProgress = async (db: SQLiteDatabase, progress: Omit<Progress, 'id'>): Promise<void> => {
   await db.runAsync(
-    `INSERT OR REPLACE INTO progress (user_id, family_id, level, completed, score, last_accessed) VALUES (?, ?, ?, ?, ?, ?)`,
-    [progress.user_id, progress.family_id, progress.level, progress.completed, progress.score, new Date().toISOString()]
+    `INSERT OR REPLACE INTO progress (user_id, family_id, subfamily_id, level, completed, total, score, last_accessed)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      progress.user_id,
+      progress.family_id,
+      progress.subfamily_id,
+      progress.level,
+      progress.completed,
+      progress.total,
+      progress.score,
+      new Date().toISOString(),
+    ]
   );
 };
 
-export const getProgressByFamily = async (db: SQLiteDatabase, userId: string, familyId: number): Promise<Progress[]> => {
+export const getProgressByFamily = async (
+  db: SQLiteDatabase,
+  userId: string,
+  familyId: number,
+  subfamilyId?: number
+): Promise<Progress[]> => {
+  if (subfamilyId !== undefined) {
+    return await db.getAllAsync<Progress>(
+      `SELECT * FROM progress WHERE user_id = ? AND family_id = ? AND subfamily_id = ? ORDER BY level`,
+      [userId, familyId, subfamilyId]
+    );
+  }
   return await db.getAllAsync<Progress>(
     `SELECT * FROM progress WHERE user_id = ? AND family_id = ? ORDER BY level`,
     [userId, familyId]
   );
+};
+
+/**
+ * Récupère la progression agrégée par famille (somme des sous-familles)
+ * Utilisé par FamilySelectionScreen pour afficher le % par famille
+ */
+export const getAggregatedFamilyProgress = async (
+  db: SQLiteDatabase,
+  userId: string,
+  familyId: number,
+  level: number
+): Promise<{ completed: number; total: number }> => {
+  const result = await db.getFirstAsync<{ completed: number; total: number }>(
+    `SELECT COALESCE(SUM(completed), 0) as completed, COALESCE(SUM(total), 0) as total
+     FROM progress
+     WHERE user_id = ? AND family_id = ? AND level = ?`,
+    [userId, familyId, level]
+  );
+  return result || { completed: 0, total: 0 };
 };
 
 // ============================================
@@ -394,26 +434,32 @@ export const getFeedbackMessagesByContext = async (
 // ============================================
 
 /**
- * Récupère le mot du jour pour une identité et un niveau
+ * Récupère le mot du jour pour une audience (sans filtre niveau)
  */
 export const getDailyWord = async (
   db: SQLiteDatabase,
-  identityId: string,
-  level: number
+  identityId: string
 ): Promise<DailyWord | null> => {
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
-  // Chercher un mot pour aujourd'hui
+  // 1. Mot programme pour aujourd'hui
   let word = await db.getFirstAsync<DailyWord>(
-    `SELECT * FROM daily_words WHERE identity_id = ? AND level = ? AND date = ?`,
-    [identityId, level, today]
+    `SELECT * FROM daily_words WHERE identity_id = ? AND date = ?`,
+    [identityId, today]
   );
 
-  // Si pas de mot pour aujourd'hui, prendre un mot aléatoire
+  // 2. Mot aleatoire pour cette audience
   if (!word) {
     word = await db.getFirstAsync<DailyWord>(
-      `SELECT * FROM daily_words WHERE identity_id = ? AND level = ? AND date IS NULL ORDER BY RANDOM() LIMIT 1`,
-      [identityId, level]
+      `SELECT * FROM daily_words WHERE identity_id = ? ORDER BY RANDOM() LIMIT 1`,
+      [identityId]
+    );
+  }
+
+  // 3. Dernier fallback : n'importe quel mot
+  if (!word) {
+    word = await db.getFirstAsync<DailyWord>(
+      `SELECT * FROM daily_words ORDER BY RANDOM() LIMIT 1`
     );
   }
 
@@ -528,19 +574,67 @@ export const calculateUserMetrics = async (
   );
 
   // Streak = jours consécutifs depuis activity_log
-  const activities = await db.getAllAsync<{ timestamp: number }>(
+  const days = await db.getAllAsync<{ day: string }>(
     `SELECT DISTINCT DATE(timestamp / 1000, 'unixepoch') as day
      FROM activity_log
      ORDER BY day DESC
-     LIMIT 30`
+     LIMIT 60`
   );
 
   let currentStreak = 0;
   let longestStreak = 0;
   let tempStreak = 0;
 
-  // TODO: Calculer le streak correctement (logique complexe)
-  // Pour l'instant, on met 0
+  if (days.length > 0) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (let i = 0; i < days.length; i++) {
+      const dayDate = new Date(days[i].day + 'T00:00:00');
+      const expectedDate = new Date(today);
+      expectedDate.setDate(expectedDate.getDate() - i);
+      expectedDate.setHours(0, 0, 0, 0);
+
+      // Tolérer un décalage de 1 jour (si l'utilisateur n'a pas encore joué aujourd'hui)
+      const diffMs = Math.abs(dayDate.getTime() - expectedDate.getTime());
+      const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+      if (i === 0 && diffDays > 1) {
+        // Pas d'activité aujourd'hui ni hier → streak = 0
+        break;
+      }
+
+      if (diffDays <= 1) {
+        tempStreak++;
+      } else {
+        break;
+      }
+    }
+    currentStreak = tempStreak;
+
+    // Calculer le plus long streak historique
+    tempStreak = 1;
+    longestStreak = 1;
+    for (let i = 1; i < days.length; i++) {
+      const prev = new Date(days[i - 1].day + 'T00:00:00');
+      const curr = new Date(days[i].day + 'T00:00:00');
+      const diff = (prev.getTime() - curr.getTime()) / (1000 * 60 * 60 * 24);
+
+      if (Math.abs(diff - 1) < 0.1) {
+        tempStreak++;
+        longestStreak = Math.max(longestStreak, tempStreak);
+      } else {
+        tempStreak = 1;
+      }
+    }
+    longestStreak = Math.max(longestStreak, currentStreak);
+  }
+
+  // Total time : estimer depuis le nombre d'entrées activity_log (env. 2 min par activité)
+  const activityCount = await db.getFirstAsync<{ count: number }>(
+    `SELECT COUNT(*) as count FROM activity_log`
+  );
+  const estimatedMinutes = (activityCount?.count || 0) * 2;
 
   const metrics: UserMetrics = {
     user_id: userId,
@@ -548,7 +642,7 @@ export const calculateUserMetrics = async (
     exercises_completed: exercisesResult?.total || 0,
     current_streak: currentStreak,
     longest_streak: longestStreak,
-    total_time_minutes: 0, // TODO: Calculer depuis activity_log
+    total_time_minutes: estimatedMinutes,
     updated_at: new Date().toISOString(),
   };
 
@@ -574,7 +668,8 @@ const DAILY_WORDS_COUNT: Record<string, number> = {
 
 /**
  * Récupère les mots pour la révision quotidienne
- * Prend des mots aléatoires depuis le contenu du niveau actuel
+ * Prend des mots aléatoires depuis le contenu jusqu'au niveau actuel
+ * Priorise les mots pas encore dans le SRS
  */
 export const getDailyReviewWords = async (
   db: SQLiteDatabase,
@@ -584,18 +679,19 @@ export const getDailyReviewWords = async (
 ): Promise<Content[]> => {
   const limit = DAILY_WORDS_COUNT[audience] || 10;
 
-  // Récupérer des mots aléatoires du niveau
+  // Priorise les mots pas encore vus (pas dans spaced_repetition)
   const words = await db.getAllAsync<Content>(
     `SELECT c.* FROM content c
      INNER JOIN families f ON c.family_id = f.id
      INNER JOIN modules m ON f.module_slug = m.slug
+     LEFT JOIN spaced_repetition sr ON sr.content_id = c.id AND sr.user_id = ?
      WHERE c.content_type = 'word'
-       AND c.level = ?
+       AND c.level <= ?
        AND (m.target_audience = ? OR m.target_audience = 'all')
        AND (c.target_audience = ? OR c.target_audience = 'all')
-     ORDER BY RANDOM()
+     ORDER BY CASE WHEN sr.id IS NULL THEN 0 ELSE 1 END, RANDOM()
      LIMIT ?`,
-    [level, audience, audience, limit]
+    [userId, level, audience, audience, limit]
   );
 
   return words;

@@ -65,8 +65,10 @@ export interface Progress {
   id?: number;
   user_id: string;
   family_id: number;
+  subfamily_id: number; // 0 = pas de sous-famille
   level: number;
   completed: number;
+  total: number;
   score: number;
   last_accessed?: string;
 }
@@ -155,6 +157,7 @@ export interface ActivityLog {
   id?: number;
   module_slug: string;
   family_id: number;
+  subfamily_id: number; // 0 = pas de sous-famille
   level: number;
   family_name: string;
   icon: string | null;

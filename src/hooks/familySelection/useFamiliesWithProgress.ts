@@ -6,26 +6,26 @@ import { useUser } from '@/contexts/UserContext';
 
 export interface FamilyWithProgress {
   id: number;
-  module_slug: string; // ✅ CORRIGÉ : module_slug (TEXT) au lieu de module_id (INTEGER)
+  module_slug: string;
   name: string;
   icon: string;
   emoji: string;
   description: string;
   order_index: number;
-  score: number | null;
   completed: number | null;
+  total: number | null;
+  progress: number | null; // Pourcentage 0-100
   // Champs UI optionnels
   color?: string;
   badge?: string;
 }
 
 export default function useFamiliesWithProgress(moduleId: string | number, levelId: number) {
-  const { db } = useUser();
+  const { db, user } = useUser();
   const [families, setFamilies] = useState<FamilyWithProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchFamilies = useCallback(async () => {
-    // Si pas de DB ou pas de module, on ne fait rien
     if (!db || !moduleId) {
       setIsLoading(false);
       return;
@@ -33,35 +33,43 @@ export default function useFamiliesWithProgress(moduleId: string | number, level
 
     setIsLoading(true);
     try {
-      // ✅ CORRIGÉ : Requête simplifiée avec module_slug directement
+      // Récupère les familles avec progression agrégée (somme des sous-familles)
       const query = `
         SELECT
           f.*,
-          p.score,
-          p.completed
+          agg.total_completed as completed,
+          agg.total_items as total,
+          CASE WHEN agg.total_items > 0
+            THEN ROUND((agg.total_completed * 100.0) / agg.total_items)
+            ELSE NULL
+          END as progress
         FROM families f
-        LEFT JOIN progress p ON f.id = p.family_id AND p.level = ?
+        LEFT JOIN (
+          SELECT family_id,
+            SUM(completed) as total_completed,
+            SUM(total) as total_items
+          FROM progress
+          WHERE level = ? ${user ? 'AND user_id = ?' : ''}
+          GROUP BY family_id
+        ) agg ON f.id = agg.family_id
         WHERE f.module_slug = (
           SELECT slug FROM modules WHERE CAST(id AS TEXT) = ? OR slug = ? LIMIT 1
         )
         ORDER BY f.order_index ASC;
       `;
 
-      // On passe moduleId.toString() deux fois : une pour comparer à l'ID, une pour le slug
-      const results = await db.getAllAsync<FamilyWithProgress>(query, [
-        levelId,
-        moduleId.toString(),
-        moduleId.toString()
-      ]);
+      const params = user
+        ? [levelId, user.id, moduleId.toString(), moduleId.toString()]
+        : [levelId, moduleId.toString(), moduleId.toString()];
 
-      console.log(`[useFamilies] Chargé ${results.length} familles pour module '${moduleId}' niveau ${levelId}`);
+      const results = await db.getAllAsync<FamilyWithProgress>(query, params);
       setFamilies(results);
     } catch (error) {
-      console.error('❌ Error fetching families:', error);
+      console.error('[useFamiliesWithProgress] Error:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [db, moduleId, levelId]);
+  }, [db, user, moduleId, levelId]);
 
   useFocusEffect(
     useCallback(() => {

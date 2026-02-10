@@ -1,7 +1,8 @@
 /**
  * ============================================
  * HOOK: useRecordWordSeen
- * Loguait chaque mot vu dans les exercices vocab
+ * Logue chaque mot vu dans les exercices vocab
+ * + ajoute automatiquement au SRS si contentId fourni
  * Utilisé par le Coach IA pour suggérer une pratique
  * sur les mots récents (derniers 10 distincts)
  * ============================================
@@ -9,20 +10,23 @@
 
 import { useCallback } from 'react';
 import { useUser } from '@/contexts/UserContext';
+import { addWordToSRS } from '@/database/queries';
 
 interface RecordWordSeenParams {
   word:        string;
   translation: string;
   familyId:    string;
+  contentId?:  number;
 }
 
 export const useRecordWordSeen = () => {
-  const { db } = useUser();
+  const { db, user } = useUser();
 
   const recordWordSeen = useCallback(async ({
     word,
     translation,
     familyId,
+    contentId,
   }: RecordWordSeenParams) => {
     if (!db) return;
 
@@ -32,10 +36,15 @@ export const useRecordWordSeen = () => {
          VALUES (?, ?, ?, ?)`,
         [word, translation, familyId, Date.now()]
       );
+
+      // Ajouter au SRS pour les futures révisions espacées
+      if (contentId && user) {
+        await addWordToSRS(db, user.id, contentId);
+      }
     } catch (e) {
       console.error('[useRecordWordSeen] Failed:', e);
     }
-  }, [db]);
+  }, [db, user]);
 
   return { recordWordSeen };
 };

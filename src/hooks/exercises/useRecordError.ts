@@ -19,7 +19,7 @@ interface RecordErrorParams {
 }
 
 export const useRecordError = () => {
-  const { db } = useUser();
+  const { db, user } = useUser();
 
   const recordError = useCallback(async ({
     familyId,
@@ -33,9 +33,10 @@ export const useRecordError = () => {
 
     try {
       await db.runAsync(
-        `INSERT INTO exercise_errors (family_id, module_slug, question, user_answer, correct_answer, level, timestamp)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO exercise_errors (user_id, family_id, module_slug, question, user_answer, correct_answer, level, timestamp)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
+          user?.id || '',
           Number(familyId),
           moduleSlug,
           question,
@@ -48,7 +49,7 @@ export const useRecordError = () => {
     } catch (e) {
       console.error('[useRecordError] Failed to record error:', e);
     }
-  }, [db]);
+  }, [db, user]);
 
   return { recordError };
 };

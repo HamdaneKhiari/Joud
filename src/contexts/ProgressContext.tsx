@@ -5,6 +5,8 @@
 
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from './UserContext';
+import { upsertProgress } from '../database/queries';
 
 // ============================================
 // TYPES
@@ -24,17 +26,17 @@ interface ExerciseProgress {
 interface LevelProgress {
   vocab: ExerciseProgress;
   grammar: ExerciseProgress;
-  sentences: ExerciseProgress;
+  phrase_types: ExerciseProgress;
   reading: ExerciseProgress;
   dialogues: ExerciseProgress;
   word_games: ExerciseProgress;
+  connector: ExerciseProgress;
+  assessment: ExerciseProgress;
+  fastvocab: ExerciseProgress;
+  [key: string]: ExerciseProgress;
 }
 
 interface ProgressState {
-  level1: LevelProgress;
-  level2: LevelProgress;
-  level3: LevelProgress;
-  level4: LevelProgress;
   [key: string]: LevelProgress;
 }
 
@@ -144,21 +146,37 @@ const progressReducer = (state: ProgressState, action: ProgressAction): Progress
 // UTILS
 // ============================================
 
+const ALL_MODULE_SLUGS = [
+  'vocab', 'grammar', 'phrase_types', 'reading', 'dialogues',
+  'word_games', 'connector', 'assessment', 'fastvocab',
+];
+
+const MAX_LEVELS = 8; // Support up to 8 levels (adult could have 6-7)
+
+/**
+ * Décompose une clé composite "familyId-subfamilyId" en 2 entiers.
+ * Ex: "1-2" → { familyId: 1, subfamilyId: 2 }
+ * Ex: "12"  → { familyId: 12, subfamilyId: 0 }
+ */
+const parseCompositeKey = (key: string): { familyId: number; subfamilyId: number } => {
+  if (key.includes('-')) {
+    const [fam, sub] = key.split('-');
+    return { familyId: Number(fam), subfamilyId: Number(sub) || 0 };
+  }
+  return { familyId: Number(key), subfamilyId: 0 };
+};
+
+const createEmptyLevelProgress = (): LevelProgress => {
+  const lp: any = {};
+  ALL_MODULE_SLUGS.forEach(slug => { lp[slug] = {}; });
+  return lp as LevelProgress;
+};
+
 const createInitialProgress = (): ProgressState => {
-  const levels = ['level1', 'level2', 'level3', 'level4'];
-  const base: any = {};
-
-  levels.forEach(l => {
-    base[l] = {
-      vocab: {},
-      grammar: {},
-      sentences: {},
-      reading: {},
-      dialogues: {},
-      word_games: {}
-    };
-  });
-
+  const base: ProgressState = {};
+  for (let i = 1; i <= MAX_LEVELS; i++) {
+    base[`level${i}`] = createEmptyLevelProgress();
+  }
   return base;
 };
 
@@ -193,17 +211,29 @@ const STORAGE_KEY = 'JOUDPRIMARY_PROGRESS';
 export const ProgressContext = createContext<ProgressContextValue | undefined>(undefined);
 
 export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { db, user } = useUser();
   const [progress, dispatch] = useReducer(progressReducer, null, () => createInitialProgress());
   const [isLoading, setIsLoading] = React.useState(true);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Chargement initial
+  // Chargement initial (avec migration sentences → phrase_types)
   useEffect(() => {
     const load = async () => {
       try {
         const saved = await AsyncStorage.getItem(STORAGE_KEY);
         if (saved) {
-          dispatch({ type: progressActions.SET_PROGRESS, payload: JSON.parse(saved) });
+          const parsed = JSON.parse(saved) as ProgressState;
+
+          // Migration : renommer "sentences" en "phrase_types" dans chaque niveau
+          for (const levelKey of Object.keys(parsed)) {
+            const level = parsed[levelKey];
+            if (level && 'sentences' in level && !('phrase_types' in level)) {
+              (level as any).phrase_types = (level as any).sentences;
+              delete (level as any).sentences;
+            }
+          }
+
+          dispatch({ type: progressActions.SET_PROGRESS, payload: parsed });
         }
       } catch (e) {
         console.error('Erreur chargement progress:', e);
@@ -229,15 +259,45 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
   }, [progress, isLoading]);
 
-  // Sauvegarde manuelle
+  // Sync vers SQLite (source de vérité persistante)
+  const syncToSQLite = useCallback(async (state: ProgressState) => {
+    if (!db || !user) return;
+
+    for (const [levelKey, levelData] of Object.entries(state)) {
+      const levelNum = Number.parseInt(levelKey.replace('level', ''), 10);
+      if (Number.isNaN(levelNum) || !levelData) continue;
+
+      for (const [, exerciseData] of Object.entries(levelData)) {
+        for (const [compositeKey, family] of Object.entries(exerciseData)) {
+          if (!family || family.total === 0) continue;
+
+          const { familyId, subfamilyId } = parseCompositeKey(compositeKey);
+          if (Number.isNaN(familyId)) continue;
+
+          await upsertProgress(db, {
+            user_id: user.id,
+            family_id: familyId,
+            subfamily_id: subfamilyId,
+            level: levelNum,
+            completed: family.completed,
+            total: family.total,
+            score: Math.round((family.completed / family.total) * 100),
+          });
+        }
+      }
+    }
+  }, [db, user]);
+
+  // Sauvegarde manuelle : AsyncStorage + sync SQLite
   const saveProgressNow = useCallback(async () => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+      if (progress) await syncToSQLite(progress);
     } catch (e) {
-      console.error('Erreur sauvegarde manuelle:', e);
+      console.error('Erreur sauvegarde progress:', e);
     }
-  }, [progress]);
+  }, [progress, syncToSQLite]);
 
   // Actions
   const trackItemCompletion = useCallback((
@@ -287,14 +347,26 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [progress, getFamilyProgress]);
 
   const getLevelProgress = useCallback((levelId: number): number => {
-    const types = ['vocab', 'grammar', 'sentences', 'reading', 'dialogues', 'word_games'];
+    const levelKey = `level${levelId}`;
+    const levelData = progress?.[levelKey];
+    if (!levelData) return 0;
 
-    const sum = types.reduce((total, type) => {
-      return total + getExerciseProgress(levelId, type, null);
-    }, 0);
+    // Ne compter que les modules qui ont au moins une famille avec de la progression
+    let activeModules = 0;
+    let totalProgress = 0;
 
-    return Math.round(sum / types.length);
-  }, [getExerciseProgress]);
+    for (const moduleSlug of ALL_MODULE_SLUGS) {
+      const exerciseData = levelData[moduleSlug] || {};
+      const familyIds = Object.keys(exerciseData);
+
+      if (familyIds.length > 0) {
+        activeModules++;
+        totalProgress += getExerciseProgress(levelId, moduleSlug, familyIds);
+      }
+    }
+
+    return activeModules > 0 ? Math.round(totalProgress / activeModules) : 0;
+  }, [progress, getExerciseProgress]);
 
   const getRevisionFamilies = useCallback((levelId: number, mode: string): any[] => {
     return filterRevisionFamilies(progress, levelId, mode);

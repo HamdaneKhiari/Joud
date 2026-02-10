@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@/contexts/UserContext';
+import { useCurrentLevel } from '@/contexts/CurrentLevelContext';
 import {
   getDailyReviewWords,
   getSpacedReviewWords,
@@ -62,6 +63,7 @@ interface UseRevisionQuestionsReturn {
  */
 export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
   const { db, user } = useUser();
+  const { currentLevel } = useCurrentLevel();
   const [mode, setMode] = useState<RevisionMode | null>(null);
   const [questions, setQuestions] = useState<RevisionQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -172,8 +174,7 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
       let words: Content[] = [];
 
       if (selectedMode === 'daily') {
-        const level = 1; // TODO: Récupérer niveau actuel
-        words = await getDailyReviewWords(db, user.id, user.audience, level);
+        words = await getDailyReviewWords(db, user.id, user.audience, currentLevel);
       } else {
         words = await getSpacedReviewWords(db, user.id);
       }
@@ -219,6 +220,7 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
 
   /**
    * Valide la réponse sélectionnée
+   * Ne stocke le résultat qu'une seule fois par question (1er essai)
    */
   const validateAnswer = useCallback(async () => {
     if (!selectedAnswer || !currentQuestion || !db || !user) return;
@@ -228,17 +230,30 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
     setIsValidated(true);
     setAttemptCount(prev => prev + 1);
 
-    // Enregistrer le résultat
-    setResults(prev => [...prev, correct]);
+    // Ne stocker le résultat que lors du 1er essai pour éviter les doublons
+    if (attemptCount === 0) {
+      setResults(prev => [...prev, correct]);
+
+      // Enregistrer l'erreur pour le Coach IA
+      if (!correct) {
+        try {
+          await db.runAsync(
+            `INSERT INTO exercise_errors (user_id, family_id, module_slug, question, user_answer, correct_answer, level, timestamp)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [user.id, 0, 'revision', currentQuestion.questionText, selectedAnswer, currentQuestion.correctAnswer, currentLevel, Date.now()]
+          );
+        } catch (e) {
+          console.error('[useRevisionQuestions] Error recording:', e);
+        }
+      }
+    }
 
     // Mettre à jour le système SRS
     if (mode === 'daily') {
       await addWordToSRS(db, user.id, currentQuestion.id);
-      await updateSpacedRepetitionResult(db, user.id, currentQuestion.id, correct);
-    } else {
-      await updateSpacedRepetitionResult(db, user.id, currentQuestion.id, correct);
     }
-  }, [selectedAnswer, currentQuestion, db, user, mode]);
+    await updateSpacedRepetitionResult(db, user.id, currentQuestion.id, correct);
+  }, [selectedAnswer, currentQuestion, db, user, mode, attemptCount, currentLevel]);
 
   /**
    * Passe à la question suivante
