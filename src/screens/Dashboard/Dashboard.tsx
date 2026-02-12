@@ -176,9 +176,10 @@ export default function Dashboard() {
                 key={level.id}
                 data={{
                   id: level.id || 0,
-                  level: level.level, // ✅ Badge rond : 1, 2, 3, 4
-                  title: levelLabel.title, // ✅ Titre complet : "Les Bases", "L'Essentiel"
-                  status
+                  level: level.level,
+                  title: levelLabel.title,
+                  status,
+                  score: progress
                 }}
                 onPress={() => navigateToExerciseSelection(router, level.level)}
                 isLast={index === levels.length - 1}

@@ -118,15 +118,21 @@ const LevelCard: React.FC<LevelCardProps> = ({
           ]}
         >
           <View style={styles.textContainer}>
-            {/* ✅ Titre depuis la DB (ex: "Les Bases", "L'Essentiel") */}
             <Text style={styles.title}>
               {data.title}
             </Text>
-            {/* ✅ Label dynamique selon le mood */}
             <Text style={styles.subtitle}>
               {config.label}
             </Text>
           </View>
+
+          {!isLocked && data.score != null && data.score > 0 && (
+            <View style={[styles.progressBadge, { backgroundColor: config.badgeColor + '15' }]}>
+              <Text style={[styles.progressText, { color: config.badgeColor }]}>
+                {data.score}%
+              </Text>
+            </View>
+          )}
 
           <View style={styles.iconContainer}>
             <MaterialCommunityIcons

@@ -73,6 +73,16 @@ export const createStyles = (identity: Identity) => {
       textTransform: isPlayful ? undefined : 'uppercase', // ✅ Pas d'uppercase si playful
       letterSpacing: isPlayful ? 0 : 0.5,
     },
+    progressBadge: {
+      paddingHorizontal: tokens.spacing.sm,
+      paddingVertical: tokens.spacing.xs,
+      borderRadius: isPlayful ? 12 : 8,
+      marginRight: tokens.spacing.sm,
+    },
+    progressText: {
+      fontSize: tokens.fontSize.xs,
+      fontWeight: tokens.fontWeight.bold,
+    },
     iconContainer: {
       marginLeft: tokens.spacing.sm,
     }
