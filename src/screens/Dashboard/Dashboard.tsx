@@ -105,7 +105,25 @@ export default function Dashboard() {
       <View style={styles.section}>
         <ContinueLearningCard
           activity={lastActivity}
-          onPress={lastActivity ? () => navigateToExerciseSelection(router, lastActivity.level) : undefined}
+          onPress={lastActivity ? () => {
+            if (lastActivity.moduleSlug === 'revision') {
+              router.push('/revision' as any);
+            } else {
+              // Décomposer le familyId composite "12-1" en familyId + subfamilyId
+              const parts = lastActivity.familyId.split('-');
+              const fId = parts[0];
+              const subId = parts.length > 1 ? parts[1] : undefined;
+              router.push({
+                pathname: '/exercise/[exerciseId]',
+                params: {
+                  exerciseId: lastActivity.moduleSlug,
+                  familyId: fId,
+                  levelId: lastActivity.level.toString(),
+                  ...(subId ? { subfamilyId: subId } : {}),
+                },
+              } as any);
+            }
+          } : undefined}
           onStartPress={() => navigateToExerciseSelection(router, 1)}
         />
       </View>

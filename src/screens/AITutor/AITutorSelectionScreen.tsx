@@ -2,12 +2,13 @@
  * ============================================
  * AI TUTOR SELECTION SCREEN (OPTIONNEL)
  * Choix entre Chat libre et Mode guidé
- * White Label + Moods + Gestion état non configuré
+ * White Label + Moods
+ * Toujours visible, bandeau si non configuré
  * ============================================
  */
 
 import React, { useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,7 +22,7 @@ import { MODES } from './AITutorSelectionScreen.config';
 import { createStyles } from './AITutorSelectionScreen.styles';
 
 // Components
-import { OnboardingView, ModeCard } from './components';
+import { ModeCard } from './components';
 
 // ============================================
 // COMPOSANT
@@ -35,35 +36,24 @@ const AITutorSelectionScreen: React.FC = () => {
 
   const styles = useMemo(() => createStyles(identity, isPlayful), [identity, isPlayful]);
 
-  // =================== RENDER : Non configuré ===================
+  const isConfigured = !isLoading && settings?.isConfigured && !!settings?.apiKey;
 
-  if (!isLoading && (!settings?.isConfigured || !settings?.apiKey)) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerTopRow}>
-            <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}>
-              <Ionicons name="arrow-back" size={24} color={identity.text.onPrimary} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Tuteur IA</Text>
-            <Text style={styles.headerEmoji}>🤖</Text>
-          </View>
-          <Text style={styles.headerSubtitle}>Fonctionnalité optionnelle</Text>
-        </View>
+  const handleModePress = (route: string) => {
+    if (isConfigured) {
+      router.push(route as any);
+    } else {
+      Alert.alert(
+        'Clé API requise',
+        'Configure ta clé API pour discuter avec le coach IA.',
+        [
+          { text: 'Plus tard', style: 'cancel' },
+          { text: 'Configurer', onPress: () => router.push('/settings-ai' as any) },
+        ]
+      );
+    }
+  };
 
-        {/* Onboarding Content */}
-        <OnboardingView
-          styles={styles}
-          identity={identity}
-          onConfigure={() => router.push('/settings-ai' as any)}
-          onSkip={() => router.back()}
-        />
-      </SafeAreaView>
-    );
-  }
-
-  // =================== RENDER : Configuré (mode normal) ===================
+  // =================== RENDER ===================
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
@@ -77,12 +67,30 @@ const AITutorSelectionScreen: React.FC = () => {
           <Text style={styles.headerEmoji}>🤖</Text>
         </View>
         <Text style={styles.headerSubtitle}>
-          Choisis ton mode • Connecté ({settings?.provider || 'OpenAI'})
+          {isConfigured
+            ? `Choisis ton mode \u2022 Connect\u00e9 (${settings?.provider || 'OpenAI'})`
+            : 'Choisis ton mode'}
         </Text>
       </View>
 
-      {/* Cartes de mode */}
+      {/* Content */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Bandeau si non configuré */}
+        {!isConfigured && (
+          <TouchableOpacity
+            style={styles.configBanner}
+            onPress={() => router.push('/settings-ai' as any)}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="key-outline" size={18} color={identity.palette.accent} />
+            <Text style={styles.configBannerText}>
+              Configure ta clé API pour activer le coach IA
+            </Text>
+            <Ionicons name="chevron-forward" size={16} color={identity.text.secondary} />
+          </TouchableOpacity>
+        )}
+
+        {/* Cartes de mode (toujours visibles) */}
         {MODES.map((mode) => (
           <ModeCard
             key={mode.key}
@@ -91,7 +99,7 @@ const AITutorSelectionScreen: React.FC = () => {
             subtitle={`Mode ${mode.key === 'free' ? 'libre' : 'guidé'}`}
             description={mode.description}
             features={mode.features}
-            onPress={() => router.push(mode.route as any)}
+            onPress={() => handleModePress(mode.route)}
             styles={styles}
             identity={identity}
           />

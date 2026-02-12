@@ -1,12 +1,13 @@
 /**
  * ProgressContext - Gestion de la progression utilisateur
- * Version TypeScript
+ * SQLite = source de vérité, AsyncStorage = cache rapide
  */
 
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from './UserContext';
 import { upsertProgress } from '../database/queries';
+import type { SQLiteDatabase } from 'expo-sqlite';
 
 // ============================================
 // TYPES
@@ -16,7 +17,6 @@ interface FamilyProgress {
   completed: number;
   total: number;
   lastReviewed?: number;
-  nextReview?: number;
 }
 
 interface ExerciseProgress {
@@ -48,15 +48,8 @@ interface TrackItemPayload {
   totalItems: number;
 }
 
-interface UpdateSpacedPayload {
-  levelId: number;
-  exerciseType: string;
-  familyId: string;
-  success: boolean;
-}
-
 interface ProgressAction {
-  type: 'SET_PROGRESS' | 'TRACK_ITEM' | 'UPDATE_SPACED';
+  type: 'SET_PROGRESS' | 'TRACK_ITEM';
   payload?: any;
 }
 
@@ -64,25 +57,14 @@ interface ProgressContextValue {
   progress: ProgressState | null;
   isLoading: boolean;
   trackItemCompletion: (levelId: number, exerciseType: string, familyId: string, itemIndex: number, totalItems: number) => void;
-  updateSpacedRepetition: (levelId: number, exerciseType: string, familyId: string, success: boolean) => void;
   saveProgressNow: () => Promise<void>;
   getFamilyProgress: (levelId: number, exerciseType: string, familyId: string) => number;
   getExerciseProgress: (levelId: number, exerciseType: string, allFamilyIds?: string[] | null) => number;
   getLevelProgress: (levelId: number) => number;
-  getRevisionFamilies: (levelId: number, mode: string) => any[];
+  getRevisionFamilies: (levelId: number) => any[];
   getLastActivity: (levelId: number, exerciseType: string) => { familyId: string; progress: number; lastReviewed: number } | null;
   getRecommendedModule: (levelId: number) => { exerciseType: string; progress: number; lastReviewed: number } | null;
 }
-
-// ============================================
-// ACTIONS
-// ============================================
-
-const progressActions = {
-  SET_PROGRESS: 'SET_PROGRESS' as const,
-  TRACK_ITEM: 'TRACK_ITEM' as const,
-  UPDATE_SPACED: 'UPDATE_SPACED' as const
-};
 
 // ============================================
 // REDUCER
@@ -90,10 +72,10 @@ const progressActions = {
 
 const progressReducer = (state: ProgressState, action: ProgressAction): ProgressState => {
   switch (action.type) {
-    case progressActions.SET_PROGRESS:
+    case 'SET_PROGRESS':
       return action.payload;
 
-    case progressActions.TRACK_ITEM: {
+    case 'TRACK_ITEM': {
       const { levelId, exerciseType, familyId, itemIndex, totalItems } = action.payload as TrackItemPayload;
       const levelKey = `level${levelId}`;
 
@@ -107,30 +89,6 @@ const progressReducer = (state: ProgressState, action: ProgressAction): Progress
               completed: itemIndex + 1,
               total: totalItems,
               lastReviewed: Date.now()
-            }
-          }
-        }
-      };
-    }
-
-    case progressActions.UPDATE_SPACED: {
-      const { levelId, exerciseType, familyId, success } = action.payload as UpdateSpacedPayload;
-      const levelKey = `level${levelId}`;
-      const family = state[levelKey]?.[exerciseType as keyof LevelProgress]?.[familyId];
-
-      if (!family) return state;
-
-      const interval = success ? 86400000 : 3600000; // 24h ou 1h
-
-      return {
-        ...state,
-        [levelKey]: {
-          ...state[levelKey],
-          [exerciseType]: {
-            ...state[levelKey]?.[exerciseType as keyof LevelProgress],
-            [familyId]: {
-              ...family,
-              nextReview: Date.now() + interval
             }
           }
         }
@@ -151,13 +109,10 @@ const ALL_MODULE_SLUGS = [
   'word_games', 'connector', 'assessment', 'fastvocab',
 ];
 
-const MAX_LEVELS = 8; // Support up to 8 levels (adult could have 6-7)
+const MAX_LEVELS = 8;
 
-/**
- * Décompose une clé composite "familyId-subfamilyId" en 2 entiers.
- * Ex: "1-2" → { familyId: 1, subfamilyId: 2 }
- * Ex: "12"  → { familyId: 12, subfamilyId: 0 }
- */
+const getStorageKey = (userId: string) => `JOUD_PROGRESS_${userId}`;
+
 const parseCompositeKey = (key: string): { familyId: number; subfamilyId: number } => {
   if (key.includes('-')) {
     const [fam, sub] = key.split('-');
@@ -180,33 +135,73 @@ const createInitialProgress = (): ProgressState => {
   return base;
 };
 
-const filterRevisionFamilies = (progress: ProgressState | null, levelId: number, mode: string): any[] => {
+/**
+ * Load progress from SQLite (source of truth) and rebuild ProgressState
+ */
+const loadFromSQLite = async (db: SQLiteDatabase, userId: string): Promise<ProgressState | null> => {
+  try {
+    const rows = await db.getAllAsync<{
+      family_id: number; subfamily_id: number; level: number;
+      completed: number; total: number; last_accessed: string;
+    }>(
+      `SELECT p.family_id, p.subfamily_id, p.level, p.completed, p.total, p.last_accessed,
+              f.module_slug
+       FROM progress p
+       INNER JOIN families f ON f.id = p.family_id
+       WHERE p.user_id = ?`,
+      [userId]
+    );
+
+    if (!rows || rows.length === 0) return null;
+
+    const state = createInitialProgress();
+
+    for (const row of rows) {
+      const levelKey = `level${row.level}`;
+      const moduleSlug = (row as any).module_slug;
+      if (!state[levelKey] || !moduleSlug) continue;
+
+      const compositeKey = row.subfamily_id > 0
+        ? `${row.family_id}-${row.subfamily_id}`
+        : `${row.family_id}`;
+
+      if (!state[levelKey][moduleSlug]) {
+        state[levelKey][moduleSlug] = {};
+      }
+
+      state[levelKey][moduleSlug][compositeKey] = {
+        completed: row.completed,
+        total: row.total || row.completed,
+        lastReviewed: row.last_accessed ? new Date(row.last_accessed).getTime() : undefined,
+      };
+    }
+
+    return state;
+  } catch (e) {
+    console.warn('[ProgressContext] loadFromSQLite error:', e);
+    return null;
+  }
+};
+
+const filterRevisionFamilies = (progress: ProgressState | null, levelId: number): any[] => {
   if (!progress) return [];
-
-  const levelKey = `level${levelId}`;
-  const levelData = progress[levelKey];
-
+  const levelData = progress[`level${levelId}`];
   if (!levelData) return [];
 
   const families: any[] = [];
-  const now = Date.now();
-
   Object.entries(levelData).forEach(([exerciseType, exerciseData]) => {
     Object.entries(exerciseData as ExerciseProgress).forEach(([familyId, family]) => {
-      if (mode === 'review' && family.nextReview && family.nextReview <= now) {
+      if (family.completed > 0) {
         families.push({ exerciseType, familyId, ...family });
       }
     });
   });
-
   return families;
 };
 
 // ============================================
 // CONTEXT
 // ============================================
-
-const STORAGE_KEY = 'JOUDPRIMARY_PROGRESS';
 
 export const ProgressContext = createContext<ProgressContextValue | undefined>(undefined);
 
@@ -216,15 +211,33 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isLoading, setIsLoading] = React.useState(true);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Chargement initial (avec migration sentences → phrase_types)
+  // P0+P1+P3: Load from SQLite first, fallback to AsyncStorage (scoped per user)
   useEffect(() => {
     const load = async () => {
+      if (!user?.id) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        const saved = await AsyncStorage.getItem(STORAGE_KEY);
+        // 1. Try SQLite (source of truth)
+        if (db) {
+          const sqliteState = await loadFromSQLite(db, user.id);
+          if (sqliteState) {
+            dispatch({ type: 'SET_PROGRESS', payload: sqliteState });
+            // Also update AsyncStorage cache
+            await AsyncStorage.setItem(getStorageKey(user.id), JSON.stringify(sqliteState));
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        // 2. Fallback: AsyncStorage cache (scoped per user)
+        const saved = await AsyncStorage.getItem(getStorageKey(user.id));
         if (saved) {
           const parsed = JSON.parse(saved) as ProgressState;
 
-          // Migration : renommer "sentences" en "phrase_types" dans chaque niveau
+          // Migration: rename "sentences" → "phrase_types"
           for (const levelKey of Object.keys(parsed)) {
             const level = parsed[levelKey];
             if (level && 'sentences' in level && !('phrase_types' in level)) {
@@ -233,33 +246,48 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             }
           }
 
-          dispatch({ type: progressActions.SET_PROGRESS, payload: parsed });
+          dispatch({ type: 'SET_PROGRESS', payload: parsed });
+        }
+
+        // 3. Migrate old non-scoped key if exists
+        const oldKey = 'JOUDPRIMARY_PROGRESS';
+        const oldSaved = await AsyncStorage.getItem(oldKey);
+        if (oldSaved && !saved) {
+          await AsyncStorage.setItem(getStorageKey(user.id), oldSaved);
+          await AsyncStorage.removeItem(oldKey);
+          const parsed = JSON.parse(oldSaved) as ProgressState;
+          dispatch({ type: 'SET_PROGRESS', payload: parsed });
         }
       } catch (e) {
-        console.error('Erreur chargement progress:', e);
+        console.error('[ProgressContext] Load error:', e);
       } finally {
         setIsLoading(false);
       }
     };
     load();
-  }, []);
+  }, [db, user?.id]);
 
-  // Sauvegarde automatique (Debounce)
+  // P2: Auto save to AsyncStorage + SQLite (debounced)
   useEffect(() => {
-    if (isLoading || !progress) return;
+    if (isLoading || !progress || !user?.id) return;
 
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
 
-    saveTimeoutRef.current = setTimeout(() => {
-      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-    }, 1000);
+    saveTimeoutRef.current = setTimeout(async () => {
+      try {
+        await AsyncStorage.setItem(getStorageKey(user.id), JSON.stringify(progress));
+        if (db) await syncToSQLite(progress);
+      } catch (e) {
+        console.warn('[ProgressContext] Auto-save error:', e);
+      }
+    }, 1500);
 
     return () => {
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     };
-  }, [progress, isLoading]);
+  }, [progress, isLoading, user?.id]);
 
-  // Sync vers SQLite (source de vérité persistante)
+  // Sync to SQLite
   const syncToSQLite = useCallback(async (state: ProgressState) => {
     if (!db || !user) return;
 
@@ -292,77 +320,56 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [db, user]);
 
-  // Sauvegarde manuelle : AsyncStorage + sync SQLite
+  // Manual save
   const saveProgressNow = useCallback(async () => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-      if (progress) await syncToSQLite(progress);
+      if (user?.id) {
+        await AsyncStorage.setItem(getStorageKey(user.id), JSON.stringify(progress));
+      }
+      if (progress && db) await syncToSQLite(progress);
     } catch (e) {
-      console.error('Erreur sauvegarde progress:', e);
+      console.error('[ProgressContext] Save error:', e);
     }
-  }, [progress, syncToSQLite]);
+  }, [progress, syncToSQLite, user?.id]);
 
   // Actions
   const trackItemCompletion = useCallback((
-    levelId: number,
-    exerciseType: string,
-    familyId: string,
-    itemIndex: number,
-    totalItems: number
+    levelId: number, exerciseType: string, familyId: string,
+    itemIndex: number, totalItems: number
   ) => {
     dispatch({
-      type: progressActions.TRACK_ITEM,
+      type: 'TRACK_ITEM',
       payload: { levelId, exerciseType, familyId, itemIndex, totalItems }
     });
   }, []);
 
-  const updateSpacedRepetition = useCallback((
-    levelId: number,
-    exerciseType: string,
-    familyId: string,
-    success: boolean
-  ) => {
-    dispatch({
-      type: progressActions.UPDATE_SPACED,
-      payload: { levelId, exerciseType, familyId, success }
-    });
-  }, []);
-
-  // Calculs
+  // Calculations
   const getFamilyProgress = useCallback((levelId: number, exerciseType: string, familyId: string): number => {
     const family = progress?.[`level${levelId}`]?.[exerciseType as keyof LevelProgress]?.[familyId];
     return family ? Math.round((family.completed / family.total) * 100) : 0;
   }, [progress]);
 
   const getExerciseProgress = useCallback((
-    levelId: number,
-    exerciseType: string,
-    allFamilyIds: string[] | null = null
+    levelId: number, exerciseType: string, allFamilyIds: string[] | null = null
   ): number => {
-    const levelKey = `level${levelId}`;
-    const exerciseData = progress?.[levelKey]?.[exerciseType as keyof LevelProgress] || {};
+    const exerciseData = progress?.[`level${levelId}`]?.[exerciseType as keyof LevelProgress] || {};
     const ids = allFamilyIds || Object.keys(exerciseData);
-
     if (ids.length === 0) return 0;
-
     const total = ids.reduce((sum, id) => sum + getFamilyProgress(levelId, exerciseType, id), 0);
     return Math.round(total / ids.length);
   }, [progress, getFamilyProgress]);
 
   const getLevelProgress = useCallback((levelId: number): number => {
-    const levelKey = `level${levelId}`;
-    const levelData = progress?.[levelKey];
+    const levelData = progress?.[`level${levelId}`];
     if (!levelData) return 0;
 
-    // Ne compter que les modules qui ont au moins une famille avec de la progression
     let activeModules = 0;
     let totalProgress = 0;
 
     for (const moduleSlug of ALL_MODULE_SLUGS) {
       const exerciseData = levelData[moduleSlug] || {};
       const familyIds = Object.keys(exerciseData);
-
       if (familyIds.length > 0) {
         activeModules++;
         totalProgress += getExerciseProgress(levelId, moduleSlug, familyIds);
@@ -372,89 +379,58 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return activeModules > 0 ? Math.round(totalProgress / activeModules) : 0;
   }, [progress, getExerciseProgress]);
 
-  const getRevisionFamilies = useCallback((levelId: number, mode: string): any[] => {
-    return filterRevisionFamilies(progress, levelId, mode);
+  const getRevisionFamilies = useCallback((levelId: number): any[] => {
+    return filterRevisionFamilies(progress, levelId);
   }, [progress]);
 
   const getLastActivity = useCallback((
-    levelId: number,
-    exerciseType: string
+    levelId: number, exerciseType: string
   ): { familyId: string; progress: number; lastReviewed: number } | null => {
-    const levelKey = `level${levelId}`;
-    const exerciseData = progress?.[levelKey]?.[exerciseType as keyof LevelProgress];
-
+    const exerciseData = progress?.[`level${levelId}`]?.[exerciseType as keyof LevelProgress];
     if (!exerciseData) return null;
 
     let mostRecent: { familyId: string; progress: number; lastReviewed: number } | null = null;
-
     Object.entries(exerciseData).forEach(([familyId, family]) => {
-      if (family.lastReviewed) {
-        if (!mostRecent || family.lastReviewed > mostRecent.lastReviewed) {
-          mostRecent = {
-            familyId,
-            progress: Math.round((family.completed / family.total) * 100),
-            lastReviewed: family.lastReviewed,
-          };
-        }
+      if (family.lastReviewed && (!mostRecent || family.lastReviewed > mostRecent.lastReviewed)) {
+        mostRecent = {
+          familyId,
+          progress: Math.round((family.completed / family.total) * 100),
+          lastReviewed: family.lastReviewed,
+        };
       }
     });
-
     return mostRecent;
   }, [progress]);
 
   const getRecommendedModule = useCallback((
     levelId: number
   ): { exerciseType: string; progress: number; lastReviewed: number } | null => {
-    const levelKey = `level${levelId}`;
-    const levelData = progress?.[levelKey];
-
+    const levelData = progress?.[`level${levelId}`];
     if (!levelData) return null;
 
     let mostRecent: { exerciseType: string; progress: number; lastReviewed: number } | null = null;
-
     Object.entries(levelData).forEach(([exerciseType, exerciseData]) => {
-      Object.entries(exerciseData as ExerciseProgress).forEach(([familyId, family]) => {
-        if (family.lastReviewed) {
-          if (!mostRecent || family.lastReviewed > mostRecent.lastReviewed) {
-            const totalProgress = getExerciseProgress(levelId, exerciseType, null);
-            mostRecent = {
-              exerciseType,
-              progress: totalProgress,
-              lastReviewed: family.lastReviewed,
-            };
-          }
+      Object.entries(exerciseData as ExerciseProgress).forEach(([, family]) => {
+        if (family.lastReviewed && (!mostRecent || family.lastReviewed > mostRecent.lastReviewed)) {
+          mostRecent = {
+            exerciseType,
+            progress: getExerciseProgress(levelId, exerciseType, null),
+            lastReviewed: family.lastReviewed,
+          };
         }
       });
     });
-
     return mostRecent;
   }, [progress, getExerciseProgress]);
 
-  // Valeur du contexte
   const value = useMemo<ProgressContextValue>(() => ({
-    progress,
-    isLoading,
-    trackItemCompletion,
-    updateSpacedRepetition,
-    saveProgressNow,
-    getFamilyProgress,
-    getExerciseProgress,
-    getLevelProgress,
-    getRevisionFamilies,
-    getLastActivity,
-    getRecommendedModule
+    progress, isLoading, trackItemCompletion, saveProgressNow,
+    getFamilyProgress, getExerciseProgress, getLevelProgress,
+    getRevisionFamilies, getLastActivity, getRecommendedModule
   }), [
-    progress,
-    isLoading,
-    trackItemCompletion,
-    updateSpacedRepetition,
-    saveProgressNow,
-    getFamilyProgress,
-    getExerciseProgress,
-    getLevelProgress,
-    getRevisionFamilies,
-    getLastActivity,
-    getRecommendedModule
+    progress, isLoading, trackItemCompletion, saveProgressNow,
+    getFamilyProgress, getExerciseProgress, getLevelProgress,
+    getRevisionFamilies, getLastActivity, getRecommendedModule
   ]);
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;

@@ -16,7 +16,7 @@ export const INFO_BOXES = {
   optional: {
     icon: 'information-circle' as const,
     color: 'accent',
-    text: 'Coach IA = Optionnel\n\nL\'app fonctionne parfaitement sans cette fonctionnalité. Configure-la uniquement si tu veux des conseils personnalisés de l\'IA.',
+    text: 'Coach IA = Optionnel\n\nLe Coach IA te permet de discuter avec une intelligence artificielle pour progresser en anglais. Deux modes disponibles : Chat libre (conversation ouverte) et Mode guidé (exercices ciblés).',
   },
   security: {
     icon: 'shield-checkmark' as const,
@@ -28,6 +28,6 @@ export const INFO_BOXES = {
     icon: 'warning' as const,
     color: '#F59E0B',
     title: 'Tu es responsable de ta clé',
-    text: 'Les coûts liés à l\'utilisation de l\'API sont à ta charge. Configure une limite quotidienne pour éviter les frais excessifs.',
+    text: 'Les coûts liés à l\'utilisation de l\'API sont à ta charge. Les limites d\'usage sont gérées directement par ton fournisseur d\'API.',
   },
 } as const;

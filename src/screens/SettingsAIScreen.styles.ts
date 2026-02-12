@@ -112,33 +112,6 @@ export const createStyles = (identity: ThemeIdentity, isPlayful: boolean) =>
       letterSpacing: 2,
     },
 
-    // --- Model Picker ---
-    modelPicker: {
-      flexDirection: 'row',
-      flexWrap:      'wrap',
-      gap:           tokens.spacing.sm,
-    },
-    modelChip: {
-      paddingHorizontal: tokens.spacing.md,
-      paddingVertical:   tokens.spacing.sm,
-      borderRadius:      tokens.borderRadius.md,
-      backgroundColor:   identity.palette.surface,
-      borderWidth:       1,
-      borderColor:       withOpacity(identity.palette.primary, 0.2),
-    },
-    modelChipActive: {
-      backgroundColor: identity.palette.primary,
-      borderColor:     identity.palette.primary,
-    },
-    modelChipText: {
-      fontSize:   tokens.fontSize.sm,
-      fontWeight: tokens.fontWeight.medium,
-      color:      identity.text.secondary,
-    },
-    modelChipTextActive: {
-      color: identity.text.onPrimary,
-    },
-
     // --- Info Box ---
     infoBox: {
       flexDirection: 'row',

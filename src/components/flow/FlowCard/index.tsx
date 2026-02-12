@@ -49,7 +49,7 @@ const FlowCard: React.FC<FlowCardProps> = ({
 
   const cardColor = locked ? '#D1D5DB' : (color || identity.palette.primary);
   const statusBadgeColor = identity.palette.accent;
-  const statusBadgeText = identity.id === 'lycee' ? 'IN PROGRESS' : 'EN COURS';
+  const statusBadgeText = identity.i18n.locale === 'fr' ? 'EN COURS' : 'IN PROGRESS';
 
   const styles = useMemo(
     () => createStyles(identity, isHorizontal, cardColor),
@@ -107,7 +107,7 @@ const FlowCard: React.FC<FlowCardProps> = ({
           {isHorizontal && description && <Text style={styles.label}>{description}</Text>}
 
           <Text style={styles.title} numberOfLines={1}>{title}</Text>
-          <Text style={styles.subtitle} numberOfLines={isHorizontal ? 1 : 2}>{subtitle}</Text>
+          {subtitle ? <Text style={styles.subtitle} numberOfLines={isHorizontal ? 1 : 2}>{subtitle}</Text> : null}
         </View>
 
         {!isHorizontal && progress !== null && progress > 0 && (

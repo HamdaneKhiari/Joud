@@ -73,18 +73,33 @@ export const useLastActivity = () => {
 
     try {
       setIsLoading(true);
-      const result = await db.getFirstAsync<ActivityData>(`
-        SELECT 
-          module_slug as moduleSlug, 
-          family_id as familyId, 
-          level, 
-          family_name as familyName, 
-          icon, 
-          progress 
-        FROM activity_log 
-        ORDER BY timestamp DESC 
+      const row = await db.getFirstAsync<{
+        moduleSlug: string;
+        familyId: number;
+        subfamilyId: number;
+        level: number;
+        familyName: string;
+        icon: string;
+        progress: number;
+      }>(`
+        SELECT
+          module_slug as moduleSlug,
+          family_id as familyId,
+          subfamily_id as subfamilyId,
+          level,
+          family_name as familyName,
+          icon,
+          progress
+        FROM activity_log
+        ORDER BY timestamp DESC
         LIMIT 1
       `);
+
+      // Reconstruire le familyId composite si subfamily existe
+      const result = row ? {
+        ...row,
+        familyId: row.subfamilyId ? `${row.familyId}-${row.subfamilyId}` : String(row.familyId),
+      } : null;
       
       setLastActivity(result);
     } catch (error) {

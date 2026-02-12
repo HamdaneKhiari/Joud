@@ -38,7 +38,7 @@ const createStyles = (identity: Identity) => {
       position: 'absolute',
       bottom: -30,
       zIndex: 5,
-      opacity: identity.id === 'adult' ? 0.3 : 0.8
+      opacity: identity.ui.mood === 'clean' ? 0.3 : 0.8
     },
 
     decorativeRight: {
@@ -63,7 +63,7 @@ const createStyles = (identity: Identity) => {
     },
 
     decorativeEmoji: {
-      fontSize: identity.id === 'primary' ? 120 : 100,
+      fontSize: identity.ui.mood === 'playful' ? 120 : 100,
       textShadowColor: 'rgba(0, 0, 0, 0.2)',
       textShadowOffset: { width: 0, height: 2 },
       textShadowRadius: 4

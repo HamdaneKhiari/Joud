@@ -64,7 +64,7 @@ const ModuleItem: React.FC<ModuleItemProps> = ({
     <ModuleCard
       icon={exercise.icon}
       title={exercise.title}
-      subtitle={exercise.description}
+      subtitle=""
       color={exercise.color || identity.palette.primary}
       badge={exercise.badge || null} // ✨ Affiche "EN COURS" si présent
       progress={progress > 0 ? progress : null} // ✨ Affiche le % dans le badge

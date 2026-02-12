@@ -1,4 +1,5 @@
 import * as SQLite from 'expo-sqlite';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MigrationRunner } from './migrations/runner';
 
 // ============================================
@@ -135,7 +136,8 @@ const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
       await new Promise(resolve => setTimeout(resolve, 500));
       try {
         await SQLite.deleteDatabaseAsync('janacore.db');
-        console.log('🗑️ Database deleted successfully');
+        await AsyncStorage.removeItem('JOUDPRIMARY_PROGRESS');
+        console.log('🗑️ Database + stale progress deleted successfully');
       } catch (e) {
         if (!String(e).includes('does not exist')) {
           console.warn('⚠️ Deletion error:', e);

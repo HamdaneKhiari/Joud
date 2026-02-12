@@ -58,18 +58,15 @@ interface ExerciseLayoutProps {
 const createStyles = (identity: Identity) => {
   // Espacement du contenu selon l'identité
   const getContentPadding = () => {
-    switch (identity.id) {
-      case 'primary':
-        return { top: tokens.spacing.xxxl, bottom: tokens.spacing.xxxl, horizontal: tokens.spacing.xl };
-      case 'college':
-        return { top: tokens.spacing.xl, bottom: tokens.spacing.xl, horizontal: tokens.spacing.lg };
-      case 'lycee':
-      case 'adult':
-        return { top: tokens.spacing.lg, bottom: tokens.spacing.lg, horizontal: tokens.spacing.md };
-      default:
-        // Fallback pour identités non reconnues
-        return { top: tokens.spacing.xl, bottom: tokens.spacing.xl, horizontal: tokens.spacing.lg };
+    const isPlayful = identity.ui.mood === 'playful';
+    const isBubbly = identity.ui.cardStyle === 'bubbly';
+    if (isBubbly) {
+      return { top: tokens.spacing.xxxl, bottom: tokens.spacing.xxxl, horizontal: tokens.spacing.xl };
     }
+    if (isPlayful) {
+      return { top: tokens.spacing.xl, bottom: tokens.spacing.xl, horizontal: tokens.spacing.lg };
+    }
+    return { top: tokens.spacing.lg, bottom: tokens.spacing.lg, horizontal: tokens.spacing.md };
   };
 
   const padding = getContentPadding();
@@ -113,14 +110,8 @@ const ExerciseLayout: React.FC<ExerciseLayoutProps> = ({
   const styles = useMemo(() => createStyles(identity), [identity]);
 
   // StatusBar dynamique selon l'identité
-  const getStatusBarStyle = (): 'light-content' | 'dark-content' => {
-    // Lycée et College : header sombre → texte blanc
-    if (identity.id === 'lycee' || identity.id === 'college') {
-      return 'light-content';
-    }
-    // Primary et Adult : header clair → texte noir
-    return 'dark-content';
-  };
+  // Header fond = primary (toujours foncé/saturé) → statusBar light
+  const getStatusBarStyle = (): 'light-content' | 'dark-content' => 'light-content';
 
   const statusBarStyle = getStatusBarStyle();
 

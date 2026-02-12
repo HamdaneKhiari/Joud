@@ -194,7 +194,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
       <FamilyCard
         icon={item.icon}
         title={item.name || item.id.toString()}
-        subtitle={item.description || ''}
+        subtitle=""
         color={item.color || moduleColor}
         badge={item.badge || null}
         progress={item.progress || null}

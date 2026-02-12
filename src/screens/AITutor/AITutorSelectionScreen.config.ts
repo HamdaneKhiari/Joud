@@ -28,10 +28,3 @@ export const MODES = [
     ],
   },
 ] as const;
-
-export const ONBOARDING_FEATURES = [
-  'Analyse tes erreurs automatiquement',
-  'Conseils personnalisés selon ton niveau',
-  'Chat libre pour poser tes questions',
-  'Tu contrôles ta clé API (OpenAI, Mistral, Claude)',
-] as const;

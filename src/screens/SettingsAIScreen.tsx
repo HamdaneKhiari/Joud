@@ -30,9 +30,7 @@ import { createStyles } from './SettingsAIScreen.styles';
 import {
   InfoBox,
   ProviderSelector,
-  ModelSelector,
   APIKeyInput,
-  UsageLimits,
 } from './components';
 
 type Provider = AISettings['provider'];
@@ -48,19 +46,15 @@ export default function SettingsAIScreen() {
     settings,
     isLoading,
     updateSettings,
-    getAvailableModels,
     deleteAPIKey,
     secureStorage,
   } = useAISettings();
 
   const [provider, setProvider] = useState<Provider>(settings?.provider || 'openai');
   const [apiKey, setApiKey] = useState(settings?.apiKey || '');
-  const [model, setModel] = useState(settings?.model || 'gpt-3.5-turbo');
-  const [maxMessages, setMaxMessages] = useState(String(settings?.maxMessagesPerDay || 50));
   const [isSaving, setIsSaving] = useState(false);
 
   const isPlayful = identity.ui.mood === 'playful';
-  const availableModels = getAvailableModels();
 
   const styles = useMemo(() => createStyles(identity, isPlayful), [identity, isPlayful]);
 
@@ -68,8 +62,6 @@ export default function SettingsAIScreen() {
 
   const handleProviderChange = (newProvider: Provider) => {
     setProvider(newProvider);
-    const models = getAvailableModels();
-    setModel(models[0] || '');
   };
 
   const handleDeleteKey = () => {
@@ -113,19 +105,11 @@ export default function SettingsAIScreen() {
       return;
     }
 
-    const maxNum = Number.parseInt(maxMessages, 10);
-    if (Number.isNaN(maxNum) || maxNum < 1) {
-      Alert.alert('Erreur', 'Le nombre de messages doit être au moins 1');
-      return;
-    }
-
     try {
       setIsSaving(true);
       await updateSettings({
         provider,
         apiKey: apiKey.trim(),
-        model,
-        maxMessagesPerDay: maxNum,
         isConfigured: true,
       });
 
@@ -195,24 +179,6 @@ export default function SettingsAIScreen() {
           providerName={PROVIDERS.find((p) => p.id === provider)?.name || ''}
           apiKey={apiKey}
           onChangeApiKey={setApiKey}
-          styles={styles}
-          identity={identity}
-        />
-
-        {/* Model Selector */}
-        <ModelSelector
-          models={availableModels}
-          selectedModel={model}
-          onSelectModel={setModel}
-          styles={styles}
-        />
-
-        {/* Usage Limits */}
-        <UsageLimits
-          maxMessages={maxMessages}
-          onChangeMaxMessages={setMaxMessages}
-          currentUsage={settings?.currentUsageCount || 0}
-          maxDaily={settings?.maxMessagesPerDay || 50}
           styles={styles}
           identity={identity}
         />

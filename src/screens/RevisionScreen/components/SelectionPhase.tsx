@@ -57,9 +57,8 @@ const SelectionPhase: React.FC<SelectionPhaseProps> = ({
             <FlowCard
               variant="horizontal"
               icon={isPlayful ? '🌅' : 'sun'}
-              title="Révision quotidienne"
+              title="Quotidienne"
               subtitle={`${dailyCount} mots`}
-              description={isPlayful ? 'Apprends de nouveaux mots !' : 'Nouveaux mots'}
               color={identity.palette.primary}
               onPress={() => onSelectMode('daily')}
             />
@@ -69,9 +68,8 @@ const SelectionPhase: React.FC<SelectionPhaseProps> = ({
             <FlowCard
               variant="horizontal"
               icon={isPlayful ? '🔥' : 'refresh'}
-              title="Révision espacée"
+              title="Espacée"
               subtitle={`${spacedCount} ${spacedCount <= 1 ? 'mot' : 'mots'}`}
-              description={spacedCount > 0 ? 'Renforce ta mémoire' : 'Pas de révisions'}
               color={identity.palette.accent}
               onPress={spacedCount > 0 ? () => onSelectMode('spaced') : undefined}
               locked={spacedCount === 0}

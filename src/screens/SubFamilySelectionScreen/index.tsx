@@ -64,7 +64,7 @@ const SubfamilySelectionScreen = () => {
       <FamilyCard
         icon={item.icon}
         title={item.title}
-        subtitle={item.description}
+        subtitle=""
         color={identity.palette.primary}
         onPress={() => {
           const targetExerciseId = resolvedModuleId || moduleId;

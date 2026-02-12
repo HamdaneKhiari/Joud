@@ -53,7 +53,7 @@ export default function RootLayout() {
             />
             <Stack.Screen
               name="revision/index"
-              options={{ headerShown: true, title: 'Révision' }}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="ai-tutor/index"
