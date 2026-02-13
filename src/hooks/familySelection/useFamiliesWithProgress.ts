@@ -26,7 +26,7 @@ export default function useFamiliesWithProgress(moduleId: string | number, level
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchFamilies = useCallback(async () => {
-    if (!db || !moduleId) {
+    if (!db || !moduleId || !user) {
       setIsLoading(false);
       return;
     }

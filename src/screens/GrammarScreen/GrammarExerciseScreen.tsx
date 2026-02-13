@@ -53,7 +53,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
   // =================== HOOKS ===================
   const { identity } = useTheme();
   const { db } = useUser();
-  const { trackItemCompletion, getFamilyProgress } = useProgress();
+  const { trackItemCompletion, getFamilyProgress, saveProgressNow } = useProgress();
   const { recordError } = useRecordError();
 
   // ✅ Plus besoin de gradientColors - ExerciseLayout gère le gradient automatiquement
@@ -104,7 +104,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
       }
     };
     loadData();
-  }, [db, safeFamilyId]);
+  }, [db, safeFamilyId, subfamilyId]);
 
   // =================== STATE ===================
   const [currentRuleIndex, setCurrentRuleIndex] = useState(0);
@@ -175,7 +175,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
 
   const handleNext = () => {
     if (isLastRule) {
-      safeGoBack.navigate();
+      saveProgressNow().then(() => safeGoBack.navigate());
     } else {
       setCurrentRuleIndex(prev => prev + 1);
       setExerciseState({

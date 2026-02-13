@@ -20,8 +20,6 @@ import { useExerciseContent } from '../../hooks/exercises/useExerciseContent';
 import { useLevelLabel } from '../../utils/labelMapper';
 import { useRecordWordSeen } from '../../hooks/exercises/useRecordWordSeen';
 
-const EXERCISE_TYPE = 'vocab';
-
 interface VocabData {
   word: string;
   translation: string;
@@ -49,6 +47,9 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
 
   // 1. 🛡️ Normalisation des entrées
   const params = route.params || {};
+
+  // exerciseType dynamique : 'vocab' ou 'fastvocab' selon le module lancé
+  const EXERCISE_TYPE = (params as any).exerciseType || 'vocab';
 
   // On récupère les valeurs de base
   const rawFamilyId = params.familyId || (params as any).subfamilyId || '';

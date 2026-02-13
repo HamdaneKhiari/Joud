@@ -66,23 +66,3 @@ export const moduleHasSubfamilies = (moduleSlug: string): boolean => {
   const config = MODULE_CONFIG[moduleSlug];
   return config?.hasSubfamilies ?? false;
 };
-
-/**
- * Vérifie si une famille spécifique a des sous-familles
- * (À utiliser avec la DB pour vérifier dynamiquement)
- */
-export const familyHasSubfamilies = async (
-  db: any,
-  familyId: number
-): Promise<boolean> => {
-  try {
-    const result = await db.getFirstAsync<{ count: number }>(
-      `SELECT COUNT(*) as count FROM level_labels WHERE family_id = ?`,
-      [familyId]
-    );
-    return (result?.count || 0) > 0;
-  } catch (error) {
-    console.error('[moduleConfig] Error checking subfamily:', error);
-    return false;
-  }
-};

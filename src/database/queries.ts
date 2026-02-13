@@ -373,22 +373,6 @@ export const isModuleAvailable = async (
 // QUERIES ACTIVITY_LOG (Dashboard)
 // ============================================
 
-export const logActivity = async (
-  db: SQLiteDatabase,
-  moduleSlug: string,
-  familyId: number,
-  level: number,
-  familyName: string,
-  icon: string | null,
-  progress: number
-): Promise<void> => {
-  await db.runAsync(
-    `INSERT OR REPLACE INTO activity_log (module_slug, family_id, level, family_name, icon, progress, timestamp)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [moduleSlug, familyId, level, familyName, icon, progress, Date.now()]
-  );
-};
-
 export const getRecentActivity = async (db: SQLiteDatabase, limit: number = 10): Promise<any[]> => {
   return await db.getAllAsync(
     `SELECT * FROM activity_log ORDER BY timestamp DESC LIMIT ?`,
@@ -449,19 +433,15 @@ export const getDailyWord = async (
   );
 
   // 2. Mot aleatoire pour cette audience
-  if (!word) {
-    word = await db.getFirstAsync<DailyWord>(
-      `SELECT * FROM daily_words WHERE identity_id = ? ORDER BY RANDOM() LIMIT 1`,
-      [identityId]
-    );
-  }
+  word ??= await db.getFirstAsync<DailyWord>(
+    `SELECT * FROM daily_words WHERE identity_id = ? ORDER BY RANDOM() LIMIT 1`,
+    [identityId]
+  );
 
   // 3. Dernier fallback : n'importe quel mot
-  if (!word) {
-    word = await db.getFirstAsync<DailyWord>(
-      `SELECT * FROM daily_words ORDER BY RANDOM() LIMIT 1`
-    );
-  }
+  word ??= await db.getFirstAsync<DailyWord>(
+    `SELECT * FROM daily_words ORDER BY RANDOM() LIMIT 1`
+  );
 
   return word || null;
 };
@@ -552,6 +532,70 @@ export const updateUserMetrics = async (
 };
 
 /**
+ * Helper privé pour calculer le streak actuel
+ */
+const _calculateCurrentStreak = (days: { day: string }[]): number => {
+  if (days.length === 0) return 0;
+
+  let tempStreak = 0;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  for (let i = 0; i < days.length; i++) {
+    const dayDate = new Date(days[i].day + 'T00:00:00');
+    const expectedDate = new Date(today);
+    expectedDate.setDate(expectedDate.getDate() - i);
+    expectedDate.setHours(0, 0, 0, 0);
+
+    // Tolérer un décalage de 1 jour (si l'utilisateur n'a pas encore joué aujourd'hui)
+    const diffMs = Math.abs(dayDate.getTime() - expectedDate.getTime());
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+    if (i === 0 && diffDays > 1) return 0;
+
+    if (diffDays <= 1) {
+      tempStreak++;
+    } else {
+      break;
+    }
+  }
+  return tempStreak;
+};
+
+/**
+ * Helper privé pour calculer le meilleur streak historique
+ */
+const _calculateLongestStreak = (days: { day: string }[], currentStreak: number): number => {
+  if (days.length === 0) return 0;
+
+  let tempStreak = 1;
+  let longestStreak = 1;
+
+  for (let i = 1; i < days.length; i++) {
+    const prev = new Date(days[i - 1].day + 'T00:00:00');
+    const curr = new Date(days[i].day + 'T00:00:00');
+    const diff = (prev.getTime() - curr.getTime()) / (1000 * 60 * 60 * 24);
+
+    if (Math.abs(diff - 1) < 0.1) {
+      tempStreak++;
+      longestStreak = Math.max(longestStreak, tempStreak);
+    } else {
+      tempStreak = 1;
+    }
+  }
+  return Math.max(longestStreak, currentStreak);
+};
+
+/**
+ * Helper principal pour les streaks (Complexité réduite)
+ */
+const _calculateStreak = (days: { day: string }[]): { currentStreak: number; longestStreak: number } => {
+  const currentStreak = _calculateCurrentStreak(days);
+  const longestStreak = _calculateLongestStreak(days, currentStreak);
+  return { currentStreak, longestStreak };
+};
+
+/**
  * Calcule les métriques utilisateur depuis les données réelles
  */
 export const calculateUserMetrics = async (
@@ -581,54 +625,7 @@ export const calculateUserMetrics = async (
      LIMIT 60`
   );
 
-  let currentStreak = 0;
-  let longestStreak = 0;
-  let tempStreak = 0;
-
-  if (days.length > 0) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    for (let i = 0; i < days.length; i++) {
-      const dayDate = new Date(days[i].day + 'T00:00:00');
-      const expectedDate = new Date(today);
-      expectedDate.setDate(expectedDate.getDate() - i);
-      expectedDate.setHours(0, 0, 0, 0);
-
-      // Tolérer un décalage de 1 jour (si l'utilisateur n'a pas encore joué aujourd'hui)
-      const diffMs = Math.abs(dayDate.getTime() - expectedDate.getTime());
-      const diffDays = diffMs / (1000 * 60 * 60 * 24);
-
-      if (i === 0 && diffDays > 1) {
-        // Pas d'activité aujourd'hui ni hier → streak = 0
-        break;
-      }
-
-      if (diffDays <= 1) {
-        tempStreak++;
-      } else {
-        break;
-      }
-    }
-    currentStreak = tempStreak;
-
-    // Calculer le plus long streak historique
-    tempStreak = 1;
-    longestStreak = 1;
-    for (let i = 1; i < days.length; i++) {
-      const prev = new Date(days[i - 1].day + 'T00:00:00');
-      const curr = new Date(days[i].day + 'T00:00:00');
-      const diff = (prev.getTime() - curr.getTime()) / (1000 * 60 * 60 * 24);
-
-      if (Math.abs(diff - 1) < 0.1) {
-        tempStreak++;
-        longestStreak = Math.max(longestStreak, tempStreak);
-      } else {
-        tempStreak = 1;
-      }
-    }
-    longestStreak = Math.max(longestStreak, currentStreak);
-  }
+  const { currentStreak, longestStreak } = _calculateStreak(days);
 
   // Total time : estimer depuis le nombre d'entrées activity_log (env. 2 min par activité)
   const activityCount = await db.getFirstAsync<{ count: number }>(
@@ -772,12 +769,12 @@ export const updateSpacedRepetitionResult = async (
   }
 
   // Algorithme SM-2 simplifié
-  let newEaseFactor = current.ease_factor;
-  let intervalDays = 1;
+  let newEaseFactor: number;
+  let intervalDays: number;
 
   if (wasCorrect) {
     // Augmenter la difficulté
-    newEaseFactor = Math.min(3.0, current.ease_factor + 0.1);
+    newEaseFactor = Math.min(3, current.ease_factor + 0.1);
 
     // Calculer l'intervalle selon le nombre de révisions
     if (current.review_count === 0) {
@@ -827,15 +824,8 @@ export const getSpacedReviewCount = async (
   db: SQLiteDatabase,
   userId: string
 ): Promise<number> => {
-  const today = new Date().toISOString().split('T')[0];
-
-  const result = await db.getFirstAsync<{ count: number }>(
-    `SELECT COUNT(*) as count FROM spaced_repetition
-     WHERE user_id = ? AND next_review_date <= ?`,
-    [userId, today]
-  );
-
-  return result?.count || 0;
+  // Évite la duplication de code avec getWordsToReview
+  return getWordsToReview(db, userId);
 };
 
 export type { Branding, FeedbackMessage, DailyWord, UserBadge, SpacedRepetition, UserMetrics } from './schema';

@@ -26,7 +26,8 @@ export default function ExerciseDispatcher() {
   const subfamilyId = Array.isArray(params.subfamilyId) ? params.subfamilyId[0] : params.subfamilyId;
 
   // 2. Sécurité : On attend d'avoir toutes les clés
-  if (!exerciseId || !familyId || !levelId) {
+  //    Assessment n'a pas de familyId (quiz global par level)
+  if (!exerciseId || !levelId || (!familyId && exerciseId !== 'assessment')) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: identity.palette.surface || '#FFFFFF' }}>
         <ActivityIndicator size="large" color={identity.palette.accent} />
@@ -35,15 +36,16 @@ export default function ExerciseDispatcher() {
     );
   }
 
-  // 3. Préparation des Props (Transmission de familyId, levelId et subfamilyId)
+  // 3. Préparation des Props (Transmission de familyId, levelId, subfamilyId et exerciseType)
   const screenProps = {
     navigation: navigation as any,
     route: {
-      key: `exercise-${exerciseId}-${familyId}-${levelId}-${subfamilyId || '0'}`,
+      key: `exercise-${exerciseId}-${familyId || '0'}-${levelId}-${subfamilyId || '0'}`,
       params: {
-        familyId: Number(familyId),
+        familyId: Number(familyId || 0),
         levelId: Number(levelId),
         subfamilyId: subfamilyId ? Number(subfamilyId) : 0,
+        exerciseType: exerciseId,
       }
     } as any
   };

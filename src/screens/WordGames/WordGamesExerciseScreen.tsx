@@ -72,9 +72,11 @@ const WordGamesExerciseScreen = ({ navigation, route }: Props) => {
   );
 
   // =================== CHARGEMENT DONNÉES DB ===================
+  // word_games n'a pas de sous-familles → subfamilyId = 0
+  const familyIdNum = Number(familyId);
   const { module, family, contentItems, isLoading } = useExerciseContent<GameQuestion>(
-    familyId,
-    numLevelId
+    familyIdNum,
+    0
   );
 
   const levelLabel = useLevelLabel(numLevelId);

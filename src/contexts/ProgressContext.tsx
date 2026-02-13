@@ -364,19 +364,18 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const levelData = progress?.[`level${levelId}`];
     if (!levelData) return 0;
 
-    let activeModules = 0;
     let totalProgress = 0;
 
     for (const moduleSlug of ALL_MODULE_SLUGS) {
       const exerciseData = levelData[moduleSlug] || {};
       const familyIds = Object.keys(exerciseData);
       if (familyIds.length > 0) {
-        activeModules++;
         totalProgress += getExerciseProgress(levelId, moduleSlug, familyIds);
       }
     }
 
-    return activeModules > 0 ? Math.round(totalProgress / activeModules) : 0;
+    // Divise par le nombre total de modules (pas seulement les démarrés)
+    return Math.round(totalProgress / ALL_MODULE_SLUGS.length);
   }, [progress, getExerciseProgress]);
 
   const getRevisionFamilies = useCallback((levelId: number): any[] => {

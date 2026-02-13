@@ -21,7 +21,6 @@ import QuestionSentence from '../components/QuestionSentence';
 // Hooks & Logique
 import { useAssessmentGenerator } from '../hooks/useAssessmentGenerator';
 import { useTheme } from '@/themes/ThemeContext';
-import { useProgress } from '@/contexts/ProgressContext';
 import useSafeNavigation from '@/hooks/useSafeNavigation';
 import type { AssessmentQuestion } from '../schema';
 import {
@@ -73,7 +72,8 @@ const AssessmentScreen: React.FC<Props> = ({ navigation, route }) => {
   // =================== HOOKS ===================
 
   const { identity } = useTheme();
-  const { trackItemCompletion } = useProgress();
+  // Note: Assessment n'utilise pas trackItemCompletion car il n'a pas de familyId réel
+  // La barre de progression est calculée localement via currentQuestionIndex/totalQuestions
   const autoNextTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Génération des questions depuis la DB
@@ -177,15 +177,6 @@ const AssessmentScreen: React.FC<Props> = ({ navigation, route }) => {
     }));
 
     setExerciseState((prev) => ({ ...prev, isValidated: true, isCorrect }));
-
-    // Track la progression
-    trackItemCompletion(
-      numLevel,
-      'assessment',
-      'current_assessment',
-      currentQuestionIndex,
-      totalQuestions
-    );
   };
 
   // =================== STYLES ===================

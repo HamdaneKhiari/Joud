@@ -33,7 +33,7 @@ const ReadingExerciseScreen: React.FC = () => {
 
   const params            = route.params as ReadingExerciseParams;
   const familyId          = params?.familyId;
-  const subfamilyId       = params?.subfamilyId || 1;
+  const subfamilyId       = params?.subfamilyId ?? 0;
   const moduleColor       = params?.moduleColor || identity.palette.primary;
   const title             = params?.title || 'Reading';
   const dashboardLevelId  = params?.levelId || 1;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ActivityIndicator, Text, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -89,6 +89,14 @@ const ConnectorExerciseScreen: React.FC = () => {
 
   useExerciseSaveOnUnmount();
 
+  const handleBackPress = useCallback(async () => {
+    if (currentIndex > 0) {
+      trackItemCompletion(Number(levelId), 'connector', safeFamilyId, currentIndex - 1, questions.length);
+      await saveProgressNow();
+    }
+    navigation.goBack();
+  }, [currentIndex, levelId, safeFamilyId, questions.length, trackItemCompletion, saveProgressNow, navigation]);
+
   const handleNavigateBack = useCallback(async () => {
     trackItemCompletion(Number(levelId), 'connector', safeFamilyId, questions.length - 1, questions.length);
     await saveProgressNow();
@@ -133,8 +141,8 @@ const ConnectorExerciseScreen: React.FC = () => {
           borderBottomColor: withOpacity(identity.text.tertiary, 0.1) 
         }
       ]}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()} 
+        <TouchableOpacity
+          onPress={() => { handleBackPress(); }}
           style={styles.backButton}
           activeOpacity={0.7}
         >
