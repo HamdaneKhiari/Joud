@@ -2,37 +2,47 @@ import { StyleSheet } from 'react-native';
 import type { Identity } from '@/themes/ThemeContext';
 import { tokens, withOpacity } from '@/themes/tokens';
 
+const getTimelineDimensions = (isPlayful: boolean) => ({
+  containerHeight: isPlayful ? 90 : 80,
+  columnWidth: isPlayful ? 56 : 50,
+  badgeSize: isPlayful ? 44 : 38,
+  badgeRadius: isPlayful ? 22 : 19,
+  badgeBorder: isPlayful ? 3 : 2,
+  lineWidth: isPlayful ? 3 : 2,
+  badgeFontSize: isPlayful ? tokens.fontSize.lg : tokens.fontSize.sm,
+});
+
 export const createStyles = (identity: Identity) => {
   const isPlayful = identity.ui.mood === 'playful';
+  const tl = getTimelineDimensions(isPlayful);
 
   return StyleSheet.create({
     container: {
       flexDirection: 'row',
-      minHeight: isPlayful ? 90 : 80, // ✅ Plus haut si playful
+      minHeight: tl.containerHeight,
     },
-    // --- Colonne de gauche (Timeline) ---
     timelineContainer: {
-      width: isPlayful ? 56 : 50, // ✅ Plus large si playful
+      width: tl.columnWidth,
       alignItems: 'center',
     },
     badge: {
-      width: isPlayful ? 44 : 38, // ✅ Plus grand si playful
-      height: isPlayful ? 44 : 38,
-      borderRadius: isPlayful ? 22 : 19,
+      width: tl.badgeSize,
+      height: tl.badgeSize,
+      borderRadius: tl.badgeRadius,
       backgroundColor: identity.palette.surface,
-      borderWidth: isPlayful ? 3 : 2, // ✅ Bordure plus épaisse si playful
+      borderWidth: tl.badgeBorder,
       justifyContent: 'center',
       alignItems: 'center',
       zIndex: 2,
       ...tokens.shadows.md,
     },
     badgeText: {
-      fontSize: isPlayful ? tokens.fontSize.lg : tokens.fontSize.sm, // ✅ Plus grand si playful
-      fontWeight: tokens.fontWeight.black, // ✅ Plus bold
+      fontSize: tl.badgeFontSize,
+      fontWeight: tokens.fontWeight.black,
       color: identity.text.primary,
     },
     line: {
-      width: isPlayful ? 3 : 2, // ✅ Plus épaisse si playful
+      width: tl.lineWidth,
       flex: 1,
       backgroundColor: withOpacity(identity.palette.primary, 0.2),
       marginTop: -2,

@@ -8,9 +8,7 @@ export const createStyles = (identity: Identity) => {
   // ============================================
   const isPlayful = identity.ui.mood === 'playful';
 
-  // 🎯 Espacement dynamique basé sur le mood
   const sectionSpacing = isPlayful ? tokens.spacing.xl : tokens.spacing.md;
-  const cardRadius = isPlayful ? 24 : 16;
   const contentPadding = isPlayful ? tokens.spacing.lg : tokens.spacing.md;
 
   return StyleSheet.create({

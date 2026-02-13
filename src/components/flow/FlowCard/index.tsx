@@ -47,7 +47,7 @@ const FlowCard: React.FC<FlowCardProps> = ({
   const isCentered = cardStyle === 'bubbly' || cardStyle === 'playful';
   const isHorizontal = variant === 'horizontal';
 
-  const cardColor = locked ? '#D1D5DB' : (color || identity.palette.primary);
+  const cardColor = locked ? identity.text.tertiary : (color || identity.palette.primary);
   const statusBadgeColor = identity.palette.accent;
   const statusBadgeText = identity.i18n.locale === 'fr' ? 'EN COURS' : 'IN PROGRESS';
 
@@ -68,13 +68,14 @@ const FlowCard: React.FC<FlowCardProps> = ({
     let iconSize = 24;
     if (isHorizontal) iconSize = 36;
     else if (isCentered) iconSize = 32;
-    if (locked) return <MaterialCommunityIcons name="lock" size={iconSize} color="#9CA3AF" />;
+    const iconColor = identity.text.onPrimary;
+    if (locked) return <MaterialCommunityIcons name="lock" size={iconSize} color={identity.text.secondary} />;
 
     if (typeof icon === 'string') {
       if (isEmoji(icon)) return <Text style={styles.iconText}>{icon}</Text>;
-      return <MaterialCommunityIcons name={icon as any} size={iconSize} color="#FFFFFF" />;
+      return <MaterialCommunityIcons name={icon as any} size={iconSize} color={iconColor} />;
     }
-    return icon || <MaterialCommunityIcons name={isHorizontal ? 'bookmark' : 'folder-open'} size={iconSize} color="#FFFFFF" />;
+    return icon || <MaterialCommunityIcons name={isHorizontal ? 'bookmark' : 'folder-open'} size={iconSize} color={iconColor} />;
   };
 
   // Color bar: only for minimal grid + all horizontal variants

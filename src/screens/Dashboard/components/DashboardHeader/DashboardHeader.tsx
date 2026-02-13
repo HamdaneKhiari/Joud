@@ -46,7 +46,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
         {/* Gauche: Bonjour [Nom] */}
         <View style={styles.welcomeSection}>
           {/* Emoji dynamique (Playful uniquement) */}
-          {isPlayful && identity.header.emoji && (
+          {isPlayful && !!identity.header.emoji && (
             <Animated.View
               entering={FadeInDown.delay(100).springify()}
               style={styles.emojiContainer}

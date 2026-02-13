@@ -11,12 +11,12 @@ interface ThemeContainerProps {
   rounded?: boolean;
 }
 
-export default function ThemeContainer({ 
-  identity, 
-  children, 
+export default function ThemeContainer({
+  identity,
+  children,
   style,
-  rounded = false 
-}: ThemeContainerProps) {
+  rounded = false
+}: Readonly<ThemeContainerProps>) {
   
   const borderRadius = rounded ? identity.ui.cardRadius : 0;
   

@@ -5,7 +5,7 @@
 
 import { StyleSheet, ViewStyle } from 'react-native';
 import type { Identity } from '@/themes/ThemeContext';
-import { tokens } from '@/themes/tokens';
+import { tokens, withOpacity } from '@/themes/tokens';
 
 type CardStyle = Identity['ui']['cardStyle'];
 
@@ -27,7 +27,7 @@ const getMoodDimensions = (cardStyle: CardStyle, cardRadius: number, isHorizonta
       };
     case 'playful':
       return {
-        cardRadius, iconSize: 50, cardPadding: 14,
+        cardRadius, iconSize: 50, cardPadding: tokens.spacing.lg,
         iconFontSize: 28, titleFontSize: tokens.fontSize.md, iconRadius: 14, // rounded square
       };
     case 'minimal':
@@ -74,17 +74,10 @@ const getCardElevation = (cardStyle: CardStyle, isDark: boolean, isHorizontal: b
     return {
       borderWidth: 1,
       borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
-      shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.05, shadowRadius: 4, elevation: 1,
+      ...tokens.shadows.sm,
     };
   }
-  return {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: isHorizontal ? 4 : 2 },
-    shadowOpacity: isHorizontal ? 0.15 : 0.1,
-    shadowRadius: isHorizontal ? 12 : 8,
-    elevation: isHorizontal ? 6 : 3,
-  };
+  return isHorizontal ? tokens.shadows.lg : tokens.shadows.md;
 };
 
 export const createStyles = (
@@ -97,8 +90,8 @@ export const createStyles = (
   const layout = getMoodLayout(cardStyle, isHorizontal);
 
   const isDark = identity.themeMode === 'dark';
-  const cardBg = isDark ? identity.palette.surface : '#FFFFFF';
-  const lockedBg = isDark ? '#374151' : '#F3F4F6';
+  const cardBg = identity.palette.surface;
+  const lockedBg = withOpacity(identity.text.tertiary, 0.1);
 
   return StyleSheet.create({
     wrapper: {
@@ -153,12 +146,13 @@ export const createStyles = (
       position: 'absolute', top: tokens.spacing.sm, right: tokens.spacing.sm,
       paddingVertical: 4, paddingHorizontal: 8, borderRadius: 8, zIndex: 10, elevation: 4,
     },
-    badgeText: { color: '#FFFFFF', fontSize: 10, fontWeight: 'bold', letterSpacing: 0.5 },
+    badgeText: { color: identity.text.onPrimary, fontSize: 10, fontWeight: tokens.fontWeight.bold, letterSpacing: 0.5 },
     percentageBadge: {
       position: 'absolute', bottom: tokens.spacing.sm, right: tokens.spacing.sm,
-      paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.05)',
+      paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6,
+      borderWidth: 0.5, borderColor: withOpacity(identity.text.primary, 0.05),
     },
-    percentageText: { fontSize: 10, fontWeight: '900', textAlign: 'center' },
+    percentageText: { fontSize: 10, fontWeight: tokens.fontWeight.black, textAlign: 'center' },
     chevron: { marginLeft: tokens.spacing.sm, opacity: 0.6 },
   });
 };

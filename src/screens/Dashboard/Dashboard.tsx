@@ -3,6 +3,7 @@ import { ScrollView, View, ActivityIndicator, Text } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useTheme } from '@/themes/ThemeContext';
+import { withOpacity } from '@/themes/tokens';
 import { createStyles } from './styles/dashboardStyle';
 
 // Composants spécialisés
@@ -159,7 +160,7 @@ export default function Dashboard() {
       <Animated.View entering={FadeInDown.delay(500).springify()} style={styles.sectionHeader}>
         <Text style={[styles.sectionTitle, { color: identity.text.primary }]}>Parcours</Text>
         <View style={styles.levelsGrid}>
-          {levels.length > 1 && <View style={[styles.timelineLine, { backgroundColor: identity.palette.primary + '40' }]} />}
+          {levels.length > 1 && <View style={[styles.timelineLine, { backgroundColor: withOpacity(identity.palette.primary, 0.25) }]} />}
           {levels.map((level, index) => {
             // ✅ Récupération du titre depuis la DB (ex: "Les Bases", "L'Essentiel", etc.)
             // Fallback uniquement si le chargement a échoué

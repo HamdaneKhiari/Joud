@@ -15,7 +15,6 @@ export const createStyles = (identity: Identity) => {
   // ============================================
   const isPlayful = identity.ui.mood === 'playful';
   const cardRadius = isPlayful ? 24 : 16;
-  const cardPadding = isPlayful ? tokens.spacing.xl : tokens.spacing.lg;
 
   return StyleSheet.create({
     container: {
