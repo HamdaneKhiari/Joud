@@ -38,7 +38,7 @@ export const useDailyWord = (): UseDailyWordReturn => {
           setDailyWord({
             english: word.english,
             french: word.french,
-            emoji: word.emoji || '📚',
+            emoji: '📖',
           });
         } else {
           setDailyWord({

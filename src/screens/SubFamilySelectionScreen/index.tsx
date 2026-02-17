@@ -66,6 +66,7 @@ const SubfamilySelectionScreen = () => {
         title={item.title}
         subtitle=""
         color={identity.palette.primary}
+        progress={item.progress || null}
         onPress={() => {
           const targetExerciseId = resolvedModuleId || moduleId;
           // ✅ Sécurité : On ne navigue que si on a l'ID du module (évite le chargement infini)
@@ -118,7 +119,7 @@ const SubfamilySelectionScreen = () => {
               styles.listContent,
               isSingleCard && styles.singleCardContainer // ✅ Centre la card unique
             ]}
-            columnWrapperStyle={!isSingleCard ? styles.columnWrapper : undefined}
+            columnWrapperStyle={isSingleCard ? undefined : styles.columnWrapper}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
                 <Text style={styles.emptyTitle}>Bientôt disponible</Text>

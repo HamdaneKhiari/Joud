@@ -25,9 +25,11 @@ export interface Exercise {
  * Générique pour Grammar (règle), Vocabulary (mot), Reading (texte)
  */
 export interface LessonData {
-  rule: string;        // ou "word" pour vocabulaire, "text" pour lecture
-  examples: string[];  // Exemples d'utilisation
-  exercise: Exercise;  // Exercice associé
+  title?: string;       // Titre de la règle (ex: "Present Simple")
+  rule: string;         // Explication de la règle
+  simplified?: string;  // Explication vulgarisée ("En bref...")
+  examples: string[];   // Exemples d'utilisation
+  exercise: Exercise;   // Exercice associé
 }
 
 /**

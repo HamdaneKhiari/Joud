@@ -7,6 +7,23 @@ export interface ContentItem<T> {
   data: T;
 }
 
+/** Data shape for phrase_types exercises (sentence translation) */
+export interface SentenceData {
+  // Mode blanks (primary/college)
+  sentence?: string;
+  options?: string[];
+  correct_answer?: string;
+  correctAnswer?: string;
+  // Mode free (lycee/adult)
+  phrase_fr?: string;
+  phrase_en?: string;
+  build?: string;
+  // Shared
+  translation?: string;
+  explanation?: string;
+  sentence_with_blank?: string;
+}
+
 interface UseExerciseContentReturn<T> {
   module: Module | null;
   family: Family | null;

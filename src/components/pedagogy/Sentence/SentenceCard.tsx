@@ -12,20 +12,29 @@ interface SentenceCardProps {
   moduleColor: string;
 }
 
-const SentenceCard: React.FC<SentenceCardProps> = ({ 
-  data, 
-  isRevealed, 
-  userDraft, 
+const SentenceCard: React.FC<SentenceCardProps> = ({
+  data,
+  isRevealed,
+  userDraft,
   setUserDraft,
-  moduleColor 
+  moduleColor
 }) => {
   const { identity } = useTheme();
-  
+
   // Mémorisation des styles avec passage de l'identité sémantique
-  const styles = useMemo(() => 
-    getSentenceCardStyles(identity, moduleColor), 
+  const styles = useMemo(() =>
+    getSentenceCardStyles(identity, moduleColor),
     [identity, moduleColor]
   );
+
+  // Phrase anglaise attendue : phrase_en direct, ou reconstituée depuis sentence + correct_answer
+  const expectedEnglish = useMemo(() => {
+    if (data.phrase_en) return data.phrase_en;
+    if (data.sentence && (data.correct_answer || data.correctAnswer)) {
+      return data.sentence.replace('___', data.correct_answer || data.correctAnswer || '');
+    }
+    return '';
+  }, [data]);
 
   return (
     <View style={styles.container}>
@@ -35,7 +44,7 @@ const SentenceCard: React.FC<SentenceCardProps> = ({
           Traduis cette phrase :
         </Text>
         <Text style={[styles.phraseSource, { color: identity.text.primary }]}>
-          {data.phrase_fr}
+          {data.phrase_fr || data.translation}
         </Text>
       </View>
 
@@ -68,27 +77,31 @@ const SentenceCard: React.FC<SentenceCardProps> = ({
               PHRASE ATTENDUE :
             </Text>
             <Text style={[styles.phraseTarget, { color: identity.text.primary }]}>
-              {data.phrase_en}
+              {expectedEnglish}
             </Text>
           </View>
 
-          <View style={[styles.pedagogyCard, { backgroundColor: identity.palette.surface }]}>
-            <Text style={[styles.pedagogyTitle, { color: identity.text.primary }]}>
-              Concrètement
-            </Text>
-            <Text style={[styles.pedagogyText, { color: identity.text.secondary }]}>
-              {data.concretement}
-            </Text>
-          </View>
+          {data.build ? (
+            <View style={[styles.pedagogyCard, { backgroundColor: identity.palette.surface }]}>
+              <Text style={[styles.pedagogyTitle, { color: identity.text.primary }]}>
+                La Structure
+              </Text>
+              <Text style={[styles.pedagogyText, { color: identity.text.secondary }]}>
+                {data.build}
+              </Text>
+            </View>
+          ) : null}
 
-          <View style={[styles.pedagogyCard, { backgroundColor: identity.palette.surface }]}>
-            <Text style={[styles.pedagogyTitle, { color: identity.text.primary }]}>
-              La Structure (Build)
-            </Text>
-            <Text style={[styles.pedagogyText, { color: identity.text.secondary }]}>
-              {data.build}
-            </Text>
-          </View>
+          {data.explanation ? (
+            <View style={[styles.pedagogyCard, { backgroundColor: identity.palette.surface }]}>
+              <Text style={[styles.pedagogyTitle, { color: identity.text.primary }]}>
+                Explication
+              </Text>
+              <Text style={[styles.pedagogyText, { color: identity.text.secondary }]}>
+                {data.explanation}
+              </Text>
+            </View>
+          ) : null}
         </View>
       )}
     </View>

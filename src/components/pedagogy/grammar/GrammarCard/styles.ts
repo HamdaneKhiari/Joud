@@ -1,114 +1,133 @@
 /**
  * ============================================
  * GRAMMAR CARD - STYLES (100% White Label)
- * Fonction dynamique basée sur Identity
- * Design sobre et typographique inspiré Apple
+ * Design épuré avec accents colorés
  * ============================================
  */
 
 import { StyleSheet } from 'react-native';
-import { spacing, fontSize, fontWeight, borderRadius, shadows, withOpacity } from '@/themes/tokens';
+import { spacing, fontSize, fontWeight, borderRadius, shadows } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
 import type { Identity } from '@/themes/ThemeContext';
 import { getExerciseConfig } from '@/utils/exerciseMoodHelper';
 
-/**
- * Génère les styles dynamiquement en fonction de l'Identity
- * ✅ WHITE LABEL: Utilise identity.text pour les couleurs de texte
- * ✅ NO-MEDIA: Design typographique sans emojis
- */
 export const getStyles = (identity: Identity) => {
   const config = getExerciseConfig(identity);
 
   return StyleSheet.create({
   // ============================================
-  // THEME CONTAINER (Section colorée)
+  // RULE CARD (fond teinté + accent gauche)
   // ============================================
-  themeContainer: {
+  ruleCard: {
     marginHorizontal: spacing.xl,
-    marginVertical: spacing.md,
+    marginTop: spacing.md,
     borderRadius: config.borderRadius.card,
-  },
-
-  // ============================================
-  // CARD CONTAINER (Section blanche exercice)
-  // ============================================
-  card: {
-    marginHorizontal: spacing.xl,
-    marginVertical: spacing.md,
-    backgroundColor: baseColors.white,
-    borderRadius: config.borderRadius.card,
+    borderWidth: 1,
+    borderLeftWidth: 4,
     overflow: 'hidden',
-    ...shadows.md,
   },
 
   cardContent: {
     padding: config.padding.container,
   },
 
-  // ============================================
-  // SECTION: RULE (Règle de grammaire)
-  // ============================================
-  ruleSection: {
-    marginBottom: spacing.xxl,
-  },
-
-  ruleSectionTitle: {
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.semibold as any,
-    textTransform: 'uppercase' as any,
-    letterSpacing: 1.5,
+  // Titre en badge/pill
+  titleBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.full,
     marginBottom: spacing.md,
-    opacity: 0.6,
-    color: identity.text.onPrimary, // ✅ WHITE LABEL
   },
 
+  titleBadgeText: {
+    fontSize: fontSize.sm,
+    fontWeight: fontWeight.bold as any,
+    letterSpacing: 0.5,
+  },
+
+  // Règle principale
   ruleText: {
     fontSize: config.fontSize.subtitle,
+    fontWeight: fontWeight.medium as any,
+    lineHeight: config.fontSize.subtitle * 1.6,
+    letterSpacing: -0.2,
+  },
+
+  // Explication vulgarisée (après exemples)
+  simplifiedBox: {
+    marginHorizontal: spacing.xl,
+    marginTop: spacing.lg,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    borderLeftWidth: 3,
+  },
+
+  simplifiedLabel: {
+    fontSize: fontSize.xs,
     fontWeight: fontWeight.bold as any,
-    lineHeight: config.fontSize.subtitle * 1.5,
-    letterSpacing: -0.3,
-    color: identity.text.onPrimary,
+    textTransform: 'uppercase' as any,
+    letterSpacing: 1,
+    marginBottom: spacing.xs,
+  },
+
+  simplifiedText: {
+    fontSize: fontSize.md,
+    fontWeight: fontWeight.regular as any,
+    lineHeight: fontSize.md * 1.5,
+    fontStyle: 'italic' as any,
   },
 
   // ============================================
-  // SECTION: EXAMPLES
+  // EXAMPLES (avec puces colorées)
   // ============================================
-  examplesSection: {
-    marginBottom: spacing.xxl,
+  examplesContainer: {
+    marginHorizontal: spacing.xl,
+    marginTop: spacing.lg,
   },
 
-  examplesSectionTitle: {
-    fontSize: fontSize.sm,
+  sectionLabel: {
+    fontSize: fontSize.xs,
     fontWeight: fontWeight.semibold as any,
     textTransform: 'uppercase' as any,
     letterSpacing: 1.5,
     marginBottom: spacing.md,
-    opacity: 0.6,
-    color: identity.text.onPrimary, // ✅ WHITE LABEL
   },
 
-  exampleItem: {
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    backgroundColor: withOpacity('#000000', 0.03),
-    borderRadius: borderRadius.md,
+  exampleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     marginBottom: spacing.sm,
+    paddingVertical: spacing.sm,
+  },
+
+  exampleBullet: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginTop: 7,
+    marginRight: spacing.md,
   },
 
   exampleText: {
+    flex: 1,
     fontSize: fontSize.md,
     fontWeight: fontWeight.medium as any,
-    lineHeight: fontSize.md * 1.4,
+    lineHeight: fontSize.md * 1.5,
     letterSpacing: 0.2,
-    color: identity.text.primary, // ✅ WHITE LABEL
   },
 
   // ============================================
-  // SECTION: EXERCISE (Question)
+  // EXERCISE CARD (blanche avec ombre)
   // ============================================
-  exerciseSection: {
-    marginBottom: spacing.lg,
+  card: {
+    marginHorizontal: spacing.xl,
+    marginTop: spacing.lg,
+    marginBottom: spacing.md,
+    backgroundColor: baseColors.white,
+    borderRadius: config.borderRadius.card,
+    overflow: 'hidden',
+    ...shadows.md,
   },
 
   questionText: {
@@ -117,7 +136,6 @@ export const getStyles = (identity: Identity) => {
     marginBottom: spacing.xl,
     lineHeight: fontSize.lg * 1.4,
     letterSpacing: -0.2,
-    color: identity.text.primary, // ✅ WHITE LABEL
   },
 
   // ============================================
@@ -137,12 +155,12 @@ export const getStyles = (identity: Identity) => {
   },
 
   optionButtonDefault: {
-    borderColor: withOpacity('#000000', 0.1),
+    borderColor: identity.text.tertiary + '25',
   },
 
   optionButtonSelected: {
-    borderColor: identity.palette.primary, // ✅ WHITE LABEL
-    backgroundColor: withOpacity('#000000', 0.03),
+    borderColor: identity.palette.primary,
+    backgroundColor: identity.palette.primary + '08',
   },
 
   optionButtonCorrect: {
@@ -163,11 +181,11 @@ export const getStyles = (identity: Identity) => {
   },
 
   optionTextDefault: {
-    color: identity.text.primary, // ✅ WHITE LABEL
+    color: identity.text.primary,
   },
 
   optionTextSelected: {
-    color: identity.text.primary, // ✅ WHITE LABEL
+    color: identity.palette.primary,
     fontWeight: fontWeight.bold as any,
   },
 
@@ -181,19 +199,7 @@ export const getStyles = (identity: Identity) => {
     fontWeight: fontWeight.bold as any,
   },
 
-  // ============================================
-  // DISABLED STATE
-  // ============================================
   optionButtonDisabled: {
     opacity: 0.5,
-  },
-
-  // ============================================
-  // DIVIDER
-  // ============================================
-  divider: {
-    height: 1,
-    backgroundColor: withOpacity('#000000', 0.08),
-    marginVertical: spacing.xl,
   },
 });};

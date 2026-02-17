@@ -39,9 +39,10 @@ const SentenceBlanksCard: React.FC<SentenceBlanksCardProps> = ({
 
   // Sépare la phrase au niveau du trou "_"
   const renderSentenceWithBlank = () => {
-    if (!data.sentence_with_blank) return null;
+    const sentenceText = data.sentence_with_blank || data.sentence;
+    if (!sentenceText) return null;
 
-    const parts = data.sentence_with_blank.split('___');
+    const parts = sentenceText.split('___');
     const before = parts[0] || '';
     const after = parts[1] || '';
 
@@ -149,7 +150,7 @@ const SentenceBlanksCard: React.FC<SentenceBlanksCardProps> = ({
             ✓ BONNE RÉPONSE :
           </Text>
           <Text style={[styles.correctAnswerText, { color: identity.text.primary }]}>
-            {data.correctAnswer}
+            {data.correctAnswer || data.correct_answer}
           </Text>
         </View>
 

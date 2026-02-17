@@ -418,32 +418,49 @@ export const getFeedbackMessagesByContext = async (
 // ============================================
 
 /**
- * Récupère le mot du jour pour une audience (sans filtre niveau)
+ * Récupère le mot du jour depuis la table content (type 'word').
+ * Utilise un seed basé sur la date pour avoir le même mot toute la journée
+ * mais un mot différent chaque jour.
  */
 export const getDailyWord = async (
   db: SQLiteDatabase,
   identityId: string
-): Promise<DailyWord | null> => {
+): Promise<{ english: string; french: string } | null> => {
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  // Seed déterministe : somme des char codes de la date
+  const seed = today.split('').reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
 
-  // 1. Mot programme pour aujourd'hui
-  let word = await db.getFirstAsync<DailyWord>(
-    `SELECT * FROM daily_words WHERE identity_id = ? AND date = ?`,
-    [identityId, today]
+  // 1. Mot du jour filtré par audience
+  let row = await db.getFirstAsync<{ data: string }>(
+    `SELECT c.data FROM content c
+     INNER JOIN families f ON c.family_id = f.id
+     WHERE c.content_type = 'word'
+       AND (c.target_audience = ? OR c.target_audience = 'all')
+     ORDER BY (c.id * ?) % 997
+     LIMIT 1`,
+    [identityId, seed]
   );
 
-  // 2. Mot aleatoire pour cette audience
-  word ??= await db.getFirstAsync<DailyWord>(
-    `SELECT * FROM daily_words WHERE identity_id = ? ORDER BY RANDOM() LIMIT 1`,
-    [identityId]
+  // 2. Fallback : n'importe quel mot
+  row ??= await db.getFirstAsync<{ data: string }>(
+    `SELECT c.data FROM content c
+     WHERE c.content_type = 'word'
+     ORDER BY (c.id * ?) % 997
+     LIMIT 1`,
+    [seed]
   );
 
-  // 3. Dernier fallback : n'importe quel mot
-  word ??= await db.getFirstAsync<DailyWord>(
-    `SELECT * FROM daily_words ORDER BY RANDOM() LIMIT 1`
-  );
+  if (!row) return null;
 
-  return word || null;
+  try {
+    const parsed = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
+    return {
+      english: parsed.word || '',
+      french: parsed.translation || '',
+    };
+  } catch {
+    return null;
+  }
 };
 
 /**

@@ -1,15 +1,14 @@
 /**
  * ============================================
- * GRAMMAR CARD - Main Component (Premium No-Media Edition)
- * Design minimaliste et typographique inspiré Apple
- * 100% White Label via ThemeContainer + Identity
+ * GRAMMAR CARD - Main Component
+ * Design épuré avec accents colorés
+ * 100% White Label via Identity
  * ============================================
  */
 
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
-import ThemeContainer from '@/themes/ThemeContainer';
 import { getStyles } from './styles';
 import { GrammarCardProps } from './types';
 
@@ -21,123 +20,118 @@ const GrammarCard: React.FC<GrammarCardProps> = ({
   const { identity } = useTheme();
   const styles = useMemo(() => getStyles(identity), [identity]);
 
-  const { rule, examples, exercise } = lessonData;
+  const { title, rule, simplified, examples, exercise } = lessonData;
   const { selectedOption, isValidated, isCorrect } = exerciseState;
 
-  /**
-   * Détermine le style d'une option selon son état
-   */
   const getOptionStyle = (option: string) => {
     if (!isValidated) {
       return option === selectedOption
         ? styles.optionButtonSelected
         : styles.optionButtonDefault;
     }
-
-    // Après validation
-    if (option === exercise.correctAnswer) {
-      return styles.optionButtonCorrect;
-    }
-
-    if (option === selectedOption && !isCorrect) {
-      return styles.optionButtonIncorrect;
-    }
-
+    if (option === exercise.correctAnswer) return styles.optionButtonCorrect;
+    if (option === selectedOption && !isCorrect) return styles.optionButtonIncorrect;
     return styles.optionButtonDefault;
   };
 
-  /**
-   * Détermine le style du texte d'une option
-   */
   const getOptionTextStyle = (option: string) => {
     if (!isValidated) {
       return option === selectedOption
         ? styles.optionTextSelected
         : styles.optionTextDefault;
     }
-
-    // Après validation
-    if (option === exercise.correctAnswer) {
-      return styles.optionTextCorrect;
-    }
-
-    if (option === selectedOption && !isCorrect) {
-      return styles.optionTextIncorrect;
-    }
-
+    if (option === exercise.correctAnswer) return styles.optionTextCorrect;
+    if (option === selectedOption && !isCorrect) return styles.optionTextIncorrect;
     return styles.optionTextDefault;
   };
 
+  const primaryColor = identity.palette.primary;
+
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
-      <ThemeContainer
-        identity={identity}
-        style={styles.themeContainer}
-        rounded
-      >
+      {/* RULE CARD — fond teinté avec accent gauche */}
+      <View style={[
+        styles.ruleCard,
+        {
+          backgroundColor: primaryColor + '0A',
+          borderColor: primaryColor + '20',
+          borderLeftColor: primaryColor,
+        }
+      ]}>
         <View style={styles.cardContent}>
-          {/* ============================================ */}
-          {/* SECTION: RULE (Règle de grammaire) */}
-          {/* ============================================ */}
-          <View style={styles.ruleSection}>
-            <Text style={styles.ruleSectionTitle}>
-              RÈGLE
-            </Text>
-            <Text style={styles.ruleText}>
-              {rule}
-            </Text>
-          </View>
-
-          {/* ============================================ */}
-          {/* SECTION: EXAMPLES */}
-          {/* ============================================ */}
-          {examples && examples.length > 0 && (
-            <View style={styles.examplesSection}>
-              <Text style={styles.examplesSectionTitle}>
-                EXEMPLES
+          {/* Titre de la règle */}
+          {title ? (
+            <View style={[styles.titleBadge, { backgroundColor: primaryColor + '18' }]}>
+              <Text style={[styles.titleBadgeText, { color: primaryColor }]}>
+                {title}
               </Text>
-              {examples.map((example, index) => (
-                <View key={index} style={styles.exampleItem}>
-                  <Text style={styles.exampleText}>
-                    {example}
-                  </Text>
-                </View>
-              ))}
             </View>
-          )}
-        </View>
-      </ThemeContainer>
+          ) : null}
 
-      {/* ============================================ */}
-      {/* SECTION: EXERCISE (Question + Options) */}
-      {/* Zone blanche séparée du ThemeContainer */}
-      {/* ============================================ */}
+          {/* Explication principale */}
+          <Text style={[styles.ruleText, { color: identity.text.primary }]}>
+            {rule}
+          </Text>
+        </View>
+      </View>
+
+      {/* EXAMPLES — items avec puce colorée */}
+      {examples && examples.length > 0 && (
+        <View style={styles.examplesContainer}>
+          <Text style={[styles.sectionLabel, { color: identity.text.secondary }]}>
+            EXEMPLES
+          </Text>
+          {examples.map((example, index) => (
+            <View key={index} style={styles.exampleRow}>
+              <View style={[styles.exampleBullet, { backgroundColor: primaryColor }]} />
+              <Text style={[styles.exampleText, { color: identity.text.primary }]}>
+                {example}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* EN BREF — explication vulgarisée, après les exemples */}
+      {simplified ? (
+        <View style={[styles.simplifiedBox, { backgroundColor: primaryColor + '0A', borderLeftColor: primaryColor }]}>
+          <Text style={[styles.simplifiedLabel, { color: primaryColor }]}>
+            En bref
+          </Text>
+          <Text style={[styles.simplifiedText, { color: identity.text.secondary }]}>
+            {simplified}
+          </Text>
+        </View>
+      ) : null}
+
+      {/* EXERCISE — Question + Options */}
       <View style={styles.card}>
         <View style={styles.cardContent}>
-          <View style={styles.exerciseSection}>
-            <Text style={styles.questionText}>
-              {exercise.question}
-            </Text>
+          <Text style={[styles.sectionLabel, { color: identity.text.secondary }]}>
+            EXERCICE
+          </Text>
+          <Text style={[styles.questionText, { color: identity.text.primary }]}>
+            {exercise.question}
+          </Text>
 
-            <View style={styles.optionsContainer}>
-              {exercise.options.map((option, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={[
-                    styles.optionButton,
-                    getOptionStyle(option),
-                    isValidated && styles.optionButtonDisabled,
-                  ]}
-                  onPress={() => !isValidated && onAnswer(option)}
-                  disabled={isValidated}
-                  activeOpacity={0.7}
-                >
-                  <Text style={[styles.optionText, getOptionTextStyle(option)]}>
-                    {option}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+          <View style={styles.optionsContainer}>
+            {exercise.options.map((option, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.optionButton,
+                  getOptionStyle(option),
+                  isValidated && styles.optionButtonDisabled,
+                ]}
+                onPress={() => !isValidated && onAnswer(option)}
+                disabled={isValidated}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.optionText, getOptionTextStyle(option)]}>
+                  {option}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
       </View>

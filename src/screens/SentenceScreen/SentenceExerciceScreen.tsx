@@ -67,7 +67,12 @@ const SentenceExerciseScreen: React.FC = () => {
   }, [contentItems.length, getInitialIndex]);
 
   const currentItem = contentItems[currentIndex];
-  const mode = currentItem?.data?.mode || 'free'; // Détection du mode
+  // Détection du mode selon l'audience :
+  // Primary + College → blanks (guidé avec options)
+  // Lycée + Adult → free (traduction libre, effort personnel)
+  const isBlanksAudience = identity.id === 'primary' || identity.id === 'college';
+  const hasBlanksData = currentItem?.data?.sentence && currentItem?.data?.options;
+  const mode = (isBlanksAudience && hasBlanksData) ? 'blanks' : 'free';
   
   // Correction erreur Module.color : on utilise l'identité branding main
   const moduleColor  = identity.palette.primary;
@@ -98,7 +103,7 @@ const SentenceExerciseScreen: React.FC = () => {
 
     if (mode === 'blanks') {
       // Mode BLANKS : Vérification de l'option sélectionnée
-      const isCorrect = selectedOption === currentItem.data.correctAnswer;
+      const isCorrect = selectedOption === (currentItem.data.correctAnswer || currentItem.data.correct_answer);
       setValidationState(isCorrect ? 'correct' : 'incorrect');
       setCustomFeedback(
         isCorrect
@@ -113,14 +118,19 @@ const SentenceExerciseScreen: React.FC = () => {
           moduleSlug:    EXERCISE_TYPE,
           question:      currentItem.data.sentence || '',
           userAnswer:    selectedOption || '',
-          correctAnswer: currentItem.data.correctAnswer || '',
+          correctAnswer: currentItem.data.correctAnswer || currentItem.data.correct_answer || '',
           level:         dashboardLevelId,
         });
       }
     } else {
       // Mode FREE : Vérification de la saisie libre
+      // Reconstituer phrase_en si absente (fallback depuis sentence + correct_answer)
+      const phraseEn = currentItem.data.phrase_en
+        || (currentItem.data.sentence && currentItem.data.correct_answer
+          ? currentItem.data.sentence.replace('___', currentItem.data.correct_answer)
+          : '');
       const cleanUser = userDraft.trim().toLowerCase().replace(/[.,!?;]/g, "");
-      const cleanTarget = currentItem.data.phrase_en?.trim().toLowerCase().replace(/[.,!?;]/g, "") || "";
+      const cleanTarget = phraseEn.trim().toLowerCase().replace(/[.,!?;]/g, "");
 
       if (cleanUser === cleanTarget) {
         setValidationState('correct');
@@ -141,7 +151,7 @@ const SentenceExerciseScreen: React.FC = () => {
           moduleSlug:    EXERCISE_TYPE,
           question:      currentItem.data.phrase_fr || currentItem.data.sentence || '',
           userAnswer:    userDraft.trim(),
-          correctAnswer: currentItem.data.phrase_en || '',
+          correctAnswer: phraseEn,
           level:         dashboardLevelId,
         });
       }

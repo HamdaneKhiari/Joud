@@ -13,6 +13,7 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
 import GrammarCard from '@/components/pedagogy/grammar/GrammarCard';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
+import { DynamicIcon } from '@/components/ui/DynamicIcon';
 
 // Helpers & Hooks
 import { useProgress } from '@/contexts/ProgressContext';
@@ -82,16 +83,20 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
         );
 
         // 3. Parser le JSON
+        // Format: { rule_title, explanation, simplified, examples, exercises: [{ question, options, correct_answer }] }
         const rules = contentRows.map(row => {
           const data = JSON.parse(row.data);
+          const firstExercise = data.exercises?.[0];
           return {
             id: row.id,
-            content: data.rule || data.concretement || data.sentence, // Fallback selon le format JSON
+            title: data.rule_title || '',
+            content: data.explanation || data.rule_title || data.rule || '',
+            simplified: data.simplified || '',
             examples: data.examples || [],
             exercise: {
-              question: data.sentence || data.phrase_en,
-              correctAnswer: data.correctAnswer || data.options?.[0], // Fallback simple
-              options: data.options || []
+              question: firstExercise?.question || data.sentence || '',
+              correctAnswer: firstExercise?.correct_answer || firstExercise?.correctAnswer || data.correctAnswer || '',
+              options: firstExercise?.options || data.options || []
             }
           };
         });
@@ -225,8 +230,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
       headerProps={{
         variant: 'exercise',
         onBack: () => { safeGoBack.navigate(); },
-        rightIcon: grammarFamily.icon || 'book',
-        onRightIconPress: () => console.log('Grammar info pressed'),
+        rightIcon: <DynamicIcon name={grammarFamily.icon} size={28} color={identity.header.accent} fallback="book-open-variant" />,
         showLevelBadge: true,
         levelTitle: `Niveau ${numLevelId}`,
         exerciseTitle: grammarFamily.title || 'Grammaire',
@@ -252,13 +256,14 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
     >
       <GrammarCard
         lessonData={{
+          title: currentRule.title,
           rule: currentRule.content,
+          simplified: currentRule.simplified,
           examples: currentRule.examples,
           exercise: currentRule.exercise,
         }}
         exerciseState={exerciseState}
         onAnswer={handleAnswer}
-        onAudioPress={() => console.log('Audio play requested')}
       />
     </ExerciseLayout>
   );

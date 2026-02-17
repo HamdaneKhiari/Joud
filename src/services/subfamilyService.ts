@@ -6,27 +6,38 @@ export interface SubFamily {
   title: string;
   icon: string;
   description: string;
+  progress: number | null;
 }
 
 export const getSubFamiliesByFamily = async (
-  db: SQLite.SQLiteDatabase, 
-  familyId: number, 
-  identityId: string
+  db: SQLite.SQLiteDatabase,
+  familyId: number,
+  identityId: string,
+  userId?: string
 ): Promise<SubFamily[]> => {
-  
-  // Requête propre qui récupère les labels de sous-familles
-  // ✅ FIX: GROUP BY pour éviter les doublons si identity_id = 'lycee' ET 'adult' existent
+
   const query = `
     SELECT
-      level_number as subfamily_id,
-      display_title as title,
-      icon_name as icon,
-      display_description as description
-    FROM level_labels
-    WHERE family_id = ? AND (identity_id = ? OR identity_id = 'adult')
-    GROUP BY level_number
-    ORDER BY level_number ASC
+      ll.level_number as subfamily_id,
+      ll.display_title as title,
+      ll.icon_name as icon,
+      ll.display_description as description,
+      CASE WHEN p.total > 0
+        THEN ROUND((p.completed * 100.0) / p.total)
+        ELSE NULL
+      END as progress
+    FROM level_labels ll
+    LEFT JOIN progress p
+      ON p.family_id = ? AND p.subfamily_id = ll.level_number
+      ${userId ? 'AND p.user_id = ?' : ''}
+    WHERE ll.family_id = ? AND (ll.identity_id = ? OR ll.identity_id = 'adult')
+    GROUP BY ll.level_number
+    ORDER BY ll.level_number ASC
   `;
 
-  return await db.getAllAsync<SubFamily>(query, [familyId, identityId]);
+  const params = userId
+    ? [familyId, userId, familyId, identityId]
+    : [familyId, familyId, identityId];
+
+  return await db.getAllAsync<SubFamily>(query, params);
 };

@@ -1,13 +1,8 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
-import { tokens } from '@/themes/tokens'; // ✅ Nettoyage : withOpacity supprimé (SonarLint)
-import ExerciseValidation from '../../../common/ExerciseValidation';
-import { generateFeedbackMessage } from '../../../../utils/feedback';
+import { tokens } from '@/themes/tokens';
 import QuestionCard from '../../shared/QuestionCard';
-
-// ✅ On importe le type exact pour garantir la compatibilité
-import { ValidationState } from '../../../common/ExerciseValidation/types';
 
 interface ReadingCardProps {
   question: {
@@ -20,13 +15,7 @@ interface ReadingCardProps {
   selectedOption?: string;
   isValidated: boolean;
   isCorrect: boolean;
-  attemptCount: number;
-  maxAttempts: number;
   onAnswer: (option: string) => void;
-  onValidate: () => void;
-  onNext: () => void;
-  onRetry: () => void;
-  isLastQuestion: boolean;
   color?: string;
 }
 
@@ -35,67 +24,39 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
   selectedOption,
   isValidated,
   isCorrect,
-  attemptCount,
-  maxAttempts,
   onAnswer,
-  onValidate,
-  onNext,
-  onRetry,
-  isLastQuestion,
   color,
 }) => {
   const { identity } = useTheme();
-
   const brandColor = color || identity.palette.primary;
-  const surfaceColor = identity.palette.surface;
-
-  // ✅ Correction TypeScript : Utilisation explicite du type importé pour lever l'ambiguïté
-  const validationState = useMemo<ValidationState | undefined>(() => {
-    if (!isValidated) return undefined;
-    if (isCorrect) return 'success' as ValidationState;
-    if (attemptCount >= maxAttempts) return 'error' as ValidationState;
-    return 'retry' as ValidationState;
-  }, [isValidated, isCorrect, attemptCount, maxAttempts]);
-
-  const feedback = useMemo(() => {
-    const msg = generateFeedbackMessage(
-      isValidated,
-      isCorrect,
-      attemptCount >= maxAttempts,
-      question.correct_answer,
-      attemptCount,
-      maxAttempts
-    );
-    return msg || undefined;
-  }, [isValidated, isCorrect, attemptCount, maxAttempts, question.correct_answer]);
 
   return (
-    <ScrollView 
-      style={styles.container} 
-      contentContainerStyle={styles.content} 
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      {/* SECTION PASSAGE */}
+      {/* PASSAGE */}
       <View style={[
-        styles.passageCard, 
-        { 
-          backgroundColor: surfaceColor, 
+        styles.passageCard,
+        {
+          backgroundColor: identity.palette.surface,
           borderTopColor: brandColor,
-          borderRadius: identity.ui?.cardRadius || tokens.borderRadius.lg 
+          borderRadius: identity.ui?.cardRadius || tokens.borderRadius.lg
         }
       ]}>
         <Text style={[styles.cardTitle, { color: identity.text.secondary }]}>
-          {("readingPassageLabel" in identity.i18n ? (identity.i18n as any).readingPassageLabel : "ANALYSE DE TEXTE")}
+          ANALYSE DE TEXTE
         </Text>
 
         <View style={styles.passageBox}>
           <View style={[styles.accentLine, { backgroundColor: brandColor }]} />
           <Text style={[
-            styles.passageText, 
-            { 
+            styles.passageText,
+            {
               color: identity.text.primary,
               fontSize: tokens.fontSize.base,
-              lineHeight: tokens.fontSize.base * 1.6 
+              lineHeight: tokens.fontSize.base * 1.6
             }
           ]}>
             {question.passage}
@@ -103,7 +64,7 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
         </View>
       </View>
 
-      {/* SECTION QUESTION */}
+      {/* QUESTION + OPTIONS */}
       <View style={styles.questionSection}>
         <QuestionCard
           question={question.question_text}
@@ -117,18 +78,6 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
           hint={question.hint}
         />
       </View>
-
-      <ExerciseValidation
-        state={validationState}
-        attemptCount={attemptCount}
-        maxAttempts={maxAttempts}
-        onValidate={onValidate}
-        onNext={onNext}
-        onRetry={onRetry}
-        disabled={!selectedOption}
-        isLastQuestion={isLastQuestion}
-        feedbackMessage={feedback}
-      />
     </ScrollView>
   );
 };

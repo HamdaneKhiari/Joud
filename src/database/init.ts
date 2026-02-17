@@ -40,6 +40,7 @@ import migration032 from './migrations/032_add_userid_to_exercise_errors';
 import migration033 from './migrations/033_fix_branding_styles';
 import migration034 from './migrations/034_add_card_mood';
 import migration035 from './migrations/035_adult_light_theme';
+import migration036 from './migrations/036_seed_test_data';  // TEST DATA — à supprimer quand la vraie data est prête
 
 // ============================================
 // SINGLETON — une seule initialisation simultanée
@@ -112,6 +113,7 @@ const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
       migration033,
       migration034,
       migration035,
+      migration036,  // TEST DATA
     ];
 
     console.log('[JanaCore] 🚀 Running migrations in sequence...');
