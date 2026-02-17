@@ -82,17 +82,42 @@ export const useAssessmentGenerator = (level: number, maxQuestions: number = 20)
           throw new Error(`No assessment questions found for level ${level}`);
         }
 
-        // 3. Parser les questions
+        // 3. Parser les questions avec mapping du format legacy
         const questions: AssessmentQuestion[] = contents.map((item, index) => {
           const parsed = JSON.parse(item.data);
+          const contentType = item.content_type; // assessment_vocab, assessment_grammar, assessment_sentence
 
-          // Ajouter un ID unique à chaque question
-          const uniqueId = `${parsed.type}_${item.id}_${Date.now()}_${index}`;
+          // Map content_type to schema type
+          let type: AssessmentQuestion['type'] = 'assessment_definition';
+          let theme: AssessmentQuestion['theme'] = 'vocabulary';
+
+          if (contentType === 'assessment_vocab') {
+            type = 'assessment_definition';
+            theme = 'vocabulary';
+          } else if (contentType === 'assessment_grammar') {
+            type = parsed.options ? 'assessment_definition' : 'assessment_blanks';
+            theme = 'grammar';
+          } else if (contentType === 'assessment_sentence') {
+            type = parsed.options ? 'assessment_definition' : 'assessment_blanks';
+            theme = 'phrases';
+          }
+
+          const uniqueId = `${type}_${item.id}_${Date.now()}_${index}`;
 
           return {
-            ...parsed,
             id: uniqueId,
-          };
+            type,
+            theme,
+            question: parsed.question || parsed.sentence || parsed.prompt || '',
+            questionFr: parsed.questionFr || '',
+            correctAnswer: parsed.correctAnswer || parsed.correct_answer || '',
+            explanation: parsed.explanation || '',
+            explanationFr: parsed.explanationFr || '',
+            options: parsed.options || [],
+            // For sentence type
+            passage: parsed.passage || '',
+            passageFr: parsed.passageFr || '',
+          } as AssessmentQuestion;
         });
 
         // 4. Mélanger les questions

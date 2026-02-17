@@ -23,6 +23,7 @@ import { useRecordError } from '@/hooks/exercises/useRecordError';
 
 // Utils
 import { getModuleLabel, getLevelLabel } from '@/utils/labelMapper';
+import { DynamicIcon } from '@/components/ui/DynamicIcon';
 
 // ============================================
 // CONSTANTS
@@ -114,7 +115,9 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
 
       try {
         setIsLoadingContent(true);
-        const numFamilyId = Number.parseInt(familyId, 10);
+        const numFamilyId = Number.parseInt(String(familyId), 10);
+
+        console.log('[DialogueExercise] Loading:', { familyId, numFamilyId, numSubfamilyId, db: !!db });
 
         // Charger les contenus dialogue depuis la DB
         const rows = await db.getAllAsync<{ id: number; data: string }>(
@@ -124,9 +127,11 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
           [numFamilyId, numSubfamilyId]
         );
 
+        console.log('[DialogueExercise] Rows found:', rows.length);
+
         if (rows.length > 0) {
           // Chaque row.data contient un dialogue JSON
-          const firstDialogue = JSON.parse(rows[0].data) as Dialogue;
+          const rawData = JSON.parse(rows[0].data);
 
           // Charger le nom de la famille
           const family = await db.getFirstAsync<{ name: string; icon: string }>(
@@ -134,10 +139,51 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
             [numFamilyId]
           );
 
+          // === DATA MAPPING ===
+          // Migration 036 uses "dialogue" array, interface expects "messages"
+          const rawMessages = rawData.messages || rawData.dialogue || [];
+
+          // Extract unique speakers to build characters with colors
+          const speakerColors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0', '#E91E63'];
+          const uniqueSpeakers: string[] = [];
+          rawMessages.forEach((msg: any) => {
+            if (msg.speaker && !uniqueSpeakers.includes(msg.speaker)) {
+              uniqueSpeakers.push(msg.speaker);
+            }
+          });
+          const characters = rawData.characters || uniqueSpeakers.map((name: string, i: number) => ({
+            name,
+            color: speakerColors[i % speakerColors.length],
+          }));
+
+          // Map questions: correct_answer can be a string (value) or number (index)
+          const rawQuestions = rawData.questions || [];
+          const mappedQuestions: Question[] = rawQuestions.map((q: any) => {
+            let correctIndex = 0;
+            if (typeof q.correctAnswer === 'number') {
+              correctIndex = q.correctAnswer;
+            } else if (typeof q.correct_answer === 'number') {
+              correctIndex = q.correct_answer;
+            } else if (typeof q.correct_answer === 'string' && q.options) {
+              const idx = q.options.indexOf(q.correct_answer);
+              correctIndex = idx >= 0 ? idx : 0;
+            }
+            return {
+              question: q.question || q.text || '',
+              options: q.options || [],
+              correctAnswer: correctIndex,
+              hint: q.hint,
+            };
+          });
+
           setDialogueFamily({
-            ...firstDialogue,
-            name: firstDialogue.name || family?.name || 'Dialogue',
-            icon: firstDialogue.icon || family?.icon || '💬',
+            name: rawData.name || rawData.title || family?.name || 'Dialogue',
+            title: rawData.title,
+            icon: rawData.icon || family?.icon || '💬',
+            color: rawData.color,
+            characters,
+            messages: rawMessages,
+            questions: mappedQuestions,
           });
         }
       } catch (e) {
@@ -291,7 +337,7 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
       headerProps={{
         variant: 'exercise',
         onBack: safeGoBack.navigate,
-        rightIcon: moduleLabel.icon || 'chatbubbles',
+        rightIcon: <DynamicIcon name={moduleLabel.icon || 'chatbubbles'} size={28} color={identity.header?.accent || identity.palette.primary} fallback="chatbubbles" />,
         showLevelBadge: true,
         levelTitle: levelLabel.badge,
         exerciseTitle: dialogueFamily?.name || dialogueFamily?.title || 'Dialogue',

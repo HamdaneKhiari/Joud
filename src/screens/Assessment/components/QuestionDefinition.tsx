@@ -68,8 +68,8 @@ const QuestionDefinition: React.FC<QuestionDefinitionProps> = ({
       justifyContent: 'space-between',
     },
     optionSelected: {
-      backgroundColor: identity.palette.accent,
-      borderColor: identity.palette.accent,
+      backgroundColor: identity.palette.primary + '15',
+      borderColor: identity.palette.primary,
     },
     optionCorrect: {
       backgroundColor: baseColors.green500,
@@ -86,7 +86,8 @@ const QuestionDefinition: React.FC<QuestionDefinitionProps> = ({
       flex: 1,
     },
     optionTextSelected: {
-      color: identity.text.onPrimary,
+      color: identity.palette.primary,
+      fontWeight: tokens.fontWeight.bold,
     },
     optionTextCorrect: {
       color: baseColors.white,

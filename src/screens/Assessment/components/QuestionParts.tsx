@@ -114,7 +114,6 @@ export const QuestionExplanation: React.FC<QuestionExplanationProps> = ({
   explanation,
   isValidated,
 }) => {
-  const { identity } = useTheme();
 
   if (!isValidated || !explanation) return null;
 
@@ -157,7 +156,6 @@ export const CorrectAnswerDisplay: React.FC<CorrectAnswerDisplayProps> = ({
   isValidated,
   isCorrect,
 }) => {
-  const { identity } = useTheme();
 
   if (!isValidated || isCorrect) return null;
 

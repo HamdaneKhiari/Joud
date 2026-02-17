@@ -98,7 +98,7 @@ interface QuestionPhaseProps {
 
 const DialogueCard: React.FC<DialogueCardProps> = (props) => {
   const isDialogueMode = !!props.dialogue && props.currentMessageIndex !== undefined;
-  const isQuestionMode = !!props.question && props.selectedOption !== undefined;
+  const isQuestionMode = !!props.question && !isDialogueMode;
 
   if (isDialogueMode) {
     return (

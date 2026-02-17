@@ -80,10 +80,16 @@ export const useExerciseContent = <T = any>(
         setModule(moduleResult || null);
 
         // ✅ FIX : Utilise subfamily_id au lieu de level
-        const contentResult = await db.getAllAsync<{ id: number; data: string }>(
-          `SELECT id, data FROM content WHERE family_id = ? AND subfamily_id = ?`,
-          [validatedFamilyId, subfamilyId]
-        );
+        // subfamilyId=0 means "no subfamily" → match both NULL and 0
+        const contentResult = subfamilyId === 0
+          ? await db.getAllAsync<{ id: number; data: string }>(
+              `SELECT id, data FROM content WHERE family_id = ? AND (subfamily_id IS NULL OR subfamily_id = 0)`,
+              [validatedFamilyId]
+            )
+          : await db.getAllAsync<{ id: number; data: string }>(
+              `SELECT id, data FROM content WHERE family_id = ? AND subfamily_id = ?`,
+              [validatedFamilyId, subfamilyId]
+            );
         
         const parsedContent = contentResult.map(item => {
           try {
