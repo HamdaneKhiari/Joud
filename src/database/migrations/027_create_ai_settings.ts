@@ -18,40 +18,27 @@ export default createMigration(
   async (db: SQLite.SQLiteDatabase) => {
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS ai_settings (
-        id INTEGER PRIMARY KEY CHECK (id = 1), -- Une seule ligne de config
-
-        -- Provider IA (non-sensible)
-        provider TEXT NOT NULL DEFAULT 'openai', -- 'openai' | 'mistral' | 'claude'
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        provider TEXT NOT NULL DEFAULT 'openai',
         model TEXT NOT NULL DEFAULT 'gpt-3.5-turbo',
-
-        -- Paramètres de génération (non-sensibles)
         max_tokens INTEGER NOT NULL DEFAULT 500,
         temperature REAL NOT NULL DEFAULT 0.7,
-
-        -- Limites d'usage (non-sensibles)
         max_messages_per_day INTEGER NOT NULL DEFAULT 50,
         current_usage_count INTEGER NOT NULL DEFAULT 0,
         last_reset_date INTEGER NOT NULL DEFAULT 0,
-
-        -- État (non-sensible)
-        is_configured INTEGER NOT NULL DEFAULT 0, -- 0 = non configuré, 1 = configuré
-
-        -- Métadonnées
+        is_configured INTEGER NOT NULL DEFAULT 0,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL
       );
+    `);
 
-      -- Insérer la config par défaut
-      INSERT OR IGNORE INTO ai_settings (
+    await db.runAsync(
+      `INSERT OR IGNORE INTO ai_settings (
         id, provider, model, max_tokens, temperature,
-        max_messages_per_day, is_configured,
-        created_at, updated_at
-      ) VALUES (
-        1, 'openai', 'gpt-3.5-turbo', 500, 0.7,
-        50, 0,
-        ?, ?
-      );
-    `, [Date.now(), Date.now()]);
+        max_messages_per_day, is_configured, created_at, updated_at
+      ) VALUES (1, 'openai', 'gpt-3.5-turbo', 500, 0.7, 50, 0, ?, ?)`,
+      [Date.now(), Date.now()]
+    );
 
     console.log('[Migration 027] ✅ ai_settings table created (API key stored in SecureStore)');
   },

@@ -31,7 +31,7 @@ export default function Dashboard() {
   const { user, db, loading: userLoading } = useUser();
   const { identity } = useTheme();
   const router = useRouter();
-  const { getLevelProgress } = useProgress();
+  const { getLevelProgress, refreshProgress } = useProgress();
   const styles = useMemo(() => createStyles(identity), [identity]);
   const { lastActivity, fetchLastActivity } = useLastActivity();
 
@@ -74,7 +74,8 @@ export default function Dashboard() {
   useFocusEffect(
     useCallback(() => {
       fetchLastActivity();
-    }, [fetchLastActivity])
+      refreshProgress();
+    }, [fetchLastActivity, refreshProgress])
   );
 
   if (userLoading || dataLoading || !user || !db) {

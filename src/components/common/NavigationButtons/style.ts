@@ -54,9 +54,14 @@ export const createStyles = (identity: Identity) => {
       ...tokens.shadows.xl,
     },
     navButtonPrev: {
-      backgroundColor: neutralBg,
-      borderWidth: tokens.borderWidth.thick,
-      borderColor: neutralBorder,
+      backgroundColor: identity.palette.primary,
+      borderWidth: tokens.borderWidth.thin,
+      borderColor: isDark ? withOpacity('#FFFFFF', 0.3) : withOpacity('#000000', 0.15),
+      shadowColor: identity.palette.accent,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.35,
+      shadowRadius: 16,
+      elevation: 8,
     },
     navButtonNext: {
       // Utilise primary si disponible, sinon main

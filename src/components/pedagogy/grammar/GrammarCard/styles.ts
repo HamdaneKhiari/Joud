@@ -36,7 +36,7 @@ export const getStyles = (identity: Identity) => {
     alignSelf: 'flex-start',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     marginBottom: spacing.md,
   },
 

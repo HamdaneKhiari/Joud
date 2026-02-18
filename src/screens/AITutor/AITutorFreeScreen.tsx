@@ -64,7 +64,7 @@ function getLevelWelcomeMessage(level: number): string {
   }
 }
 
-function buildLevelAdaptedSystemPrompt(level: number): { role: string; content: string } {
+function buildLevelAdaptedSystemPrompt(level: number): { role: 'system' | 'user' | 'assistant'; content: string } {
   const baseTone: Record<number, string> = {
     1: 'Utilise un langage très simple et encourageant. Évite les termes complexes. Réponds en 2-3 phrases courtes maximum.',
     2: 'Utilise un langage clair et pédagogique. Tu peux introduire quelques termes techniques en les expliquant. Réponds en 3-4 phrases.',
@@ -432,15 +432,15 @@ const AITutorFreeScreen: React.FC = () => {
       ragService.trackRAGUsage(false);
 
       const recentMessages = messages.slice(-6).map((msg) => ({
-        role: msg.type === 'user' ? 'user' : 'assistant',
+        role: (msg.type === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
         content: msg.content,
       }));
 
       const systemPrompt = buildLevelAdaptedSystemPrompt(currentLevel);
-      const fullMessages = [
+      const fullMessages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [
         systemPrompt,
         ...recentMessages,
-        { role: 'user', content: userContent },
+        { role: 'user' as const, content: userContent },
       ];
 
       const aiResponse = await aiService.sendChatMessage(

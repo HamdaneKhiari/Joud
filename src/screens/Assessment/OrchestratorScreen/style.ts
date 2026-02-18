@@ -1,6 +1,8 @@
 import { StyleSheet } from 'react-native';
-import { spacing, fontSize, fontWeight, borderRadius, shadows } from '@themes/tokens';
-import { baseColors } from '@themes/colors';
+import { tokens } from '@/themes/tokens';
+import { baseColors } from '@/themes/colors';
+
+const { spacing, fontSize, fontWeight, borderRadius, shadows } = tokens;
 
 export const styles = StyleSheet.create({
   // Container principal
@@ -31,20 +33,24 @@ export const styles = StyleSheet.create({
   },
   masteryPercentage: {
     fontSize: 56, // Très gros pour l'impact visuel
-    fontWeight: fontWeight.extraBold,
+    fontWeight: fontWeight.extrabold,
     marginBottom: spacing.sm,
+  },
+  scoreContainer: {
+    width: '100%',
+    alignItems: 'center',
   },
   progressTrack: {
     height: 12,
     width: '100%',
     backgroundColor: baseColors.gray100,
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
     overflow: 'hidden',
     marginBottom: spacing.md,
   },
   progressBar: {
     height: '100%',
-    borderRadius: borderRadius.full,
+    borderRadius: borderRadius.round,
   },
   statsSummary: {
     fontSize: fontSize.sm,

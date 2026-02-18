@@ -58,6 +58,7 @@ interface ProgressContextValue {
   isLoading: boolean;
   trackItemCompletion: (levelId: number, exerciseType: string, familyId: string, itemIndex: number, totalItems: number) => void;
   saveProgressNow: () => Promise<void>;
+  refreshProgress: () => Promise<void>;
   getFamilyProgress: (levelId: number, exerciseType: string, familyId: string) => number;
   getExerciseProgress: (levelId: number, exerciseType: string, allFamilyIds?: string[] | null) => number;
   getLevelProgress: (levelId: number) => number;
@@ -333,6 +334,15 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [progress, syncToSQLite, user?.id]);
 
+  // Refresh progress from SQLite (called on screen focus)
+  const refreshProgress = useCallback(async () => {
+    if (!db || !user?.id) return;
+    const freshState = await loadFromSQLite(db, user.id);
+    if (freshState) {
+      dispatch({ type: 'SET_PROGRESS', payload: freshState });
+    }
+  }, [db, user?.id]);
+
   // Actions
   const trackItemCompletion = useCallback((
     levelId: number, exerciseType: string, familyId: string,
@@ -423,11 +433,11 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [progress, getExerciseProgress]);
 
   const value = useMemo<ProgressContextValue>(() => ({
-    progress, isLoading, trackItemCompletion, saveProgressNow,
+    progress, isLoading, trackItemCompletion, saveProgressNow, refreshProgress,
     getFamilyProgress, getExerciseProgress, getLevelProgress,
     getRevisionFamilies, getLastActivity, getRecommendedModule
   }), [
-    progress, isLoading, trackItemCompletion, saveProgressNow,
+    progress, isLoading, trackItemCompletion, saveProgressNow, refreshProgress,
     getFamilyProgress, getExerciseProgress, getLevelProgress,
     getRevisionFamilies, getLastActivity, getRecommendedModule
   ]);

@@ -3,10 +3,10 @@
  * Harmonisation : Grille Uniforme avec badges (Option A)
  */
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { View, StatusBar, FlatList } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 
 // Composants
 import ExerciseHeader from '@/components/layout/ExerciseHeader';
@@ -83,11 +83,18 @@ const ExerciseSelectionScreen: React.FC = () => {
   const params = useLocalSearchParams<{ levelId: string }>();
   const { identity } = useTheme();
   const { db } = useUser();
-  const { isLoading, getRecommendedModule } = useProgress();
+  const { isLoading, getRecommendedModule, refreshProgress } = useProgress();
   const safeNavigate = useSafeAction();
 
   const numLevelId = Number.parseInt(params.levelId || '1', 10);
   const styles = useMemo(() => createStyles(identity), [identity]);
+
+  // Rafraîchir la progression depuis SQLite quand l'écran redevient visible
+  useFocusEffect(
+    useCallback(() => {
+      refreshProgress();
+    }, [refreshProgress])
+  );
 
   const [levelLabel, setLevelLabel] = useState({ title: '', badge: '', description: '' });
   const [exercises, setExercises] = useState<any[]>([]);

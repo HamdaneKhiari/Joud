@@ -8,9 +8,10 @@ interface GuidedHeaderProps {
   onBack:       () => void;
   totalErrors?: number;
   moduleCount?: number;
+  subtitle?:    string;
 }
 
-const GuidedHeader: React.FC<GuidedHeaderProps> = ({ onBack, totalErrors = 0, moduleCount = 0 }) => {
+const GuidedHeader: React.FC<GuidedHeaderProps> = ({ onBack, totalErrors = 0, moduleCount = 0, subtitle }) => {
   const { identity } = useTheme();
   const isPlayful = identity.ui.mood === 'playful';
 
@@ -67,19 +68,29 @@ const GuidedHeader: React.FC<GuidedHeaderProps> = ({ onBack, totalErrors = 0, mo
       height:          28,
       backgroundColor: withOpacity(identity.text.onPrimary, 0.25),
     },
+    subtitleText: {
+      fontSize:   tokens.fontSize.base,
+      fontWeight: tokens.fontWeight.medium,
+      color:      withOpacity(identity.text.onPrimary, 0.8),
+      textAlign:  isPlayful ? 'center' : 'left',
+    },
   }), [identity, isPlayful]);
 
   return (
     <View style={styles.header}>
       <View style={styles.topRow}>
         <TouchableOpacity onPress={onBack} activeOpacity={0.7}>
-          <Ionicons name="arrow-back" size={24} color={identity.text.onPrimary} />
+          <Ionicons name="chevron-back" size={24} color={identity.text.onPrimary} />
         </TouchableOpacity>
         <Text style={styles.title}>Coach IA</Text>
         <Text style={styles.emoji}>🤖</Text>
       </View>
 
-      {totalErrors > 0 && (
+      {subtitle && (
+        <Text style={styles.subtitleText}>{subtitle}</Text>
+      )}
+
+      {!subtitle && totalErrors > 0 && (
         <View style={styles.pill}>
           <View style={styles.pillItem}>
             <Text style={styles.pillNumber}>{totalErrors}</Text>

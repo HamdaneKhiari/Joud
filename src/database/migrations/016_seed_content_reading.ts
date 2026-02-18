@@ -28,7 +28,7 @@ export default createMigration(
     const emailsId = emails?.id || 3;
 
     // ⬇️⬇️⬇️ AJOUTE TON CONTENU ICI ⬇️⬇️⬇️
-    const contentSeed = [
+    const contentSeed: any[] = [
       // Structure : [family_id, level, content_type, JSON.stringify({...}), difficulty, tags, target_audience]
 
       // ===== EXEMPLE SHORT STORIES - PRIMARY NIVEAU 1 =====

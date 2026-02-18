@@ -3,13 +3,11 @@ import { View, StatusBar, ScrollView, Text, TouchableOpacity } from 'react-nativ
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-import ExerciseHeader from '../../../../components/layout/ExerciseHeader';
-import FlowCard from '../../../../components/flow/FlowCard';
+import ExerciseHeader from '@/components/layout/ExerciseHeader';
+import FlowCard from '@/components/flow/FlowCard';
 
-import { getLevelData } from '../../../../utils/constants';
-import { getLevelColor, getLevelGradient } from '@themes/colors';
 import { useTheme } from '@/themes/ThemeContext';
-import useSafeNavigation from '../../../../hooks/useSafeNavigation';
+import useSafeNavigation from '@/hooks/useSafeNavigation';
 import { styles } from './style';
 
 interface AssessmentResultsParams {
@@ -23,14 +21,10 @@ const AssessmentResultsScreen: React.FC = () => {
   const { identity } = useTheme();
   const navigation = useNavigation();
   const route = useRoute();
-  const params = (route.params || {}) as AssessmentResultsParams;
+  const params = (route.params ?? {}) as AssessmentResultsParams;
 
   const { level = 1, userAnswers = {}, totalQuestions = 0, score = 0 } = params;
   const numLevel = Number(level);
-
-  const levelColor = useMemo(() => getLevelColor(numLevel), [numLevel]);
-  const levelGradient = useMemo(() => getLevelGradient(numLevel), [numLevel]);
-  const levelBadge = useMemo(() => getLevelData(numLevel)?.badge, [numLevel]);
 
   const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
   const isPassed = percentage >= 70;
@@ -72,16 +66,14 @@ const AssessmentResultsScreen: React.FC = () => {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle={identity.themeMode === 'dark' ? 'light-content' : 'dark-content'} />
 
         <ExerciseHeader
           variant="exercise"
           onBack={handleContinue}
           exerciseTitle="Résultats de l'évaluation"
           showLevelBadge
-          levelTitle={levelBadge}
-          levelColor={levelColor}
-          gradientColors={levelGradient}
+          levelTitle={numLevel.toString()}
         />
 
         <ScrollView contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
@@ -107,7 +99,7 @@ const AssessmentResultsScreen: React.FC = () => {
                 icon={stat.icon}
                 title={stat.label}
                 subtitle={stat.total > 0 ? `${stat.correct} / ${stat.total} correctes` : 'Non évalué'}
-                color={levelColor}
+                color={identity.palette.primary}
                 progress={stat.percent}
               />
             ))}
@@ -115,7 +107,7 @@ const AssessmentResultsScreen: React.FC = () => {
 
           <View style={{ padding: 20, gap: 12 }}>
             <TouchableOpacity
-              style={[styles.continueButton, { backgroundColor: levelColor }]}
+              style={[styles.continueButton, { backgroundColor: identity.palette.primary }]}
               onPress={handleContinue}
               activeOpacity={0.7}
             >

@@ -137,13 +137,14 @@ export const useChatConversation = (mode: 'free' | 'guided' = 'free') => {
   }, [db, mode]);
 
   // =================== Nouvelle conversation (publique) ===================
-  const newConversation = useCallback(async () => {
+  const newConversation = useCallback(async (): Promise<number | null> => {
     const id = await createConversation();
     if (id) {
       setCurrentConversationId(id);
       setMessages([]);
       await loadConversations();
     }
+    return id;
   }, [createConversation, loadConversations]);
 
   // =================== Changer de conversation ===================

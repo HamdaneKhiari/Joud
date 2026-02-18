@@ -1,28 +1,22 @@
-// ============================================
-// FICHIER: src/screens/exercises/Assessment/AssessmentResultsScreen/style.js
-// ✅ REFACTORISÉ - Utilise les tokens
-// ============================================
+/**
+ * AssessmentResultsScreen Styles
+ * (Legacy screen - non routé mais conservé pour référence)
+ */
 
 import { StyleSheet } from 'react-native';
-import { spacing, fontSize, fontWeight, borderRadius, shadows } from '@themes/tokens';
-import { baseColors } from '@themes/colors';
+import { tokens } from '@/themes/tokens';
+import { baseColors } from '@/themes/colors';
+
+const { spacing, fontSize, fontWeight, borderRadius, shadows } = tokens;
 
 export const styles = StyleSheet.create({
-  // Container principal
   container: {
     flex: 1,
     backgroundColor: baseColors.white,
   },
-
-  // ===== CONTENT =====
-  content: {
-    flex: 1,
-  },
   contentContainer: {
     paddingBottom: spacing.xxl,
   },
-
-  // ===== SCORE CARD =====
   scoreCard: {
     margin: spacing.xl,
     backgroundColor: baseColors.white,
@@ -37,15 +31,9 @@ export const styles = StyleSheet.create({
   },
   mainMessage: {
     fontSize: fontSize.xxl,
-    fontWeight: fontWeight.extraBold,
+    fontWeight: fontWeight.extrabold,
     color: baseColors.gray900,
     marginBottom: spacing.xs,
-    textAlign: 'center',
-  },
-  subMessage: {
-    fontSize: fontSize.base,
-    color: baseColors.gray600,
-    marginBottom: spacing.xl,
     textAlign: 'center',
   },
   scoreContainer: {
@@ -57,15 +45,13 @@ export const styles = StyleSheet.create({
   },
   scorePercentage: {
     fontSize: 48,
-    fontWeight: fontWeight.extraBold,
+    fontWeight: fontWeight.extrabold,
     marginBottom: spacing.xs,
   },
   scoreDetails: {
     fontSize: fontSize.base,
     color: baseColors.gray600,
   },
-
-  // ===== DETAILS SECTION =====
   detailsSection: {
     paddingHorizontal: spacing.xl,
   },
@@ -74,12 +60,6 @@ export const styles = StyleSheet.create({
     fontWeight: fontWeight.bold,
     color: baseColors.gray900,
     marginBottom: spacing.lg,
-  },
-
-  // ===== BUTTON =====
-  buttonContainer: {
-    paddingHorizontal: spacing.xl,
-    marginTop: spacing.xl,
   },
   continueButton: {
     paddingVertical: spacing.lg,

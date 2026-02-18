@@ -4,13 +4,12 @@ import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-import ExerciseHeader from '../../../../components/layout/ExerciseHeader';
-import FlowCard from '../../../../components/flow/FlowCard';
+import ExerciseHeader from '@/components/layout/ExerciseHeader';
+import FlowCard from '@/components/flow/FlowCard';
 
-import { getLevelData } from '../../../../utils/constants';
-import { getLevelColor, getLevelGradient } from '@themes/colors';
-import { useProgress } from '../../../../contexts/ProgressContext';
-import useSafeNavigation from '../../../../hooks/useSafeNavigation';
+import { useTheme } from '@/themes/ThemeContext';
+import { useProgress } from '@/contexts/ProgressContext';
+import useSafeNavigation from '@/hooks/useSafeNavigation';
 import { styles } from './style';
 
 interface OrchestratorParams {
@@ -18,9 +17,10 @@ interface OrchestratorParams {
 }
 
 const OrchestratorScreen: React.FC = () => {
+  const { identity } = useTheme();
   const navigation = useNavigation();
   const route = useRoute();
-  const params = (route.params || {}) as OrchestratorParams;
+  const params = (route.params ?? {}) as OrchestratorParams;
 
   const { level = 1 } = params;
   const numLevel = Number(level);
@@ -35,8 +35,7 @@ const OrchestratorScreen: React.FC = () => {
     useCallback(() => (navigation as any).navigate('Assessment', { level: numLevel }), [navigation, numLevel])
   );
 
-  const levelColor = useMemo(() => getLevelColor(numLevel), [numLevel]);
-  const levelGradient = useMemo(() => getLevelGradient(numLevel), [numLevel]);
+  const levelColor = identity.palette.primary;
 
   const userStats = useMemo(() => {
     const vocabProgress   = getExerciseProgress(numLevel, 'vocab');
@@ -48,7 +47,7 @@ const OrchestratorScreen: React.FC = () => {
 
     return {
       masteryScore: average,
-      totalAssessments: (progress as Record<string, any>)[`level${numLevel}`]?.assessment?.current_assessment?.completedCount || 0,
+      totalAssessments: (progress as Record<string, any>)?.[`level${numLevel}`]?.assessment?.current_assessment?.completedCount ?? 0,
       skills: [
         { id: 'vocab',      label: 'Vocabulaire',  icon: '📚', progress: vocabProgress },
         { id: 'grammar',    label: 'Grammaire',    icon: '✏️',  progress: grammarProgress },
@@ -65,16 +64,14 @@ const OrchestratorScreen: React.FC = () => {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle={identity.themeMode === 'dark' ? 'light-content' : 'dark-content'} />
 
         <ExerciseHeader
-          variant="menu"
+          variant="simple"
           onBack={safeGoBack.navigate}
           exerciseTitle="Évaluation Dynamique"
           showLevelBadge
-          levelTitle={getLevelData(numLevel)?.badge}
-          levelColor={levelColor}
-          gradientColors={levelGradient}
+          levelTitle={numLevel.toString()}
         />
 
         <ScrollView
