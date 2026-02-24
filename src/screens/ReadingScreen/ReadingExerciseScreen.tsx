@@ -68,7 +68,7 @@ const ReadingExerciseScreen: React.FC = () => {
   // Chargement du contenu
   useEffect(() => {
     const loadContent = async () => {
-      if (!db || !familyId) return;
+      if (!db || typeof db === 'number' || !familyId) return;
       try {
         setLoading(true);
         const result = await db.getAllAsync<{ data: string }>(

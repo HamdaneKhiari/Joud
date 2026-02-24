@@ -31,7 +31,6 @@ interface LevelProgress {
   dialogues: ExerciseProgress;
   word_games: ExerciseProgress;
   connector: ExerciseProgress;
-  assessment: ExerciseProgress;
   fastvocab: ExerciseProgress;
   [key: string]: ExerciseProgress;
 }
@@ -107,7 +106,7 @@ const progressReducer = (state: ProgressState, action: ProgressAction): Progress
 
 const ALL_MODULE_SLUGS = [
   'vocab', 'grammar', 'phrase_types', 'reading', 'dialogues',
-  'word_games', 'connector', 'assessment', 'fastvocab',
+  'word_games', 'connector', 'fastvocab',
 ];
 
 const MAX_LEVELS = 8;
@@ -290,7 +289,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Sync to SQLite
   const syncToSQLite = useCallback(async (state: ProgressState) => {
-    if (!db || !user) return;
+    if (!db || typeof db === 'number' || !user) return;
 
     for (const [levelKey, levelData] of Object.entries(state)) {
       const levelNum = Number.parseInt(levelKey.replace('level', ''), 10);
@@ -336,7 +335,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Refresh progress from SQLite (called on screen focus)
   const refreshProgress = useCallback(async () => {
-    if (!db || !user?.id) return;
+    if (!db || typeof db === 'number' || !user?.id) return;
     const freshState = await loadFromSQLite(db, user.id);
     if (freshState) {
       dispatch({ type: 'SET_PROGRESS', payload: freshState });

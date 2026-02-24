@@ -28,7 +28,7 @@ export const useRecordWordSeen = () => {
     familyId,
     contentId,
   }: RecordWordSeenParams) => {
-    if (!db) return;
+    if (!db || typeof db === 'number') return;
 
     try {
       await db.runAsync(

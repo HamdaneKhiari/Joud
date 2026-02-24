@@ -30,7 +30,7 @@ export const useRevisions = (): UseRevisionsReturn => {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchWordsToReview = async () => {
-    if (!db || !user) {
+    if (!db || typeof db === 'number' || !user) {
       setIsLoading(false);
       return;
     }

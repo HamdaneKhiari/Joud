@@ -50,10 +50,6 @@ export const MODULE_CONFIG: Record<string, ModuleConfig> = {
     hasSubfamilies: false
   },
 
-  assessment: {
-    hasSubfamilies: false
-  },
-
   fastvocab: {
     hasSubfamilies: false
   }

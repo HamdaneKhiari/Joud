@@ -24,6 +24,7 @@ interface VocabData {
   word: string;
   translation: string;
   example: string;
+  exampleTranslation?: string;
   audio?: string;
 }
 
@@ -203,6 +204,7 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
         englishWord={currentContentItem.data.word}
         frenchWord={currentContentItem.data.translation}
         exampleSentence={currentContentItem.data.example}
+        exampleTranslation={currentContentItem.data.exampleTranslation}
         highlightWord={currentContentItem.data.word}
         audio={currentContentItem.data.audio}
         moduleSlug={module?.slug}

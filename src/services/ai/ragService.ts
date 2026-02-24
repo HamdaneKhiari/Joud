@@ -61,7 +61,7 @@ class RAGService {
     db: SQLiteDatabase | null,
     query: RAGQuery
   ): Promise<RAGResponse> {
-    if (!db) {
+    if (!db || typeof db === 'number') {
       return { documents: [], context: '' };
     }
 
@@ -133,7 +133,7 @@ class RAGService {
     db: SQLiteDatabase | null,
     topic: string
   ): Promise<string[]> {
-    if (!db) return [];
+    if (!db || typeof db === 'number') return [];
 
     const keywords = this.extractKeywords(topic);
     if (keywords.length === 0) return [];
@@ -161,7 +161,7 @@ class RAGService {
     userQuery: string,
     level?: number
   ): Promise<string> {
-    if (!db) return '';
+    if (!db || typeof db === 'number') return '';
 
     const result = await this.searchRelevantContent(db, {
       query: userQuery,

@@ -118,7 +118,7 @@ const ExerciseSelectionScreen: React.FC = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      if (!db) return;
+      if (!db || typeof db === 'number') return;
       try {
         setLoadingData(true);
         // ✅ FIX: On passe undefined explicitement pour familyId afin de cibler le label GLOBAL du niveau

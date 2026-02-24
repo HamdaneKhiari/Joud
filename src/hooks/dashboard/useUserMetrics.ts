@@ -35,7 +35,7 @@ export const useUserMetrics = (): UseUserMetricsReturn => {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchMetrics = async () => {
-    if (!db || !user) {
+    if (!db || typeof db === 'number' || !user) {
       setIsLoading(false);
       return;
     }

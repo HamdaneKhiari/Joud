@@ -25,7 +25,7 @@ export const useDailyWord = (): UseDailyWordReturn => {
 
   useEffect(() => {
     const fetchDailyWord = async () => {
-      if (!db) {
+      if (!db || typeof db === 'number') {
         setIsLoading(false);
         return;
       }

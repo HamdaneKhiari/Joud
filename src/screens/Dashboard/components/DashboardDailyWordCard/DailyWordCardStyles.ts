@@ -51,7 +51,7 @@ export const createStyles = (identity: Identity) => {
     },
     tag: {
       fontSize: mood.isPlayful ? tokens.fontSize.xs : 10,
-      fontWeight: tokens.fontWeight.black as any,
+      fontWeight: tokens.fontWeight.black,
       textTransform: mood.isPlayful ? undefined : 'uppercase',
       letterSpacing: mood.isPlayful ? 0.5 : 1.2,
       color: identity.palette.primary,
@@ -64,13 +64,13 @@ export const createStyles = (identity: Identity) => {
     },
     englishWord: {
       fontSize: mood.isPlayful ? tokens.fontSize.xxxl : tokens.fontSize.xxl,
-      fontWeight: tokens.fontWeight.black as any,
+      fontWeight: tokens.fontWeight.black,
       color: identity.text.primary,
       letterSpacing: -0.5,
     },
     frenchTranslation: {
       fontSize: mood.isPlayful ? tokens.fontSize.lg : tokens.fontSize.md,
-      fontWeight: tokens.fontWeight.semibold as any,
+      fontWeight: tokens.fontWeight.semibold,
       color: identity.text.secondary,
       marginTop: tokens.spacing.xs,
       ...(mood.isPlayful && { textAlign: 'center' }),

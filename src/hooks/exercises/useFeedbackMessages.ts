@@ -23,7 +23,7 @@ export interface FeedbackData {
 
 interface UseFeedbackMessagesReturn {
   getFeedback: (
-    context: 'exercise' | 'wordgames' | 'vocabulary' | 'assessment',
+    context: 'exercise' | 'wordgames' | 'vocabulary',
     state: 'correct' | 'incorrect_attempt_1' | 'incorrect_attempt_2' | 'skip'
   ) => Promise<FeedbackData | null>;
   isLoading: boolean;
@@ -44,10 +44,10 @@ export const useFeedbackMessages = (): UseFeedbackMessagesReturn => {
   const [isLoading, setIsLoading] = useState(false);
 
   const getFeedback = async (
-    context: 'exercise' | 'wordgames' | 'vocabulary' | 'assessment',
+    context: 'exercise' | 'wordgames' | 'vocabulary',
     state: 'correct' | 'incorrect_attempt_1' | 'incorrect_attempt_2' | 'skip'
   ): Promise<FeedbackData | null> => {
-    if (!db) return null;
+    if (!db || typeof db === 'number') return null;
 
     try {
       setIsLoading(true);

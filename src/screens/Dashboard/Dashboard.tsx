@@ -46,7 +46,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function loadDashboardData() {
-      if (!db || !user) {
+      if (!db || typeof db === 'number' || !user) {
         setDataLoading(false);
         return;
       }

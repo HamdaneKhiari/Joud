@@ -342,6 +342,7 @@ export const getAvailableModules = async (
      WHERE ma.identity_id = ?
        AND ma.is_available = 1
        AND (ma.level_number = ? OR ma.level_number IS NULL)
+       AND m.slug != 'assessment'
      ORDER BY m.order_index`,
     [identityId, levelNumber]
   );

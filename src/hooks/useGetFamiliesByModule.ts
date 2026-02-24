@@ -40,7 +40,7 @@ export const useGetFamiliesByModule = (
 
   useEffect(() => {
     const fetchFamilies = async () => {
-      if (!db || !moduleSlug) {
+      if (!db || typeof db === 'number' || !moduleSlug) {
         setIsLoading(false);
         return;
       }

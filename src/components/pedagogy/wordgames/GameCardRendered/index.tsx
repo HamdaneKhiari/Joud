@@ -13,7 +13,9 @@ import BlanksCard from '../BlanksCard';
 import SyntaxMasterCard from '../SyntaxMasterCard';
 import SpeedMatchCard from '../SpeedMatchCard';
 import DetectiveCard from '../DetectiveCard';
-import IdiomsCard from '../IdiomsCard';
+import AudioMatchCard from '../AudioMatchCard';
+import ReplyCard from '../ReplyCard';
+import TransformerCard from '../TransformerCard';
 
 // Types & Type Guards
 import type { GameQuestion, GameType } from '@/screens/WordGames/schema';
@@ -23,7 +25,9 @@ import {
   isSentenceQuestion,
   isSpeedMatchQuestion,
   isDetectiveQuestion,
-  isIdiomsQuestion,
+  isAudioMatchQuestion,
+  isReplyQuestion,
+  isTransformerQuestion,
 } from '@/screens/WordGames/schema';
 
 // Hooks
@@ -64,7 +68,6 @@ const GameCardRenderer: React.FC<GameCardRendererProps> = ({
   states,
   handlers,
 }) => {
-  // Vérification de sécurité
   if (!currentQuestion) {
     console.error('[GameCardRenderer] currentQuestion is null');
     return null;
@@ -161,21 +164,52 @@ const GameCardRenderer: React.FC<GameCardRendererProps> = ({
     );
   }
 
-  // =================== IDIOMS CARD ===================
-  if (gameType === 'idioms' && isIdiomsQuestion(currentQuestion)) {
+  // =================== AUDIO MATCH CARD ===================
+  if (gameType === 'audio_match' && isAudioMatchQuestion(currentQuestion)) {
     return (
-      <IdiomsCard
-        key={`idioms-${currentQuestionIndex}`}
+      <AudioMatchCard
+        key={`audio_match-${currentQuestionIndex}`}
+        game={currentQuestion}
+        onComplete={handlers.audio_match.onComplete}
+      />
+    );
+  }
+
+  // =================== REPLY CARD ===================
+  if (gameType === 'reply' && isReplyQuestion(currentQuestion)) {
+    return (
+      <ReplyCard
+        key={`reply-${currentQuestionIndex}`}
         question={currentQuestion}
-        selectedOption={states.idiomsState.selectedOption}
-        isValidated={states.idiomsState.isValidated}
-        isCorrect={states.idiomsState.isCorrect}
-        attemptCount={states.idiomsState.attemptCount}
+        selectedOption={states.replyState.selectedOption}
+        isValidated={states.replyState.isValidated}
+        isCorrect={states.replyState.isCorrect}
+        attemptCount={states.replyState.attemptCount}
         maxAttempts={MAX_ATTEMPTS}
-        onAnswer={handlers.idioms.onAnswer}
-        onValidate={handlers.idioms.onValidate}
-        onRetry={handlers.idioms.onRetry}
-        onNext={handlers.idioms.onNext}
+        onAnswer={handlers.reply.onAnswer}
+        onValidate={handlers.reply.onValidate}
+        onRetry={handlers.reply.onRetry}
+        onNext={handlers.reply.onNext}
+        isLastQuestion={isLastQuestion}
+      />
+    );
+  }
+
+  // =================== TRANSFORMER CARD ===================
+  if (gameType === 'transformer' && isTransformerQuestion(currentQuestion)) {
+    return (
+      <TransformerCard
+        key={`transformer-${currentQuestionIndex}`}
+        question={currentQuestion}
+        selectedOption={states.transformerState.selectedOption}
+        isValidated={states.transformerState.isValidated}
+        isCorrect={states.transformerState.isCorrect}
+        attemptCount={states.transformerState.attemptCount}
+        maxAttempts={MAX_ATTEMPTS}
+        onAnswer={handlers.transformer.onAnswer}
+        onValidate={handlers.transformer.onValidate}
+        onRetry={handlers.transformer.onRetry}
+        onNext={handlers.transformer.onNext}
         isLastQuestion={isLastQuestion}
       />
     );

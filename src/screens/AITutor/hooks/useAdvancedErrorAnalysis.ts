@@ -74,7 +74,7 @@ export const useAdvancedErrorAnalysis = () => {
 
   useEffect(() => {
     const performAnalysis = async () => {
-      if (!db) {
+      if (!db || typeof db === 'number') {
         setIsLoading(false);
         return;
       }

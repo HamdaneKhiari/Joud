@@ -30,20 +30,7 @@ export const navigateToExercise = (
 ): void => {
   const { type, levelId, familyId, moduleId } = params;
 
-  // CAS 1 : Évaluation (Quiz/Assessment)
-  if (type === 'assessment' || type === 'quiz') {
-    router.push({
-      pathname: '/exercise/[exerciseId]',
-      params: {
-        exerciseId: 'assessment',
-        levelId: levelId.toString(),
-        type: 'quiz'
-      }
-    });
-    return;
-  }
-
-  // CAS 2 : Exercice avec famille spécifique (ex: un exercice de vocabulaire précis)
+  // CAS 1 : Exercice avec famille spécifique (ex: un exercice de vocabulaire précis)
   if (familyId) {
     router.push({
       pathname: '/exercise/[exerciseId]',

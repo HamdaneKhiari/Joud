@@ -42,14 +42,14 @@ export const getStyles = (identity: Identity) => {
 
   titleBadgeText: {
     fontSize: fontSize.sm,
-    fontWeight: fontWeight.bold as any,
+    fontWeight: fontWeight.bold,
     letterSpacing: 0.5,
   },
 
   // Règle principale
   ruleText: {
     fontSize: config.fontSize.subtitle,
-    fontWeight: fontWeight.medium as any,
+    fontWeight: fontWeight.medium,
     lineHeight: config.fontSize.subtitle * 1.6,
     letterSpacing: -0.2,
   },
@@ -65,17 +65,17 @@ export const getStyles = (identity: Identity) => {
 
   simplifiedLabel: {
     fontSize: fontSize.xs,
-    fontWeight: fontWeight.bold as any,
-    textTransform: 'uppercase' as any,
+    fontWeight: fontWeight.bold,
+    textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: spacing.xs,
   },
 
   simplifiedText: {
     fontSize: fontSize.md,
-    fontWeight: fontWeight.regular as any,
+    fontWeight: fontWeight.regular,
     lineHeight: fontSize.md * 1.5,
-    fontStyle: 'italic' as any,
+    fontStyle: 'italic',
   },
 
   // ============================================
@@ -88,8 +88,8 @@ export const getStyles = (identity: Identity) => {
 
   sectionLabel: {
     fontSize: fontSize.xs,
-    fontWeight: fontWeight.semibold as any,
-    textTransform: 'uppercase' as any,
+    fontWeight: fontWeight.semibold,
+    textTransform: 'uppercase',
     letterSpacing: 1.5,
     marginBottom: spacing.md,
   },
@@ -112,7 +112,7 @@ export const getStyles = (identity: Identity) => {
   exampleText: {
     flex: 1,
     fontSize: fontSize.md,
-    fontWeight: fontWeight.medium as any,
+    fontWeight: fontWeight.medium,
     lineHeight: fontSize.md * 1.5,
     letterSpacing: 0.2,
   },
@@ -132,7 +132,7 @@ export const getStyles = (identity: Identity) => {
 
   questionText: {
     fontSize: fontSize.lg,
-    fontWeight: fontWeight.bold as any,
+    fontWeight: fontWeight.bold,
     marginBottom: spacing.xl,
     lineHeight: fontSize.lg * 1.4,
     letterSpacing: -0.2,
@@ -175,8 +175,8 @@ export const getStyles = (identity: Identity) => {
 
   optionText: {
     fontSize: fontSize.md,
-    fontWeight: fontWeight.semibold as any,
-    textAlign: 'center' as any,
+    fontWeight: fontWeight.semibold,
+    textAlign: 'center',
     letterSpacing: 0.3,
   },
 
@@ -186,17 +186,17 @@ export const getStyles = (identity: Identity) => {
 
   optionTextSelected: {
     color: identity.palette.primary,
-    fontWeight: fontWeight.bold as any,
+    fontWeight: fontWeight.bold,
   },
 
   optionTextCorrect: {
     color: baseColors.green800,
-    fontWeight: fontWeight.bold as any,
+    fontWeight: fontWeight.bold,
   },
 
   optionTextIncorrect: {
     color: baseColors.red800,
-    fontWeight: fontWeight.bold as any,
+    fontWeight: fontWeight.bold,
   },
 
   optionButtonDisabled: {

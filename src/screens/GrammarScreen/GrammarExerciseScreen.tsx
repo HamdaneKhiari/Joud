@@ -67,7 +67,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
 
   useEffect(() => {
     const loadData = async () => {
-      if (!db || !safeFamilyId) return;
+      if (!db || typeof db === 'number' || !safeFamilyId) return;
       try {
         setLoading(true);
         // 1. Récupérer les infos de la famille

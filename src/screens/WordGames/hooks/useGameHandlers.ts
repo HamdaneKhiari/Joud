@@ -50,7 +50,7 @@ export interface UseGameHandlersParams {
 }
 
 /**
- * Handlers pour jeux avec options (Definition, Blanks, Idioms, Builder)
+ * Handlers pour jeux avec options (Definition, Blanks, Reply, Transformer, Builder)
  */
 interface OptionGameHandlers {
   onAnswer: (option: string) => void;
@@ -80,9 +80,9 @@ interface DetectiveGameHandlers {
 }
 
 /**
- * Handlers pour jeu Speed Match
+ * Handlers pour jeux avec timer interne (Speed Match, Audio Match)
  */
-interface SpeedGameHandlers {
+interface TimedGameHandlers {
   onComplete: () => void;
 }
 
@@ -94,9 +94,11 @@ export interface UseGameHandlersReturn {
   definition: OptionGameHandlers;
   blanks: OptionGameHandlers;
   sentence: SentenceGameHandlers;
-  idioms: OptionGameHandlers;
   detective: DetectiveGameHandlers;
-  speed: SpeedGameHandlers;
+  speed: TimedGameHandlers;
+  audio_match: TimedGameHandlers;
+  reply: OptionGameHandlers;
+  transformer: OptionGameHandlers;
 }
 
 // ============================================
@@ -132,10 +134,12 @@ export const useGameHandlers = ({
     setBlanksState,
     sentenceState,
     setSentenceState,
-    idiomsState,
-    setIdiomsState,
     detectiveState,
     setDetectiveState,
+    replyState,
+    setReplyState,
+    transformerState,
+    setTransformerState,
     resetAllStates,
   } = states;
 
@@ -158,6 +162,49 @@ export const useGameHandlers = ({
       resetAllStates();
     }
   }, [isLastQuestion, safeGoBack, setCurrentQuestionIndex, resetAllStates]);
+
+  // =========================================================
+  // HELPERS GÉNÉRIQUES QCM
+  // =========================================================
+
+  /**
+   * Factory pour créer des handlers QCM identiques (onAnswer/onValidate/onRetry/onNext)
+   * Évite la duplication entre definition, blanks, reply, transformer
+   */
+  const makeOptionHandlers = useCallback(
+    (
+      state: { selectedOption: string | null; attemptCount: number },
+      setState: React.Dispatch<React.SetStateAction<typeof state & { isValidated: boolean; isCorrect: boolean }>>,
+      getCorrectAnswer: () => string
+    ): OptionGameHandlers => ({
+      onAnswer: (option: string) => {
+        setState((prev) => ({ ...prev, selectedOption: option }));
+      },
+      onValidate: () => {
+        if (!state.selectedOption) return;
+        const correct = state.selectedOption === getCorrectAnswer();
+        setState((prev) => ({
+          ...prev,
+          isValidated: true,
+          isCorrect: correct,
+          attemptCount: prev.attemptCount + 1,
+        }));
+        if (correct || state.attemptCount + 1 >= MAX_ATTEMPTS) {
+          trackItemCompletion(numLevelId, MODULE_ID, familyId, currentQuestionIndex, totalQuestions);
+        }
+      },
+      onRetry: () => {
+        setState((prev) => ({
+          ...prev,
+          selectedOption: null,
+          isValidated: false,
+          isCorrect: false,
+        }));
+      },
+      onNext: handleNavigationNext,
+    }),
+    [handleNavigationNext, trackItemCompletion, numLevelId, familyId, currentQuestionIndex, totalQuestions]
+  );
 
   // =========================================================
   // HANDLERS: BUILDER
@@ -194,8 +241,6 @@ export const useGameHandlers = ({
     }));
   }, [setBuilderState]);
 
-  const handleBuilderNext = handleNavigationNext;
-
   // =========================================================
   // HANDLERS: DEFINITION
   // =========================================================
@@ -219,7 +264,6 @@ export const useGameHandlers = ({
       attemptCount: prev.attemptCount + 1,
     }));
 
-    // Track completion si correct ou dernière tentative
     if (correct || definitionState.attemptCount + 1 >= MAX_ATTEMPTS) {
       trackItemCompletion(numLevelId, MODULE_ID, familyId, currentQuestionIndex, totalQuestions);
     }
@@ -244,8 +288,6 @@ export const useGameHandlers = ({
     }));
   }, [setDefinitionState]);
 
-  const handleDefinitionNext = handleNavigationNext;
-
   // =========================================================
   // HANDLERS: BLANKS
   // =========================================================
@@ -269,7 +311,6 @@ export const useGameHandlers = ({
       attemptCount: prev.attemptCount + 1,
     }));
 
-    // Track completion si correct ou dernière tentative
     if (correct || blanksState.attemptCount + 1 >= MAX_ATTEMPTS) {
       trackItemCompletion(numLevelId, MODULE_ID, familyId, currentQuestionIndex, totalQuestions);
     }
@@ -293,8 +334,6 @@ export const useGameHandlers = ({
       isCorrect: false,
     }));
   }, [setBlanksState]);
-
-  const handleBlanksNext = handleNavigationNext;
 
   // =========================================================
   // HANDLERS: SENTENCE BUILDER
@@ -321,7 +360,6 @@ export const useGameHandlers = ({
       attemptCount: prev.attemptCount + 1,
     }));
 
-    // Track completion si correct ou dernière tentative
     if (correct || sentenceState.attemptCount + 1 >= MAX_ATTEMPTS) {
       trackItemCompletion(numLevelId, MODULE_ID, familyId, currentQuestionIndex, totalQuestions);
     }
@@ -345,58 +383,6 @@ export const useGameHandlers = ({
       isCorrect: false,
     }));
   }, [setSentenceState]);
-
-  const handleSentenceNext = handleNavigationNext;
-
-  // =========================================================
-  // HANDLERS: IDIOMS
-  // =========================================================
-
-  const handleIdiomsAnswer = useCallback(
-    (option: string) => {
-      setIdiomsState((prev) => ({ ...prev, selectedOption: option }));
-    },
-    [setIdiomsState]
-  );
-
-  const handleIdiomsValidate = useCallback(() => {
-    if (!idiomsState.selectedOption || currentQuestion.type !== 'idioms') return;
-
-    const correct = idiomsState.selectedOption === currentQuestion.correctAnswer;
-
-    setIdiomsState((prev) => ({
-      ...prev,
-      isValidated: true,
-      isCorrect: correct,
-      attemptCount: prev.attemptCount + 1,
-    }));
-
-    // Track completion si correct ou dernière tentative
-    if (correct || idiomsState.attemptCount + 1 >= MAX_ATTEMPTS) {
-      trackItemCompletion(numLevelId, MODULE_ID, familyId, currentQuestionIndex, totalQuestions);
-    }
-  }, [
-    idiomsState.selectedOption,
-    idiomsState.attemptCount,
-    currentQuestion,
-    setIdiomsState,
-    trackItemCompletion,
-    numLevelId,
-    familyId,
-    currentQuestionIndex,
-    totalQuestions,
-  ]);
-
-  const handleIdiomsRetry = useCallback(() => {
-    setIdiomsState((prev) => ({
-      ...prev,
-      selectedOption: null,
-      isValidated: false,
-      isCorrect: false,
-    }));
-  }, [setIdiomsState]);
-
-  const handleIdiomsNext = handleNavigationNext;
 
   // =========================================================
   // HANDLERS: DETECTIVE
@@ -426,7 +412,6 @@ export const useGameHandlers = ({
       attemptCount: prev.attemptCount + 1,
     }));
 
-    // Track completion si correct ou dernière tentative
     if (correct || detectiveState.attemptCount + 1 >= MAX_ATTEMPTS) {
       trackItemCompletion(numLevelId, MODULE_ID, familyId, currentQuestionIndex, totalQuestions);
     }
@@ -451,10 +436,8 @@ export const useGameHandlers = ({
     }));
   }, [setDetectiveState]);
 
-  const handleDetectiveNext = handleNavigationNext;
-
   // =========================================================
-  // HANDLERS: SPEED MATCH
+  // HANDLERS: SPEED MATCH (timer interne)
   // =========================================================
 
   const handleSpeedComplete = useCallback(() => {
@@ -470,6 +453,116 @@ export const useGameHandlers = ({
   ]);
 
   // =========================================================
+  // HANDLERS: AUDIO MATCH (timer interne, comme speed)
+  // =========================================================
+
+  const handleAudioMatchComplete = useCallback(() => {
+    trackItemCompletion(numLevelId, MODULE_ID, familyId, currentQuestionIndex, totalQuestions);
+    handleNavigationNext();
+  }, [
+    trackItemCompletion,
+    numLevelId,
+    familyId,
+    currentQuestionIndex,
+    totalQuestions,
+    handleNavigationNext,
+  ]);
+
+  // =========================================================
+  // HANDLERS: REPLY (QCM situationnel)
+  // =========================================================
+
+  const handleReplyAnswer = useCallback(
+    (option: string) => {
+      setReplyState((prev) => ({ ...prev, selectedOption: option }));
+    },
+    [setReplyState]
+  );
+
+  const handleReplyValidate = useCallback(() => {
+    if (!replyState.selectedOption || currentQuestion.type !== 'reply') return;
+
+    const correct = replyState.selectedOption === currentQuestion.correctAnswer;
+
+    setReplyState((prev) => ({
+      ...prev,
+      isValidated: true,
+      isCorrect: correct,
+      attemptCount: prev.attemptCount + 1,
+    }));
+
+    if (correct || replyState.attemptCount + 1 >= MAX_ATTEMPTS) {
+      trackItemCompletion(numLevelId, MODULE_ID, familyId, currentQuestionIndex, totalQuestions);
+    }
+  }, [
+    replyState.selectedOption,
+    replyState.attemptCount,
+    currentQuestion,
+    setReplyState,
+    trackItemCompletion,
+    numLevelId,
+    familyId,
+    currentQuestionIndex,
+    totalQuestions,
+  ]);
+
+  const handleReplyRetry = useCallback(() => {
+    setReplyState((prev) => ({
+      ...prev,
+      selectedOption: null,
+      isValidated: false,
+      isCorrect: false,
+    }));
+  }, [setReplyState]);
+
+  // =========================================================
+  // HANDLERS: TRANSFORMER (QCM morphologique)
+  // =========================================================
+
+  const handleTransformerAnswer = useCallback(
+    (option: string) => {
+      setTransformerState((prev) => ({ ...prev, selectedOption: option }));
+    },
+    [setTransformerState]
+  );
+
+  const handleTransformerValidate = useCallback(() => {
+    if (!transformerState.selectedOption || currentQuestion.type !== 'transformer') return;
+
+    const correct = transformerState.selectedOption === currentQuestion.correctAnswer;
+
+    setTransformerState((prev) => ({
+      ...prev,
+      isValidated: true,
+      isCorrect: correct,
+      attemptCount: prev.attemptCount + 1,
+    }));
+
+    if (correct || transformerState.attemptCount + 1 >= MAX_ATTEMPTS) {
+      trackItemCompletion(numLevelId, MODULE_ID, familyId, currentQuestionIndex, totalQuestions);
+    }
+  }, [
+    transformerState.selectedOption,
+    transformerState.attemptCount,
+    currentQuestion,
+    setTransformerState,
+    trackItemCompletion,
+    numLevelId,
+    familyId,
+    currentQuestionIndex,
+    totalQuestions,
+  ]);
+
+  const handleTransformerRetry = useCallback(() => {
+    setTransformerState((prev) => ({
+      ...prev,
+      selectedOption: null,
+      isValidated: false,
+      isCorrect: false,
+    }));
+  }, [setTransformerState]);
+
+  // =========================================================
   // RETURN
   // =========================================================
 
@@ -478,40 +571,49 @@ export const useGameHandlers = ({
       onAnswer: handleBuilderAnswer,
       onValidate: handleBuilderValidate,
       onRetry: handleBuilderRetry,
-      onNext: handleBuilderNext,
+      onNext: handleNavigationNext,
     },
     definition: {
       onAnswer: handleDefinitionAnswer,
       onValidate: handleDefinitionValidate,
       onRetry: handleDefinitionRetry,
-      onNext: handleDefinitionNext,
+      onNext: handleNavigationNext,
     },
     blanks: {
       onAnswer: handleBlanksAnswer,
       onValidate: handleBlanksValidate,
       onRetry: handleBlanksRetry,
-      onNext: handleBlanksNext,
+      onNext: handleNavigationNext,
     },
     sentence: {
       onOrder: handleSentenceOrder,
       onValidate: handleSentenceValidate,
       onRetry: handleSentenceRetry,
-      onNext: handleSentenceNext,
-    },
-    idioms: {
-      onAnswer: handleIdiomsAnswer,
-      onValidate: handleIdiomsValidate,
-      onRetry: handleIdiomsRetry,
-      onNext: handleIdiomsNext,
+      onNext: handleNavigationNext,
     },
     detective: {
       onAnswer: handleDetectiveAnswer,
       onValidate: handleDetectiveValidate,
       onRetry: handleDetectiveRetry,
-      onNext: handleDetectiveNext,
+      onNext: handleNavigationNext,
     },
     speed: {
       onComplete: handleSpeedComplete,
+    },
+    audio_match: {
+      onComplete: handleAudioMatchComplete,
+    },
+    reply: {
+      onAnswer: handleReplyAnswer,
+      onValidate: handleReplyValidate,
+      onRetry: handleReplyRetry,
+      onNext: handleNavigationNext,
+    },
+    transformer: {
+      onAnswer: handleTransformerAnswer,
+      onValidate: handleTransformerValidate,
+      onRetry: handleTransformerRetry,
+      onNext: handleNavigationNext,
     },
   };
 };

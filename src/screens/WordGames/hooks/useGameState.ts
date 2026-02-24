@@ -13,7 +13,7 @@ import type { GameType } from '../schema';
 // ============================================
 
 /**
- * État pour jeux avec sélection d'option (Definition, Blanks, Idioms, Builder)
+ * État pour jeux avec sélection d'option (Definition, Blanks, Reply, Transformer, Builder)
  */
 export interface OptionGameState {
   selectedOption: string | null;
@@ -49,15 +49,16 @@ export type GameState = OptionGameState | SentenceGameState | DetectiveGameState
 
 /**
  * Mapping des types de jeux aux états
- * Note: 'speed' n'a pas d'état car il gère son état en interne
+ * Note: 'speed' et 'audio_match' n'ont pas d'état ici car ils gèrent leur état en interne
  */
 export interface AllGameStates {
   builder: OptionGameState;
   definition: OptionGameState;
   blanks: OptionGameState;
   sentence: SentenceGameState;
-  idioms: OptionGameState;
   detective: DetectiveGameState;
+  reply: OptionGameState;
+  transformer: OptionGameState;
 }
 
 /**
@@ -73,10 +74,12 @@ export interface UseGameStateReturn {
   setBlanksState: Dispatch<SetStateAction<OptionGameState>>;
   sentenceState: SentenceGameState;
   setSentenceState: Dispatch<SetStateAction<SentenceGameState>>;
-  idiomsState: OptionGameState;
-  setIdiomsState: Dispatch<SetStateAction<OptionGameState>>;
   detectiveState: DetectiveGameState;
   setDetectiveState: Dispatch<SetStateAction<DetectiveGameState>>;
+  replyState: OptionGameState;
+  setReplyState: Dispatch<SetStateAction<OptionGameState>>;
+  transformerState: OptionGameState;
+  setTransformerState: Dispatch<SetStateAction<OptionGameState>>;
 
   // Utilitaires
   resetAllStates: () => void;
@@ -86,8 +89,6 @@ export interface UseGameStateReturn {
 // ============================================
 // CONSTANTS
 // ============================================
-
-const MAX_ATTEMPTS = 2;
 
 const INITIAL_OPTION_STATE: OptionGameState = {
   selectedOption: null,
@@ -124,8 +125,9 @@ export const useGameState = (gameType: GameType): UseGameStateReturn => {
   const [definitionState, setDefinitionState] = useState<OptionGameState>(INITIAL_OPTION_STATE);
   const [blanksState, setBlanksState] = useState<OptionGameState>(INITIAL_OPTION_STATE);
   const [sentenceState, setSentenceState] = useState<SentenceGameState>(INITIAL_SENTENCE_STATE);
-  const [idiomsState, setIdiomsState] = useState<OptionGameState>(INITIAL_OPTION_STATE);
   const [detectiveState, setDetectiveState] = useState<DetectiveGameState>(INITIAL_DETECTIVE_STATE);
+  const [replyState, setReplyState] = useState<OptionGameState>(INITIAL_OPTION_STATE);
+  const [transformerState, setTransformerState] = useState<OptionGameState>(INITIAL_OPTION_STATE);
 
   /**
    * Reset tous les états (appelé lors du changement de question)
@@ -135,8 +137,9 @@ export const useGameState = (gameType: GameType): UseGameStateReturn => {
     setDefinitionState(INITIAL_OPTION_STATE);
     setBlanksState(INITIAL_OPTION_STATE);
     setSentenceState(INITIAL_SENTENCE_STATE);
-    setIdiomsState(INITIAL_OPTION_STATE);
     setDetectiveState(INITIAL_DETECTIVE_STATE);
+    setReplyState(INITIAL_OPTION_STATE);
+    setTransformerState(INITIAL_OPTION_STATE);
   }, []);
 
   /**
@@ -148,18 +151,19 @@ export const useGameState = (gameType: GameType): UseGameStateReturn => {
       definition: definitionState,
       blanks: blanksState,
       sentence: sentenceState,
-      idioms: idiomsState,
       detective: detectiveState,
+      reply: replyState,
+      transformer: transformerState,
     }),
-    [builderState, definitionState, blanksState, sentenceState, idiomsState, detectiveState]
+    [builderState, definitionState, blanksState, sentenceState, detectiveState, replyState, transformerState]
   );
 
   /**
    * Retourne l'état actif selon le type de jeu
-   * Note: retourne null pour les jeux sans état (ex: speed)
+   * Note: retourne null pour les jeux sans état (speed, audio_match)
    */
   const getCurrentState = useCallback((): GameState | null => {
-    if (gameType === 'speed') return null;
+    if (gameType === 'speed' || gameType === 'audio_match') return null;
     return (allStates[gameType as keyof AllGameStates] as GameState) || null;
   }, [gameType, allStates]);
 
@@ -172,10 +176,12 @@ export const useGameState = (gameType: GameType): UseGameStateReturn => {
     setBlanksState,
     sentenceState,
     setSentenceState,
-    idiomsState,
-    setIdiomsState,
     detectiveState,
     setDetectiveState,
+    replyState,
+    setReplyState,
+    transformerState,
+    setTransformerState,
     resetAllStates,
     getCurrentState,
   };

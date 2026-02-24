@@ -37,7 +37,7 @@ export const useVocabularyExposure = () => {
 
   useEffect(() => {
     const load = async () => {
-      if (!db) {
+      if (!db || typeof db === 'number') {
         setIsLoading(false);
         return;
       }

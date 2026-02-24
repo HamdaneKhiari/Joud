@@ -29,7 +29,7 @@ export const useRecordError = () => {
     correctAnswer,
     level,
   }: RecordErrorParams) => {
-    if (!db) return;
+    if (!db || typeof db === 'number') return;
 
     try {
       await db.runAsync(

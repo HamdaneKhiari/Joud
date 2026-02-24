@@ -13,6 +13,7 @@
 
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
+import { log } from '@/utils/logUtils';
 
 // ============================================
 // CONSTANTES
@@ -62,9 +63,9 @@ class SecureStorageService {
 
     try {
       await SecureStore.setItemAsync(KEYS.API_KEY, apiKey.trim(), SECURE_OPTIONS);
-      console.log('[SecureStorage] ✅ Clé API stockée avec succès (chiffrée)');
+      log.info('[SecureStorage] Clé API stockée avec succès (chiffrée)');
     } catch (error) {
-      console.error('[SecureStorage] ❌ Erreur lors du stockage:', error);
+      log.error('[SecureStorage] Erreur lors du stockage:', error);
       throw new Error('Impossible de stocker la clé API de manière sécurisée');
     }
   }
@@ -76,7 +77,7 @@ class SecureStorageService {
    */
   async getAPIKey(): Promise<string | null> {
     if (!this.isAvailable()) {
-      console.warn('[SecureStorage] SecureStore non disponible');
+      log.warn('[SecureStorage] SecureStore non disponible');
       return null;
     }
 
@@ -84,14 +85,14 @@ class SecureStorageService {
       const apiKey = await SecureStore.getItemAsync(KEYS.API_KEY, SECURE_OPTIONS);
 
       if (apiKey) {
-        console.log('[SecureStorage] ✅ Clé API récupérée (longueur:', apiKey.length, 'chars)');
+        log.debug('[SecureStorage] Clé API récupérée (longueur:', apiKey.length, 'chars)');
       } else {
-        console.log('[SecureStorage] ℹ️ Aucune clé API stockée');
+        log.debug('[SecureStorage] Aucune clé API stockée');
       }
 
       return apiKey;
     } catch (error) {
-      console.error('[SecureStorage] ❌ Erreur lors de la récupération:', error);
+      log.error('[SecureStorage] Erreur lors de la récupération:', error);
       return null;
     }
   }
@@ -107,9 +108,9 @@ class SecureStorageService {
 
     try {
       await SecureStore.deleteItemAsync(KEYS.API_KEY, SECURE_OPTIONS);
-      console.log('[SecureStorage] ✅ Clé API supprimée');
+      log.info('[SecureStorage] Clé API supprimée');
     } catch (error) {
-      console.error('[SecureStorage] ❌ Erreur lors de la suppression:', error);
+      log.error('[SecureStorage] Erreur lors de la suppression:', error);
       throw new Error('Impossible de supprimer la clé API');
     }
   }
@@ -181,9 +182,9 @@ class SecureStorageService {
 
     try {
       await this.deleteAPIKey();
-      console.log('[SecureStorage] ✅ Toutes les données sécurisées effacées');
+      log.info('[SecureStorage] Toutes les données sécurisées effacées');
     } catch (error) {
-      console.error('[SecureStorage] ❌ Erreur lors de l\'effacement:', error);
+      log.error('[SecureStorage] Erreur lors de l\'effacement:', error);
     }
   }
 }

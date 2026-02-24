@@ -20,7 +20,7 @@ export const getStyles = (identity: Identity, brandColor: string) => {
     },
     questionText: {
       fontSize: fontSize.md,
-      fontWeight: fontWeight.bold as any,
+      fontWeight: fontWeight.bold,
       color: identity.text.primary,
       marginBottom: spacing.lg,
       lineHeight: fontSize.md * 1.5,
@@ -47,7 +47,7 @@ export const getStyles = (identity: Identity, brandColor: string) => {
     },
     hintToggleText: {
       color: brandColor,
-      fontWeight: fontWeight.bold as any,
+      fontWeight: fontWeight.bold,
       fontSize: fontSize.sm,
     },
     hintContent: {
@@ -62,7 +62,7 @@ export const getStyles = (identity: Identity, brandColor: string) => {
       color: identity.text.primary,
       fontSize: fontSize.lg,
       lineHeight: fontSize.lg * 1.6,
-      fontStyle: 'normal' as any,
+      fontStyle: 'normal',
     }
   });
 };

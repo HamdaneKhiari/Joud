@@ -73,7 +73,7 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
 
   feedbackTitle: {
     fontSize: fontSize.lg,
-    fontWeight: fontWeight.extrabold as any,
+    fontWeight: fontWeight.extrabold,
     marginBottom: spacing.xs,
     letterSpacing: 0.3,
   },
@@ -88,7 +88,7 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
 
   feedbackMessage: {
     fontSize: fontSize.md,
-    fontWeight: fontWeight.semibold as any,
+    fontWeight: fontWeight.semibold,
     lineHeight: 21,
     letterSpacing: 0.2,
   },
@@ -143,12 +143,12 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
 
   buttonLabel: {
     fontSize: fontSize.lg,
-    fontWeight: fontWeight.extrabold as any,
+    fontWeight: fontWeight.extrabold,
     color: identity.text.onPrimary, // ✅ WHITE LABEL
-    textTransform: 'uppercase' as any,
+    textTransform: 'uppercase',
     letterSpacing: 1,
     flex: 1,
-    textAlign: 'center' as any,
+    textAlign: 'center',
   },
 
   buttonArrow: {

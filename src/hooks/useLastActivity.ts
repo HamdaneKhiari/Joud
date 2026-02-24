@@ -29,7 +29,7 @@ export const useLastActivity = () => {
    * Optimisé pour ne pas bloquer l'UI.
    */
   const recordActivity = useCallback(async (activity: ActivityData) => {
-    if (!db) return;
+    if (!db || typeof db === 'number') return;
 
     try {
       const timestamp = Date.now();
@@ -69,7 +69,7 @@ export const useLastActivity = () => {
    * Récupère la dernière activité pour le Dashboard.
    */
   const fetchLastActivity = useCallback(async () => {
-    if (!db) return;
+    if (!db || typeof db === 'number') return;
 
     try {
       setIsLoading(true);

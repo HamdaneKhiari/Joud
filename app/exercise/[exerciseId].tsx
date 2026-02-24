@@ -11,7 +11,6 @@ import ConnectorExerciseScreen from '@/screens/ConnectorScreen/ConnectorExercise
 import ReadingExerciseScreen from '@/screens/ReadingScreen/ReadingExerciseScreen';
 import DialogueExerciseScreen from '@/screens/DialoguesScreen/DialogueExerciseScreen';
 import WordGamesExerciseScreen from '@/screens/WordGames/WordGamesExerciseScreen';
-import AssessmentScreen from '@/screens/Assessment/AssessmentScreen';
 import GrammarExerciseScreen from '@/screens/GrammarScreen/GrammarExerciseScreen';
 
 export default function ExerciseDispatcher() {
@@ -26,8 +25,7 @@ export default function ExerciseDispatcher() {
   const subfamilyId = Array.isArray(params.subfamilyId) ? params.subfamilyId[0] : params.subfamilyId;
 
   // 2. Sécurité : On attend d'avoir toutes les clés
-  //    Assessment n'a pas de familyId (quiz global par level)
-  if (!exerciseId || !levelId || (!familyId && exerciseId !== 'assessment')) {
+  if (!exerciseId || !levelId || !familyId) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: identity.palette.surface || '#FFFFFF' }}>
         <ActivityIndicator size="large" color={identity.palette.accent} />
@@ -74,9 +72,6 @@ export default function ExerciseDispatcher() {
 
     case 'word_games':
       return <WordGamesExerciseScreen {...(screenProps as any)} />;
-
-    case 'assessment':
-      return <AssessmentScreen {...(screenProps as any)} />;
 
     default:
       return (

@@ -12,6 +12,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import secureStorage from '@/services/SecureStorage';
+import { log } from '@/utils/logUtils';
 
 // ============================================
 // TYPES
@@ -50,7 +51,7 @@ export const useAISettings = () => {
 
   // =================== CHARGER LES SETTINGS (SQLite + SecureStore) ===================
   const loadSettings = useCallback(async () => {
-    if (!db) {
+    if (!db || typeof db === 'number') {
       setIsLoading(false);
       return;
     }
@@ -101,7 +102,7 @@ export const useAISettings = () => {
 
   // =================== METTRE À JOUR LES SETTINGS ===================
   const updateSettings = useCallback(async (partial: Partial<AISettings>) => {
-    if (!db || !settings) return;
+    if (!db || typeof db === 'number' || !settings) return;
 
     const updated = { ...settings, ...partial };
 
@@ -143,7 +144,7 @@ export const useAISettings = () => {
       );
 
       setSettings(updated);
-      console.log('[useAISettings] ✅ Settings mis à jour (clé API chiffrée)');
+      log.info('[useAISettings] Settings mis à jour (clé API chiffrée)');
     } catch (error) {
       console.error('[useAISettings] Update error:', error);
       throw error;
@@ -152,7 +153,7 @@ export const useAISettings = () => {
 
   // =================== INCRÉMENTER L'USAGE ===================
   const incrementUsage = useCallback(async () => {
-    if (!db || !settings) return false;
+    if (!db || typeof db === 'number' || !settings) return false;
 
     const now = Date.now();
     const oneDayMs = 24 * 60 * 60 * 1000;
@@ -221,7 +222,7 @@ export const useAISettings = () => {
           [Date.now()]
         );
       }
-      console.log('[useAISettings] ✅ Clé API supprimée');
+      log.info('[useAISettings] Clé API supprimée');
     } catch (error) {
       console.error('[useAISettings] Delete error:', error);
       throw error;

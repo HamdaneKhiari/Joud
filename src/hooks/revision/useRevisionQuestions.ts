@@ -167,7 +167,7 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
    * Charge les mots et génère les questions
    */
   const loadQuestions = useCallback(async (selectedMode: RevisionMode) => {
-    if (!db || !user) return;
+    if (!db || typeof db === 'number' || !user) return;
 
     try {
       setIsLoading(true);

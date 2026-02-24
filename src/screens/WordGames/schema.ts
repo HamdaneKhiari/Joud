@@ -13,12 +13,14 @@
  * Types de jeux disponibles
  */
 export type GameType =
-  | 'definition'  // Trouver la définition d'un mot
-  | 'blanks'      // Compléter une phrase à trous
-  | 'sentence'    // Remettre des mots dans l'ordre
-  | 'speed'       // Associer rapidement anglais-français
-  | 'detective'   // Trouver l'erreur dans une phrase
-  | 'idioms';     // Comprendre des expressions idiomatiques
+  | 'definition'    // Trouver la définition d'un mot
+  | 'blanks'        // Compléter une phrase à trous
+  | 'sentence'      // Remettre des mots dans l'ordre
+  | 'speed'         // Associer rapidement anglais-français
+  | 'detective'     // Trouver l'erreur dans une phrase
+  | 'audio_match'   // Associer le son (TTS) à l'image/mot
+  | 'reply'         // Choisir la réponse la plus naturelle à une phrase
+  | 'transformer';  // Choisir la bonne déclinaison d'un mot racine
 
 /**
  * Niveaux de difficulté
@@ -102,16 +104,45 @@ export interface DetectiveQuestion extends BaseGameQuestion {
 }
 
 /**
- * IDIOMS GAME
- * L'utilisateur doit comprendre le sens d'une expression idiomatique
+ * AUDIO MATCH GAME (Réflexe Écoute)
+ * L'utilisateur entend un mot (TTS) et l'associe à son image/label
+ * Variante du Speed Match : colonne gauche = boutons Play, colonne droite = images mélangées
  */
-export interface IdiomsQuestion extends BaseGameQuestion {
-  type: 'idioms';
-  idiom: string;                   // Expression (ex: "Break a leg")
-  options: string[];               // 4 significations possibles
-  correctAnswer: string;           // La bonne signification
-  example: string;                 // Phrase d'exemple utilisant l'idiome
-  literalTranslation?: string;     // Traduction littérale (pour humour)
+export interface AudioMatchQuestion extends BaseGameQuestion {
+  type: 'audio_match';
+  pairs: Array<{
+    word: string;                  // Mot prononcé via TTS
+    image: string;                 // Emoji ou label visuel à associer
+  }>;
+  timeLimit: number;               // Temps limite en secondes (ex: 30)
+}
+
+/**
+ * REPLY GAME (Situationnel)
+ * Une phrase de contexte est donnée, l'utilisateur choisit la réponse la plus naturelle parmi 4
+ */
+export interface ReplyQuestion extends BaseGameQuestion {
+  type: 'reply';
+  situation?: string;              // Contexte optionnel (ex: "You're meeting someone for the first time")
+  prompt: string;                  // La phrase à laquelle répondre (ex: "How are you?")
+  options: string[];               // 4 réponses possibles
+  correctAnswer: string;           // La réponse la plus naturelle (doit être dans options)
+  explanation?: string;            // Explication du choix (optionnel)
+}
+
+/**
+ * TRANSFORMER GAME (Flexibilité)
+ * Un mot racine est affiché, l'utilisateur choisit la bonne déclinaison pour compléter une phrase
+ * Variante du Blanks : met l'accent sur la morphologie du mot
+ */
+export interface TransformerQuestion extends BaseGameQuestion {
+  type: 'transformer';
+  rootWord: string;                // Mot racine affiché en gros (ex: "WORK")
+  sentence: string;                // Phrase avec un trou ___ (ex: "He is ____ now")
+  options: string[];               // 4 formes possibles (working, works, worked, work)
+  correctAnswer: string;           // La bonne forme
+  hint?: string;                   // Indice grammatical (ex: "Present continuous")
+  translation?: string;            // Traduction FR de la phrase complète
 }
 
 // ============================================
@@ -128,7 +159,9 @@ export type GameQuestion =
   | SentenceQuestion
   | SpeedMatchQuestion
   | DetectiveQuestion
-  | IdiomsQuestion;
+  | AudioMatchQuestion
+  | ReplyQuestion
+  | TransformerQuestion;
 
 // ============================================
 // TYPE GUARDS (pour vérification de type)
@@ -149,5 +182,11 @@ export const isSpeedMatchQuestion = (q: GameQuestion): q is SpeedMatchQuestion =
 export const isDetectiveQuestion = (q: GameQuestion): q is DetectiveQuestion =>
   q.type === 'detective';
 
-export const isIdiomsQuestion = (q: GameQuestion): q is IdiomsQuestion =>
-  q.type === 'idioms';
+export const isAudioMatchQuestion = (q: GameQuestion): q is AudioMatchQuestion =>
+  q.type === 'audio_match';
+
+export const isReplyQuestion = (q: GameQuestion): q is ReplyQuestion =>
+  q.type === 'reply';
+
+export const isTransformerQuestion = (q: GameQuestion): q is TransformerQuestion =>
+  q.type === 'transformer';

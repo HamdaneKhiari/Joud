@@ -16,6 +16,7 @@ interface WordCardProps {
   englishWord: string;
   frenchWord: string;
   exampleSentence?: string;
+  exampleTranslation?: string;
   highlightWord?: string;
   audio?: string;
   moduleSlug?: string; // Pour détecter Fast Vocabulary
@@ -25,6 +26,7 @@ const WordCard: FC<WordCardProps> = ({
   englishWord,
   frenchWord,
   exampleSentence,
+  exampleTranslation,
   highlightWord,
   audio,
   moduleSlug,
@@ -100,6 +102,9 @@ const WordCard: FC<WordCardProps> = ({
       {showExample && (
         <View style={styles.exampleContainer}>
           {renderExample()}
+          {exampleTranslation && (
+            <Text style={styles.exampleTranslation}>{exampleTranslation}</Text>
+          )}
         </View>
       )}
     </View>

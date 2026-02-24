@@ -21,7 +21,7 @@ export const createStyles = (identity: Identity) => StyleSheet.create({
     marginRight: spacing.sm,
   },
   text: {
-    fontWeight: fontWeight.extrabold as any, // "800"
+    fontWeight: fontWeight.extrabold,
   },
   shineEffect: {
     position: 'absolute',

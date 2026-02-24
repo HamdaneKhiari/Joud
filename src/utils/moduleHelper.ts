@@ -41,7 +41,7 @@ export const useIdentityPalette = (): string[] => {
 
   useEffect(() => {
     const loadPalette = async () => {
-      if (!db) return;
+      if (!db || typeof db === 'number') return;
 
       try {
         const colors = await getCachedPalette(db, currentApp);
@@ -68,7 +68,7 @@ export const getModuleColor = async (
   db: any,
   availableModules: string[]
 ): Promise<string> => {
-  if (!db) {
+  if (!db || typeof db === 'number') {
     return '#34495E'; // Fallback
   }
 
@@ -99,7 +99,7 @@ export const getModuleIcon = async (
   identityId: string,
   db: any
 ): Promise<string> => {
-  if (!db) {
+  if (!db || typeof db === 'number') {
     return 'book';
   }
 
@@ -122,7 +122,7 @@ export const isValidLevel = async (
   identityId: string,
   db: any
 ): Promise<boolean> => {
-  if (!db) {
+  if (!db || typeof db === 'number') {
     return levelNumber >= 1 && levelNumber <= 4; // Fallback conservateur
   }
 
@@ -145,7 +145,7 @@ export const getMaxLevels = async (
   identityId: string,
   db: any
 ): Promise<number> => {
-  if (!db) {
+  if (!db || typeof db === 'number') {
     return 4; // Fallback
   }
 

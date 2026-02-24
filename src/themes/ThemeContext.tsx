@@ -240,7 +240,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const loadIdentity = async () => {
-      if (!db) {
+      if (!db || typeof db === 'number') {
         setIsLoading(false);
         return;
       }

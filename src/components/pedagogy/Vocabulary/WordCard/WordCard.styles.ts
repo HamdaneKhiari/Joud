@@ -19,6 +19,7 @@ interface WordCardStyles {
   separator: ViewStyle;
   exampleContainer: ViewStyle;
   exampleText: TextStyle;
+  exampleTranslation: TextStyle;
 }
 
 /**
@@ -101,6 +102,13 @@ export const getWordCardStyles = (identity: Identity): WordCardStyles => {
       color: colors.example,
       textAlign: config.alignment === 'center' ? 'center' : 'left',
       lineHeight: 26,
+    },
+    exampleTranslation: {
+      fontSize: config.fontSize.body - 1,
+      color: withOpacity(palette.primary, 0.45),
+      textAlign: config.alignment === 'center' ? 'center' : 'left',
+      fontStyle: 'italic',
+      marginTop: tokens.spacing.xs,
     },
   });
 };

@@ -52,7 +52,7 @@ export const useExerciseContent = <T = any>(
 
   useEffect(() => {
     const fetchContent = async () => {
-      if (!db || familyId <= 0) {
+      if (!db || typeof db === 'number' || familyId <= 0) {
         setIsLoading(false);
         return;
       }

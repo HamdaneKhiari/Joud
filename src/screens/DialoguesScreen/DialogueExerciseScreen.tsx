@@ -24,6 +24,7 @@ import { useRecordError } from '@/hooks/exercises/useRecordError';
 // Utils
 import { getModuleLabel, getLevelLabel } from '@/utils/labelMapper';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
+import { log } from '@/utils/logUtils';
 
 // ============================================
 // CONSTANTS
@@ -108,7 +109,7 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
 
   useEffect(() => {
     const loadDialogue = async () => {
-      if (!db || !familyId) {
+      if (!db || typeof db === 'number' || !familyId) {
         setIsLoadingContent(false);
         return;
       }
@@ -117,7 +118,7 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
         setIsLoadingContent(true);
         const numFamilyId = Number.parseInt(String(familyId), 10);
 
-        console.log('[DialogueExercise] Loading:', { familyId, numFamilyId, numSubfamilyId, db: !!db });
+        log.debug('[DialogueExercise] Loading:', { familyId, numFamilyId, numSubfamilyId, db: !!db });
 
         // Charger les contenus dialogue depuis la DB
         const rows = await db.getAllAsync<{ id: number; data: string }>(
@@ -127,7 +128,7 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
           [numFamilyId, numSubfamilyId]
         );
 
-        console.log('[DialogueExercise] Rows found:', rows.length);
+        log.debug('[DialogueExercise] Rows found:', rows.length);
 
         if (rows.length > 0) {
           // Chaque row.data contient un dialogue JSON

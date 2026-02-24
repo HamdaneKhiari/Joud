@@ -52,7 +52,7 @@ export const useChatConversation = (mode: 'free' | 'guided' = 'free') => {
 
   // =================== CHARGER LA LISTE ===================
   const loadConversations = useCallback(async () => {
-    if (!db) return;
+    if (!db || typeof db === 'number') return;
 
     const rows = await db.getAllAsync<ChatConversation>(
       `SELECT id, title, created_at, updated_at
@@ -69,7 +69,7 @@ export const useChatConversation = (mode: 'free' | 'guided' = 'free') => {
 
   // =================== CHARGER LES MESSAGES ===================
   const loadMessages = useCallback(async (conversationId: number) => {
-    if (!db) return;
+    if (!db || typeof db === 'number') return;
 
     const rows = await db.getAllAsync<ChatMessage>(
       `SELECT id, role, content, source, provider, created_at
@@ -84,7 +84,7 @@ export const useChatConversation = (mode: 'free' | 'guided' = 'free') => {
 
   // =================== INIT : ouvre la dernière conversation ou en crée une ===================
   useEffect(() => {
-    if (!db || loadedRef.current) return;
+    if (!db || typeof db === 'number' || loadedRef.current) return;
     loadedRef.current = true;
 
     const init = async () => {
@@ -113,7 +113,7 @@ export const useChatConversation = (mode: 'free' | 'guided' = 'free') => {
 
   // =================== CRÉER une nouvelle conversation ===================
   const createConversation = useCallback(async (): Promise<number | null> => {
-    if (!db) return null;
+    if (!db || typeof db === 'number') return null;
 
     const now = Date.now();
 
@@ -160,7 +160,7 @@ export const useChatConversation = (mode: 'free' | 'guided' = 'free') => {
     source?: string,
     provider?: string
   ) => {
-    if (!db || !currentConversationId) return;
+    if (!db || typeof db === 'number' || !currentConversationId) return;
 
     const now = Date.now();
 
