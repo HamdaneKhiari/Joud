@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 // Composants
@@ -167,7 +168,12 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
               correctIndex = q.correct_answer;
             } else if (typeof q.correct_answer === 'string' && q.options) {
               const idx = q.options.indexOf(q.correct_answer);
-              correctIndex = idx >= 0 ? idx : 0;
+              if (idx >= 0) {
+                correctIndex = idx;
+              } else {
+                log.warn('[DialogueExercise] correct_answer string not found in options, defaulting to 0:', q.correct_answer);
+                correctIndex = 0;
+              }
             }
             return {
               question: q.question || q.text || '',
@@ -188,7 +194,7 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
           });
         }
       } catch (e) {
-        console.error('[DialogueExercise] Load error:', e);
+        log.error('[DialogueExercise] Load error:', e);
       } finally {
         setIsLoadingContent(false);
       }
@@ -383,18 +389,46 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
           totalMessages={totalMessages}
         />
       ) : (
-        <DialogueCard
-          key="question_mode"
-          question={currentQuestion}
-          selectedOption={exerciseState.selectedOption || undefined}
-          isValidated={exerciseState.isValidated}
-          isCorrect={exerciseState.isCorrect}
-          onAnswer={handleAnswer}
-          color={dialogueFamily?.color || identity.palette.primary}
-        />
+        <>
+          <TouchableOpacity
+            onPress={() => { setPhase('dialogue'); setCurrentMessageIndex(0); }}
+            style={styles.relireButton}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.relireText, { color: identity.palette.primary }]}>
+              ↩ Relire le dialogue
+            </Text>
+          </TouchableOpacity>
+          <DialogueCard
+            key="question_mode"
+            question={currentQuestion}
+            selectedOption={exerciseState.selectedOption || undefined}
+            isValidated={exerciseState.isValidated}
+            isCorrect={exerciseState.isCorrect}
+            onAnswer={handleAnswer}
+            color={dialogueFamily?.color || identity.palette.primary}
+          />
+        </>
       )}
     </ExerciseLayout>
   );
 };
+
+const styles = StyleSheet.create({
+  relireButton: {
+    alignSelf: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    marginBottom: 12,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  relireText: {
+    fontSize: 13,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+});
 
 export default DialogueExerciseScreen;

@@ -23,6 +23,7 @@ import useSafeNavigation from '@/hooks/useSafeNavigation';
 // UI Components
 import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
+import CompletionModal from '@/components/common/CompletionModal';
 import SentenceCard from '../../components/pedagogy/Sentence/SentenceCard';
 import SentenceBlanksCard from '../../components/pedagogy/Sentence/SentenceBlanksCard';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
@@ -52,6 +53,7 @@ const SentenceExerciseScreen: React.FC = () => {
 
   // 3. États de l'exercice
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showCompletion, setShowCompletion] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
   const [userDraft, setUserDraft] = useState('');
   const [selectedOption, setSelectedOption] = useState<string | null>(null); // Pour mode blanks
@@ -168,9 +170,9 @@ const SentenceExerciseScreen: React.FC = () => {
       setCustomFeedback(null);
       setCurrentIndex(prev => prev + 1);
     } else {
-      saveProgressNow().then(() => safeGoBack.navigate());
+      saveProgressNow().then(() => setShowCompletion(true));
     }
-  }, [currentIndex, contentItems.length, safeGoBack, trackItemCompletion, dashboardLevelId, compositeFamilyId, saveProgressNow]);
+  }, [currentIndex, contentItems.length, trackItemCompletion, dashboardLevelId, compositeFamilyId, saveProgressNow]);
 
   const handleRetry = () => {
     setIsRevealed(false);
@@ -188,10 +190,17 @@ const SentenceExerciseScreen: React.FC = () => {
   }
 
   return (
-    <ExerciseLayout
-      headerProps={{
-        variant: "exercise",
-        onBack: safeGoBack.navigate, // Branchement direct sur le hook
+    <>
+      <CompletionModal
+        visible={showCompletion}
+        title="Series complete!"
+        subtitle="Excellent work! You've completed all the sentences."
+        onDone={() => safeGoBack.navigate()}
+      />
+      <ExerciseLayout
+        headerProps={{
+          variant: "exercise",
+          onBack: safeGoBack.navigate,
         rightIcon: <DynamicIcon name={module?.icon} size={28} color={identity.header.accent} fallback="message-text" />,
         showLevelBadge: true,
         levelTitle: `Niveau ${dashboardLevelId}`,
@@ -241,7 +250,8 @@ const SentenceExerciseScreen: React.FC = () => {
           />
         )}
       </KeyboardAvoidingView>
-    </ExerciseLayout>
+      </ExerciseLayout>
+    </>
   );
 };
 

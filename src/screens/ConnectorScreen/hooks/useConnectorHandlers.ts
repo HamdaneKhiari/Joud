@@ -22,8 +22,9 @@ interface UseConnectorHandlersProps {
   isLastQuestion: boolean;
   onNavigateBack: () => void;
   setCurrentQuestionIndex: React.Dispatch<React.SetStateAction<number>>;
-  states: any; 
+  states: any;
   onValidationSuccess: () => void;
+  recordError?: (userAnswer: string) => void;
 }
 
 export const useConnectorHandlers = ({
@@ -33,6 +34,7 @@ export const useConnectorHandlers = ({
   setCurrentQuestionIndex,
   states,
   onValidationSuccess,
+  recordError,
 }: UseConnectorHandlersProps) => {
   const {
     logicState, setLogicState,
@@ -53,14 +55,14 @@ export const useConnectorHandlers = ({
   // --- LOGIQUE DE VALIDATION (Extraite pour la clarté) ---
   
   const validateInputExercise = useCallback((
-    userAnswer: string | undefined, 
-    correctAnswer: string, 
+    userAnswer: string | undefined,
+    correctAnswer: string,
     setState: any
   ) => {
     if (!userAnswer?.trim()) return;
 
     const isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(correctAnswer);
-    
+
     setState((prev: any) => ({
       ...prev,
       isValidated: true,
@@ -68,8 +70,12 @@ export const useConnectorHandlers = ({
       attemptCount: prev.attemptCount + 1
     }));
 
-    if (isCorrect) onValidationSuccess();
-  }, [onValidationSuccess]);
+    if (isCorrect) {
+      onValidationSuccess();
+    } else {
+      recordError?.(userAnswer);
+    }
+  }, [onValidationSuccess, recordError]);
 
   // --- HANDLERS PUBLICS ---
 
@@ -79,10 +85,13 @@ export const useConnectorHandlers = ({
       onValidate: () => {
         if (!logicState.selectedOption || !currentQuestion) return;
         const q = currentQuestion as LogicQuestion;
-        // ✅ Normalisation ajoutée pour éviter les erreurs d'espaces invisibles
         const isCorrect = normalizeAnswer(logicState.selectedOption) === normalizeAnswer(q.correctAnswer);
         setLogicState((prev: any) => ({ ...prev, isValidated: true, isCorrect, attemptCount: prev.attemptCount + 1 }));
-        if (isCorrect) onValidationSuccess();
+        if (isCorrect) {
+          onValidationSuccess();
+        } else {
+          recordError?.(logicState.selectedOption);
+        }
       },
       onRetry: () => setLogicState((prev: any) => ({ ...prev, selectedOption: undefined, isValidated: false, isCorrect: false })),
       onNext: handleNavigationNext,

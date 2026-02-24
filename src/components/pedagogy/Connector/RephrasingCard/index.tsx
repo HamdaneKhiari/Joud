@@ -16,7 +16,7 @@ import { RephrasingCardProps } from '../types';
  * ============================================
  */
 
-const RephrasingCard: React.FC<RephrasingCardProps> = ({
+const RephrasingCard: React.FC<RephrasingCardProps & { hideValidation?: boolean; scrollEnabled?: boolean }> = ({
   question,
   userAnswer,
   isValidated,
@@ -29,6 +29,8 @@ const RephrasingCard: React.FC<RephrasingCardProps> = ({
   onNext,
   isLastQuestion,
   color,
+  hideValidation = false,
+  scrollEnabled = true,
 }) => {
   const { identity } = useTheme();
 
@@ -57,10 +59,11 @@ const RephrasingCard: React.FC<RephrasingCardProps> = ({
   }, [isValidated, isCorrect, canSkip, question.correctAnswer, attemptCount, maxAttempts]);
 
   return (
-    <ScrollView 
-      style={styles.container} 
+    <ScrollView
+      style={styles.container}
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
+      scrollEnabled={scrollEnabled}
     >
       <View style={[
         styles.card,
@@ -160,19 +163,21 @@ const RephrasingCard: React.FC<RephrasingCardProps> = ({
         )}
       </View>
 
-      <ExerciseValidation
-        state={validationState}
-        attemptCount={attemptCount}
-        maxAttempts={maxAttempts}
-        correctAnswer={question.correctAnswer}
-        onValidate={onValidate}
-        onNext={onNext}
-        onRetry={onRetry}
-        onSkip={onNext}
-        disabled={buttonDisabled}
-        isLastQuestion={isLastQuestion}
-        feedbackMessage={feedbackData}
-      />
+      {!hideValidation && (
+        <ExerciseValidation
+          state={validationState}
+          attemptCount={attemptCount}
+          maxAttempts={maxAttempts}
+          correctAnswer={question.correctAnswer}
+          onValidate={onValidate}
+          onNext={onNext}
+          onRetry={onRetry}
+          onSkip={onNext}
+          disabled={buttonDisabled}
+          isLastQuestion={isLastQuestion}
+          feedbackMessage={feedbackData}
+        />
+      )}
     </ScrollView>
   );
 };

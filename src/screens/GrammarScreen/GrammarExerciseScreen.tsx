@@ -13,6 +13,7 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
 import GrammarCard from '@/components/pedagogy/grammar/GrammarCard';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
+import CompletionModal from '@/components/common/CompletionModal';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
 
 // Helpers & Hooks
@@ -23,6 +24,7 @@ import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
 import { useRecordError } from '@/hooks/exercises/useRecordError';
 import { useTheme } from '@/themes/ThemeContext';
+import { log } from '@/utils/logUtils';
 
 // Types
 import type { GrammarScreenRouteParams, ExerciseState } from './types';
@@ -103,7 +105,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
 
         setGrammarFamily({ title: family?.name, icon: family?.icon, rules });
       } catch (e) {
-        console.error('Erreur chargement grammaire:', e);
+        log.error('[GrammarExerciseScreen] Load failed:', e);
       } finally {
         setLoading(false);
       }
@@ -112,6 +114,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
   }, [db, safeFamilyId, subfamilyId]);
 
   // =================== STATE ===================
+  const [showCompletion, setShowCompletion] = useState(false);
   const [currentRuleIndex, setCurrentRuleIndex] = useState(0);
   const [exerciseState, setExerciseState] = useState<ExerciseState>({
     selectedOption: null,
@@ -150,7 +153,8 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
   const handleValidate = () => {
     if (!exerciseState.selectedOption || !currentRule) return;
 
-    const isCorrect = exerciseState.selectedOption === currentRule.exercise.correctAnswer;
+    const normalize = (s: string) => s.toLowerCase().trim();
+    const isCorrect = normalize(exerciseState.selectedOption) === normalize(currentRule.exercise.correctAnswer);
     const newAttemptCount = exerciseState.attemptCount + 1;
 
     setExerciseState(prev => ({
@@ -180,7 +184,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
 
   const handleNext = () => {
     if (isLastRule) {
-      saveProgressNow().then(() => safeGoBack.navigate());
+      saveProgressNow().then(() => setShowCompletion(true));
     } else {
       setCurrentRuleIndex(prev => prev + 1);
       setExerciseState({
@@ -226,10 +230,17 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
   }
 
   return (
-    <ExerciseLayout
-      headerProps={{
-        variant: 'exercise',
-        onBack: () => { safeGoBack.navigate(); },
+    <>
+      <CompletionModal
+        visible={showCompletion}
+        title="Lesson complete!"
+        subtitle="You've mastered all the grammar rules in this series."
+        onDone={() => safeGoBack.navigate()}
+      />
+      <ExerciseLayout
+        headerProps={{
+          variant: 'exercise',
+          onBack: () => { safeGoBack.navigate(); },
         rightIcon: <DynamicIcon name={grammarFamily.icon} size={28} color={identity.header.accent} fallback="book-open-variant" />,
         showLevelBadge: true,
         levelTitle: `Niveau ${numLevelId}`,
@@ -265,7 +276,8 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
         exerciseState={exerciseState}
         onAnswer={handleAnswer}
       />
-    </ExerciseLayout>
+      </ExerciseLayout>
+    </>
   );
 };
 

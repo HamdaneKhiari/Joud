@@ -8,7 +8,7 @@ import { tokens, withOpacity } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
 import { SentenceFusionCardProps } from '../types';
 
-const SentenceFusionCard: React.FC<SentenceFusionCardProps> = ({
+const SentenceFusionCard: React.FC<SentenceFusionCardProps & { hideValidation?: boolean; scrollEnabled?: boolean }> = ({
   question,
   userAnswer,
   isValidated,
@@ -21,6 +21,8 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps> = ({
   onNext,
   isLastQuestion,
   color,
+  hideValidation = false,
+  scrollEnabled = true,
 }) => {
   const { identity } = useTheme();
 
@@ -49,7 +51,7 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps> = ({
   }, [isValidated, isCorrect, canSkip, question.correctAnswer, attemptCount, maxAttempts]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} scrollEnabled={scrollEnabled}>
       <View style={[
         styles.card,
         {
@@ -141,19 +143,21 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps> = ({
         )}
       </View>
 
-      <ExerciseValidation
-        state={validationState}
-        attemptCount={attemptCount}
-        maxAttempts={maxAttempts}
-        correctAnswer={question.correctAnswer}
-        onValidate={onValidate}
-        onNext={onNext}
-        onRetry={onRetry}
-        onSkip={onNext}
-        disabled={buttonDisabled}
-        isLastQuestion={isLastQuestion}
-        feedbackMessage={feedbackData}
-      />
+      {!hideValidation && (
+        <ExerciseValidation
+          state={validationState}
+          attemptCount={attemptCount}
+          maxAttempts={maxAttempts}
+          correctAnswer={question.correctAnswer}
+          onValidate={onValidate}
+          onNext={onNext}
+          onRetry={onRetry}
+          onSkip={onNext}
+          disabled={buttonDisabled}
+          isLastQuestion={isLastQuestion}
+          feedbackMessage={feedbackData}
+        />
+      )}
     </ScrollView>
   );
 };

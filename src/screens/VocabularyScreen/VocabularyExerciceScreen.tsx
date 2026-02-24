@@ -7,6 +7,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import ExerciseLayout from '../../components/layout/ExerciceLayout/ExerciseLayout';
 import WordCard from '../../components/pedagogy/Vocabulary/WordCard/WordCard';
 import NavigationButtons from '../../components/common/NavigationButtons';
+import CompletionModal from '@/components/common/CompletionModal';
 import { DynamicIcon } from '../../components/ui/DynamicIcon';
 
 // Helpers & Hooks
@@ -74,6 +75,7 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
   const { module, family, contentItems, isLoading } = useExerciseContent<VocabData>(familyIdNum, subfamilyId);
   const levelLabel = useLevelLabel(subfamilyId);
   const [currentWordIndex, setCurrentWordIndex] = useState<number>(0);
+  const [showCompletion, setShowCompletion] = useState(false);
 
   const totalWords = contentItems?.length || 0;
 
@@ -138,10 +140,10 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
         });
       }
       await saveProgressNow();
-      safeGoBack.navigate();
+      setShowCompletion(true);
     };
     executeFinish().catch(err => console.error("Finish error:", err));
-  }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen, saveProgressNow, safeGoBack]);
+  }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen, saveProgressNow]);
 
   const handleBack = useCallback(() => {
     safeGoBack.navigate();
@@ -176,10 +178,17 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
   const realProgress = getFamilyProgress(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId);
 
   return (
-    <ExerciseLayout
-      headerProps={{
-        variant: "exercise",
-        onBack: handleBack,
+    <>
+      <CompletionModal
+        visible={showCompletion}
+        title="Well done!"
+        subtitle="You've reviewed all the words in this series."
+        onDone={() => safeGoBack.navigate()}
+      />
+      <ExerciseLayout
+        headerProps={{
+          variant: "exercise",
+          onBack: handleBack,
         rightIcon: <DynamicIcon name={module?.icon} size={28} color={identity.header.accent} fallback="book" />,
         showLevelBadge: true,
         levelTitle: levelLabel.badge,
@@ -209,7 +218,8 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
         audio={currentContentItem.data.audio}
         moduleSlug={module?.slug}
       />
-    </ExerciseLayout>
+      </ExerciseLayout>
+    </>
   );
 };
 

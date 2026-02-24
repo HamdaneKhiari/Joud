@@ -13,7 +13,7 @@ import {
 
 const MAX_ATTEMPTS = 2;
 
-const ConnectorCardRenderer: React.FC<ConnectorCardRendererProps> = ({
+const ConnectorCardRenderer: React.FC<ConnectorCardRendererProps & { hideValidation?: boolean; scrollEnabled?: boolean }> = ({
   exerciseType,
   currentQuestion,
   currentQuestionIndex,
@@ -21,6 +21,8 @@ const ConnectorCardRenderer: React.FC<ConnectorCardRendererProps> = ({
   exerciseFamily,
   states,
   handlers,
+  hideValidation = false,
+  scrollEnabled = true,
 }) => {
   const { identity } = useTheme(); // ✅ Récupération du thème
 
@@ -45,7 +47,9 @@ const ConnectorCardRenderer: React.FC<ConnectorCardRendererProps> = ({
           maxAttempts={MAX_ATTEMPTS}
           {...handlers.logic}
           isLastQuestion={isLastQuestion}
-          color={displayColor} // ✅ Utilisation de la couleur sécurisée
+          color={displayColor}
+          hideValidation={hideValidation}
+          scrollEnabled={scrollEnabled}
         />
       );
 
@@ -61,7 +65,9 @@ const ConnectorCardRenderer: React.FC<ConnectorCardRendererProps> = ({
           maxAttempts={MAX_ATTEMPTS}
           {...handlers.fusion}
           isLastQuestion={isLastQuestion}
-          color={displayColor} // ✅ Utilisation de la couleur sécurisée
+          color={displayColor}
+          hideValidation={hideValidation}
+          scrollEnabled={scrollEnabled}
         />
       );
 
@@ -77,7 +83,9 @@ const ConnectorCardRenderer: React.FC<ConnectorCardRendererProps> = ({
           maxAttempts={MAX_ATTEMPTS}
           {...handlers.rephrasing}
           isLastQuestion={isLastQuestion}
-          color={displayColor} // ✅ Utilisation de la couleur sécurisée
+          color={displayColor}
+          hideValidation={hideValidation}
+          scrollEnabled={scrollEnabled}
         />
       );
 

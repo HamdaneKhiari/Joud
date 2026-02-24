@@ -7,6 +7,7 @@ import { useUser } from '@/contexts/UserContext';
 // Composants
 import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
+import CompletionModal from '@/components/common/CompletionModal';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
 import ReadingCard from '../../components/pedagogy/reading/ReadingCard';
 
@@ -47,6 +48,7 @@ const ReadingExerciseScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showCompletion, setShowCompletion] = useState(false);
 
   const { state, setState, resetState } = useReadingState();
   const { recordError } = useRecordError();
@@ -100,8 +102,8 @@ const ReadingExerciseScreen: React.FC = () => {
   const handleFinish = useCallback(async () => {
     trackItemCompletion(dashboardLevelId, 'reading', compositeFamilyId, currentIndex, questions.length);
     await saveProgressNow();
-    safeGoBack.navigate();
-  }, [trackItemCompletion, dashboardLevelId, compositeFamilyId, currentIndex, questions.length, saveProgressNow, safeGoBack]);
+    setShowCompletion(true);
+  }, [trackItemCompletion, dashboardLevelId, compositeFamilyId, currentIndex, questions.length, saveProgressNow]);
 
   const handleRecordError = useCallback(({ question: q, userAnswer, correctAnswer }: { question: string; userAnswer: string; correctAnswer: string }) => {
     recordError({
@@ -156,10 +158,17 @@ const ReadingExerciseScreen: React.FC = () => {
   const readingProgress = getFamilyProgress(dashboardLevelId, 'reading', compositeFamilyId);
 
   return (
-    <ExerciseLayout
-      headerProps={{
-        variant: 'exercise',
-        onBack: safeGoBack.navigate,
+    <>
+      <CompletionModal
+        visible={showCompletion}
+        title="Reading complete!"
+        subtitle="Great comprehension! You've finished all the questions."
+        onDone={() => safeGoBack.navigate()}
+      />
+      <ExerciseLayout
+        headerProps={{
+          variant: 'exercise',
+          onBack: safeGoBack.navigate,
         rightIcon: <DynamicIcon name="book-open-variant" size={28} color={identity.header.accent} fallback="book-open-variant" />,
         showLevelBadge: true,
         levelTitle: `Niveau ${dashboardLevelId}`,
@@ -184,15 +193,16 @@ const ReadingExerciseScreen: React.FC = () => {
         />
       }
     >
-      <ReadingCard
-        question={currentQuestion}
-        selectedOption={state.selectedOption}
-        isValidated={state.isValidated}
-        isCorrect={state.isCorrect}
-        onAnswer={handlers.onAnswer}
-        color={identity.palette.primary}
-      />
-    </ExerciseLayout>
+        <ReadingCard
+          question={currentQuestion}
+          selectedOption={state.selectedOption}
+          isValidated={state.isValidated}
+          isCorrect={state.isCorrect}
+          onAnswer={handlers.onAnswer}
+          color={identity.palette.primary}
+        />
+      </ExerciseLayout>
+    </>
   );
 };
 

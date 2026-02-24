@@ -9,7 +9,7 @@ import { tokens, withOpacity } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors'; 
 import { LogicLinksCardProps } from '../types';
 
-const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
+const LogicLinksCard: React.FC<LogicLinksCardProps & { hideValidation?: boolean; scrollEnabled?: boolean }> = ({
   question,
   selectedOption,
   isValidated,
@@ -22,6 +22,8 @@ const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
   onNext,
   isLastQuestion,
   color,
+  hideValidation = false,
+  scrollEnabled = true,
 }) => {
   const { identity } = useTheme();
   const brandColor = color || identity.palette.primary;
@@ -48,7 +50,7 @@ const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
   }, [isValidated, isCorrect, canSkip, question.correctAnswer, attemptCount, maxAttempts]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} scrollEnabled={scrollEnabled}>
       <View style={[
         styles.card,
         {
@@ -133,19 +135,21 @@ const LogicLinksCard: React.FC<LogicLinksCardProps> = ({
         </View>
       </View>
 
-      <ExerciseValidation
-        state={validationState}
-        attemptCount={attemptCount}
-        maxAttempts={maxAttempts}
-        correctAnswer={question.correctAnswer}
-        onValidate={onValidate}
-        onNext={onNext}
-        onRetry={onRetry}
-        onSkip={onNext}
-        disabled={buttonDisabled}
-        isLastQuestion={isLastQuestion}
-        feedbackMessage={feedbackData}
-      />
+      {!hideValidation && (
+        <ExerciseValidation
+          state={validationState}
+          attemptCount={attemptCount}
+          maxAttempts={maxAttempts}
+          correctAnswer={question.correctAnswer}
+          onValidate={onValidate}
+          onNext={onNext}
+          onRetry={onRetry}
+          onSkip={onNext}
+          disabled={buttonDisabled}
+          isLastQuestion={isLastQuestion}
+          feedbackMessage={feedbackData}
+        />
+      )}
     </ScrollView>
   );
 };
