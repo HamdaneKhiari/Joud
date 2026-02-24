@@ -54,7 +54,7 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
   const EXERCISE_TYPE = (params as any).exerciseType || 'vocab';
 
   // On récupère les valeurs de base
-  const rawFamilyId = params.familyId || (params as any).subfamilyId || '';
+  const rawFamilyId = params.familyId ?? '';
   const familyIdRaw = String(rawFamilyId);
   const familyIdNum = Number(familyIdRaw);
 

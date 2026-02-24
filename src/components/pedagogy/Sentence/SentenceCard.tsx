@@ -31,7 +31,7 @@ const SentenceCard: React.FC<SentenceCardProps> = ({
   const expectedEnglish = useMemo(() => {
     if (data.phrase_en) return data.phrase_en;
     if (data.sentence && (data.correct_answer || data.correctAnswer)) {
-      return data.sentence.replace('___', data.correct_answer || data.correctAnswer || '');
+      return data.sentence.replace(/___/g, data.correct_answer || data.correctAnswer || '');
     }
     return '';
   }, [data]);
@@ -48,7 +48,15 @@ const SentenceCard: React.FC<SentenceCardProps> = ({
         </Text>
       </View>
 
-      {/* 2. ZONE DE SAISIE */}
+      {/* 2. BLOC ASTUCE (optionnel) */}
+      {data.tip && (
+        <View style={styles.tipBlock}>
+          <Text style={styles.tipLabel}>💡 Tip</Text>
+          <Text style={styles.tipText}>{data.tip}</Text>
+        </View>
+      )}
+
+      {/* 3. ZONE DE SAISIE */}
       <TextInput
         style={[
           styles.input,

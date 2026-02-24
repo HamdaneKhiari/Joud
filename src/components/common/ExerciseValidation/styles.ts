@@ -205,4 +205,33 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     shadowOpacity: 0.1,
     elevation: 3,
   },
+
+  // ============================================
+  // COMPTEUR DE TENTATIVES
+  // ============================================
+  attemptRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    marginBottom: spacing.md,
+  },
+  attemptDotFilled: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: baseColors.red400,
+  },
+  attemptDotEmpty: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: baseColors.gray200,
+  },
+  attemptText: {
+    fontSize: fontSize.xs,
+    fontWeight: fontWeight.semibold,
+    color: baseColors.orange600,
+    marginLeft: spacing.xs,
+  },
 });

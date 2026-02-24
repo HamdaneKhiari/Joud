@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from './UserContext';
 import { upsertProgress } from '../database/queries';
 import type { SQLiteDatabase } from 'expo-sqlite';
+import { log } from '@/utils/logUtils';
 
 // ============================================
 // TYPES
@@ -178,7 +179,7 @@ const loadFromSQLite = async (db: SQLiteDatabase, userId: string): Promise<Progr
 
     return state;
   } catch (e) {
-    console.warn('[ProgressContext] loadFromSQLite error:', e);
+    log.warn('[ProgressContext] loadFromSQLite error:', e);
     return null;
   }
 };
@@ -278,7 +279,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         await AsyncStorage.setItem(getStorageKey(user.id), JSON.stringify(progress));
         if (db) await syncToSQLite(progress);
       } catch (e) {
-        console.warn('[ProgressContext] Auto-save error:', e);
+        log.warn('[ProgressContext] Auto-save error:', e);
       }
     }, 1500);
 
@@ -313,7 +314,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               score: Math.round((family.completed / family.total) * 100),
             });
           } catch (e) {
-            console.warn(`[syncToSQLite] Skip key="${compositeKey}" (family_id=${familyId}):`, e);
+            log.warn(`[syncToSQLite] Skip key="${compositeKey}" (family_id=${familyId}):`, e);
           }
         }
       }

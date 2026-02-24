@@ -101,7 +101,6 @@ const ConnectorExerciseScreen: React.FC = () => {
           }));
           setQuestions(parsedQuestions);
         } else {
-          Alert.alert('Info', 'No exercises found for this family.');
           navigation.goBack();
         }
       } catch (error) {
@@ -141,7 +140,7 @@ const ConnectorExerciseScreen: React.FC = () => {
   const handlers = useConnectorHandlers({
     question: currentItem?.data,
     isLastQuestion: currentIndex === questions.length - 1,
-    onNavigateBack: handleNavigateBack,
+    onNavigateBack: () => { handleNavigateBack(); },
     setCurrentQuestionIndex: setCurrentIndex,
     states: connectorStates,
     onValidationSuccess: () => {},
@@ -159,9 +158,8 @@ const ConnectorExerciseScreen: React.FC = () => {
   });
 
   // Handlers de la question courante (pour le footer)
-  const currentHandlers = exerciseType === 'logic' ? handlers.logic
-    : exerciseType === 'fusion' ? handlers.fusion
-    : handlers.rephrasing;
+  const handlerMap = { logic: handlers.logic, fusion: handlers.fusion, rephrasing: handlers.rephrasing };
+  const currentHandlers = handlerMap[exerciseType as keyof typeof handlerMap] ?? handlers.rephrasing;
 
   if (loading) {
     return (

@@ -9,6 +9,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from './UserContext';
+import { log } from '@/utils/logUtils';
 
 // ============================================
 // TYPES
@@ -66,7 +67,7 @@ export const CurrentLevelProvider = ({ children }: { children: ReactNode }) => {
           }
         }
       } catch (e) {
-        console.warn('[CurrentLevelContext] Error loading level:', e);
+        log.warn('[CurrentLevelContext] Error loading level:', e);
       }
     };
 
@@ -80,7 +81,7 @@ export const CurrentLevelProvider = ({ children }: { children: ReactNode }) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, String(level));
     } catch (e) {
-      console.warn('[CurrentLevelContext] Error saving level:', e);
+      log.warn('[CurrentLevelContext] Error saving level:', e);
     }
   }, []);
 

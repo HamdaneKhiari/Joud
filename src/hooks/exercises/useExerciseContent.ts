@@ -22,6 +22,7 @@ export interface SentenceData {
   translation?: string;
   explanation?: string;
   sentence_with_blank?: string;
+  tip?: string;
 }
 
 interface UseExerciseContentReturn<T> {

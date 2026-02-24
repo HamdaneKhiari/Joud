@@ -50,7 +50,7 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
 
   // Mélanger les images une seule fois à l'initialisation
   const [shuffledImages] = useState(() =>
-    [...game.pairs.map((p, i) => ({ ...p, originalIndex: i }))].sort(() => Math.random() - 0.5)
+    game.pairs.map((p, i) => ({ ...p, originalIndex: i })).sort(() => Math.random() - 0.5)
   );
 
   const isPlayful = identity.ui.mood === 'playful';
@@ -240,7 +240,7 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
       borderColor: baseColors.green600,
     },
     imageEmoji: {
-      fontSize: tokens.emojiSize.medium,
+      fontSize: tokens.emojiSize.md,
     },
     // Résultats
     resultSection: {
@@ -343,9 +343,9 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
 
         {/* Instructions */}
         <Text style={styles.instruction}>
-          {selectedPlayIndex !== null
-            ? 'Now tap the matching image →'
-            : 'Tap 🔊 to hear, then match the image'}
+          {selectedPlayIndex === null
+            ? 'Tap 🔊 to hear, then match the image'
+            : 'Now tap the matching image →'}
         </Text>
 
         {/* Deux colonnes */}
@@ -360,7 +360,7 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
 
               return (
                 <TouchableOpacity
-                  key={`play-${index}`}
+                  key={`play-${pair.word}`}
                   style={[
                     styles.playButton,
                     isMatched && styles.playButtonMatched,
@@ -392,7 +392,7 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
 
               return (
                 <TouchableOpacity
-                  key={`img-${shuffledIndex}`}
+                  key={`img-${pair.originalIndex}`}
                   style={[styles.imageButton, isMatched && styles.imageButtonMatched]}
                   onPress={() => handleImagePress(shuffledIndex)}
                   disabled={isMatched || selectedPlayIndex === null}

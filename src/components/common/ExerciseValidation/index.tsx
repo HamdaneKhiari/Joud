@@ -215,10 +215,27 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
     outputRange: [withOpacity(styles.feedbackMessageCorrect.color, 0.2), withOpacity(styles.feedbackMessageCorrect.color, 0.6)],
   });
 
+  const remainingAttempts = maxAttempts - attemptCount;
+
   return (
     <View style={styles.container}>
       {/* Feedback Banner */}
       <FeedbackBanner feedback={feedback} state={state} />
+
+      {/* Compteur de tentatives — visible uniquement sur état incorrect avec tentatives restantes */}
+      {state === 'incorrect' && maxAttempts > 1 && remainingAttempts > 0 && (
+        <View style={styles.attemptRow}>
+          {Array.from({ length: maxAttempts }).map((_, i) => (
+            <View
+              key={i}
+              style={i < attemptCount ? styles.attemptDotFilled : styles.attemptDotEmpty}
+            />
+          ))}
+          <Text style={styles.attemptText}>
+            {remainingAttempts === 1 ? 'Encore 1 essai' : `Encore ${remainingAttempts} essais`}
+          </Text>
+        </View>
+      )}
 
       {/* Bouton Principal avec glow effect sur succès */}
       <Animated.View

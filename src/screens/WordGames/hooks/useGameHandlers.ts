@@ -164,49 +164,6 @@ export const useGameHandlers = ({
   }, [isLastQuestion, safeGoBack, setCurrentQuestionIndex, resetAllStates]);
 
   // =========================================================
-  // HELPERS GÉNÉRIQUES QCM
-  // =========================================================
-
-  /**
-   * Factory pour créer des handlers QCM identiques (onAnswer/onValidate/onRetry/onNext)
-   * Évite la duplication entre definition, blanks, reply, transformer
-   */
-  const makeOptionHandlers = useCallback(
-    (
-      state: { selectedOption: string | null; attemptCount: number },
-      setState: React.Dispatch<React.SetStateAction<typeof state & { isValidated: boolean; isCorrect: boolean }>>,
-      getCorrectAnswer: () => string
-    ): OptionGameHandlers => ({
-      onAnswer: (option: string) => {
-        setState((prev) => ({ ...prev, selectedOption: option }));
-      },
-      onValidate: () => {
-        if (!state.selectedOption) return;
-        const correct = state.selectedOption === getCorrectAnswer();
-        setState((prev) => ({
-          ...prev,
-          isValidated: true,
-          isCorrect: correct,
-          attemptCount: prev.attemptCount + 1,
-        }));
-        if (correct || state.attemptCount + 1 >= MAX_ATTEMPTS) {
-          trackItemCompletion(numLevelId, MODULE_ID, familyId, currentQuestionIndex, totalQuestions);
-        }
-      },
-      onRetry: () => {
-        setState((prev) => ({
-          ...prev,
-          selectedOption: null,
-          isValidated: false,
-          isCorrect: false,
-        }));
-      },
-      onNext: handleNavigationNext,
-    }),
-    [handleNavigationNext, trackItemCompletion, numLevelId, familyId, currentQuestionIndex, totalQuestions]
-  );
-
-  // =========================================================
   // HANDLERS: BUILDER
   // =========================================================
 

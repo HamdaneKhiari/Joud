@@ -6,7 +6,7 @@
  */
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { View, ActivityIndicator, Text } from 'react-native';
+import { View, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 
 // Composants
@@ -215,7 +215,25 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
     );
   }
 
-  if (!grammarFamily || !currentRule) return null;
+  if (!grammarFamily || !currentRule) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, backgroundColor: identity.palette.background }}>
+        <Text style={{ fontSize: 32, marginBottom: 16 }}>📭</Text>
+        <Text style={{ fontSize: 16, fontWeight: '700', color: identity.text.primary, textAlign: 'center', marginBottom: 8 }}>
+          Aucune règle disponible
+        </Text>
+        <Text style={{ fontSize: 14, color: identity.text.secondary, textAlign: 'center', marginBottom: 24 }}>
+          Ce niveau ne contient pas encore de contenu grammatical.
+        </Text>
+        <TouchableOpacity
+          onPress={safeGoBack.navigate}
+          style={{ backgroundColor: identity.palette.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 }}
+        >
+          <Text style={{ color: identity.text.onPrimary, fontWeight: '700' }}>Retour</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   // Calcul de l'état de validation pour SonarLint (logique extraite pour lisibilité)
   let validationStatus: 'initial' | 'correct' | 'skip' | 'incorrect';

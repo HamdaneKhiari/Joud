@@ -34,6 +34,7 @@ import {
 import type { UseGameStateReturn } from '@/screens/WordGames/hooks/useGameState';
 import type { UseGameHandlersReturn } from '@/screens/WordGames/hooks/useGameHandlers';
 import type { Family } from '@/database/schema';
+import { log } from '@/utils/logUtils';
 
 // ============================================
 // TYPES
@@ -216,7 +217,7 @@ const GameCardRenderer: React.FC<GameCardRendererProps> = ({
   }
 
   // =================== FALLBACK ===================
-  console.warn('[GameCardRenderer] Unknown game type:', gameType);
+  log.warn('[GameCardRenderer] Unknown game type:', gameType);
   return null;
 };
 

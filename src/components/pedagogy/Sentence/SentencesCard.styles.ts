@@ -90,6 +90,29 @@ export const getSentenceCardStyles = (identity: Identity, moduleColor: string) =
       fontSize: tokens.fontSize.md,
       lineHeight: 22,
       color: text.secondary,
-    }
+    },
+    // --- BLOC ASTUCE (TIP) ---
+    tipBlock: {
+      borderLeftWidth: 3,
+      borderLeftColor: moduleColor,
+      backgroundColor: withOpacity(moduleColor, 0.07),
+      borderRadius: tokens.borderRadius.sm,
+      padding: tokens.spacing.md,
+      paddingLeft: tokens.spacing.lg,
+      marginBottom: tokens.spacing.xl,
+      gap: tokens.spacing.xs,
+    },
+    tipLabel: {
+      fontSize: tokens.fontSize.xs,
+      fontWeight: tokens.fontWeight.black,
+      color: moduleColor,
+      letterSpacing: 0.8,
+      textTransform: 'uppercase',
+    },
+    tipText: {
+      fontSize: tokens.fontSize.sm,
+      lineHeight: 20,
+      color: text.secondary,
+    },
   });
 };

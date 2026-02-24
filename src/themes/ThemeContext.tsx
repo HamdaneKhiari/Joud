@@ -10,6 +10,7 @@ import { useColorScheme } from 'react-native';
 import { useUser } from '@/contexts/UserContext';
 import { queries, type Branding } from '@/database';
 import { tokens, withOpacity } from '@/themes/tokens';
+import { log } from '@/utils/logUtils';
 
 // ============================================
 // TYPES
@@ -108,7 +109,7 @@ const parseJson = <T = any>(jsonStr?: string): T | undefined => {
   try {
     return JSON.parse(jsonStr) as T;
   } catch (e) {
-    console.warn('JSON parsing error:', e);
+    log.warn('JSON parsing error:', e);
     return undefined;
   }
 };

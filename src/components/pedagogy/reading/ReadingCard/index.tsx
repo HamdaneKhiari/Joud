@@ -49,7 +49,12 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
           ANALYSE DE TEXTE
         </Text>
 
-        <View style={styles.passageBox}>
+        <ScrollView
+          style={styles.passageScroll}
+          contentContainerStyle={styles.passageBox}
+          showsVerticalScrollIndicator={true}
+          nestedScrollEnabled
+        >
           <View style={[styles.accentLine, { backgroundColor: brandColor }]} />
           <Text style={[
             styles.passageText,
@@ -61,7 +66,7 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
           ]}>
             {question.passage}
           </Text>
-        </View>
+        </ScrollView>
       </View>
 
       {/* QUESTION + OPTIONS */}
@@ -98,6 +103,7 @@ const styles = StyleSheet.create({
     marginBottom: tokens.spacing.md,
     textTransform: 'uppercase',
   },
+  passageScroll: { maxHeight: 200 },
   passageBox: { flexDirection: 'row', gap: tokens.spacing.md },
   accentLine: { width: 3, borderRadius: 2, opacity: 0.6 },
   passageText: { flex: 1, fontWeight: '400' },

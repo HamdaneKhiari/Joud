@@ -206,10 +206,18 @@ const SentenceBlanksCard: React.FC<SentenceBlanksCardProps> = ({
       {/* 2. PHRASE AVEC TROU */}
       {renderSentenceWithBlank()}
 
-      {/* 3. OPTIONS DE RÉPONSE */}
+      {/* 3. BLOC ASTUCE (optionnel) */}
+      {data.tip && (
+        <View style={styles.tipBlock}>
+          <Text style={styles.tipLabel}>💡 Tip</Text>
+          <Text style={styles.tipText}>{data.tip}</Text>
+        </View>
+      )}
+
+      {/* 4. OPTIONS DE RÉPONSE */}
       {renderOptions()}
 
-      {/* 4. FEEDBACK APRÈS VALIDATION */}
+      {/* 5. FEEDBACK APRÈS VALIDATION */}
       {renderFeedback()}
     </View>
   );

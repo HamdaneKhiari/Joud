@@ -16,6 +16,7 @@ import {
   SpacedRepetition,
   UserMetrics
 } from './schema';
+import { log } from '@/utils/logUtils';
 
 // ============================================
 // QUERIES MODULES
@@ -46,7 +47,7 @@ export const getLevelsByAudience = async (db: SQLiteDatabase, audience: string):
       [audience]
     );
   } catch (error) {
-    console.warn('getLevelsByAudience error (DB might not be ready):', error);
+    log.warn('getLevelsByAudience error (DB might not be ready):', error);
     return [];
   }
 };
@@ -205,7 +206,7 @@ export const getBrandingById = async (db: SQLiteDatabase, identityId: string): P
       [identityId]
     );
   } catch (error) {
-    console.warn('getBrandingById error (DB might not be ready):', error);
+    log.warn('getBrandingById error (DB might not be ready):', error);
     return null;
   }
 };

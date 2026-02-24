@@ -11,6 +11,7 @@ import { useUser } from '@/contexts/UserContext';
 import { useTheme } from '@/themes/ThemeContext';
 import { getFeedbackMessage } from '@/database/queries';
 import type { FeedbackMessage } from '@/database/schema';
+import { log } from '@/utils/logUtils';
 
 /**
  * Type pour le feedback adapté au composant ExerciseValidation
@@ -55,7 +56,7 @@ export const useFeedbackMessages = (): UseFeedbackMessagesReturn => {
 
       if (!message) {
         // Fallback si aucun message trouvé
-        console.warn(`No feedback found for ${identity.id}/${context}/${state}`);
+        log.warn(`No feedback found for ${identity.id}/${context}/${state}`);
         return null;
       }
 

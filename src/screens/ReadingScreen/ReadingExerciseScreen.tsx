@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useTheme } from '@/themes/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
@@ -152,7 +152,25 @@ const ReadingExerciseScreen: React.FC = () => {
   }
 
   const currentQuestion = questions[currentIndex];
-  if (!currentQuestion) return null;
+  if (!currentQuestion) {
+    return (
+      <View style={styles.centered}>
+        <Text style={{ fontSize: 32, marginBottom: 16 }}>📭</Text>
+        <Text style={{ fontSize: 16, fontWeight: '700', color: identity.text.primary, textAlign: 'center', marginBottom: 8 }}>
+          Aucune question disponible
+        </Text>
+        <Text style={{ fontSize: 14, color: identity.text.secondary, textAlign: 'center', marginBottom: 24 }}>
+          Ce texte ne contient pas encore de questions de compréhension.
+        </Text>
+        <TouchableOpacity
+          onPress={safeGoBack.navigate}
+          style={{ backgroundColor: identity.palette.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 }}
+        >
+          <Text style={{ color: identity.text.onPrimary, fontWeight: '700' }}>Retour</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   const isLastQuestion = currentIndex === questions.length - 1;
   const readingProgress = getFamilyProgress(dashboardLevelId, 'reading', compositeFamilyId);

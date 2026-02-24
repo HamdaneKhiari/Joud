@@ -42,6 +42,7 @@ import migration034 from './migrations/034_add_card_mood';
 import migration035 from './migrations/035_adult_light_theme';
 import migration036 from './migrations/036_seed_test_data';  // TEST DATA — à supprimer quand la vraie data est prête
 import migration037 from './migrations/037_enrich_identity_palettes';
+import { log } from '@/utils/logUtils';
 
 // ============================================
 // SINGLETON — une seule initialisation simultanée
@@ -144,7 +145,7 @@ const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
         console.log('🗑️ Database + stale progress deleted successfully');
       } catch (e) {
         if (!String(e).includes('does not exist')) {
-          console.warn('⚠️ Deletion error:', e);
+          log.warn('⚠️ Deletion error:', e);
         }
       }
       await new Promise(resolve => setTimeout(resolve, 500));

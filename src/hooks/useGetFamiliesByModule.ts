@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { getModuleBySlug, getFamiliesByModuleAndLevel } from '@/database/queries';
 import type { Family } from '@/database/schema';
+import { log } from '@/utils/logUtils';
 
 // ============================================
 // TYPES
@@ -53,7 +54,7 @@ export const useGetFamiliesByModule = (
         const module = await getModuleBySlug(db, moduleSlug);
         
         if (!module) {
-          console.warn(`Module avec slug "${moduleSlug}" non trouvé`);
+          log.warn(`Module avec slug "${moduleSlug}" non trouvé`);
           setFamilies([]);
           setFamilyIds([]);
           return;

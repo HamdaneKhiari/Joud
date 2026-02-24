@@ -3,6 +3,7 @@ import { View, ActivityIndicator } from 'react-native';
 import { SQLiteDatabase } from 'expo-sqlite';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initDatabase } from '@/database/init';
+import { log } from '@/utils/logUtils';
 
 // ============================================
 // TYPES
@@ -84,7 +85,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setUser(prev => {
       if (!prev) return prev;
       const updated = { ...prev, audience: newAudience };
-      AsyncStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updated)).catch(console.warn);
+      AsyncStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updated)).catch((e) => log.warn(e));
       return updated;
     });
   }, []);
@@ -94,7 +95,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setUser(prev => {
       if (!prev) return prev;
       const updated = { ...prev, ...partial, isOnboarded: true };
-      AsyncStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updated)).catch(console.warn);
+      AsyncStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updated)).catch((e) => log.warn(e));
       return updated;
     });
   }, []);

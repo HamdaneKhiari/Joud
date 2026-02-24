@@ -129,7 +129,7 @@ const SentenceExerciseScreen: React.FC = () => {
       // Reconstituer phrase_en si absente (fallback depuis sentence + correct_answer)
       const phraseEn = currentItem.data.phrase_en
         || (currentItem.data.sentence && currentItem.data.correct_answer
-          ? currentItem.data.sentence.replace('___', currentItem.data.correct_answer)
+          ? currentItem.data.sentence.replace(/___/g, currentItem.data.correct_answer)
           : '');
       const cleanUser = userDraft.trim().toLowerCase().replace(/[.,!?;]/g, "");
       const cleanTarget = phraseEn.trim().toLowerCase().replace(/[.,!?;]/g, "");
