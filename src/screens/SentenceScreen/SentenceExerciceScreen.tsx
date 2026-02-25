@@ -19,6 +19,7 @@ import { useRecordError } from '@/hooks/exercises/useRecordError';
 import { useProgress } from '@/contexts/ProgressContext';
 import useFirstIncompleteIndex from '@/hooks/exercises/useFirstIncompleteIndex';
 import useSafeNavigation from '@/hooks/useSafeNavigation';
+import { useLevelLabel } from '@/utils/labelMapper';
 
 // UI Components
 import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
@@ -42,6 +43,7 @@ const SentenceExerciseScreen: React.FC = () => {
   const params            = route.params as { familyId: string | number; subfamilyId?: string | number; levelId?: string | number };
   const familyIdNum       = Number(params.familyId    || '1');
   const dashboardLevelId  = Number(params.levelId     || '1');
+  const levelLabel        = useLevelLabel(dashboardLevelId);
   const subfamilyId       = Number(params.subfamilyId || '1');
   const compositeFamilyId = `${params.familyId}-${subfamilyId}`;
 
@@ -70,9 +72,9 @@ const SentenceExerciseScreen: React.FC = () => {
 
   const currentItem = contentItems[currentIndex];
   // Détection du mode selon l'audience :
-  // Primary + College → blanks (guidé avec options)
-  // Lycée + Adult → free (traduction libre, effort personnel)
-  const isBlanksAudience = identity.id === 'primary' || identity.id === 'college';
+  // Primary → blanks (guidé avec options)
+  // College + Lycée + Adult → free (saisie libre, rappel actif)
+  const isBlanksAudience = identity.id === 'primary';
   const hasBlanksData = currentItem?.data?.sentence && currentItem?.data?.options;
   const mode = (isBlanksAudience && hasBlanksData) ? 'blanks' : 'free';
   
@@ -203,7 +205,7 @@ const SentenceExerciseScreen: React.FC = () => {
           onBack: safeGoBack.navigate,
         rightIcon: <DynamicIcon name={module?.icon} size={28} color={identity.header.accent} fallback="message-text" />,
         showLevelBadge: true,
-        levelTitle: `Niveau ${dashboardLevelId}`,
+        levelTitle: levelLabel.badge,
         exerciseTitle: family.name,
       }}
       progressProps={{

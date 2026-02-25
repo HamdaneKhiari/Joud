@@ -25,6 +25,7 @@ import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnm
 import { useRecordError } from '@/hooks/exercises/useRecordError';
 import { useTheme } from '@/themes/ThemeContext';
 import { log } from '@/utils/logUtils';
+import { useLevelLabel } from '@/utils/labelMapper';
 
 // Types
 import type { GrammarScreenRouteParams, ExerciseState } from './types';
@@ -50,6 +51,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
   const safeFamilyId = familyId || '';
   const safeModuleId = moduleId || '';
   const numLevelId = Number.parseInt(String(levelId), 10);
+  const levelLabel = useLevelLabel(numLevelId);
   const subfamilyId = Number(rawSubfamilyId || '0');
   const compositeFamilyId = subfamilyId > 0 ? `${safeFamilyId}-${subfamilyId}` : String(safeFamilyId);
 
@@ -261,7 +263,7 @@ const GrammarExerciseScreen: React.FC<GrammarExerciseScreenProps> = ({ navigatio
           onBack: () => { safeGoBack.navigate(); },
         rightIcon: <DynamicIcon name={grammarFamily.icon} size={28} color={identity.header.accent} fallback="book-open-variant" />,
         showLevelBadge: true,
-        levelTitle: `Niveau ${numLevelId}`,
+        levelTitle: levelLabel.badge,
         exerciseTitle: grammarFamily.title || 'Grammaire',
       }}
       progressProps={{

@@ -1,13 +1,12 @@
 /**
  * ============================================
- * COMPLETION MODAL — White Label
- * Affiché quand une série d'exercices est terminée
- * Remplace les Alert.alert de fin de série
+ * COMPLETION MODAL — White Label + Animated
+ * Spring entrance + celebration playful mode
  * ============================================
  */
 
-import React from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 
@@ -44,24 +43,92 @@ const CompletionModal: React.FC<CompletionModalProps> = ({
   const { identity } = useTheme();
   const isPlayful = identity.ui.mood === 'playful';
 
+  // Animations
+  const overlayAnim = useRef(new Animated.Value(0)).current;
+  const cardScaleAnim = useRef(new Animated.Value(0.75)).current;
+  const cardFadeAnim = useRef(new Animated.Value(0)).current;
+  const emojiScaleAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (visible) {
+      // Reset
+      overlayAnim.setValue(0);
+      cardScaleAnim.setValue(0.75);
+      cardFadeAnim.setValue(0);
+      emojiScaleAnim.setValue(0);
+
+      // Séquence : overlay fade → card spring → emoji bounce
+      Animated.sequence([
+        // 1. Fond noir apparaît rapidement
+        Animated.timing(overlayAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        // 2. Card spring + emoji simultanés
+        Animated.parallel([
+          Animated.spring(cardScaleAnim, {
+            toValue: 1,
+            tension: 90,
+            friction: 7,
+            useNativeDriver: true,
+          }),
+          Animated.timing(cardFadeAnim, {
+            toValue: 1,
+            duration: 220,
+            useNativeDriver: true,
+          }),
+          // Emoji bounce décalé de 100ms
+          Animated.sequence([
+            Animated.delay(100),
+            Animated.spring(emojiScaleAnim, {
+              toValue: 1,
+              tension: 200,
+              friction: 5,
+              useNativeDriver: true,
+            }),
+          ]),
+        ]),
+      ]).start();
+    }
+  }, [visible, overlayAnim, cardScaleAnim, cardFadeAnim, emojiScaleAnim]);
+
+  const overlayBgColor = overlayAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.65)'],
+  });
+
   return (
     <Modal
       visible={visible}
       transparent
-      animationType="fade"
+      animationType="none"
       statusBarTranslucent
       onRequestClose={onDone}
     >
-      <View style={styles.overlay}>
-        <View style={[
-          styles.card,
-          {
-            backgroundColor: identity.palette.surface,
-            borderColor: identity.palette.primary,
-            borderRadius: isPlayful ? tokens.borderRadius.xxl : tokens.borderRadius.xl,
-          }
-        ]}>
-          <Text style={styles.emoji}>{emoji}</Text>
+      <Animated.View style={[styles.overlay, { backgroundColor: overlayBgColor }]}>
+        <Animated.View
+          style={[
+            styles.card,
+            {
+              backgroundColor: identity.palette.surface,
+              borderColor: identity.palette.primary,
+              borderRadius: isPlayful ? tokens.borderRadius.xxl : tokens.borderRadius.xl,
+              opacity: cardFadeAnim,
+              transform: [{ scale: cardScaleAnim }],
+            },
+          ]}
+        >
+          {/* Emoji avec bounce */}
+          <Animated.Text
+            style={[
+              styles.emoji,
+              isPlayful && styles.emojiLarge,
+              { transform: [{ scale: emojiScaleAnim }] },
+            ]}
+          >
+            {emoji}
+          </Animated.Text>
 
           <Text style={[styles.title, { color: identity.text.primary }]}>
             {title}
@@ -77,7 +144,7 @@ const CompletionModal: React.FC<CompletionModalProps> = ({
               {
                 backgroundColor: identity.palette.primary,
                 borderRadius: isPlayful ? tokens.borderRadius.xl : tokens.borderRadius.lg,
-              }
+              },
             ]}
             onPress={onDone}
             activeOpacity={0.8}
@@ -86,8 +153,8 @@ const CompletionModal: React.FC<CompletionModalProps> = ({
               {doneLabel}
             </Text>
           </TouchableOpacity>
-        </View>
-      </View>
+        </Animated.View>
+      </Animated.View>
     </Modal>
   );
 };
@@ -99,7 +166,6 @@ const CompletionModal: React.FC<CompletionModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: tokens.layout.screenPadding,
@@ -109,11 +175,14 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     padding: tokens.spacing.xxl,
     alignItems: 'center',
-    ...tokens.shadows.md,
+    ...tokens.shadows.xl,
   },
   emoji: {
     fontSize: 64,
     marginBottom: tokens.spacing.lg,
+  },
+  emojiLarge: {
+    fontSize: 80,
   },
   title: {
     fontSize: tokens.fontSize.xxl,

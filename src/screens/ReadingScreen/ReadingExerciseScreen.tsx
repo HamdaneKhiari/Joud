@@ -19,6 +19,7 @@ import { useProgress } from '@/contexts/ProgressContext';
 import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
 import useSafeNavigation from '@/hooks/useSafeNavigation';
+import { useLevelLabel } from '@/utils/labelMapper';
 
 // Types
 import type { ValidationState } from '@/components/common/ExerciseValidation/types';
@@ -43,6 +44,7 @@ const ReadingExerciseScreen: React.FC = () => {
   const subfamilyId       = params?.subfamilyId ?? 0;
   const title             = params?.title || 'Reading';
   const dashboardLevelId  = params?.levelId || 1;
+  const levelLabel        = useLevelLabel(dashboardLevelId);
   const compositeFamilyId = `${familyId}-${subfamilyId}`;
 
   const [loading, setLoading] = useState(true);
@@ -189,7 +191,7 @@ const ReadingExerciseScreen: React.FC = () => {
           onBack: safeGoBack.navigate,
         rightIcon: <DynamicIcon name="book-open-variant" size={28} color={identity.header.accent} fallback="book-open-variant" />,
         showLevelBadge: true,
-        levelTitle: `Niveau ${dashboardLevelId}`,
+        levelTitle: levelLabel.badge,
         exerciseTitle: title,
       }}
       progressProps={{

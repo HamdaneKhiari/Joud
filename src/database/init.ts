@@ -42,6 +42,8 @@ import migration034 from './migrations/034_add_card_mood';
 import migration035 from './migrations/035_adult_light_theme';
 import migration036 from './migrations/036_seed_test_data';  // TEST DATA — à supprimer quand la vraie data est prête
 import migration037 from './migrations/037_enrich_identity_palettes';
+import migration038 from './migrations/038_redesign_palettes';
+import migration039 from './migrations/039_fix_module_availability';
 import { log } from '@/utils/logUtils';
 
 // ============================================
@@ -117,6 +119,8 @@ const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
       migration035,
       migration036,  // TEST DATA
       migration037,
+      migration038,
+      migration039,
     ];
 
     console.log('[JanaCore] 🚀 Running migrations in sequence...');

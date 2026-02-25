@@ -83,6 +83,7 @@ const createStyles = (identity: Identity) => {
     exerciseTitle: {
       fontSize: config.titleSize,
       fontWeight: config.titleWeight,
+      fontFamily: identity.fontFamily.bold,
       color: textColor,
       textAlign: 'center',
       marginBottom: tokens.spacing.xs,
@@ -96,6 +97,7 @@ const createStyles = (identity: Identity) => {
     exerciseSubtitle: {
       fontSize: tokens.fontSize.sm,
       fontWeight: config.subtitleWeight,
+      fontFamily: identity.fontFamily.semibold,
       color: identity.header.accent,
       textAlign: 'center',
       letterSpacing: 0.3,

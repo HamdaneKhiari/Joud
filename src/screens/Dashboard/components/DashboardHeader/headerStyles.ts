@@ -67,15 +67,17 @@ export const createStyles = (identity: Identity) => {
     },
 
     greeting: {
-      fontSize: tokens.fontSize.sm, // ✅ Unifié et réduit
+      fontSize: tokens.fontSize.sm,
       fontWeight: tokens.fontWeight.medium,
+      fontFamily: identity.fontFamily.medium,
       color: withOpacity(identity.text.onPrimary, 0.85),
       letterSpacing: 0.3,
     },
 
     userName: {
-      fontSize: isPlayful ? tokens.fontSize.xxl : tokens.fontSize.xl, // ✅ Réduit de huge/xxxl à xxl/xl
+      fontSize: isPlayful ? tokens.fontSize.xxl : tokens.fontSize.xl,
       fontWeight: tokens.fontWeight.black,
+      fontFamily: identity.fontFamily.extrabold,
       color: identity.text.onPrimary,
       letterSpacing: -0.5,
       textShadowColor: isPlayful ? 'rgba(0, 0, 0, 0.08)' : undefined, // ✅ Plus subtil

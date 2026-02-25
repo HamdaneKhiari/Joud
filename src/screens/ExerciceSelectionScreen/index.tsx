@@ -188,7 +188,7 @@ const ExerciseSelectionScreen: React.FC = () => {
           onBack={() => router.back()}
           rightIcon={<DynamicIcon name="book-open" size={28} color={identity.header.accent} />}
           showLevelBadge
-          levelTitle={numLevelId.toString()}
+          levelTitle={levelLabel.badge}
           exerciseTitle={levelLabel.title}
         />
         {(isLoading || loadingData) ? (

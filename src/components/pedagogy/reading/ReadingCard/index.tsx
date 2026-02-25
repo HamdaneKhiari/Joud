@@ -46,7 +46,7 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
         }
       ]}>
         <Text style={[styles.cardTitle, { color: identity.text.secondary }]}>
-          ANALYSE DE TEXTE
+          READING
         </Text>
 
         <ScrollView

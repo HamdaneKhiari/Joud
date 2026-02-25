@@ -59,6 +59,7 @@ interface ProgressContextValue {
   trackItemCompletion: (levelId: number, exerciseType: string, familyId: string, itemIndex: number, totalItems: number) => void;
   saveProgressNow: () => Promise<void>;
   refreshProgress: () => Promise<void>;
+  resetProgress: () => Promise<void>;
   getFamilyProgress: (levelId: number, exerciseType: string, familyId: string) => number;
   getExerciseProgress: (levelId: number, exerciseType: string, allFamilyIds?: string[] | null) => number;
   getLevelProgress: (levelId: number) => number;
@@ -343,6 +344,18 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [db, user?.id]);
 
+  // Reset all progress (Settings → Réinitialiser)
+  const resetProgress = useCallback(async () => {
+    if (!db || typeof db === 'number' || !user?.id) return;
+    try {
+      await db.runAsync('DELETE FROM progress WHERE user_id = ?', [user.id]);
+      await AsyncStorage.removeItem(getStorageKey(user.id));
+      dispatch({ type: 'SET_PROGRESS', payload: createInitialProgress() });
+    } catch (e) {
+      log.warn('[ProgressContext] Reset error:', e);
+    }
+  }, [db, user?.id]);
+
   // Actions
   const trackItemCompletion = useCallback((
     levelId: number, exerciseType: string, familyId: string,
@@ -433,11 +446,11 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [progress, getExerciseProgress]);
 
   const value = useMemo<ProgressContextValue>(() => ({
-    progress, isLoading, trackItemCompletion, saveProgressNow, refreshProgress,
+    progress, isLoading, trackItemCompletion, saveProgressNow, refreshProgress, resetProgress,
     getFamilyProgress, getExerciseProgress, getLevelProgress,
     getRevisionFamilies, getLastActivity, getRecommendedModule
   }), [
-    progress, isLoading, trackItemCompletion, saveProgressNow, refreshProgress,
+    progress, isLoading, trackItemCompletion, saveProgressNow, refreshProgress, resetProgress,
     getFamilyProgress, getExerciseProgress, getLevelProgress,
     getRevisionFamilies, getLastActivity, getRecommendedModule
   ]);

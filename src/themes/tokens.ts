@@ -35,6 +35,8 @@ export const emojiSize = {
   xl: 48,
   xxl: 60,
   huge: 80,
+  decorative: 100,       // Header décoratif (clean mode)
+  decorativeLarge: 120,  // Header décoratif (playful mode)
 };
 
 /**
@@ -62,6 +64,9 @@ export const layout = {
   headerHeight: 120,      // Hauteur du header
   navBarHeight: 80,       // Hauteur de la barre de navigation
   buttonSpacing: 12,      // Espace entre boutons adjacents
+  touchTarget: 48,        // Aire minimale de tap (WCAG : 44pt minimum)
+  navColumnWidth: 60,     // Largeur des colonnes gauche/droite de la NavBar
+  decorativeImageSize: 140, // Taille des images décoratives dans les headers
 };
 
 // ============================================

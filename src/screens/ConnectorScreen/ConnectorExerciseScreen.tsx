@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, StyleSheet, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '@/themes/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
@@ -11,13 +10,15 @@ import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidat
 import { useRecordError } from '@/hooks/exercises/useRecordError';
 import { log } from '@/utils/logUtils';
 import { generateFeedbackMessage } from '@/utils/feedback';
-import { tokens, withOpacity } from '@/themes/tokens';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { tokens } from '@/themes/tokens';
+import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
+import { DynamicIcon } from '@/components/ui/DynamicIcon';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
 import CompletionModal from '@/components/common/CompletionModal';
 import ConnectorCardRenderer from '../../components/pedagogy/Connector/ConnectorCardRenderer';
 import { useConnectorState } from './hooks/useConnectorState';
 import { useConnectorHandlers } from './hooks/useConnectorHandlers';
+import { useLevelLabel } from '@/utils/labelMapper';
 
 interface ConnectorExerciseParams {
   familyId: number;
@@ -32,7 +33,7 @@ const MAX_ATTEMPTS = 2;
 const ConnectorExerciseScreen: React.FC = () => {
   const { identity } = useTheme();
   const { db } = useUser();
-  const { trackItemCompletion, saveProgressNow } = useProgress();
+  const { trackItemCompletion, saveProgressNow, getFamilyProgress } = useProgress();
   const navigation = useNavigation();
   const route = useRoute();
   const { recordError } = useRecordError();
@@ -45,6 +46,8 @@ const ConnectorExerciseScreen: React.FC = () => {
   const moduleColor = params?.moduleColor || identity.palette.primary;
   const title = params?.title || 'Exercise';
   const levelId = params?.levelId || 1;
+  const levelLabel = useLevelLabel(levelId);
+  const realProgress = getFamilyProgress(levelId, 'connector', safeFamilyId);
 
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -179,38 +182,42 @@ const ConnectorExerciseScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: identity.palette.surface }]}>
+    <>
       <CompletionModal
         visible={showCompletion}
         title="Series complete!"
         subtitle="You've finished all exercises in this series."
         onDone={() => navigation.goBack()}
       />
-
-      {/* Header */}
-      <View style={[
-        styles.header,
-        {
-          backgroundColor: identity.palette.surface,
-          borderBottomColor: withOpacity(identity.text.tertiary, 0.1),
+      <ExerciseLayout
+        headerProps={{
+          variant: 'exercise',
+          onBack: handleBackPress,
+          rightIcon: <DynamicIcon name="puzzle" size={28} color={identity.header.accent} />,
+          showLevelBadge: true,
+          levelTitle: levelLabel.badge,
+          exerciseTitle: title,
+        }}
+        progressProps={{
+          progressPercent: realProgress,
+          progressText: `${realProgress}% • Question ${currentIndex + 1}/${questions.length}`,
+        }}
+        footer={
+          <ExerciseValidation
+            state={validationState}
+            attemptCount={currentState.attemptCount}
+            maxAttempts={MAX_ATTEMPTS}
+            correctAnswer={currentItem?.data?.correctAnswer}
+            onValidate={currentHandlers.onValidate}
+            onNext={currentHandlers.onNext}
+            onRetry={currentHandlers.onRetry}
+            onSkip={currentHandlers.onNext}
+            disabled={buttonDisabled}
+            isLastQuestion={currentIndex === questions.length - 1}
+            feedbackMessage={feedbackData}
+          />
         }
-      ]}>
-        <TouchableOpacity onPress={handleBackPress} style={styles.backButton} activeOpacity={0.7}>
-          <MaterialCommunityIcons name="arrow-left" size={24} color={identity.text.primary} />
-        </TouchableOpacity>
-
-        <View style={styles.titleWrapper}>
-          <Text style={[styles.headerTitle, { color: identity.text.primary }]}>{title}</Text>
-          <Text style={[styles.headerSubtitle, { color: identity.text.tertiary }]}>
-            Question {currentIndex + 1} of {questions.length}
-          </Text>
-        </View>
-
-        <View style={styles.headerRight} />
-      </View>
-
-      {/* Contenu (la card gère son propre scroll) */}
-      <View style={styles.content}>
+      >
         <ConnectorCardRenderer
           exerciseType={exerciseType}
           currentQuestion={currentItem.data}
@@ -221,51 +228,16 @@ const ConnectorExerciseScreen: React.FC = () => {
           handlers={handlers}
           hideValidation
         />
-      </View>
-
-      {/* Footer fixe — ExerciseValidation hors du ScrollView */}
-      <ExerciseValidation
-        state={validationState}
-        attemptCount={currentState.attemptCount}
-        maxAttempts={MAX_ATTEMPTS}
-        correctAnswer={currentItem?.data?.correctAnswer}
-        onValidate={currentHandlers.onValidate}
-        onNext={currentHandlers.onNext}
-        onRetry={currentHandlers.onRetry}
-        onSkip={currentHandlers.onNext}
-        disabled={buttonDisabled}
-        isLastQuestion={currentIndex === questions.length - 1}
-        feedbackMessage={feedbackData}
-      />
-    </SafeAreaView>
+      </ExerciseLayout>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: tokens.spacing.md },
   loadingText: { fontSize: tokens.fontSize.md, fontWeight: tokens.fontWeight.medium },
   errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   errorText: { fontSize: tokens.fontSize.lg, fontWeight: tokens.fontWeight.bold },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: tokens.layout.screenPadding,
-    height: 70,
-    borderBottomWidth: 1,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: tokens.borderRadius.round,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  titleWrapper: { flex: 1, alignItems: 'center' },
-  headerTitle: { fontSize: tokens.fontSize.md, fontWeight: tokens.fontWeight.bold },
-  headerSubtitle: { fontSize: tokens.fontSize.xs, fontWeight: tokens.fontWeight.medium },
-  headerRight: { width: 40 },
-  content: { flex: 1 },
 });
 
 export default ConnectorExerciseScreen;

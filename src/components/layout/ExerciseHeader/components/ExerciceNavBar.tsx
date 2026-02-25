@@ -41,14 +41,14 @@ const createStyles = (identity: Identity) => {
       zIndex: 10
     },
 
-    navLeft: { width: 60, alignItems: 'flex-start', paddingLeft: 4 },
+    navLeft: { width: tokens.layout.navColumnWidth, alignItems: 'flex-start', paddingLeft: 4 },
     navCenter: { flex: 1, alignItems: 'center' },
-    navRight: { width: 60, alignItems: 'flex-end', paddingRight: 4 },
+    navRight: { width: tokens.layout.navColumnWidth, alignItems: 'flex-end', paddingRight: 4 },
 
     backButton: {
-      width: 48, height: 48,
+      width: tokens.layout.touchTarget, height: tokens.layout.touchTarget,
       justifyContent: 'center', alignItems: 'center',
-      borderRadius: 24,
+      borderRadius: tokens.layout.touchTarget / 2,
       backgroundColor: overlayLight,
       borderWidth: isClean ? 1 : 2,
       borderColor: 'rgba(255, 255, 255, 0.4)',
@@ -68,7 +68,7 @@ const createStyles = (identity: Identity) => {
       marginLeft: -2
     },
 
-    backButtonPlaceholder: { width: 48, height: 48 },
+    backButtonPlaceholder: { width: tokens.layout.touchTarget, height: tokens.layout.touchTarget },
 
     levelBadge: {
       paddingHorizontal: tokens.spacing.lg,
@@ -94,7 +94,7 @@ const createStyles = (identity: Identity) => {
     badgePlaceholder: { width: 70, height: 36 },
 
     rightIconButton: {
-      width: 48, height: 48,
+      width: tokens.layout.touchTarget, height: tokens.layout.touchTarget,
       justifyContent: 'center', alignItems: 'center',
       borderRadius: identity.ui.cardRadius,
       backgroundColor: overlayLight,
@@ -108,7 +108,7 @@ const createStyles = (identity: Identity) => {
       opacity: 0.9
     },
 
-    rightIconPlaceholder: { width: 48, height: 48 }
+    rightIconPlaceholder: { width: tokens.layout.touchTarget, height: tokens.layout.touchTarget }
   });
 };
 

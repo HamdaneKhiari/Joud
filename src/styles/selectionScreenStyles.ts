@@ -21,7 +21,7 @@ export const createStyles = (identity: Identity) => {
     },
 
     columnWrapper: {
-      paddingHorizontal: tokens.spacing.sm,
+      paddingHorizontal: tokens.spacing.md,
     },
 
     singleCardContainer: {
@@ -62,7 +62,7 @@ export const createStyles = (identity: Identity) => {
     gridSkeleton: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      paddingHorizontal: tokens.spacing.sm,
+      paddingHorizontal: tokens.spacing.md,
       gap: tokens.spacing.xs,
     },
 

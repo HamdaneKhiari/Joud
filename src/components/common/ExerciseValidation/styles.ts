@@ -23,7 +23,7 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     paddingHorizontal: 0,
     paddingTop: spacing.xl,
     paddingBottom: spacing.xxl,
-    backgroundColor: baseColors.white,
+    backgroundColor: identity.palette.surface,
     borderTopLeftRadius: borderRadius.xxl,
     borderTopRightRadius: borderRadius.xxl,
     borderTopWidth: borderWidths.thin,
@@ -144,6 +144,7 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
   buttonLabel: {
     fontSize: fontSize.lg,
     fontWeight: fontWeight.extrabold,
+    fontFamily: identity.fontFamily.extrabold,
     color: identity.text.onPrimary, // ✅ WHITE LABEL
     textTransform: 'uppercase',
     letterSpacing: 1,

@@ -87,6 +87,15 @@ export interface Identity {
   };
 
   iconSize: typeof tokens.iconSize;
+
+  // Polices custom par identité (chargées dans _layout.tsx via useFonts)
+  fontFamily: {
+    regular: string;
+    medium: string;
+    semibold: string;
+    bold: string;
+    extrabold: string;
+  };
 }
 
 interface ThemeContextType {
@@ -130,6 +139,41 @@ const getOrganizationName = (identityId: string): string => {
     default:
       return 'Joud';
   }
+};
+
+/**
+ * Font families par identité
+ * Chaque variante correspond à un fichier chargé via useFonts dans _layout.tsx
+ */
+const FONT_FAMILIES: Record<string, Identity['fontFamily']> = {
+  primary: {
+    regular: 'Nunito_400Regular',
+    medium: 'Nunito_500Medium',
+    semibold: 'Nunito_600SemiBold',
+    bold: 'Nunito_700Bold',
+    extrabold: 'Nunito_900Black',
+  },
+  college: {
+    regular: 'Poppins_400Regular',
+    medium: 'Poppins_500Medium',
+    semibold: 'Poppins_600SemiBold',
+    bold: 'Poppins_700Bold',
+    extrabold: 'Poppins_800ExtraBold',
+  },
+  lycee: {
+    regular: 'DMSans_400Regular',
+    medium: 'DMSans_500Medium',
+    semibold: 'DMSans_500Medium',
+    bold: 'DMSans_700Bold',
+    extrabold: 'DMSans_700Bold',
+  },
+  adult: {
+    regular: 'DMSans_400Regular',
+    medium: 'DMSans_500Medium',
+    semibold: 'DMSans_500Medium',
+    bold: 'DMSans_700Bold',
+    extrabold: 'DMSans_700Bold',
+  },
 };
 
 /**
@@ -198,6 +242,7 @@ const brandingToIdentity = (branding: Branding): Identity => {
     i18n: { locale: 'fr', rtl: false },
     icons: { logo: branding.logo_name || 'school' },
     iconSize: tokens.iconSize,
+    fontFamily: FONT_FAMILIES[branding.id] || FONT_FAMILIES.adult,
   };
 };
 
@@ -225,6 +270,7 @@ const defaultIdentity: Identity = {
   i18n: { locale: 'fr', rtl: false },
   icons: { logo: 'school' },
   iconSize: tokens.iconSize,
+  fontFamily: FONT_FAMILIES.college,
 };
 
 // ============================================

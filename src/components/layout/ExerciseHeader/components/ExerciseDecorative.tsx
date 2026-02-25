@@ -54,8 +54,8 @@ const createStyles = (identity: Identity) => {
     },
 
     decorativeImage: {
-      width: 140,
-      height: 140,
+      width: tokens.layout.decorativeImageSize,
+      height: tokens.layout.decorativeImageSize,
       shadowColor: baseColors.black,
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.2,
@@ -63,7 +63,7 @@ const createStyles = (identity: Identity) => {
     },
 
     decorativeEmoji: {
-      fontSize: identity.ui.mood === 'playful' ? 120 : 100,
+      fontSize: identity.ui.mood === 'playful' ? tokens.emojiSize.decorativeLarge : tokens.emojiSize.decorative,
       textShadowColor: 'rgba(0, 0, 0, 0.2)',
       textShadowOffset: { width: 0, height: 2 },
       textShadowRadius: 4
