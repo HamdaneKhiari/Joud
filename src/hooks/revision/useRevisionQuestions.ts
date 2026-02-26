@@ -5,9 +5,10 @@
  * ============================================
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { useCurrentLevel } from '@/contexts/CurrentLevelContext';
+import { log } from '@/utils/logUtils';
 import {
   getDailyReviewWords,
   getSpacedReviewWords,
@@ -41,7 +42,7 @@ interface UseRevisionQuestionsReturn {
   // Actions
   startSession: (mode: RevisionMode) => void;
   selectAnswer: (answer: string) => void;
-  validateAnswer: () => void;
+  validateAnswer: () => Promise<void>;
   nextQuestion: () => void;
   retryQuestion: () => void;
   resetSession: () => void;
@@ -157,7 +158,7 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
           emoji,
         };
       } catch (err) {
-        console.error('[useRevisionQuestions] Error parsing word:', err);
+        log.error('[useRevisionQuestions] Error parsing word:', err);
         return null;
       }
     }).filter(q => q !== null) as RevisionQuestion[];
@@ -185,11 +186,11 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
       setResults([]);
       resetQuestionState();
     } catch (err) {
-      console.error('[useRevisionQuestions] Error loading questions:', err);
+      log.error('[useRevisionQuestions] Error loading questions:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [db, user, wordsToQuestions]);
+  }, [db, user, currentLevel, wordsToQuestions]);
 
   /**
    * Réinitialise l'état de la question actuelle
@@ -243,7 +244,7 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
             [user.id, 0, 'revision', currentQuestion.questionText, selectedAnswer, currentQuestion.correctAnswer, currentLevel, Date.now()]
           );
         } catch (e) {
-          console.error('[useRevisionQuestions] Error recording:', e);
+          log.error('[useRevisionQuestions] Error recording:', e);
         }
       }
     }

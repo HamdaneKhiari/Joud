@@ -209,7 +209,7 @@ const ExerciseSelectionScreen: React.FC = () => {
               styles.listContent,
               isSingleCard && styles.singleCardContainer // ✅ Centre la card unique
             ]}
-            columnWrapperStyle={!isSingleCard ? styles.columnWrapper : undefined}
+            columnWrapperStyle={isSingleCard ? undefined : styles.columnWrapper}
             showsVerticalScrollIndicator={false}
           />
         )}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { useTheme } from '@/themes/ThemeContext';
@@ -14,6 +14,7 @@ import ReadingCard from '../../components/pedagogy/reading/ReadingCard';
 // Hooks
 import { useReadingState } from './hooks/useReadingState';
 import { useReadingHandlers } from './hooks/useReadingHandlers';
+import { useReadingContent } from './hooks/useReadingContent';
 import { useRecordError } from '@/hooks/exercises/useRecordError';
 import { useProgress } from '@/contexts/ProgressContext';
 import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
@@ -47,8 +48,9 @@ const ReadingExerciseScreen: React.FC = () => {
   const levelLabel        = useLevelLabel(dashboardLevelId);
   const compositeFamilyId = `${familyId}-${subfamilyId}`;
 
-  const [loading, setLoading] = useState(true);
-  const [questions, setQuestions] = useState<any[]>([]);
+  // =================== CHARGEMENT ===================
+  const { questions, loading } = useReadingContent(db, familyId, subfamilyId);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showCompletion, setShowCompletion] = useState(false);
 
@@ -68,33 +70,6 @@ const ReadingExerciseScreen: React.FC = () => {
   });
 
   useExerciseSaveOnUnmount();
-
-  // Chargement du contenu
-  useEffect(() => {
-    const loadContent = async () => {
-      if (!db || typeof db === 'number' || !familyId) return;
-      try {
-        setLoading(true);
-        const result = await db.getAllAsync<{ data: string }>(
-          `SELECT data FROM content WHERE family_id = ? AND subfamily_id = ?`,
-          [familyId, subfamilyId]
-        );
-
-        if (result && result.length > 0) {
-          const parsed = result.map(item => {
-            const data = typeof item.data === 'string' ? JSON.parse(item.data) : item.data;
-            return (data.passage && data.question_text) ? data : null;
-          }).filter(Boolean);
-          setQuestions(parsed);
-        }
-      } catch (error) {
-        console.error('Reading load error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadContent();
-  }, [db, familyId, subfamilyId]);
 
   const trackAndAdvance = useCallback((updater: React.SetStateAction<number>) => {
     trackItemCompletion(dashboardLevelId, 'reading', compositeFamilyId, currentIndex, questions.length);
@@ -121,7 +96,7 @@ const ReadingExerciseScreen: React.FC = () => {
   const handlers = useReadingHandlers({
     question: questions[currentIndex],
     isLastQuestion: currentIndex === questions.length - 1,
-    onFinish: handleFinish,
+    onFinish: () => { void handleFinish(); },
     setCurrentQuestionIndex: trackAndAdvance,
     state,
     setState,
@@ -130,25 +105,18 @@ const ReadingExerciseScreen: React.FC = () => {
     maxAttempts: MAX_ATTEMPTS,
   });
 
-  // Calcul de l'état de validation (même pattern que Grammar)
+  // Calcul de l'état de validation
   let validationStatus: ValidationState;
-  if (!state.isValidated) {
-    validationStatus = 'initial';
-  } else if (state.isCorrect) {
-    validationStatus = 'correct';
-  } else if (state.attemptCount >= MAX_ATTEMPTS) {
-    validationStatus = 'skip';
-  } else {
-    validationStatus = 'incorrect';
-  }
+  if (!state.isValidated) validationStatus = 'initial';
+  else if (state.isCorrect) validationStatus = 'correct';
+  else if (state.attemptCount >= MAX_ATTEMPTS) validationStatus = 'skip';
+  else validationStatus = 'incorrect';
 
   if (loading) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color={identity.palette.primary} />
-        <Text style={{ marginTop: 10, color: identity.text.secondary }}>
-          Chargement...
-        </Text>
+        <Text style={[styles.loadingText, { color: identity.text.secondary }]}>Chargement...</Text>
       </View>
     );
   }
@@ -156,19 +124,17 @@ const ReadingExerciseScreen: React.FC = () => {
   const currentQuestion = questions[currentIndex];
   if (!currentQuestion) {
     return (
-      <View style={styles.centered}>
-        <Text style={{ fontSize: 32, marginBottom: 16 }}>📭</Text>
-        <Text style={{ fontSize: 16, fontWeight: '700', color: identity.text.primary, textAlign: 'center', marginBottom: 8 }}>
-          Aucune question disponible
-        </Text>
-        <Text style={{ fontSize: 14, color: identity.text.secondary, textAlign: 'center', marginBottom: 24 }}>
+      <View style={[styles.centered, styles.emptyPadding]}>
+        <Text style={styles.emptyEmoji}>📭</Text>
+        <Text style={[styles.emptyTitle, { color: identity.text.primary }]}>Aucune question disponible</Text>
+        <Text style={[styles.emptyText, { color: identity.text.secondary }]}>
           Ce texte ne contient pas encore de questions de compréhension.
         </Text>
         <TouchableOpacity
           onPress={safeGoBack.navigate}
-          style={{ backgroundColor: identity.palette.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 }}
+          style={[styles.backButton, { backgroundColor: identity.palette.primary }]}
         >
-          <Text style={{ color: identity.text.onPrimary, fontWeight: '700' }}>Retour</Text>
+          <Text style={[styles.backButtonText, { color: identity.text.onPrimary }]}>Retour</Text>
         </TouchableOpacity>
       </View>
     );
@@ -188,31 +154,31 @@ const ReadingExerciseScreen: React.FC = () => {
       <ExerciseLayout
         headerProps={{
           variant: 'exercise',
-          onBack: safeGoBack.navigate,
-        rightIcon: <DynamicIcon name="book-open-variant" size={28} color={identity.header.accent} fallback="book-open-variant" />,
-        showLevelBadge: true,
-        levelTitle: levelLabel.badge,
-        exerciseTitle: title,
-      }}
-      progressProps={{
-        progressPercent: readingProgress,
-        progressText: `${readingProgress}% • Question ${currentIndex + 1}/${questions.length}`,
-      }}
-      footer={
-        <ExerciseValidation
-          state={validationStatus}
-          attemptCount={state.attemptCount}
-          maxAttempts={MAX_ATTEMPTS}
-          correctAnswer={currentQuestion.correct_answer}
-          onValidate={handlers.onValidate}
-          onNext={handlers.onNext}
-          onRetry={handlers.onRetry}
-          onSkip={handlers.onNext}
-          disabled={!state.selectedOption || safeGoBack.disabled}
-          isLastQuestion={isLastQuestion}
-        />
-      }
-    >
+          onBack: () => { safeGoBack.navigate(); },
+          rightIcon: <DynamicIcon name="book-open-variant" size={28} color={identity.header.accent} fallback="book-open-variant" />,
+          showLevelBadge: true,
+          levelTitle: levelLabel.badge,
+          exerciseTitle: title,
+        }}
+        progressProps={{
+          progressPercent: readingProgress,
+          progressText: `${readingProgress}% • Question ${currentIndex + 1}/${questions.length}`,
+        }}
+        footer={
+          <ExerciseValidation
+            state={validationStatus}
+            attemptCount={state.attemptCount}
+            maxAttempts={MAX_ATTEMPTS}
+            correctAnswer={currentQuestion.correct_answer}
+            onValidate={handlers.onValidate}
+            onNext={handlers.onNext}
+            onRetry={handlers.onRetry}
+            onSkip={handlers.onNext}
+            disabled={!state.selectedOption || safeGoBack.disabled}
+            isLastQuestion={isLastQuestion}
+          />
+        }
+      >
         <ReadingCard
           question={currentQuestion}
           selectedOption={state.selectedOption}
@@ -228,6 +194,13 @@ const ReadingExerciseScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loadingText: { marginTop: 10 },
+  emptyPadding: { padding: 32 },
+  emptyEmoji: { fontSize: 32, marginBottom: 16 },
+  emptyTitle: { fontSize: 16, fontWeight: '700', textAlign: 'center', marginBottom: 8 },
+  emptyText: { fontSize: 14, textAlign: 'center', marginBottom: 24 },
+  backButton: { paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
+  backButtonText: { fontWeight: '700' },
 });
 
 export default ReadingExerciseScreen;

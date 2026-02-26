@@ -9,7 +9,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 
 // Composants
 import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
-import DialogueCard, { Dialogue, Question } from '@/components/pedagogy/dialogues/DialogueCard';
+import DialogueCard from '@/components/pedagogy/dialogues/DialogueCard';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
 import type { ValidationState } from '@/components/common/ExerciseValidation/types';
 
@@ -21,22 +21,18 @@ import useSafeNavigation from '@/hooks/useSafeNavigation';
 import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
 import { useRecordError } from '@/hooks/exercises/useRecordError';
+import { useDialogueContent } from './hooks/useDialogueContent';
 
 // Utils
 import { getModuleLabel, getLevelLabel } from '@/utils/labelMapper';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
-import { log } from '@/utils/logUtils';
 
 // ============================================
-// CONSTANTS
+// CONSTANTS & TYPES
 // ============================================
 
 const EXERCISE_TYPE = 'dialogues';
 const MAX_ATTEMPTS = 2;
-
-// ============================================
-// TYPES
-// ============================================
 
 interface RouteParams {
   familyId?: string;
@@ -46,13 +42,8 @@ interface RouteParams {
 }
 
 interface DialogueExerciseScreenProps {
-  navigation?: {
-    navigate?: (screen: string, params: any) => void;
-    goBack?: () => void;
-  };
-  route?: {
-    params?: RouteParams;
-  };
+  navigation?: { navigate?: (screen: string, params: any) => void; goBack?: () => void };
+  route?: { params?: RouteParams };
 }
 
 interface ExerciseState {
@@ -66,10 +57,7 @@ interface ExerciseState {
 // COMPOSANT
 // ============================================
 
-const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
-  navigation,
-  route
-}) => {
+const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({ navigation, route }) => {
   const router = useRouter();
   const expoParams = useLocalSearchParams() as unknown as RouteParams;
   const { identity } = useTheme();
@@ -89,132 +77,27 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
   const numSubfamilyId = Number.parseInt(subfamilyId.toString(), 10);
   const compositeFamilyId = `${familyId}-${numSubfamilyId}`;
 
-  // Hooks
   const { trackItemCompletion, getFamilyProgress } = useProgress();
 
   const safeGoBack = useSafeNavigation(
     useCallback(() => {
-      if (navigation?.goBack) {
-        navigation.goBack();
-      } else if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace('/');
-      }
+      if (navigation?.goBack) navigation.goBack();
+      else if (router.canGoBack()) router.back();
+      else router.replace('/');
     }, [navigation, router])
   );
 
-  // =================== CHARGEMENT DIALOGUE DEPUIS DB ===================
-  const [dialogueFamily, setDialogueFamily] = useState<Dialogue | null>(null);
-  const [isLoadingContent, setIsLoadingContent] = useState(true);
+  // =================== CHARGEMENT ===================
+  const { dialogue: dialogueFamily } = useDialogueContent(db, familyId, numSubfamilyId);
 
-  useEffect(() => {
-    const loadDialogue = async () => {
-      if (!db || typeof db === 'number' || !familyId) {
-        setIsLoadingContent(false);
-        return;
-      }
-
-      try {
-        setIsLoadingContent(true);
-        const numFamilyId = Number.parseInt(String(familyId), 10);
-
-        log.debug('[DialogueExercise] Loading:', { familyId, numFamilyId, numSubfamilyId, db: !!db });
-
-        // Charger les contenus dialogue depuis la DB
-        const rows = await db.getAllAsync<{ id: number; data: string }>(
-          `SELECT id, data FROM content
-           WHERE family_id = ? AND subfamily_id = ? AND content_type = 'dialogue'
-           ORDER BY id`,
-          [numFamilyId, numSubfamilyId]
-        );
-
-        log.debug('[DialogueExercise] Rows found:', rows.length);
-
-        if (rows.length > 0) {
-          // Chaque row.data contient un dialogue JSON
-          const rawData = JSON.parse(rows[0].data);
-
-          // Charger le nom de la famille
-          const family = await db.getFirstAsync<{ name: string; icon: string }>(
-            `SELECT name, icon FROM families WHERE id = ?`,
-            [numFamilyId]
-          );
-
-          // === DATA MAPPING ===
-          // Migration 036 uses "dialogue" array, interface expects "messages"
-          const rawMessages = rawData.messages || rawData.dialogue || [];
-
-          // Extract unique speakers to build characters with colors
-          const speakerColors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0', '#E91E63'];
-          const uniqueSpeakers: string[] = [];
-          rawMessages.forEach((msg: any) => {
-            if (msg.speaker && !uniqueSpeakers.includes(msg.speaker)) {
-              uniqueSpeakers.push(msg.speaker);
-            }
-          });
-          const characters = rawData.characters || uniqueSpeakers.map((name: string, i: number) => ({
-            name,
-            color: speakerColors[i % speakerColors.length],
-          }));
-
-          // Map questions: correct_answer can be a string (value) or number (index)
-          const rawQuestions = rawData.questions || [];
-          const mappedQuestions: Question[] = rawQuestions.map((q: any) => {
-            let correctIndex = 0;
-            if (typeof q.correctAnswer === 'number') {
-              correctIndex = q.correctAnswer;
-            } else if (typeof q.correct_answer === 'number') {
-              correctIndex = q.correct_answer;
-            } else if (typeof q.correct_answer === 'string' && q.options) {
-              const idx = q.options.indexOf(q.correct_answer);
-              if (idx >= 0) {
-                correctIndex = idx;
-              } else {
-                log.warn('[DialogueExercise] correct_answer string not found in options, defaulting to 0:', q.correct_answer);
-                correctIndex = 0;
-              }
-            }
-            return {
-              question: q.question || q.text || '',
-              options: q.options || [],
-              correctAnswer: correctIndex,
-              hint: q.hint,
-            };
-          });
-
-          setDialogueFamily({
-            name: rawData.name || rawData.title || family?.name || 'Dialogue',
-            title: rawData.title,
-            icon: rawData.icon || family?.icon || '💬',
-            color: rawData.color,
-            characters,
-            messages: rawMessages,
-            questions: mappedQuestions,
-          });
-        }
-      } catch (e) {
-        log.error('[DialogueExercise] Load error:', e);
-      } finally {
-        setIsLoadingContent(false);
-      }
-    };
-
-    loadDialogue();
-  }, [db, familyId, numSubfamilyId]);
-
-  // Labels depuis DB
   const [levelLabel, setLevelLabel] = useState({ badge: '', title: '', description: '' });
   const [moduleLabel, setModuleLabel] = useState({ title: '', icon: '', description: '' });
 
   useEffect(() => {
     const loadLabels = async () => {
       if (db) {
-        const lLabel = await getLevelLabel(db, numLevelId, identity.id);
-        setLevelLabel(lLabel);
-
-        const mLabel = await getModuleLabel(db, EXERCISE_TYPE, identity.id);
-        setModuleLabel(mLabel);
+        setLevelLabel(await getLevelLabel(db, numLevelId, identity.id));
+        setModuleLabel(await getModuleLabel(db, EXERCISE_TYPE, identity.id));
       }
     };
     loadLabels();
@@ -226,10 +109,7 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   const [exerciseState, setExerciseState] = useState<ExerciseState>({
-    selectedOption: null,
-    isValidated: false,
-    isCorrect: false,
-    attemptCount: 0,
+    selectedOption: null, isValidated: false, isCorrect: false, attemptCount: 0,
   });
 
   // =================== LOGIQUE MÉTIER ===================
@@ -244,7 +124,6 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
 
   const realProgress = getFamilyProgress(numLevelId, EXERCISE_TYPE, compositeFamilyId);
 
-  // =================== VALIDATION STATE pour ExerciseValidation ===================
   const validationState: ValidationState = useMemo(() => {
     if (!exerciseState.isValidated) return 'initial';
     if (exerciseState.isCorrect) return 'correct';
@@ -267,7 +146,6 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
   useExerciseSaveOnUnmount();
 
   // =================== HANDLERS ===================
-
   const handleAnswer = (option: string) => {
     if (exerciseState.isValidated) return;
     setExerciseState(prev => ({ ...prev, selectedOption: option }));
@@ -275,8 +153,7 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
 
   const handleValidate = () => {
     if (!exerciseState.selectedOption || !currentQuestion) return;
-
-    const correctLetter = String.fromCharCode(65 + currentQuestion.correctAnswer);
+    const correctLetter = String.fromCodePoint(65 + currentQuestion.correctAnswer);
     const isCorrect = exerciseState.selectedOption === correctLetter;
 
     if (!isCorrect) {
@@ -292,44 +169,28 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
     }
 
     setExerciseState(prev => ({
-      ...prev,
-      isValidated: true,
-      isCorrect,
-      attemptCount: prev.attemptCount + 1,
+      ...prev, isValidated: true, isCorrect, attemptCount: prev.attemptCount + 1,
     }));
   };
 
   const handleRetry = () => {
-    setExerciseState(prev => ({
-      ...prev,
-      selectedOption: null,
-      isValidated: false,
-    }));
+    setExerciseState(prev => ({ ...prev, selectedOption: null, isValidated: false }));
   };
 
   const handleNextQuestion = () => {
     trackItemCompletion(numLevelId, EXERCISE_TYPE, compositeFamilyId, currentQuestionIndex, totalQuestions);
-
     if (isLastQuestion) {
       safeGoBack.navigate();
     } else {
       setCurrentQuestionIndex(prev => prev + 1);
-      setExerciseState({
-        selectedOption: null,
-        isValidated: false,
-        isCorrect: false,
-        attemptCount: 0,
-      });
+      setExerciseState({ selectedOption: null, isValidated: false, isCorrect: false, attemptCount: 0 });
     }
   };
 
   // =================== FEEDBACK ===================
-
   const feedbackMessage = useMemo(() => {
     if (!exerciseState.isValidated) return null;
-    if (exerciseState.isCorrect) {
-      return { title: 'Correct', message: 'Ta réponse est juste.' };
-    }
+    if (exerciseState.isCorrect) return { title: 'Correct', message: 'Ta réponse est juste.' };
     if (exerciseState.attemptCount >= MAX_ATTEMPTS) {
       const correctAnswer = currentQuestion?.options?.[currentQuestion?.correctAnswer];
       return { title: 'Réponse', message: `La réponse était : ${correctAnswer}` };
@@ -338,23 +199,21 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
   }, [exerciseState.isValidated, exerciseState.isCorrect, exerciseState.attemptCount, currentQuestion]);
 
   // =================== RENDER ===================
-
   return (
     <ExerciseLayout
       headerProps={{
         variant: 'exercise',
-        onBack: safeGoBack.navigate,
-        rightIcon: <DynamicIcon name={moduleLabel.icon || 'chatbubbles'} size={28} color={identity.header?.accent || identity.palette.primary} fallback="chatbubbles" />,
+        onBack: () => { safeGoBack.navigate(); },
+        rightIcon: <DynamicIcon name={moduleLabel.icon || 'message-text'} size={28} color={identity.header?.accent || identity.palette.primary} fallback="message-text" />,
         showLevelBadge: true,
         levelTitle: levelLabel.badge,
         exerciseTitle: dialogueFamily?.name || dialogueFamily?.title || 'Dialogue',
       }}
       progressProps={{
         progressPercent: realProgress,
-        progressText:
-          phase === 'dialogue'
-            ? `Lecture • ${currentMessageIndex + 1}/${totalMessages}`
-            : `Questions • ${currentQuestionIndex + 1}/${totalQuestions}`,
+        progressText: phase === 'dialogue'
+          ? `Lecture • ${currentMessageIndex + 1}/${totalMessages}`
+          : `Questions • ${currentQuestionIndex + 1}/${totalQuestions}`,
       }}
       footer={
         phase === 'questions' ? (
@@ -379,12 +238,8 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({
           key="dialogue_mode"
           dialogue={dialogueFamily || undefined}
           currentMessageIndex={currentMessageIndex}
-          onPreviousMessage={() =>
-            currentMessageIndex > 0 && setCurrentMessageIndex(prev => prev - 1)
-          }
-          onNextMessage={() =>
-            isLastMessage ? setPhase('questions') : setCurrentMessageIndex(prev => prev + 1)
-          }
+          onPreviousMessage={() => currentMessageIndex > 0 && setCurrentMessageIndex(prev => prev - 1)}
+          onNextMessage={() => isLastMessage ? setPhase('questions') : setCurrentMessageIndex(prev => prev + 1)}
           isLastMessage={isLastMessage}
           totalMessages={totalMessages}
         />

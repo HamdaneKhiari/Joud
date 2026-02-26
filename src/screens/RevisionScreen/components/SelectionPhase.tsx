@@ -56,7 +56,7 @@ const SelectionPhase: React.FC<SelectionPhaseProps> = ({
           <Animated.View entering={FadeInDown.delay(100).springify()}>
             <FlowCard
               variant="horizontal"
-              icon={isPlayful ? '🌅' : 'sun'}
+              icon={isPlayful ? '🌅' : 'weather-sunny'}
               title="Quotidienne"
               subtitle={`${dailyCount} mots`}
               color={identity.palette.primary}

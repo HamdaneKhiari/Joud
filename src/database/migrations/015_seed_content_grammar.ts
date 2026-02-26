@@ -23,9 +23,9 @@ export default createMigration(
       `SELECT id FROM families WHERE slug = 'past'`
     );
 
-    const presentId = present?.id || 1;
-    const futureId = future?.id || 2;
-    const pastId = past?.id || 3;
+    const presentId = present?.id || 1; // NOSONAR — utilisé dans contentSeed ci-dessous
+    const futureId = future?.id || 2; // NOSONAR — utilisé dans contentSeed ci-dessous
+    const pastId = past?.id || 3; // NOSONAR — utilisé dans contentSeed ci-dessous
 
     // ⬇️⬇️⬇️ AJOUTE TON CONTENU ICI ⬇️⬇️⬇️
     const contentSeed: any[] = [

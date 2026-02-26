@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '@/themes/ThemeContext';
@@ -8,7 +8,6 @@ import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
 import { useRecordError } from '@/hooks/exercises/useRecordError';
-import { log } from '@/utils/logUtils';
 import { generateFeedbackMessage } from '@/utils/feedback';
 import { tokens } from '@/themes/tokens';
 import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
@@ -18,6 +17,7 @@ import CompletionModal from '@/components/common/CompletionModal';
 import ConnectorCardRenderer from '../../components/pedagogy/Connector/ConnectorCardRenderer';
 import { useConnectorState } from './hooks/useConnectorState';
 import { useConnectorHandlers } from './hooks/useConnectorHandlers';
+import { useConnectorContent } from './hooks/useConnectorContent';
 import { useLevelLabel } from '@/utils/labelMapper';
 
 interface ConnectorExerciseParams {
@@ -42,15 +42,15 @@ const ConnectorExerciseScreen: React.FC = () => {
   const familyId = params?.familyId;
   const subfamilyId = params?.subfamilyId ?? 0;
   const safeFamilyId = String(familyId || '');
-
   const moduleColor = params?.moduleColor || identity.palette.primary;
   const title = params?.title || 'Exercise';
   const levelId = params?.levelId || 1;
   const levelLabel = useLevelLabel(levelId);
   const realProgress = getFamilyProgress(levelId, 'connector', safeFamilyId);
 
-  const [loading, setLoading] = useState(true);
-  const [questions, setQuestions] = useState<any[]>([]);
+  // =================== CHARGEMENT ===================
+  const { questions, loading } = useConnectorContent(db, familyId, subfamilyId);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showCompletion, setShowCompletion] = useState(false);
 
@@ -58,8 +58,6 @@ const ConnectorExerciseScreen: React.FC = () => {
   const exerciseType = currentItem?.type || 'logic';
 
   const connectorStates = useConnectorState(exerciseType);
-
-  // ——— État unifié courant (logicState / fusionState / rephrasingState sont le même objet) ———
   const currentState = connectorStates.logicState;
   const hasAnswer = exerciseType === 'logic'
     ? !!currentState.selectedOption
@@ -84,36 +82,6 @@ const ConnectorExerciseScreen: React.FC = () => {
     );
     return feedback ? { title: feedback.title, message: feedback.message } : undefined;
   }, [currentState.isValidated, currentState.isCorrect, canSkip, currentItem?.data?.correctAnswer, currentState.attemptCount]);
-
-  // ——— Chargement du contenu ———
-  useEffect(() => {
-    const loadContent = async () => {
-      if (!db || typeof db === 'number' || !familyId) return;
-      try {
-        setLoading(true);
-        const result = await db.getAllAsync(
-          `SELECT * FROM content WHERE family_id = ? AND subfamily_id = ?`,
-          [familyId, subfamilyId],
-        );
-
-        if (result && result.length > 0) {
-          const parsedQuestions = result.map((item: any) => ({
-            ...item,
-            data: typeof item.data === 'string' ? JSON.parse(item.data) : item.data,
-            type: item.content_type,
-          }));
-          setQuestions(parsedQuestions);
-        } else {
-          navigation.goBack();
-        }
-      } catch (error) {
-        log.error('[ConnectorExerciseScreen] Load content failed:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadContent();
-  }, [db, familyId, subfamilyId]);
 
   useExerciseActivity({
     moduleSlug: 'connector',
@@ -160,7 +128,6 @@ const ConnectorExerciseScreen: React.FC = () => {
     },
   });
 
-  // Handlers de la question courante (pour le footer)
   const handlerMap = { logic: handlers.logic, fusion: handlers.fusion, rephrasing: handlers.rephrasing };
   const currentHandlers = handlerMap[exerciseType as keyof typeof handlerMap] ?? handlers.rephrasing;
 
@@ -192,7 +159,7 @@ const ConnectorExerciseScreen: React.FC = () => {
       <ExerciseLayout
         headerProps={{
           variant: 'exercise',
-          onBack: handleBackPress,
+          onBack: () => { void handleBackPress(); },
           rightIcon: <DynamicIcon name="puzzle" size={28} color={identity.header.accent} />,
           showLevelBadge: true,
           levelTitle: levelLabel.badge,

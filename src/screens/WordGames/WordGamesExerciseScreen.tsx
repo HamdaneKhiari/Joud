@@ -66,7 +66,7 @@ const WordGamesExerciseScreen = ({ navigation, route }: Props) => {
   const { identity } = useTheme();
 
   // =================== PROGRESSION & NAVIGATION ===================
-  const { trackItemCompletion, getFamilyProgress, saveProgressNow } = useProgress();
+  const { trackItemCompletion, getFamilyProgress } = useProgress();
   const safeGoBack = useSafeNavigation(
     useCallback(() => navigation.goBack(), [navigation])
   );
@@ -109,7 +109,7 @@ const WordGamesExerciseScreen = ({ navigation, route }: Props) => {
   const { getCurrentState } = gameStates;
 
   const handlers = useGameHandlers({
-    question: currentQuestion as GameQuestion,
+    question: currentQuestion as GameQuestion, // NOSONAR — generic inference limitation
     isLastQuestion,
     safeGoBack,
     setCurrentQuestionIndex,

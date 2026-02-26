@@ -5,7 +5,7 @@
  * ============================================
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/themes/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
@@ -19,7 +19,7 @@ import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidat
 import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
 import { useCurrentLevel } from '@/contexts/CurrentLevelContext';
-import { getSpacedReviewCount } from '@/database/queries';
+import { getSpacedReviewCount, DAILY_WORDS_COUNT } from '@/database/queries';
 
 type Phase = 'selection' | 'session' | 'summary';
 
@@ -78,16 +78,17 @@ const RevisionScreen = () => {
 
   useExerciseSaveOnUnmount();
 
-  // Charger nombre révisions espacées
-  useEffect(() => {
-    const load = async () => {
-      if (db && user) {
-        const count = await getSpacedReviewCount(db, user.id);
-        setSpacedCount(count);
-      }
-    };
-    load();
+  // Charger nombre révisions espacées (mots dont next_review_date <= aujourd'hui)
+  const refreshSpacedCount = useCallback(async () => {
+    if (db && user) {
+      const count = await getSpacedReviewCount(db, user.id);
+      setSpacedCount(count);
+    }
   }, [db, user]);
+
+  useEffect(() => {
+    refreshSpacedCount();
+  }, [refreshSpacedCount]);
 
   // Détection fin session
   useEffect(() => {
@@ -105,9 +106,11 @@ const RevisionScreen = () => {
   const handleBackToSelection = () => {
     resetSession();
     setPhase('selection');
+    // Rafraîchir le compte espacé : une session daily vient d'ajouter des mots au SRS
+    refreshSpacedCount();
   };
 
-  const dailyCount = { primary: 5, college: 10, lycee: 15, adult: 15 }[user?.audience || 'primary'];
+  const dailyCount = DAILY_WORDS_COUNT[user?.audience || 'primary'] ?? 10;
 
   // Rendu selon phase
   if (phase === 'selection') {

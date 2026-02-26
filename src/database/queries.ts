@@ -675,7 +675,7 @@ export const calculateUserMetrics = async (
 /**
  * Configuration du nombre de mots quotidiens selon l'audience
  */
-const DAILY_WORDS_COUNT: Record<string, number> = {
+export const DAILY_WORDS_COUNT: Record<string, number> = {
   primary: 5,
   college: 10,
   lycee: 15,

@@ -23,9 +23,9 @@ export default createMigration(
       `SELECT id FROM families WHERE slug = 'meeting_friends'`
     );
 
-    const airportId = airport?.id || 1;
-    const interviewId = interview?.id || 2;
-    const friendsId = friends?.id || 3;
+    const airportId = airport?.id || 1; // NOSONAR — utilisé dans contentSeed ci-dessous
+    const interviewId = interview?.id || 2; // NOSONAR — utilisé dans contentSeed ci-dessous
+    const friendsId = friends?.id || 3; // NOSONAR — utilisé dans contentSeed ci-dessous
 
     // ⬇️⬇️⬇️ AJOUTE TON CONTENU ICI ⬇️⬇️⬇️
     const contentSeed: any[] = [

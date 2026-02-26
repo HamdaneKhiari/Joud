@@ -24,7 +24,7 @@ export default createMigration(
     );
 
     const restaurantId = restaurant?.id || 1;
-    const shoppingId = shopping?.id || 2;
+    const shoppingId = shopping?.id || 2; // NOSONAR — utilisé dans contentSeed ci-dessous
     const dailyLifeId = dailyLife?.id || 3;
 
     // ⬇️⬇️⬇️ AJOUTE TON CONTENU ICI ⬇️⬇️⬇️

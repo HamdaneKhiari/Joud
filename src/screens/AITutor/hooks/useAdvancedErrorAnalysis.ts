@@ -10,6 +10,7 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
+import { log } from '@/utils/logUtils';
 
 // ============================================
 // TYPES
@@ -267,7 +268,7 @@ export const useAdvancedErrorAnalysis = () => {
         });
 
       } catch (error) {
-        console.error('[useAdvancedErrorAnalysis] Error:', error);
+        log.error('[useAdvancedErrorAnalysis] Error:', error);
       } finally {
         setIsLoading(false);
       }

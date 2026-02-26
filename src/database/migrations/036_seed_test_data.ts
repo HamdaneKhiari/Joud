@@ -12,7 +12,7 @@ import type * as SQLite from 'expo-sqlite';
 import { createMigration } from './runner';
 
 // Helper pour récupérer ou créer une famille
-async function getOrCreateFamily(
+async function getOrCreateFamily( // NOSONAR — 8 paramètres nécessaires pour l'initialisation des familles
   db: SQLite.SQLiteDatabase,
   slug: string,
   moduleSlug: string,

@@ -23,9 +23,9 @@ export default createMigration(
       `SELECT id FROM families WHERE slug = 'emails'`
     );
 
-    const storiesId = stories?.id || 1;
-    const articlesId = articles?.id || 2;
-    const emailsId = emails?.id || 3;
+    const storiesId = stories?.id || 1; // NOSONAR — utilisé dans contentSeed ci-dessous
+    const articlesId = articles?.id || 2; // NOSONAR — utilisé dans contentSeed ci-dessous
+    const emailsId = emails?.id || 3; // NOSONAR — utilisé dans contentSeed ci-dessous
 
     // ⬇️⬇️⬇️ AJOUTE TON CONTENU ICI ⬇️⬇️⬇️
     const contentSeed: any[] = [

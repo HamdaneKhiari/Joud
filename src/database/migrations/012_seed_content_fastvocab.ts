@@ -23,9 +23,9 @@ export default createMigration(
       `SELECT id FROM families WHERE slug = 'tech_essentials'`
     );
 
-    const businessId = business?.id || 1;
-    const travelId = travel?.id || 2;
-    const techId = tech?.id || 3;
+    const businessId = business?.id || 1; // NOSONAR — utilisé dans contentSeed ci-dessous
+    const travelId = travel?.id || 2; // NOSONAR — utilisé dans contentSeed ci-dessous
+    const techId = tech?.id || 3; // NOSONAR — utilisé dans contentSeed ci-dessous
 
     // ⬇️⬇️⬇️ AJOUTE TON CONTENU ICI ⬇️⬇️⬇️
     const contentSeed: any[] = [

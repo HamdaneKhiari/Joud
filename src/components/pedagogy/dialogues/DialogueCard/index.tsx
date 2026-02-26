@@ -317,7 +317,7 @@ const QuestionPhase: React.FC<QuestionPhaseProps> = ({
   const { identity } = useTheme();
   const styles = createStyles(identity);
 
-  const getLetterFromIndex = (index: number) => String.fromCharCode(65 + index);
+  const getLetterFromIndex = (index: number) => String.fromCodePoint(65 + index);
   const handleAnswer = (letter: string) => onAnswer?.(letter);
   const questionOptions = question?.options || [];
   // correctAnswer est maintenant un index (number), pas une lettre

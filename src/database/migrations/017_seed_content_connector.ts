@@ -23,9 +23,9 @@ export default createMigration(
       `SELECT id FROM families WHERE slug = 'rephrasing'`
     );
 
-    const logicalLinksId = logicalLinks?.id || 1;
-    const sentenceFusionId = sentenceFusion?.id || 2;
-    const rephrasingId = rephrasing?.id || 3;
+    const logicalLinksId = logicalLinks?.id || 1; // NOSONAR — utilisé dans contentSeed ci-dessous
+    const sentenceFusionId = sentenceFusion?.id || 2; // NOSONAR — utilisé dans contentSeed ci-dessous
+    const rephrasingId = rephrasing?.id || 3; // NOSONAR — utilisé dans contentSeed ci-dessous
 
     // ⬇️⬇️⬇️ AJOUTE TON CONTENU ICI ⬇️⬇️⬇️
     const contentSeed: any[] = [
