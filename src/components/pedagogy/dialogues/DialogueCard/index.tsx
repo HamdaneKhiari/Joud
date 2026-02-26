@@ -4,6 +4,7 @@
  * Migration TypeScript depuis JS
  */
 
+import { log } from '@/utils/logUtils';
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -201,7 +202,7 @@ const DialoguePhase: React.FC<DialoguePhaseProps> = ({
         }
       });
     } catch (error) {
-      console.error('Audio playback error:', error);
+      log.error('Audio playback error:', error);
       setPlayingBubble(null);
     }
   }, [dialogue.messages, playingBubble, sound]);

@@ -6,6 +6,7 @@
  * ============================================
  */
 
+import { log } from '@/utils/logUtils';
 import { useState, useCallback } from 'react';
 import { useUser } from '../contexts/UserContext';
 
@@ -61,7 +62,7 @@ export const useLastActivity = () => {
         timestamp
       ]);
     } catch (error) {
-      console.error('[useLastActivity] recordActivity error:', error);
+      log.error('[useLastActivity] recordActivity error:', error);
     }
   }, [db]);
 
@@ -103,7 +104,7 @@ export const useLastActivity = () => {
       
       setLastActivity(result);
     } catch (error) {
-      console.error('❌ Erreur fetchLastActivity:', error);
+      log.error('❌ Erreur fetchLastActivity:', error);
     } finally {
       setIsLoading(false);
     }

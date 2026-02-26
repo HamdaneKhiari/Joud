@@ -66,7 +66,7 @@ export const useGetFamiliesByModule = (
         setFamilies(result || []);
         setFamilyIds((result || []).map(f => f.id?.toString() || ''));
       } catch (err) {
-        console.error('Erreur useGetFamiliesByModule:', err);
+        log.error('Erreur useGetFamiliesByModule:', err);
         setError(err as Error);
         setFamilies([]);
         setFamilyIds([]);

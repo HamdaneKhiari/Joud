@@ -3,6 +3,7 @@
  * 100% White Label - Plus aucun hardcoding
  */
 
+import { log } from '@/utils/logUtils';
 import { useUser } from '@/contexts/UserContext';
 import { useTheme } from '@/themes/ThemeContext';
 import { 
@@ -60,7 +61,7 @@ export const useModuleLabel = (moduleSlug: string): ModuleLabel => {
         const errorMsg = String(error);
         // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
         if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
-          console.error('Error loading module label:', error);
+          log.error('Error loading module label:', error);
         }
       }
     };
@@ -96,7 +97,7 @@ export const useLevelLabel = (levelNumber: number, familyId?: string): LevelLabe
         const errorMsg = String(error);
         // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
         if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
-          console.error('Error loading level label:', error);
+          log.error('Error loading level label:', error);
         }
       }
     };
@@ -136,7 +137,7 @@ export const getModuleLabel = async (
     const errorMsg = String(error);
     // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
     if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
-      console.error('Error in getModuleLabel:', error);
+      log.error('Error in getModuleLabel:', error);
     }
     return { title: moduleSlug, description: 'Module', icon: 'book' };
   }
@@ -214,7 +215,7 @@ export const getLevelLabel = async (
     const errorMsg = String(error);
     // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
     if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
-      console.error('Error in getLevelLabel:', error);
+      log.error('Error in getLevelLabel:', error);
     }
     return { title: `Niveau ${levelNumber}`, badge: `N${levelNumber}`, description: 'Niveau' };
   }
@@ -238,7 +239,7 @@ export const getAvailableModules = async (
     const errorMsg = String(error);
     // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
     if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
-      console.error('Error in getAvailableModules:', error);
+      log.error('Error in getAvailableModules:', error);
     }
     return [];
   }

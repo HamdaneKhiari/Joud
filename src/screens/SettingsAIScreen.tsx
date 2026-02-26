@@ -5,6 +5,7 @@
  * ============================================
  */
 
+import { log } from '@/utils/logUtils';
 import React, { useState, useMemo } from 'react';
 import {
   View,
@@ -80,7 +81,7 @@ export default function SettingsAIScreen() {
                 Alert.alert('✅ Clé supprimée', 'Ta clé API a été effacée du stockage sécurisé.');
               })
               .catch((error: unknown) => {
-                console.error('[SettingsAI] Delete error:', error);
+                log.error('[SettingsAI] Delete error:', error);
                 Alert.alert('Erreur', 'Impossible de supprimer la clé API');
               });
           },

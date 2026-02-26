@@ -300,7 +300,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
           setIdentity(defaultIdentity);
         }
       } catch (error) {
-        console.error('Error loading branding identity:', error);
+        log.error('Error loading branding identity:', error);
         setIdentity(defaultIdentity);
       } finally {
         setIsLoading(false);

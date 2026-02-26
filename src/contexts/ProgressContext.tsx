@@ -102,16 +102,18 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const syncToSQLite = useCallback(async (state: ProgressState) => {
     if (!db || typeof db === 'number' || !user) return;
 
-    for (const [levelKey, levelData] of Object.entries(state)) {
-      const levelNum = Number.parseInt(levelKey.replace('level', ''), 10);
-      if (Number.isNaN(levelNum) || !levelData) continue;
+    // Transaction pour garantir l'atomicité — pas d'état partiel en cas de crash
+    await db.execAsync('BEGIN TRANSACTION');
+    try {
+      for (const [levelKey, levelData] of Object.entries(state)) {
+        const levelNum = Number.parseInt(levelKey.replace('level', ''), 10);
+        if (Number.isNaN(levelNum) || !levelData) continue;
 
-      for (const [, exerciseData] of Object.entries(levelData)) {
-        for (const [compositeKey, family] of Object.entries(exerciseData)) {
-          if (!family || family.total === 0) continue;
-          const { familyId, subfamilyId } = parseCompositeKey(compositeKey);
-          if (Number.isNaN(familyId) || familyId <= 0) continue;
-          try {
+        for (const [, exerciseData] of Object.entries(levelData)) {
+          for (const [compositeKey, family] of Object.entries(exerciseData)) {
+            if (!family || family.total === 0) continue;
+            const { familyId, subfamilyId } = parseCompositeKey(compositeKey);
+            if (Number.isNaN(familyId) || familyId <= 0) continue;
             await upsertProgress(db, {
               user_id: user.id,
               family_id: familyId,
@@ -121,11 +123,13 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               total: family.total,
               score: Math.round((family.completed / family.total) * 100),
             });
-          } catch (e) {
-            log.warn(`[syncToSQLite] Skip key="${compositeKey}" (family_id=${familyId}):`, e);
           }
         }
       }
+      await db.execAsync('COMMIT');
+    } catch (e) {
+      await db.execAsync('ROLLBACK');
+      log.warn('[syncToSQLite] Transaction rollback:', e);
     }
   }, [db, user]);
 

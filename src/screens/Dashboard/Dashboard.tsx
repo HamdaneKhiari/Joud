@@ -1,3 +1,4 @@
+import { log } from '@/utils/logUtils';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { ScrollView, View, ActivityIndicator, Text } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -63,7 +64,7 @@ export default function Dashboard() {
         }
         setLevelLabels(labels);
       } catch (error) {
-        console.error('Error loading dashboard data:', error);
+        log.error('Error loading dashboard data:', error);
       } finally {
         setDataLoading(false);
       }

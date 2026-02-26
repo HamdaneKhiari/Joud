@@ -5,6 +5,7 @@
  * ============================================
  */
 
+import { log } from '@/utils/logUtils';
 import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { getUserMetrics, calculateUserMetrics } from '@/database/queries';
@@ -54,7 +55,7 @@ export const useUserMetrics = (): UseUserMetricsReturn => {
       );
       setBadges(badgesResult?.count || 0);
     } catch (err) {
-      console.error('[useUserMetrics] Error:', err);
+      log.error('[useUserMetrics] Error:', err);
       setMetrics({
         user_id: user.id,
         words_learned: 0,

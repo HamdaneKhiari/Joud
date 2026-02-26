@@ -5,6 +5,7 @@
  * ============================================
  */
 
+import { log } from '@/utils/logUtils';
 import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { getWordsToReview } from '@/database/queries';
@@ -40,7 +41,7 @@ export const useRevisions = (): UseRevisionsReturn => {
       const count = await getWordsToReview(db, user.id);
       setWordsToReview(count);
     } catch (err) {
-      console.error('[useRevisions] Error:', err);
+      log.error('[useRevisions] Error:', err);
       setWordsToReview(0);
     } finally {
       setIsLoading(false);

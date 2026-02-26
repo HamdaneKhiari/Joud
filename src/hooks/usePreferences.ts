@@ -23,20 +23,27 @@ export const usePreferences = () => {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(PREFS_KEY).then((raw) => {
-      if (raw) {
-        try {
-          setPrefs({ ...DEFAULT_PREFS, ...JSON.parse(raw) });
-        } catch { /* fallback to defaults */ }
-      }
-      setLoaded(true);
-    });
+    AsyncStorage.getItem(PREFS_KEY)
+      .then((raw) => {
+        if (raw) {
+          try {
+            setPrefs({ ...DEFAULT_PREFS, ...JSON.parse(raw) });
+          } catch { /* fallback to defaults */ }
+        }
+        setLoaded(true);
+      })
+      .catch(() => {
+        // AsyncStorage indisponible — on garde les valeurs par défaut
+        setLoaded(true);
+      });
   }, []);
 
   const updatePref = useCallback(<K extends keyof Preferences>(key: K, value: Preferences[K]) => {
     setPrefs((prev) => {
       const updated = { ...prev, [key]: value };
-      AsyncStorage.setItem(PREFS_KEY, JSON.stringify(updated));
+      AsyncStorage.setItem(PREFS_KEY, JSON.stringify(updated)).catch(() => {
+        // Échec silencieux acceptable — la préférence sera réinitialisée au prochain lancement
+      });
       return updated;
     });
   }, []);

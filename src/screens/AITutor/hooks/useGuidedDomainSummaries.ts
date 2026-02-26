@@ -7,6 +7,7 @@
  * ============================================
  */
 
+import { log } from '@/utils/logUtils';
 import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 
@@ -226,7 +227,7 @@ export const useGuidedDomainSummaries = () => {
 
         setDomains(results);
       } catch (error) {
-        console.error('[useGuidedDomainSummaries] Error:', error);
+        log.error('[useGuidedDomainSummaries] Error:', error);
       } finally {
         setIsLoading(false);
       }

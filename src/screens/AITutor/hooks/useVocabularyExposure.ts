@@ -7,6 +7,7 @@
  * ============================================
  */
 
+import { log } from '@/utils/logUtils';
 import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 
@@ -64,7 +65,7 @@ export const useVocabularyExposure = () => {
           lastSeen:    r.last_seen,
         })));
       } catch (e) {
-        console.error('[useVocabularyExposure] Erreur:', e);
+        log.error('[useVocabularyExposure] Erreur:', e);
       } finally {
         setIsLoading(false);
       }

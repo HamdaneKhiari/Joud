@@ -22,6 +22,8 @@ import { DMSans_400Regular } from '@expo-google-fonts/dm-sans/400Regular';
 import { DMSans_500Medium } from '@expo-google-fonts/dm-sans/500Medium';
 import { DMSans_700Bold } from '@expo-google-fonts/dm-sans/700Bold';
 
+import { ErrorBoundary } from '../src/components/ErrorBoundary';
+
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     Nunito_400Regular,
@@ -42,6 +44,7 @@ export default function RootLayout() {
   if (!fontsLoaded) return null;
 
   return (
+    <ErrorBoundary>
     <UserProvider>
       <ThemeProvider>
         <ProgressProvider>
@@ -111,5 +114,6 @@ export default function RootLayout() {
         </ProgressProvider>
       </ThemeProvider>
     </UserProvider>
+    </ErrorBoundary>
   );
 }

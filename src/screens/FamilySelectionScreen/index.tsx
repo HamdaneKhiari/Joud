@@ -3,6 +3,7 @@
  * Nettoyage : Suppression des doublons de rafraîchissement
  */
 
+import { log } from '@/utils/logUtils';
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, StatusBar, Text, FlatList } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
@@ -103,7 +104,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
           const mColor = await getModuleColor(moduleId, identity.id, db, slugs);
           if (mColor) setModuleColor(mColor);
         } catch (error) {
-          console.error('[FamilySelection] Label load error:', error);
+          log.error('[FamilySelection] Label load error:', error);
         }
       }
     };

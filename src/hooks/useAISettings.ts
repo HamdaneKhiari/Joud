@@ -90,7 +90,7 @@ export const useAISettings = () => {
         isConfigured: row.is_configured === 1 && apiKey !== null, // Configuré ssi clé présente
       });
     } catch (error) {
-      console.error('[useAISettings] Load error:', error);
+      log.error('[useAISettings] Load error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -146,7 +146,7 @@ export const useAISettings = () => {
       setSettings(updated);
       log.info('[useAISettings] Settings mis à jour (clé API chiffrée)');
     } catch (error) {
-      console.error('[useAISettings] Update error:', error);
+      log.error('[useAISettings] Update error:', error);
       throw error;
     }
   }, [db, settings]);
@@ -224,7 +224,7 @@ export const useAISettings = () => {
       }
       log.info('[useAISettings] Clé API supprimée');
     } catch (error) {
-      console.error('[useAISettings] Delete error:', error);
+      log.error('[useAISettings] Delete error:', error);
       throw error;
     }
   }, [db, settings]);

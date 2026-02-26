@@ -8,6 +8,7 @@
  * ============================================
  */
 
+import { log } from '@/utils/logUtils';
 import { useCallback } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { addWordToSRS } from '@/database/queries';
@@ -42,7 +43,7 @@ export const useRecordWordSeen = () => {
         await addWordToSRS(db, user.id, contentId);
       }
     } catch (e) {
-      console.error('[useRecordWordSeen] Failed:', e);
+      log.error('[useRecordWordSeen] Failed:', e);
     }
   }, [db, user]);
 

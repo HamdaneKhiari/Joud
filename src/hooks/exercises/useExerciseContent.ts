@@ -1,3 +1,4 @@
+import { log } from '@/utils/logUtils';
 import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import type { Family, Module } from '@/database/schema';
@@ -100,7 +101,7 @@ export const useExerciseContent = <T = any>(
             };
           } catch (e) {
             // ✅ S2486 Fixed: Exception is now handled with a log
-            console.error(`[useExerciseContent] JSON Parse Error (ID: ${item.id}):`, e);
+            log.error(`[useExerciseContent] JSON Parse Error (ID: ${item.id}):`, e);
             return null;
           }
         }).filter((item): item is ContentItem<T> => item !== null);

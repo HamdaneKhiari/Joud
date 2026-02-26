@@ -3,6 +3,7 @@
  * Version TypeScript
  */
 
+import { log } from '@/utils/logUtils';
 import type AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ============================================
@@ -91,7 +92,7 @@ export const getCompletedWordsForLevel = async (
 
     return completedWords;
   } catch (error) {
-    console.error('Erreur getCompletedWordsForLevel:', error);
+    log.error('Erreur getCompletedWordsForLevel:', error);
     return new Set();
   }
 };
@@ -136,6 +137,6 @@ export const saveFamilyProgress = async (
     const storageKey = STORAGE_KEYS.FAMILY_PROGRESS || 'FAMILY_PROGRESS_CACHE';
     await asyncStorage.setItem(storageKey, JSON.stringify(familyProgress));
   } catch (error) {
-    console.error('Erreur saveFamilyProgress:', error);
+    log.error('Erreur saveFamilyProgress:', error);
   }
 };

@@ -3,6 +3,7 @@
  * 100% White Label - Plus aucun hardcoding
  */
 
+import { log } from '@/utils/logUtils';
 import { useUser } from '@/contexts/UserContext';
 import { useTheme } from '@/themes/ThemeContext';
 import { getIdentityPalette } from '@/database/queries';
@@ -47,7 +48,7 @@ export const useIdentityPalette = (): string[] => {
         const colors = await getCachedPalette(db, currentApp);
         setPalette(colors);
       } catch (error) {
-        console.error('Error loading identity palette:', error);
+        log.error('Error loading identity palette:', error);
         setPalette([]);
       }
     };
@@ -85,7 +86,7 @@ export const getModuleColor = async (
 
     return palette[colorIndex] || palette[0];
   } catch (error) {
-    console.error('Error in getModuleColor:', error);
+    log.error('Error in getModuleColor:', error);
     return '#34495E';
   }
 };
@@ -108,7 +109,7 @@ export const getModuleIcon = async (
     const moduleLabel = await getModuleLabelWithFallback(db, moduleSlug, identityId);
     return moduleLabel.icon_name;
   } catch (error) {
-    console.error('Error in getModuleIcon:', error);
+    log.error('Error in getModuleIcon:', error);
     return 'book';
   }
 };
@@ -133,7 +134,7 @@ export const isValidLevel = async (
     )) as { level: number }[];
     return levels.length > 0;
   } catch (error) {
-    console.error('Error in isValidLevel:', error);
+    log.error('Error in isValidLevel:', error);
     return levelNumber >= 1 && levelNumber <= 4;
   }
 };
@@ -156,7 +157,7 @@ export const getMaxLevels = async (
     )) as { level: number }[];
     return levels.length > 0 ? levels[0].level : 4;
   } catch (error) {
-    console.error('Error in getMaxLevels:', error);
+    log.error('Error in getMaxLevels:', error);
     return 4;
   }
 };

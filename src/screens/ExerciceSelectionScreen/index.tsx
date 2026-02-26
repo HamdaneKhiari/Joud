@@ -3,6 +3,7 @@
  * Harmonisation : Grille Uniforme avec badges (Option A)
  */
 
+import { log } from '@/utils/logUtils';
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { View, StatusBar, FlatList } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
@@ -144,7 +145,7 @@ const ExerciseSelectionScreen: React.FC = () => {
         );
         setExercises(exercisesData);
       } catch (error) {
-        console.error('[ExerciseSelection] Erreur :', error);
+        log.error('[ExerciseSelection] Erreur :', error);
       } finally {
         setLoadingData(false);
       }

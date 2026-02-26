@@ -1,3 +1,5 @@
+import { log } from '@/utils/logUtils';
+import { sanitizeExerciseInput } from '@/utils/inputSanitizer';
 /**
  * ============================================
  * AI SERVICE
@@ -83,7 +85,7 @@ Return ONLY the JSON array, no other text.`;
       apiKey,
       [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: text },
+        { role: 'user', content: sanitizeExerciseInput(text) },
       ],
       { model, maxTokens: 300, temperature: 0.3 }
     );
@@ -114,7 +116,7 @@ Return ONLY the JSON, no other text.`;
       apiKey,
       [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: text },
+        { role: 'user', content: sanitizeExerciseInput(text) },
       ],
       { model, maxTokens: 300, temperature: 0.3 }
     );
@@ -158,7 +160,7 @@ Return ONLY the JSON, no other text.`;
           throw new Error(`Provider non supporté : ${provider}`);
       }
     } catch (error: any) {
-      console.error('[AIService] Error:', error);
+      log.error('[AIService] Error:', error);
       throw new Error(this.formatAIError(error));
     }
   }

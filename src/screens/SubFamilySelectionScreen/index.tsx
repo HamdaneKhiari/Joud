@@ -1,3 +1,4 @@
+import { log } from '@/utils/logUtils';
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, StatusBar, Text, FlatList } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
@@ -42,7 +43,7 @@ const SubfamilySelectionScreen = () => {
         if (res && !displayTitle) setDisplayTitle(res.name || res.slug);
         if (res && !resolvedModuleId) setResolvedModuleId(res.module_slug);
       } catch (e) {
-        console.error('Error loading family data', e);
+        log.error('Error loading family data', e);
       }
     };
     loadData();

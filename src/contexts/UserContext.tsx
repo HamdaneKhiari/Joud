@@ -70,7 +70,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         const database = await initDatabase();
         setDb(database);
       } catch (e) {
-        console.error('[UserContext] Init error:', e);
+        log.error('[UserContext] Init error:', e);
         setUser(DEFAULT_USER);
       } finally {
         setLoading(false);

@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useNavigation } from 'expo-router';
+import { sanitizeUserInput } from '@/utils/inputSanitizer';
 
 import { useTheme } from '@/themes/ThemeContext';
 import { useCurrentLevel } from '@/contexts/CurrentLevelContext';
@@ -129,7 +130,7 @@ const AITutorGuidedScreen: React.FC = () => {
     if (!inputText.trim() || isSending || !selectedDomain) return;
     if (!checkAIConfiguration()) return;
 
-    const userContent = inputText.trim();
+    const userContent = sanitizeUserInput(inputText.trim(), 500);
     setMessages(prev => [...prev, { id: Date.now().toString(), type: 'user', content: userContent, timestamp: new Date() }]);
     setInputText('');
     setIsSending(true);

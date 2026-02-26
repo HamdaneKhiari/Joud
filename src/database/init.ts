@@ -131,7 +131,7 @@ const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
     return db;
 
   } catch (error) {
-    console.error('❌ Init Error:', error);
+    log.error('❌ Init Error:', error);
 
     // Stratégie de récupération : supprime le fichier et réessaie une seule fois
     if (__DEV__ && _retryCount < 1) {

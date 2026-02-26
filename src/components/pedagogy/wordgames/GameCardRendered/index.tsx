@@ -70,7 +70,7 @@ const GameCardRenderer: React.FC<GameCardRendererProps> = ({
   handlers,
 }) => {
   if (!currentQuestion) {
-    console.error('[GameCardRenderer] currentQuestion is null');
+    log.error('[GameCardRenderer] currentQuestion is null');
     return null;
   }
 

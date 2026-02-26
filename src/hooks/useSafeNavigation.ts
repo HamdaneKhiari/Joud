@@ -6,6 +6,7 @@
  * ============================================
  */
 
+import { log } from '@/utils/logUtils';
 import { useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import useSafeAction from './useSafeAction';
@@ -49,7 +50,7 @@ export default function useSafeNavigation(
     debounceMs: preventRapidClicks ? debounceMs : 0,
     allowConcurrent: false,
     onError: (error: Error) => {
-      console.error('[SafeNavigation] Erreur:', error);
+      log.error('[SafeNavigation] Erreur:', error);
     }
   });
 

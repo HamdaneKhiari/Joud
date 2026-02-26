@@ -1,5 +1,6 @@
 // c:\Users\khi_h\Desktop\Projets\JanaArchitect\Joud\src\hooks\familySelection\useFamiliesWithProgress.ts
 
+import { log } from '@/utils/logUtils';
 import { useState, useCallback } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
@@ -65,7 +66,7 @@ export default function useFamiliesWithProgress(moduleId: string | number, level
       const results = await db.getAllAsync<FamilyWithProgress>(query, params);
       setFamilies(results);
     } catch (error) {
-      console.error('[useFamiliesWithProgress] Error:', error);
+      log.error('[useFamiliesWithProgress] Error:', error);
     } finally {
       setIsLoading(false);
     }

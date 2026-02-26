@@ -66,7 +66,7 @@ export const useFeedbackMessages = (): UseFeedbackMessagesReturn => {
         message: message.message,
       };
     } catch (error) {
-      console.error('[useFeedbackMessages] Error:', error);
+      log.error('[useFeedbackMessages] Error:', error);
       return null;
     } finally {
       setIsLoading(false);

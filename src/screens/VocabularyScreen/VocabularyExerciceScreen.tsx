@@ -1,3 +1,4 @@
+import { log } from '@/utils/logUtils';
 import React, { useState, useEffect, useCallback } from 'react';
 import { ActivityIndicator, View, Text } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
@@ -142,7 +143,7 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
       await saveProgressNow();
       setShowCompletion(true);
     };
-    executeFinish().catch(err => console.error("Finish error:", err));
+    executeFinish().catch(err => log.error("Finish error:", err));
   }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen, saveProgressNow]);
 
   const handleBack = useCallback(() => {

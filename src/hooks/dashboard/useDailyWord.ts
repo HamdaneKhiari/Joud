@@ -5,6 +5,7 @@
  * ============================================
  */
 
+import { log } from '@/utils/logUtils';
 import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { useTheme } from '@/themes/ThemeContext';
@@ -48,7 +49,7 @@ export const useDailyWord = (): UseDailyWordReturn => {
           });
         }
       } catch (err) {
-        console.error('[useDailyWord] Error:', err);
+        log.error('[useDailyWord] Error:', err);
         setError('Failed to load daily word');
         setDailyWord({
           english: 'Learn',

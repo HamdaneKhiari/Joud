@@ -6,6 +6,7 @@
  * ============================================
  */
 
+import { log } from '@/utils/logUtils';
 import { useCallback } from 'react';
 import { useUser } from '@/contexts/UserContext';
 
@@ -47,7 +48,7 @@ export const useRecordError = () => {
         ]
       );
     } catch (e) {
-      console.error('[useRecordError] Failed to record error:', e);
+      log.error('[useRecordError] Failed to record error:', e);
     }
   }, [db, user]);
 

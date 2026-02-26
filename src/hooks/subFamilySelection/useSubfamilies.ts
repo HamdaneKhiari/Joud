@@ -1,4 +1,5 @@
 // src/hooks/subFamilySelection/useSubfamilies.ts
+import { log } from '@/utils/logUtils';
 import { useState, useCallback } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { useUser } from '@/contexts/UserContext';
@@ -23,7 +24,7 @@ export default function useSubfamilies(familyId: number) {
       const data = await getSubFamiliesByFamily(db, familyId, identity.id, user?.id);
       setSubfamilies(data);
     } catch (error) {
-      console.error('❌ Erreur Subfamilies:', error);
+      log.error('❌ Erreur Subfamilies:', error);
     } finally {
       setIsLoading(false);
     }

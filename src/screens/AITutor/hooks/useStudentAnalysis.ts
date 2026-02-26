@@ -6,6 +6,7 @@
  * ============================================
  */
 
+import { log } from '@/utils/logUtils';
 import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 
@@ -116,7 +117,7 @@ export const useErrorAnalysis = () => {
         setErrorsByModule(result);
         setTotalErrors(total);
       } catch (e) {
-        console.error('[useErrorAnalysis] Erreur:', e);
+        log.error('[useErrorAnalysis] Erreur:', e);
       } finally {
         setIsLoading(false);
       }

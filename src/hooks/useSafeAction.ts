@@ -3,6 +3,7 @@
  * Version TypeScript
  */
 
+import { log } from '@/utils/logUtils';
 import { useCallback, useRef, useState } from 'react';
 
 // ============================================
@@ -65,7 +66,7 @@ export default function useSafeAction(
 
       // Erreur si aucune fonction n'est fournie
       if (typeof actionToRun !== 'function') {
-        console.error('Erreur useSafeAction : Aucune fonction action fournie.');
+        log.error('Erreur useSafeAction : Aucune fonction action fournie.');
         return;
       }
 
@@ -83,7 +84,7 @@ export default function useSafeAction(
         if (onEnd) onEnd(result, ...args);
         return result;
       } catch (error) {
-        console.error('Erreur dans useSafeAction:', error);
+        log.error('Erreur dans useSafeAction:', error);
         if (onError) onError(error as Error, ...args);
         throw error;
       } finally {

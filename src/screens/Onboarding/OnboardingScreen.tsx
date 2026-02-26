@@ -6,6 +6,7 @@
  * ============================================
  */
 
+import { log } from '@/utils/logUtils';
 import React, { useState } from 'react';
 import {
   View,
@@ -39,7 +40,7 @@ const OnboardingScreen: React.FC = () => {
         router.replace('/');
       }, 100);
     } catch (e) {
-      console.error('[Onboarding] Error:', e);
+      log.error('[Onboarding] Error:', e);
       setIsSubmitting(false);
     }
   };
