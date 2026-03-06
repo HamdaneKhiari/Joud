@@ -1,0 +1,5784 @@
+[
+  {
+    "word": "I",
+    "translation": "Je",
+    "example": "",
+    "exampleTranslation": "I like my school.",
+    "audio": "J'aime mon école."
+  },
+  {
+    "word": "YOU",
+    "translation": "Tu / Vous",
+    "example": "",
+    "exampleTranslation": "You are my friend.",
+    "audio": "Tu es mon ami."
+  },
+  {
+    "word": "HE",
+    "translation": "Il",
+    "example": "garçon",
+    "exampleTranslation": "He is a good boy.",
+    "audio": "Il est un bon garçon."
+  },
+  {
+    "word": "SHE",
+    "translation": "Elle",
+    "example": "fille",
+    "exampleTranslation": "She is happy today.",
+    "audio": "Elle est heureuse aujourd'hui."
+  },
+  {
+    "word": "IT",
+    "translation": "Il / Elle",
+    "example": "objet/animal",
+    "exampleTranslation": "I have a car, it is red.",
+    "audio": "J'ai une voiture, elle est rouge."
+  },
+  {
+    "word": "WE",
+    "translation": "Nous",
+    "example": "",
+    "exampleTranslation": "We go to school.",
+    "audio": "Nous allons à l'école."
+  },
+  {
+    "word": "THEY",
+    "translation": "Ils / Elles",
+    "example": "",
+    "exampleTranslation": "They are in the house.",
+    "audio": "Ils sont dans la maison."
+  },
+  {
+    "word": "ME",
+    "translation": "Moi / Me",
+    "example": "",
+    "exampleTranslation": "Come with me.",
+    "audio": "Viens avec moi."
+  },
+  {
+    "word": "HIM",
+    "translation": "Lui",
+    "example": "complément",
+    "exampleTranslation": "I see him every day.",
+    "audio": "Je le vois chaque jour."
+  },
+  {
+    "word": "HER",
+    "translation": "Elle",
+    "example": "complément",
+    "exampleTranslation": "I call her every day.",
+    "audio": "Je l'appelle chaque jour."
+  },
+  {
+    "word": "US",
+    "translation": "Nous",
+    "example": "après un verbe",
+    "exampleTranslation": "Help us, please.",
+    "audio": "Aide-nous, s'il te plaît."
+  },
+  {
+    "word": "THEM",
+    "translation": "Eux / Elles",
+    "example": "après un verbe",
+    "exampleTranslation": "I like them.",
+    "audio": "Je les aime bien."
+  },
+  {
+    "word": "MY",
+    "translation": "Mon / Ma / Mes",
+    "example": "possession",
+    "exampleTranslation": "This is my house.",
+    "audio": "C'est ma maison."
+  },
+  {
+    "word": "YOUR",
+    "translation": "Ton / Votre",
+    "example": "possession",
+    "exampleTranslation": "Where is your book?",
+    "audio": "Où est ton livre ?"
+  },
+  {
+    "word": "HIS",
+    "translation": "Son / Sa",
+    "example": "à lui (garçon)",
+    "exampleTranslation": "His name is Tom.",
+    "audio": "Son nom est Tom."
+  },
+  {
+    "word": "HER",
+    "translation": "Son / Sa",
+    "example": "à elle (fille)",
+    "exampleTranslation": "Her name is Anna.",
+    "audio": "Son nom est Anna."
+  },
+  {
+    "word": "OUR",
+    "translation": "Notre / Nos",
+    "example": "possession",
+    "exampleTranslation": "Our school is big.",
+    "audio": "Notre école est grande."
+  },
+  {
+    "word": "THEIR",
+    "translation": "Leur / Leurs",
+    "example": "possession",
+    "exampleTranslation": "Their house is old.",
+    "audio": "Leur maison est vieille."
+  },
+  {
+    "word": "WHO",
+    "translation": "Qui",
+    "example": "question",
+    "exampleTranslation": "Who is this man?",
+    "audio": "Qui est cet homme ?"
+  },
+  {
+    "word": "WHAT",
+    "translation": "Quoi / Quel",
+    "example": "question",
+    "exampleTranslation": "What is your name?",
+    "audio": "Quel est ton nom ?"
+  },
+  {
+    "word": "WHERE",
+    "translation": "Où",
+    "example": "question",
+    "exampleTranslation": "Where is the school?",
+    "audio": "Où est l'école ?"
+  },
+  {
+    "word": "WHEN",
+    "translation": "Quand",
+    "example": "question",
+    "exampleTranslation": "When do we eat?",
+    "audio": "Quand mangeons-nous ?"
+  },
+  {
+    "word": "WHY",
+    "translation": "Pourquoi",
+    "example": "question",
+    "exampleTranslation": "Why are you sad?",
+    "audio": "Pourquoi es-tu triste ?"
+  },
+  {
+    "word": "HOW",
+    "translation": "Comment",
+    "example": "question",
+    "exampleTranslation": "How are you?",
+    "audio": "Comment vas-tu ?"
+  },
+  {
+    "word": "HOW MUCH",
+    "translation": "Combien",
+    "example": "quantité",
+    "exampleTranslation": "How much water do you want?",
+    "audio": "Combien d'eau veux-tu ?"
+  },
+  {
+    "word": "HOW MANY",
+    "translation": "Combien",
+    "example": "nombre",
+    "exampleTranslation": "How many children are here?",
+    "audio": "Combien d'enfants sont ici ?"
+  },
+  {
+    "word": "WHICH",
+    "translation": "Lequel / Quel",
+    "example": "choix",
+    "exampleTranslation": "Which one do you want?",
+    "audio": "Lequel veux-tu ?"
+  },
+  {
+    "word": "A",
+    "translation": "Un / Une",
+    "example": "devant consonne",
+    "exampleTranslation": "I have a dog.",
+    "audio": "J'ai un chien."
+  },
+  {
+    "word": "AN",
+    "translation": "Un / Une",
+    "example": "devant voyelle",
+    "exampleTranslation": "I eat an apple.",
+    "audio": "Je mange une pomme."
+  },
+  {
+    "word": "THE",
+    "translation": "Le / La / Les",
+    "example": "article",
+    "exampleTranslation": "The sun is hot.",
+    "audio": "Le soleil est chaud."
+  },
+  {
+    "word": "THIS",
+    "translation": "Ce / Ceci",
+    "example": "proche",
+    "exampleTranslation": "This is my house.",
+    "audio": "C'est ma maison (ici)."
+  },
+  {
+    "word": "THAT",
+    "translation": "Ce / Cela",
+    "example": "loin",
+    "exampleTranslation": "That is a big tree.",
+    "audio": "C'est un grand arbre (là-bas)."
+  },
+  {
+    "word": "SOME",
+    "translation": "Quelques / Du",
+    "example": "positif",
+    "exampleTranslation": "I have some friends.",
+    "audio": "J'ai quelques amis."
+  },
+  {
+    "word": "ANY",
+    "translation": "Du / Des",
+    "example": "question/négatif",
+    "exampleTranslation": "Do you have any milk?",
+    "audio": "As-tu du lait ?"
+  },
+  {
+    "word": "NO",
+    "translation": "Aucun / Pas de",
+    "example": "négation totale",
+    "exampleTranslation": "I have no idea.",
+    "audio": "Je n'ai aucune idée."
+  },
+  {
+    "word": "ALL",
+    "translation": "Tout / Tous",
+    "example": "généralité",
+    "exampleTranslation": "All the children are here.",
+    "audio": "Tous les enfants sont ici."
+  },
+  {
+    "word": "EVERY",
+    "translation": "Chaque",
+    "example": "habitude",
+    "exampleTranslation": "I walk every morning.",
+    "audio": "Je marche chaque matin."
+  },
+  {
+    "word": "ANOTHER",
+    "translation": "Un autre",
+    "example": "un de plus",
+    "exampleTranslation": "I want another apple.",
+    "audio": "Je veux une autre pomme."
+  },
+  {
+    "word": "OTHER",
+    "translation": "Autre",
+    "example": "différent",
+    "exampleTranslation": "The other boy is tall.",
+    "audio": "L'autre garçon est grand."
+  },
+  {
+    "word": "BOTH",
+    "translation": "Les deux",
+    "example": "duo",
+    "exampleTranslation": "Both children are happy.",
+    "audio": "Les deux enfants sont heureux."
+  },
+  {
+    "word": "EACH",
+    "translation": "Chaque",
+    "example": "un par un",
+    "exampleTranslation": "Each child has a gift.",
+    "audio": "Chaque enfant a un cadeau."
+  },
+  {
+    "word": "AND",
+    "translation": "Et",
+    "example": "lien",
+    "exampleTranslation": "A cat and a dog.",
+    "audio": "Un chat et un chien."
+  },
+  {
+    "word": "BUT",
+    "translation": "Mais",
+    "example": "opposition",
+    "exampleTranslation": "I am small but fast.",
+    "audio": "Je suis petit mais rapide."
+  },
+  {
+    "word": "OR",
+    "translation": "Ou",
+    "example": "choix",
+    "exampleTranslation": "Coffee or tea?",
+    "audio": "Café ou thé ?"
+  },
+  {
+    "word": "BECAUSE",
+    "translation": "Parce que",
+    "example": "cause",
+    "exampleTranslation": "I eat because I am hungry.",
+    "audio": "Je mange parce que j'ai faim."
+  },
+  {
+    "word": "SO",
+    "translation": "Donc",
+    "example": "conséquence",
+    "exampleTranslation": "I am tired, so I sleep.",
+    "audio": "Je suis fatigué, donc je dors."
+  },
+  {
+    "word": "IF",
+    "translation": "Si",
+    "example": "condition",
+    "exampleTranslation": "If you want, we can go.",
+    "audio": "Si tu veux, on peut y aller."
+  },
+  {
+    "word": "THEN",
+    "translation": "Ensuite",
+    "example": "chronologie",
+    "exampleTranslation": "Wash your hands, then eat.",
+    "audio": "Lave tes mains, ensuite mange."
+  },
+  {
+    "word": "ALSO",
+    "translation": "Aussi",
+    "example": "ajout",
+    "exampleTranslation": "I also have a brother.",
+    "audio": "J'ai aussi un frère."
+  },
+  {
+    "word": "THAN",
+    "translation": "Que",
+    "example": "comparaison",
+    "exampleTranslation": "I am taller than you.",
+    "audio": "Je suis plus grand que toi."
+  },
+  {
+    "word": "AS",
+    "translation": "Comme",
+    "example": "ressemblance",
+    "exampleTranslation": "He is fast as a tiger.",
+    "audio": "Il est rapide comme un tigre."
+  },
+  {
+    "word": "WHILE",
+    "translation": "Pendant que",
+    "example": "2 actions",
+    "exampleTranslation": "Listen while I speak.",
+    "audio": "Écoute pendant que je parle."
+  },
+  {
+    "word": "UNTIL",
+    "translation": "Jusqu'à",
+    "example": "limite",
+    "exampleTranslation": "Wait until tomorrow.",
+    "audio": "Attends jusqu'à demain."
+  },
+  {
+    "word": "IN",
+    "translation": "Dans",
+    "example": "intérieur",
+    "exampleTranslation": "My keys are in my bag.",
+    "audio": "Mes clés sont dans mon sac."
+  },
+  {
+    "word": "ON",
+    "translation": "Sur",
+    "example": "surface",
+    "exampleTranslation": "The book is on the table.",
+    "audio": "Le livre est sur la table."
+  },
+  {
+    "word": "AT",
+    "translation": "À / Chez",
+    "example": "point précis",
+    "exampleTranslation": "I am at school.",
+    "audio": "Je suis à l'école."
+  },
+  {
+    "word": "UNDER",
+    "translation": "Sous",
+    "example": "dessous",
+    "exampleTranslation": "The cat is under the bed.",
+    "audio": "Le chat est sous le lit."
+  },
+  {
+    "word": "NEXT TO",
+    "translation": "À côté de",
+    "example": "voisin",
+    "exampleTranslation": "Sit next to me.",
+    "audio": "Assieds-toi à côté de moi."
+  },
+  {
+    "word": "BEHIND",
+    "translation": "Derrière",
+    "example": "caché",
+    "exampleTranslation": "He is behind the door.",
+    "audio": "Il est derrière la porte."
+  },
+  {
+    "word": "IN FRONT OF",
+    "translation": "Devant",
+    "example": "visible",
+    "exampleTranslation": "Stand in front of the mirror.",
+    "audio": "Tiens-toi devant le miroir."
+  },
+  {
+    "word": "BETWEEN",
+    "translation": "Entre",
+    "example": "au milieu",
+    "exampleTranslation": "The cat is between two chairs.",
+    "audio": "Le chat est entre deux chaises."
+  },
+  {
+    "word": "ABOVE",
+    "translation": "Au-dessus",
+    "example": "sans contact",
+    "exampleTranslation": "The bird is above the tree.",
+    "audio": "L'oiseau est au-dessus de l'arbre."
+  },
+  {
+    "word": "AROUND",
+    "translation": "Autour",
+    "example": "cercle",
+    "exampleTranslation": "The children run around the house.",
+    "audio": "Les enfants courent autour de la maison."
+  },
+  {
+    "word": "INSIDE",
+    "translation": "À l'intérieur",
+    "example": "dedans",
+    "exampleTranslation": "Stay inside the house.",
+    "audio": "Reste à l'intérieur de la maison."
+  },
+  {
+    "word": "TO",
+    "translation": "Vers / À",
+    "example": "destination",
+    "exampleTranslation": "I go to school.",
+    "audio": "Je vais à l'école."
+  },
+  {
+    "word": "FROM",
+    "translation": "De / Depuis",
+    "example": "origine",
+    "exampleTranslation": "A letter from my father.",
+    "audio": "Une lettre de mon père."
+  },
+  {
+    "word": "WITH",
+    "translation": "Avec",
+    "example": "ensemble",
+    "exampleTranslation": "I play with my friend.",
+    "audio": "Je joue avec mon ami."
+  },
+  {
+    "word": "WITHOUT",
+    "translation": "Sans",
+    "example": "manque",
+    "exampleTranslation": "I drink tea without milk.",
+    "audio": "Je bois du thé sans lait."
+  },
+  {
+    "word": "FOR",
+    "translation": "Pour",
+    "example": "cadeau/but",
+    "exampleTranslation": "This gift is for you.",
+    "audio": "Ce cadeau est pour toi."
+  },
+  {
+    "word": "OF",
+    "translation": "De",
+    "example": "lien / quantité",
+    "exampleTranslation": "A glass of water.",
+    "audio": "Un verre d'eau."
+  },
+  {
+    "word": "ABOUT",
+    "translation": "À propos de / Sur",
+    "example": "sujet",
+    "exampleTranslation": "A book about animals.",
+    "audio": "Un livre sur les animaux."
+  },
+  {
+    "word": "AFTER",
+    "translation": "Après",
+    "example": "temps",
+    "exampleTranslation": "After school, I play.",
+    "audio": "Après l'école, je joue."
+  },
+  {
+    "word": "BEFORE",
+    "translation": "Avant",
+    "example": "temps",
+    "exampleTranslation": "I eat before school.",
+    "audio": "Je mange avant l'école."
+  },
+  {
+    "word": "DURING",
+    "translation": "Pendant",
+    "example": "durée",
+    "exampleTranslation": "I sleep during the night.",
+    "audio": "Je dors pendant la nuit."
+  },
+  {
+    "word": "THROUGH",
+    "translation": "À travers",
+    "example": "passage",
+    "exampleTranslation": "I walk through the forest.",
+    "audio": "Je marche à travers la forêt."
+  },
+  {
+    "word": "INTO",
+    "translation": "Dans",
+    "example": "mouvement",
+    "exampleTranslation": "Go into the house.",
+    "audio": "Entre dans la maison."
+  },
+  {
+    "word": "AGAINST",
+    "translation": "Contre",
+    "example": "opposition",
+    "exampleTranslation": "We play against the red team.",
+    "audio": "Nous jouons contre l'équipe rouge."
+  },
+  {
+    "word": "YES",
+    "translation": "Oui",
+    "example": "réponse",
+    "exampleTranslation": "Yes, I can help you.",
+    "audio": "Oui, je peux t'aider."
+  },
+  {
+    "word": "NOT",
+    "translation": "Ne... pas",
+    "example": "négation",
+    "exampleTranslation": "I do not like fish.",
+    "audio": "Je n'aime pas le poisson."
+  },
+  {
+    "word": "HERE",
+    "translation": "Ici",
+    "example": "proche",
+    "exampleTranslation": "Come here, please.",
+    "audio": "Viens ici, s'il te plaît."
+  },
+  {
+    "word": "THERE",
+    "translation": "Là-bas",
+    "example": "loin",
+    "exampleTranslation": "The school is there.",
+    "audio": "L'école est là-bas."
+  },
+  {
+    "word": "VERY",
+    "translation": "Très",
+    "example": "intensité",
+    "exampleTranslation": "I am very happy.",
+    "audio": "Je suis très heureux."
+  },
+  {
+    "word": "TOO",
+    "translation": "Trop / Aussi",
+    "example": "excès ou inclusion",
+    "exampleTranslation": "It is too big! / Me too!",
+    "audio": "C'est trop grand ! / Moi aussi !"
+  },
+  {
+    "word": "REALLY",
+    "translation": "Vraiment",
+    "example": "insistance",
+    "exampleTranslation": "I really like this.",
+    "audio": "J'aime vraiment ça."
+  },
+  {
+    "word": "ONLY",
+    "translation": "Seulement",
+    "example": "l'unique",
+    "exampleTranslation": "I have only one dog.",
+    "audio": "J'ai seulement un chien."
+  },
+  {
+    "word": "JUST",
+    "translation": "Juste",
+    "example": "précision",
+    "exampleTranslation": "I just want water.",
+    "audio": "Je veux juste de l'eau."
+  },
+  {
+    "word": "MAYBE",
+    "translation": "Peut-être",
+    "example": "incertitude",
+    "exampleTranslation": "Maybe tomorrow.",
+    "audio": "Peut-être demain."
+  },
+  {
+    "word": "AGAIN",
+    "translation": "Encore",
+    "example": "répétition",
+    "exampleTranslation": "Try again.",
+    "audio": "Essaie encore."
+  },
+  {
+    "word": "STILL",
+    "translation": "Encore",
+    "example": "continuité",
+    "exampleTranslation": "I am still hungry.",
+    "audio": "J'ai encore faim."
+  },
+  {
+    "word": "ENOUGH",
+    "translation": "Assez",
+    "example": "suffisant",
+    "exampleTranslation": "I have enough food.",
+    "audio": "J'ai assez de nourriture."
+  },
+  {
+    "word": "TOGETHER",
+    "translation": "Ensemble",
+    "example": "groupe",
+    "exampleTranslation": "We play together.",
+    "audio": "Nous jouons ensemble."
+  },
+  {
+    "word": "ALMOST",
+    "translation": "Presque",
+    "example": "tout près du but",
+    "exampleTranslation": "I am almost there.",
+    "audio": "J'y suis presque."
+  },
+  {
+    "word": "ALREADY",
+    "translation": "Déjà",
+    "example": "action finie",
+    "exampleTranslation": "I already have a book.",
+    "audio": "J'ai déjà un livre."
+  },
+  {
+    "word": "NEVER",
+    "translation": "Jamais",
+    "example": "0% de fréquence",
+    "exampleTranslation": "I never eat meat.",
+    "audio": "Je ne mange jamais de viande."
+  },
+  {
+    "word": "ALWAYS",
+    "translation": "Toujours",
+    "example": "100% de fréquence",
+    "exampleTranslation": "I always drink water.",
+    "audio": "Je bois toujours de l'eau."
+  },
+  {
+    "word": "SOMETIMES",
+    "translation": "Parfois",
+    "example": "50% de fréquence",
+    "exampleTranslation": "Sometimes I go to the park.",
+    "audio": "Parfois je vais au parc."
+  },
+  {
+    "word": "OFTEN",
+    "translation": "Souvent",
+    "example": "75% de fréquence",
+    "exampleTranslation": "I often play here.",
+    "audio": "Je joue souvent ici."
+  },
+  {
+    "word": "SOON",
+    "translation": "Bientôt",
+    "example": "futur proche",
+    "exampleTranslation": "I finish soon.",
+    "audio": "Je finis bientôt."
+  },
+  {
+    "word": "OUTSIDE",
+    "translation": "Dehors",
+    "example": "à l'extérieur",
+    "exampleTranslation": "Play outside, please.",
+    "audio": "Joue dehors, s'il te plaît."
+  },
+  {
+    "word": "NOW",
+    "translation": "Maintenant",
+    "example": "tout de suite",
+    "exampleTranslation": "I want to eat now.",
+    "audio": "Je veux manger maintenant."
+  },
+  {
+    "word": "BE",
+    "translation": "Être",
+    "example": "",
+    "exampleTranslation": "I want to be happy.",
+    "audio": "Je veux être heureux."
+  },
+  {
+    "word": "HAVE",
+    "translation": "Avoir",
+    "example": "",
+    "exampleTranslation": "I have a cat and a dog.",
+    "audio": "J'ai un chat et un chien."
+  },
+  {
+    "word": "DO",
+    "translation": "Faire",
+    "example": "action générale",
+    "exampleTranslation": "I do my work every day.",
+    "audio": "Je fais mon travail chaque jour."
+  },
+  {
+    "word": "GO",
+    "translation": "Aller",
+    "example": "",
+    "exampleTranslation": "I go to school every day.",
+    "audio": "Je vais à l'école chaque jour."
+  },
+  {
+    "word": "COME",
+    "translation": "Venir",
+    "example": "",
+    "exampleTranslation": "Come here, please.",
+    "audio": "Viens ici, s'il te plaît."
+  },
+  {
+    "word": "GET",
+    "translation": "Obtenir / Recevoir",
+    "example": "",
+    "exampleTranslation": "I get a letter from my friend.",
+    "audio": "Je reçois une lettre de mon ami."
+  },
+  {
+    "word": "MAKE",
+    "translation": "Fabriquer / Faire",
+    "example": "créer quelque chose",
+    "exampleTranslation": "I make a cake for you.",
+    "audio": "Je fais un gâteau pour toi."
+  },
+  {
+    "word": "TAKE",
+    "translation": "Prendre",
+    "example": "",
+    "exampleTranslation": "Take your book, please.",
+    "audio": "Prends ton livre, s'il te plaît."
+  },
+  {
+    "word": "PUT",
+    "translation": "Mettre / Poser",
+    "example": "",
+    "exampleTranslation": "Put the cup on the table.",
+    "audio": "Pose la tasse sur la table."
+  },
+  {
+    "word": "LET",
+    "translation": "Laisser / Permettre",
+    "example": "",
+    "exampleTranslation": "Let me help you.",
+    "audio": "Laisse-moi t'aider."
+  },
+  {
+    "word": "EAT",
+    "translation": "Manger",
+    "example": "",
+    "exampleTranslation": "I eat bread every morning.",
+    "audio": "Je mange du pain chaque matin."
+  },
+  {
+    "word": "DRINK",
+    "translation": "Boire",
+    "example": "",
+    "exampleTranslation": "I drink water every day.",
+    "audio": "Je bois de l'eau chaque jour."
+  },
+  {
+    "word": "SLEEP",
+    "translation": "Dormir",
+    "example": "",
+    "exampleTranslation": "I sleep in my bed.",
+    "audio": "Je dors dans mon lit."
+  },
+  {
+    "word": "WAKE UP",
+    "translation": "Se réveiller",
+    "example": "souvent \"wake up\"",
+    "exampleTranslation": "I wake up at seven.",
+    "audio": "Je me réveille à sept heures."
+  },
+  {
+    "word": "WASH",
+    "translation": "Laver",
+    "example": "",
+    "exampleTranslation": "I wash my hands before I eat.",
+    "audio": "Je lave mes mains avant de manger."
+  },
+  {
+    "word": "DRESS",
+    "translation": "S'habiller",
+    "example": "",
+    "exampleTranslation": "I dress in the morning.",
+    "audio": "Je m'habille le matin."
+  },
+  {
+    "word": "COOK",
+    "translation": "Cuisiner",
+    "example": "",
+    "exampleTranslation": "We cook a big pizza.",
+    "audio": "Ma mère cuisine chaque jour."
+  },
+  {
+    "word": "CLEAN",
+    "translation": "Nettoyer",
+    "example": "",
+    "exampleTranslation": "I clean my room.",
+    "audio": "Je nettoie ma chambre."
+  },
+  {
+    "word": "LIVE",
+    "translation": "Vivre / Habiter",
+    "example": "",
+    "exampleTranslation": "I live in a big house.",
+    "audio": "J'habite dans une grande maison."
+  },
+  {
+    "word": "DIE",
+    "translation": "Mourir",
+    "example": "",
+    "exampleTranslation": "The king does not want to die.",
+    "audio": "Le roi ne veut pas mourir."
+  },
+  {
+    "word": "USE",
+    "translation": "Utiliser",
+    "example": "",
+    "exampleTranslation": "I use a pen to write.",
+    "audio": "J'utilise un stylo pour écrire."
+  },
+  {
+    "word": "CRY",
+    "translation": "Pleurer",
+    "example": "",
+    "exampleTranslation": "The baby cries at night.",
+    "audio": "Le bébé pleure la nuit."
+  },
+  {
+    "word": "LAUGH",
+    "translation": "Rire",
+    "example": "",
+    "exampleTranslation": "I laugh with my friends.",
+    "audio": "Je ris avec mes amis."
+  },
+  {
+    "word": "SMILE",
+    "translation": "Sourire",
+    "example": "",
+    "exampleTranslation": "She smiles at me.",
+    "audio": "Elle me sourit."
+  },
+  {
+    "word": "RUN",
+    "translation": "Courir",
+    "example": "",
+    "exampleTranslation": "I run in the garden.",
+    "audio": "Je cours dans le jardin."
+  },
+  {
+    "word": "WALK",
+    "translation": "Marcher",
+    "example": "",
+    "exampleTranslation": "I walk to school.",
+    "audio": "Je marche jusqu'à l'école."
+  },
+  {
+    "word": "JUMP",
+    "translation": "Sauter",
+    "example": "",
+    "exampleTranslation": "The children jump and play.",
+    "audio": "Les enfants sautent et jouent."
+  },
+  {
+    "word": "SWIM",
+    "translation": "Nager",
+    "example": "",
+    "exampleTranslation": "I swim in the sea.",
+    "audio": "Je nage dans la mer."
+  },
+  {
+    "word": "CLIMB",
+    "translation": "Grimper / Monter",
+    "example": "",
+    "exampleTranslation": "The cat climbs the tree.",
+    "audio": "Le chat grimpe dans l'arbre."
+  },
+  {
+    "word": "DANCE",
+    "translation": "Danser",
+    "example": "",
+    "exampleTranslation": "They dance hip-hop.",
+    "audio": "Ils dansent le hip-hop."
+  },
+  {
+    "word": "SIT",
+    "translation": "S'asseoir",
+    "example": "",
+    "exampleTranslation": "Please sit on the chair.",
+    "audio": "S'il te plaît, assieds-toi sur la chaise."
+  },
+  {
+    "word": "STAND UP",
+    "translation": "Se lever",
+    "example": "",
+    "exampleTranslation": "Stand up, please.",
+    "audio": "Lève-toi, s'il te plaît."
+  },
+  {
+    "word": "FALL",
+    "translation": "Tomber",
+    "example": "",
+    "exampleTranslation": "Be careful, do not fall!",
+    "audio": "Fais attention, ne tombe pas !"
+  },
+  {
+    "word": "FLY",
+    "translation": "Voler",
+    "example": "",
+    "exampleTranslation": "Birds fly in the sky.",
+    "audio": "Les oiseaux volent dans le ciel."
+  },
+  {
+    "word": "RIDE",
+    "translation": "Rouler / Monter",
+    "example": "",
+    "exampleTranslation": "I ride my bike to school.",
+    "audio": "Je vais à l'école à vélo."
+  },
+  {
+    "word": "TURN",
+    "translation": "Tourner",
+    "example": "",
+    "exampleTranslation": "Turn to the right.",
+    "audio": "Tourne à droite."
+  },
+  {
+    "word": "FOLLOW",
+    "translation": "Suivre",
+    "example": "",
+    "exampleTranslation": "Follow me!",
+    "audio": "Suis-moi !"
+  },
+  {
+    "word": "SEE",
+    "translation": "Voir",
+    "example": "",
+    "exampleTranslation": "I see a bird in the tree.",
+    "audio": "Je vois un oiseau dans l'arbre."
+  },
+  {
+    "word": "LOOK",
+    "translation": "Regarder",
+    "example": "",
+    "exampleTranslation": "Look at the sky!",
+    "audio": "Regarde le ciel !"
+  },
+  {
+    "word": "HEAR",
+    "translation": "Entendre",
+    "example": "",
+    "exampleTranslation": "I hear the wind.",
+    "audio": "J'entends le vent."
+  },
+  {
+    "word": "LISTEN",
+    "translation": "Écouter",
+    "example": "",
+    "exampleTranslation": "I listen to the lesson.",
+    "audio": "J'écoute la leçon."
+  },
+  {
+    "word": "TOUCH",
+    "translation": "Toucher",
+    "example": "",
+    "exampleTranslation": "Do not touch the fire!",
+    "audio": "Ne touche pas le feu !"
+  },
+  {
+    "word": "FEEL",
+    "translation": "Sentir / Ressentir",
+    "example": "",
+    "exampleTranslation": "I feel happy today.",
+    "audio": "Je me sens heureux aujourd'hui."
+  },
+  {
+    "word": "THINK",
+    "translation": "Penser",
+    "example": "",
+    "exampleTranslation": "I think you are right.",
+    "audio": "Je pense que tu as raison."
+  },
+  {
+    "word": "KNOW",
+    "translation": "Savoir / Connaître",
+    "example": "",
+    "exampleTranslation": "I know your name.",
+    "audio": "Je connais ton nom."
+  },
+  {
+    "word": "WANT",
+    "translation": "Vouloir",
+    "example": "",
+    "exampleTranslation": "I want some water.",
+    "audio": "Je veux de l'eau."
+  },
+  {
+    "word": "LIKE",
+    "translation": "Aimer",
+    "example": "",
+    "exampleTranslation": "I like apples.",
+    "audio": "J'aime les pommes."
+  },
+  {
+    "word": "LOVE",
+    "translation": "Adorer",
+    "example": "",
+    "exampleTranslation": "I love my family.",
+    "audio": "J'aime ma famille."
+  },
+  {
+    "word": "NEED",
+    "translation": "Avoir besoin",
+    "example": "",
+    "exampleTranslation": "I need help.",
+    "audio": "J'ai besoin d'aide."
+  },
+  {
+    "word": "REMEMBER",
+    "translation": "Se souvenir",
+    "example": "",
+    "exampleTranslation": "I remember your name.",
+    "audio": "Je me souviens de ton nom."
+  },
+  {
+    "word": "FORGET",
+    "translation": "Oublier",
+    "example": "",
+    "exampleTranslation": "Do not forget your bag!",
+    "audio": "N'oublie pas ton sac !"
+  },
+  {
+    "word": "PLAY",
+    "translation": "Jouer",
+    "example": "",
+    "exampleTranslation": "The children play in the garden.",
+    "audio": "Les enfants jouent dans le jardin."
+  },
+  {
+    "word": "WORK",
+    "translation": "Travailler",
+    "example": "",
+    "exampleTranslation": "My father works every day.",
+    "audio": "Mon père travaille tous les jours."
+  },
+  {
+    "word": "LEARN",
+    "translation": "Apprendre",
+    "example": "",
+    "exampleTranslation": "I learn English at school.",
+    "audio": "J'apprends l'anglais à l'école."
+  },
+  {
+    "word": "TEACH",
+    "translation": "Enseigner",
+    "example": "",
+    "exampleTranslation": "She teaches us English.",
+    "audio": "Elle nous apprends l'anglais."
+  },
+  {
+    "word": "HELP",
+    "translation": "Aider",
+    "example": "",
+    "exampleTranslation": "Can you help me?",
+    "audio": "Peux-tu m'aider ?"
+  },
+  {
+    "word": "MEET",
+    "translation": "Rencontrer",
+    "example": "",
+    "exampleTranslation": "Nice to meet you.",
+    "audio": "Ravi de te rencontrer."
+  },
+  {
+    "word": "TRY",
+    "translation": "Essayer",
+    "example": "",
+    "exampleTranslation": "Try again!",
+    "audio": "Essaie encore !"
+  },
+  {
+    "word": "SHARE",
+    "translation": "Partager",
+    "example": "",
+    "exampleTranslation": "I share my meal with you.",
+    "audio": "Je partage mon repas avec toi."
+  },
+  {
+    "word": "GIVE",
+    "translation": "Donner",
+    "example": "",
+    "exampleTranslation": "I give you my book.",
+    "audio": "Je te donne mon livre."
+  },
+  {
+    "word": "BRING",
+    "translation": "Apporter",
+    "example": "",
+    "exampleTranslation": "Bring your book to school.",
+    "audio": "Apporte ton livre à l'école."
+  },
+  {
+    "word": "SEND",
+    "translation": "Envoyer",
+    "example": "",
+    "exampleTranslation": "I send a message to my friend.",
+    "audio": "J'envoie un message à mon ami."
+  },
+  {
+    "word": "VISIT",
+    "translation": "Visiter / Rendre visite",
+    "example": "",
+    "exampleTranslation": "I visit my friend.",
+    "audio": "Je rends visite à mon ami."
+  },
+  {
+    "word": "OPEN",
+    "translation": "Ouvrir",
+    "example": "",
+    "exampleTranslation": "Open the door, please.",
+    "audio": "Ouvre la porte, s'il te plaît."
+  },
+  {
+    "word": "CLOSE",
+    "translation": "Fermer",
+    "example": "",
+    "exampleTranslation": "Close the window.",
+    "audio": "Ferme la fenêtre."
+  },
+  {
+    "word": "STOP",
+    "translation": "Arrêter",
+    "example": "",
+    "exampleTranslation": "Stop! Do not run here.",
+    "audio": "Arrête ! Ne cours pas ici."
+  },
+  {
+    "word": "START",
+    "translation": "Commencer",
+    "example": "",
+    "exampleTranslation": "We start school at eight.",
+    "audio": "Nous commençons l'école à huit heures."
+  },
+  {
+    "word": "FIND",
+    "translation": "Trouver",
+    "example": "",
+    "exampleTranslation": "I cannot find my bag.",
+    "audio": "Je ne trouve pas mon sac."
+  },
+  {
+    "word": "LOSE",
+    "translation": "Perdre",
+    "example": "",
+    "exampleTranslation": "Do not lose your key.",
+    "audio": "Ne perds pas ta clé."
+  },
+  {
+    "word": "BUY",
+    "translation": "Acheter",
+    "example": "",
+    "exampleTranslation": "I buy bread at the bakery.",
+    "audio": "J'achète du pain à la boulangerie."
+  },
+  {
+    "word": "SELL",
+    "translation": "Vendre",
+    "example": "",
+    "exampleTranslation": "She sells flowers.",
+    "audio": "Elle vend des fleurs."
+  },
+  {
+    "word": "PAY",
+    "translation": "Payer",
+    "example": "",
+    "exampleTranslation": "I pay for my train ticket.",
+    "audio": "Je paie mon billet de train."
+  },
+  {
+    "word": "BREAK",
+    "translation": "Casser",
+    "example": "",
+    "exampleTranslation": "Do not break the cup!",
+    "audio": "Ne casse pas la tasse !"
+  },
+  {
+    "word": "FIX",
+    "translation": "Réparer",
+    "example": "",
+    "exampleTranslation": "My father can fix it.",
+    "audio": "Mon père peut le réparer."
+  },
+  {
+    "word": "BUILD",
+    "translation": "Construire",
+    "example": "",
+    "exampleTranslation": "We build a sandcastle.",
+    "audio": "Nous construisons un château de sable."
+  },
+  {
+    "word": "CUT",
+    "translation": "Couper",
+    "example": "",
+    "exampleTranslation": "I cut the apple with a knife.",
+    "audio": "Je coupe la pomme avec un couteau."
+  },
+  {
+    "word": "CARRY",
+    "translation": "Porter",
+    "example": "",
+    "exampleTranslation": "I carry my bag to school.",
+    "audio": "Je porte mon sac à l'école."
+  },
+  {
+    "word": "FILL",
+    "translation": "Remplir",
+    "example": "",
+    "exampleTranslation": "Fill the bottle with water.",
+    "audio": "Remplis la bouteille d'eau."
+  },
+  {
+    "word": "CAN",
+    "translation": "Pouvoir",
+    "example": "capacité",
+    "exampleTranslation": "I can help you.",
+    "audio": "Je peux t'aider."
+  },
+  {
+    "word": "MUST",
+    "translation": "Devoir",
+    "example": "obligation",
+    "exampleTranslation": "You must eat.",
+    "audio": "Tu dois manger."
+  },
+  {
+    "word": "SHOULD",
+    "translation": "Devoir",
+    "example": "conseil",
+    "exampleTranslation": "You should sleep.",
+    "audio": "Tu devrais dormir."
+  },
+  {
+    "word": "WILL",
+    "translation": "Vais / Ferai",
+    "example": "futur",
+    "exampleTranslation": "I will help you.",
+    "audio": "Je t'aiderai."
+  },
+  {
+    "word": "WOULD",
+    "translation": "Voudrais",
+    "example": "politesse",
+    "exampleTranslation": "I would like some water.",
+    "audio": "Je voudrais de l'eau."
+  },
+  {
+    "word": "COULD",
+    "translation": "Pourrait",
+    "example": "demande",
+    "exampleTranslation": "Could you help me?",
+    "audio": "Pourrais-tu m'aider ?"
+  },
+  {
+    "word": "MAY",
+    "translation": "Pouvoir",
+    "example": "permission",
+    "exampleTranslation": "May I go?",
+    "audio": "Puis-je partir ?"
+  },
+  {
+    "word": "WAIT",
+    "translation": "Attendre",
+    "example": "",
+    "exampleTranslation": "Wait for your turn.",
+    "audio": "Attends ton tour."
+  },
+  {
+    "word": "CATCH",
+    "translation": "Attraper",
+    "example": "",
+    "exampleTranslation": "Catch the ball!",
+    "audio": "Attrape le ballon !"
+  },
+  {
+    "word": "THROW",
+    "translation": "Lancer",
+    "example": "",
+    "exampleTranslation": "Throw the ball to me!",
+    "audio": "Lance-moi le ballon !"
+  },
+  {
+    "word": "PULL",
+    "translation": "Tirer",
+    "example": "",
+    "exampleTranslation": "Pull the door.",
+    "audio": "Tire la porte."
+  },
+  {
+    "word": "PUSH",
+    "translation": "Pousser",
+    "example": "",
+    "exampleTranslation": "Push the door.",
+    "audio": "Pousse la porte."
+  },
+  {
+    "word": "HOLD",
+    "translation": "Tenir",
+    "example": "",
+    "exampleTranslation": "Hold my hand.",
+    "audio": "Tiens ma main."
+  },
+  {
+    "word": "GROW",
+    "translation": "Grandir / Pousser",
+    "example": "",
+    "exampleTranslation": "Trees grow in the garden.",
+    "audio": "Les arbres poussent dans le jardin."
+  },
+  {
+    "word": "CHANGE",
+    "translation": "Changer",
+    "example": "",
+    "exampleTranslation": "I change my clothes.",
+    "audio": "Je change de vêtements."
+  },
+  {
+    "word": "LEAVE",
+    "translation": "Partir / Quitter",
+    "example": "",
+    "exampleTranslation": "It is time to leave.",
+    "audio": "C'est l'heure de partir."
+  },
+  {
+    "word": "KEEP",
+    "translation": "Garder",
+    "example": "",
+    "exampleTranslation": "Keep this for me.",
+    "audio": "Garde ça pour moi."
+  },
+  {
+    "word": "FINISH",
+    "translation": "Finir",
+    "example": "",
+    "exampleTranslation": "I finish my work.",
+    "audio": "Je termine mon travail."
+  },
+  {
+    "word": "CHOOSE",
+    "translation": "Choisir",
+    "example": "",
+    "exampleTranslation": "Choose one apple.",
+    "audio": "Choisis une pomme."
+  },
+  {
+    "word": "MOVE",
+    "translation": "Bouger",
+    "example": "",
+    "exampleTranslation": "The cat moves fast.",
+    "audio": "Le chat bouge vite."
+  },
+  {
+    "word": "COUNT",
+    "translation": "Compter",
+    "example": "",
+    "exampleTranslation": "I count to a hundred.",
+    "audio": "Je compte jusqu'à cent."
+  },
+  {
+    "word": "TRAVEL",
+    "translation": "Voyager",
+    "example": "",
+    "exampleTranslation": "I want to travel far.",
+    "audio": "Je veux voyager loin."
+  },
+  {
+    "word": "INVITE",
+    "translation": "Inviter",
+    "example": "",
+    "exampleTranslation": "I invite my cousins.",
+    "audio": "J'invite mes cousins."
+  },
+  {
+    "word": "BREATHE",
+    "translation": "Respirer",
+    "example": "",
+    "exampleTranslation": "I breathe the cold air.",
+    "audio": "Je respire l'air froid."
+  },
+  {
+    "word": "PICK",
+    "translation": "Cueillir",
+    "example": "",
+    "exampleTranslation": "I pick flowers.",
+    "audio": "Je cueille des fleurs."
+  },
+  {
+    "word": "MOTHER",
+    "translation": "Mère",
+    "example": "",
+    "exampleTranslation": "My mother is at home.",
+    "audio": "Ma mère est à la maison."
+  },
+  {
+    "word": "FATHER",
+    "translation": "Père",
+    "example": "",
+    "exampleTranslation": "My father works hard.",
+    "audio": "Mon père travaille dur."
+  },
+  {
+    "word": "BROTHER",
+    "translation": "Frère",
+    "example": "",
+    "exampleTranslation": "My brother is tall.",
+    "audio": "Mon frère est grand."
+  },
+  {
+    "word": "SISTER",
+    "translation": "Sœur",
+    "example": "",
+    "exampleTranslation": "My sister likes to read.",
+    "audio": "Ma sœur aime lire."
+  },
+  {
+    "word": "BABY",
+    "translation": "Bébé",
+    "example": "",
+    "exampleTranslation": "The baby is sleeping.",
+    "audio": "Le bébé dort."
+  },
+  {
+    "word": "SON",
+    "translation": "Fils",
+    "example": "",
+    "exampleTranslation": "He is my son.",
+    "audio": "C'est mon fils."
+  },
+  {
+    "word": "DAUGHTER",
+    "translation": "Fille (parenté)",
+    "example": "",
+    "exampleTranslation": "She is my daughter.",
+    "audio": "C'est ma fille."
+  },
+  {
+    "word": "FAMILY",
+    "translation": "Famille",
+    "example": "",
+    "exampleTranslation": "My family is big.",
+    "audio": "Ma famille est grande."
+  },
+  {
+    "word": "PARENT",
+    "translation": "Parent",
+    "example": "",
+    "exampleTranslation": "My parents are at the park.",
+    "audio": "Mes parents sont au parc."
+  },
+  {
+    "word": "UNCLE",
+    "translation": "Oncle",
+    "example": "",
+    "exampleTranslation": "My uncle lives on a farm.",
+    "audio": "Mon oncle habite dans une ferme."
+  },
+  {
+    "word": "AUNT",
+    "translation": "Tante",
+    "example": "",
+    "exampleTranslation": "My aunt is funny.",
+    "audio": "Ma tante est drôle."
+  },
+  {
+    "word": "COUSIN",
+    "translation": "Cousin(e)",
+    "example": "",
+    "exampleTranslation": "I play with my cousin.",
+    "audio": "Je joue avec mon cousin."
+  },
+  {
+    "word": "BOY",
+    "translation": "Garçon",
+    "example": "",
+    "exampleTranslation": "The boy runs fast.",
+    "audio": "Le garçon court vite."
+  },
+  {
+    "word": "GIRL",
+    "translation": "Fille",
+    "example": "",
+    "exampleTranslation": "The girl reads a book.",
+    "audio": "La fille lit un livre."
+  },
+  {
+    "word": "CHILD",
+    "translation": "Enfant",
+    "example": "",
+    "exampleTranslation": "The child is in the garden.",
+    "audio": "L'enfant est dans le jardin."
+  },
+  {
+    "word": "MAN",
+    "translation": "Homme",
+    "example": "",
+    "exampleTranslation": "This man is tall.",
+    "audio": "Cet homme est grand."
+  },
+  {
+    "word": "WOMAN",
+    "translation": "Femme",
+    "example": "",
+    "exampleTranslation": "The woman is at the shop.",
+    "audio": "La femme est au magasin."
+  },
+  {
+    "word": "FRIEND",
+    "translation": "Ami",
+    "example": "",
+    "exampleTranslation": "You are my best friend.",
+    "audio": "Tu es mon meilleur ami."
+  },
+  {
+    "word": "PEOPLE",
+    "translation": "Les gens",
+    "example": "",
+    "exampleTranslation": "Many people live here.",
+    "audio": "Beaucoup de gens vivent ici."
+  },
+  {
+    "word": "PERSON",
+    "translation": "Personne",
+    "example": "",
+    "exampleTranslation": "She is a good person.",
+    "audio": "C'est une bonne personne."
+  },
+  {
+    "word": "NEIGHBOUR",
+    "translation": "Voisin",
+    "example": "",
+    "exampleTranslation": "My neighbour is nice.",
+    "audio": "Mon voisin est sympa."
+  },
+  {
+    "word": "TEACHER",
+    "translation": "Professeur",
+    "example": "",
+    "exampleTranslation": "My teacher is very kind.",
+    "audio": "Mon professeur est très gentil."
+  },
+  {
+    "word": "DOCTOR",
+    "translation": "Médecin",
+    "example": "",
+    "exampleTranslation": "I go to the doctor.",
+    "audio": "Je vais chez le médecin."
+  },
+  {
+    "word": "FARMER",
+    "translation": "Fermier",
+    "example": "",
+    "exampleTranslation": "The farmer has many animals.",
+    "audio": "Le fermier a beaucoup d'animaux."
+  },
+  {
+    "word": "DRIVER",
+    "translation": "Conducteur",
+    "example": "",
+    "exampleTranslation": "The bus driver is nice.",
+    "audio": "Le conducteur de bus est gentil."
+  },
+  {
+    "word": "KING",
+    "translation": "Roi",
+    "example": "",
+    "exampleTranslation": "The king lives in a castle.",
+    "audio": "Le roi vit dans un château."
+  },
+  {
+    "word": "QUEEN",
+    "translation": "Reine",
+    "example": "",
+    "exampleTranslation": "The queen is beautiful.",
+    "audio": "La reine est belle."
+  },
+  {
+    "word": "HEAD",
+    "translation": "Tête",
+    "example": "",
+    "exampleTranslation": "I have a hat on my head.",
+    "audio": "J'ai un chapeau sur la tête."
+  },
+  {
+    "word": "HAIR",
+    "translation": "Cheveux",
+    "example": "",
+    "exampleTranslation": "She has long hair.",
+    "audio": "Elle a de longs cheveux."
+  },
+  {
+    "word": "EYE",
+    "translation": "Œil",
+    "example": "Pluriel : Eyes (Yeux)",
+    "exampleTranslation": "I have blue eyes.",
+    "audio": "J'ai les yeux bleus."
+  },
+  {
+    "word": "NOSE",
+    "translation": "Nez",
+    "example": "",
+    "exampleTranslation": "Touch your nose.",
+    "audio": "Touche ton nez."
+  },
+  {
+    "word": "MOUTH",
+    "translation": "Bouche",
+    "example": "",
+    "exampleTranslation": "Open your mouth.",
+    "audio": "Ouvre ta bouche."
+  },
+  {
+    "word": "EAR",
+    "translation": "Oreille",
+    "example": "",
+    "exampleTranslation": "I hear with my ears.",
+    "audio": "J'entends avec mes oreilles."
+  },
+  {
+    "word": "FACE",
+    "translation": "Visage",
+    "example": "",
+    "exampleTranslation": "She has a happy face.",
+    "audio": "Elle a un visage joyeux."
+  },
+  {
+    "word": "TEETH",
+    "translation": "Dents",
+    "example": "",
+    "exampleTranslation": "I clean my teeth every day.",
+    "audio": "Je me lave les dents chaque jour."
+  },
+  {
+    "word": "BODY",
+    "translation": "Corps",
+    "example": "",
+    "exampleTranslation": "My body is strong.",
+    "audio": "Mon corps est fort."
+  },
+  {
+    "word": "HAND",
+    "translation": "Main",
+    "example": "",
+    "exampleTranslation": "Wash your hands.",
+    "audio": "Lave tes mains."
+  },
+  {
+    "word": "FINGER",
+    "translation": "Doigt",
+    "example": "",
+    "exampleTranslation": "I have ten fingers.",
+    "audio": "J'ai dix doigts."
+  },
+  {
+    "word": "ARM",
+    "translation": "Bras",
+    "example": "",
+    "exampleTranslation": "My arm is long.",
+    "audio": "Mon bras est long."
+  },
+  {
+    "word": "LEG",
+    "translation": "Jambe",
+    "example": "",
+    "exampleTranslation": "I have two legs.",
+    "audio": "J'ai deux jambes."
+  },
+  {
+    "word": "FOOT",
+    "translation": "Pied",
+    "example": "",
+    "exampleTranslation": "My foot is small.",
+    "audio": "Mon pied est petit."
+  },
+  {
+    "word": "BACK",
+    "translation": "Dos",
+    "example": "",
+    "exampleTranslation": "My back is straight.",
+    "audio": "Mon dos est droit."
+  },
+  {
+    "word": "HEART",
+    "translation": "Cœur",
+    "example": "",
+    "exampleTranslation": "My heart is happy.",
+    "audio": "Mon cœur est heureux."
+  },
+  {
+    "word": "BLOOD",
+    "translation": "Sang",
+    "example": "",
+    "exampleTranslation": "Blood is red.",
+    "audio": "Le sang est rouge."
+  },
+  {
+    "word": "BONE",
+    "translation": "Os",
+    "example": "",
+    "exampleTranslation": "The dog likes the bone.",
+    "audio": "Le chien aime l'os."
+  },
+  {
+    "word": "SKIN",
+    "translation": "Peau",
+    "example": "",
+    "exampleTranslation": "She has soft skin.",
+    "audio": "Elle a la peau douce."
+  },
+  {
+    "word": "HAPPY",
+    "translation": "Heureux",
+    "example": "",
+    "exampleTranslation": "I am happy today.",
+    "audio": "Je suis heureux aujourd'hui."
+  },
+  {
+    "word": "SAD",
+    "translation": "Triste",
+    "example": "",
+    "exampleTranslation": "The boy is sad.",
+    "audio": "Le garçon est triste."
+  },
+  {
+    "word": "ANGRY",
+    "translation": "En colère",
+    "example": "",
+    "exampleTranslation": "The man is angry.",
+    "audio": "L'homme est en colère."
+  },
+  {
+    "word": "SCARED",
+    "translation": "Effrayé",
+    "example": "",
+    "exampleTranslation": "I am scared of the dark.",
+    "audio": "J'ai peur du noir."
+  },
+  {
+    "word": "TIRED",
+    "translation": "Fatigué",
+    "example": "",
+    "exampleTranslation": "I am very tired today.",
+    "audio": "Je suis très fatigué aujourd'hui."
+  },
+  {
+    "word": "SICK",
+    "translation": "Malade",
+    "example": "",
+    "exampleTranslation": "My brother is sick today.",
+    "audio": "Mon frère est malade aujourd'hui."
+  },
+  {
+    "word": "SORRY",
+    "translation": "Désolé",
+    "example": "",
+    "exampleTranslation": "I am sorry, Mum.",
+    "audio": "Je suis désolé, maman."
+  },
+  {
+    "word": "SURPRISED",
+    "translation": "Surpris",
+    "example": "",
+    "exampleTranslation": "I am surprised to see you!",
+    "audio": "Je suis surpris de te voir !"
+  },
+  {
+    "word": "EXCITED",
+    "translation": "Impatient",
+    "example": "",
+    "exampleTranslation": "I am excited for tomorrow!",
+    "audio": "Je suis impatient pour demain !"
+  },
+  {
+    "word": "BORED",
+    "translation": "S'ennuyer",
+    "example": "",
+    "exampleTranslation": "I am bored at home.",
+    "audio": "Je m'ennuie à la maison."
+  },
+  {
+    "word": "STRONG",
+    "translation": "Fort",
+    "example": "",
+    "exampleTranslation": "My father is strong.",
+    "audio": "Mon père est fort."
+  },
+  {
+    "word": "WEAK",
+    "translation": "Faible",
+    "example": "",
+    "exampleTranslation": "I feel weak today.",
+    "audio": "Je me sens faible aujourd'hui."
+  },
+  {
+    "word": "BRAVE",
+    "translation": "Courageux",
+    "example": "",
+    "exampleTranslation": "The boy is very brave.",
+    "audio": "Le garçon est très courageux."
+  },
+  {
+    "word": "KIND",
+    "translation": "Gentil",
+    "example": "",
+    "exampleTranslation": "She is very kind to me.",
+    "audio": "Elle est très gentille avec moi."
+  },
+  {
+    "word": "NICE",
+    "translation": "Sympa",
+    "example": "",
+    "exampleTranslation": "He is a nice boy.",
+    "audio": "C'est un garçon sympa."
+  },
+  {
+    "word": "SMART",
+    "translation": "Intelligent",
+    "example": "",
+    "exampleTranslation": "She is a smart girl.",
+    "audio": "C'est une fille intelligente."
+  },
+  {
+    "word": "FUNNY",
+    "translation": "Drôle",
+    "example": "",
+    "exampleTranslation": "The story is very funny.",
+    "audio": "L'histoire est très drôle."
+  },
+  {
+    "word": "BEAUTIFUL",
+    "translation": "Beau / Belle",
+    "example": "",
+    "exampleTranslation": "The flower is beautiful.",
+    "audio": "La fleur est belle."
+  },
+  {
+    "word": "UGLY",
+    "translation": "Laid",
+    "example": "",
+    "exampleTranslation": "That old house is ugly.",
+    "audio": "Cette vieille maison est laide."
+  },
+  {
+    "word": "TALL",
+    "translation": "Grand",
+    "example": "Taille physique",
+    "exampleTranslation": "My brother is very tall.",
+    "audio": "Mon frère est très grand."
+  },
+  {
+    "word": "YOUNG",
+    "translation": "Jeune",
+    "example": "",
+    "exampleTranslation": "My sister is very young.",
+    "audio": "Ma sœur est très jeune."
+  },
+  {
+    "word": "CAREFUL",
+    "translation": "Prudent",
+    "example": "",
+    "exampleTranslation": "Be careful on the road!",
+    "audio": "Sois prudent sur la route !"
+  },
+  {
+    "word": "BUSY",
+    "translation": "Occupé",
+    "example": "",
+    "exampleTranslation": "My mother is busy today.",
+    "audio": "Ma mère est occupée aujourd'hui."
+  },
+  {
+    "word": "T-SHIRT",
+    "translation": "T-shirt",
+    "example": "",
+    "exampleTranslation": "I have a blue T-shirt",
+    "audio": "J'ai un t-shirt bleu."
+  },
+  {
+    "word": "SHOES",
+    "translation": "Chaussures",
+    "example": "",
+    "exampleTranslation": "My shoes are new.",
+    "audio": "Mes chaussures sont neuves."
+  },
+  {
+    "word": "HAT",
+    "translation": "Chapeau",
+    "example": "",
+    "exampleTranslation": "I have a red hat.",
+    "audio": "J'ai un chapeau rouge."
+  },
+  {
+    "word": "COAT",
+    "translation": "Manteau",
+    "example": "",
+    "exampleTranslation": "Take your coat, it is cold.",
+    "audio": "Prends ton manteau, il fait froid."
+  },
+  {
+    "word": "DRESS",
+    "translation": "Robe",
+    "example": "",
+    "exampleTranslation": "She has a beautiful dress.",
+    "audio": "Elle a une belle robe."
+  },
+  {
+    "word": "GLASSES",
+    "translation": "Lunettes",
+    "example": "",
+    "exampleTranslation": "My father has glasses.",
+    "audio": "Mon père a des lunettes."
+  },
+  {
+    "word": "POCKET",
+    "translation": "Poche",
+    "example": "",
+    "exampleTranslation": "The key is in my pocket.",
+    "audio": "La clé est dans ma poche."
+  },
+  {
+    "word": "KEY",
+    "translation": "Clé",
+    "example": "",
+    "exampleTranslation": "Where is my key?",
+    "audio": "Où est ma clé ?"
+  },
+  {
+    "word": "MONEY",
+    "translation": "Argent",
+    "example": "",
+    "exampleTranslation": "I have no money.",
+    "audio": "Je n'ai pas d'argent."
+  },
+  {
+    "word": "RING",
+    "translation": "Bague",
+    "example": "",
+    "exampleTranslation": "She has a gold ring.",
+    "audio": "Elle a une bague en or."
+  },
+  {
+    "word": "UMBRELLA",
+    "translation": "Parapluie",
+    "example": "",
+    "exampleTranslation": "Take your umbrella, it is raining.",
+    "audio": "Prends ton parapluie, il pleut."
+  },
+  {
+    "word": "ALIVE",
+    "translation": "Vivant",
+    "example": "",
+    "exampleTranslation": "The fish is still alive.",
+    "audio": "Le poisson est encore vivant."
+  },
+  {
+    "word": "DEAD",
+    "translation": "Mort",
+    "example": "",
+    "exampleTranslation": "The flower is dead.",
+    "audio": "La fleur est morte."
+  },
+  {
+    "word": "PAIN",
+    "translation": "Douleur",
+    "example": "",
+    "exampleTranslation": "Where is the pain?",
+    "audio": "Où est la douleur ?"
+  },
+  {
+    "word": "MEDICINE",
+    "translation": "Médicament",
+    "example": "",
+    "exampleTranslation": "I take my medicine.",
+    "audio": "Je prends mon médicament."
+  },
+  {
+    "word": "READY",
+    "translation": "Prêt",
+    "example": "",
+    "exampleTranslation": "I am ready to go.",
+    "audio": "Je suis prêt à partir."
+  },
+  {
+    "word": "FREE",
+    "translation": "Libre",
+    "example": "",
+    "exampleTranslation": "I am free today.",
+    "audio": "Je suis libre aujourd'hui."
+  },
+  {
+    "word": "ALONE",
+    "translation": "Seul",
+    "example": "",
+    "exampleTranslation": "I am alone at home.",
+    "audio": "Je suis seul à la maison."
+  },
+  {
+    "word": "LAZY",
+    "translation": "Paresseux",
+    "example": "",
+    "exampleTranslation": "My cat is very lazy.",
+    "audio": "Mon chat est très paresseux."
+  },
+  {
+    "word": "ASLEEP",
+    "translation": "Endormi",
+    "example": "",
+    "exampleTranslation": "The baby is asleep.",
+    "audio": "Le bébé est endormi."
+  },
+  {
+    "word": "AWAKE",
+    "translation": "Réveillé",
+    "example": "",
+    "exampleTranslation": "I am awake now.",
+    "audio": "Je suis réveillé maintenant."
+  },
+  {
+    "word": "RIGHT",
+    "translation": "Avoir raison",
+    "example": "",
+    "exampleTranslation": "You are right!",
+    "audio": "Tu as raison !"
+  },
+  {
+    "word": "WRONG",
+    "translation": "Avoir tort",
+    "example": "",
+    "exampleTranslation": "I think you are wrong.",
+    "audio": "Je pense que tu as tort."
+  },
+  {
+    "word": "SURE",
+    "translation": "Sûr",
+    "example": "",
+    "exampleTranslation": "I am sure of my answer.",
+    "audio": "Je suis sûr de ma réponse."
+  },
+  {
+    "word": "NAME",
+    "translation": "Nom",
+    "example": "",
+    "exampleTranslation": "My name is Tom.",
+    "audio": "Je m'appelle Tom."
+  },
+  {
+    "word": "BITE",
+    "translation": "Mordre",
+    "example": "",
+    "exampleTranslation": "The dog does not bite.",
+    "audio": "Le chien ne mord pas."
+  },
+  {
+    "word": "BLOW",
+    "translation": "Souffler",
+    "example": "",
+    "exampleTranslation": "The wind blows",
+    "audio": "Le vent souffle"
+  },
+  {
+    "word": "HIT",
+    "translation": "Frapper",
+    "example": "",
+    "exampleTranslation": "Do not hit the ball.",
+    "audio": "Ne frappe pas la balle."
+  },
+  {
+    "word": "KICK",
+    "translation": "Donner un coup de pied",
+    "example": "",
+    "exampleTranslation": "I kick the ball.",
+    "audio": "Je shoote dans le ballon."
+  },
+  {
+    "word": "KISS",
+    "translation": "Embrasser",
+    "example": "",
+    "exampleTranslation": "I kiss my mother.",
+    "audio": "J'embrasse ma mère."
+  },
+  {
+    "word": "HUG",
+    "translation": "Faire un câlin",
+    "example": "",
+    "exampleTranslation": "I hug my friend.",
+    "audio": "Je fais un câlin à mon ami."
+  },
+  {
+    "word": "SHAKE",
+    "translation": "Secouer",
+    "example": "",
+    "exampleTranslation": "Shake the bottle.",
+    "audio": "Secoue la bouteille."
+  },
+  {
+    "word": "POINT",
+    "translation": "Montrer du doigt",
+    "example": "",
+    "exampleTranslation": "Point to the door.",
+    "audio": "Montre la porte du doigt."
+  },
+  {
+    "word": "WAVE",
+    "translation": "Faire coucou",
+    "example": "",
+    "exampleTranslation": "I wave at my friend.",
+    "audio": "Je fais coucou à mon ami."
+  },
+  {
+    "word": "NOD",
+    "translation": "Hocher la tête",
+    "example": "",
+    "exampleTranslation": "Nod your head for yes.",
+    "audio": "Hoche la tête pour dire oui."
+  },
+  {
+    "word": "STRETCH",
+    "translation": "S'étirer",
+    "example": "",
+    "exampleTranslation": "I stretch in the morning.",
+    "audio": "Je m'étire le matin."
+  },
+  {
+    "word": "HOUSE",
+    "translation": "Maison",
+    "example": "",
+    "exampleTranslation": "My house is big.",
+    "audio": "Ma maison est grande."
+  },
+  {
+    "word": "ROOM",
+    "translation": "Chambre",
+    "example": "",
+    "exampleTranslation": "My room is clean.",
+    "audio": "Ma chambre est propre."
+  },
+  {
+    "word": "DOOR",
+    "translation": "Porte",
+    "example": "",
+    "exampleTranslation": "Please close the door.",
+    "audio": "Ferme la porte, s'il te plaît."
+  },
+  {
+    "word": "WINDOW",
+    "translation": "Fenêtre",
+    "example": "",
+    "exampleTranslation": "Open the window.",
+    "audio": "Ouvre la fenêtre."
+  },
+  {
+    "word": "KITCHEN",
+    "translation": "Cuisine",
+    "example": "",
+    "exampleTranslation": "I cook a cake in the kitchen.",
+    "audio": "Je cuisine un gâteau dans la cuisine."
+  },
+  {
+    "word": "BATHROOM",
+    "translation": "Salle de bain",
+    "example": "",
+    "exampleTranslation": "I take a shower in the bathroom.",
+    "audio": "Je prends une douche dans la salle de bain"
+  },
+  {
+    "word": "GARDEN",
+    "translation": "Jardin",
+    "example": "",
+    "exampleTranslation": "I play in the garden.",
+    "audio": "Je joue dans le jardin."
+  },
+  {
+    "word": "FLOOR",
+    "translation": "Sol",
+    "example": "",
+    "exampleTranslation": "The floor is clean.",
+    "audio": "Le sol est propre."
+  },
+  {
+    "word": "WALL",
+    "translation": "Mur",
+    "example": "",
+    "exampleTranslation": "There is a picture on the wall.",
+    "audio": "Il y a une image sur le mur."
+  },
+  {
+    "word": "LIGHT",
+    "translation": "Lumière",
+    "example": "",
+    "exampleTranslation": "Turn on the light, please.",
+    "audio": "Allume la lumière, s'il te plaît."
+  },
+  {
+    "word": "ROOF",
+    "translation": "Toit",
+    "example": "",
+    "exampleTranslation": "The cat is on the roof.",
+    "audio": "Le chat est sur le toit."
+  },
+  {
+    "word": "STAIRS",
+    "translation": "Escalier",
+    "example": "",
+    "exampleTranslation": "I go up the stairs.",
+    "audio": "Je monte l'escalier."
+  },
+  {
+    "word": "TABLE",
+    "translation": "Table",
+    "example": "",
+    "exampleTranslation": "The cake is on the table.",
+    "audio": "Le gâteau est sur la table."
+  },
+  {
+    "word": "CHAIR",
+    "translation": "Chaise",
+    "example": "",
+    "exampleTranslation": "The chair is big.",
+    "audio": "La chaise est grande."
+  },
+  {
+    "word": "BED",
+    "translation": "Lit",
+    "example": "",
+    "exampleTranslation": "I sleep in my bed.",
+    "audio": "Je dors dans mon lit."
+  },
+  {
+    "word": "CLOCK",
+    "translation": "Horloge",
+    "example": "",
+    "exampleTranslation": "The clock is on the wall.",
+    "audio": "L'horloge est sur le mur."
+  },
+  {
+    "word": "MIRROR",
+    "translation": "Miroir",
+    "example": "",
+    "exampleTranslation": "The mirror is clean.",
+    "audio": "Le miroir est propre."
+  },
+  {
+    "word": "BOTTLE",
+    "translation": "Bouteille",
+    "example": "",
+    "exampleTranslation": "A bottle of water.",
+    "audio": "Une bouteille d'eau."
+  },
+  {
+    "word": "CUP",
+    "translation": "Tasse",
+    "example": "",
+    "exampleTranslation": "A cup of tea, please.",
+    "audio": "Une tasse de thé, s'il te plaît."
+  },
+  {
+    "word": "PLATE",
+    "translation": "Assiette",
+    "example": "",
+    "exampleTranslation": "The food is on the plate.",
+    "audio": "La nourriture est dans l'assiette."
+  },
+  {
+    "word": "KNIFE",
+    "translation": "Couteau",
+    "example": "",
+    "exampleTranslation": "I cut bread with a knife.",
+    "audio": "Je coupe le pain avec un couteau."
+  },
+  {
+    "word": "BOX",
+    "translation": "Boîte",
+    "example": "",
+    "exampleTranslation": "The shoes are in the box.",
+    "audio": "Les chaussures sont dans la boîte."
+  },
+  {
+    "word": "BASKET",
+    "translation": "Panier",
+    "example": "",
+    "exampleTranslation": "The fruit is in the basket.",
+    "audio": "Les fruits sont dans le panier."
+  },
+  {
+    "word": "CANDLE",
+    "translation": "Bougie",
+    "example": "",
+    "exampleTranslation": "The candle is green.",
+    "audio": "La bougie est verte."
+  },
+  {
+    "word": "SCHOOL",
+    "translation": "École",
+    "example": "",
+    "exampleTranslation": "I like my school.",
+    "audio": "J'aime mon école."
+  },
+  {
+    "word": "SHOP",
+    "translation": "Magasin",
+    "example": "",
+    "exampleTranslation": "I buy bread at the shop.",
+    "audio": "J'achète du pain au magasin."
+  },
+  {
+    "word": "STREET",
+    "translation": "Rue",
+    "example": "",
+    "exampleTranslation": "I walk in the street.",
+    "audio": "Je marche dans la rue."
+  },
+  {
+    "word": "PARK",
+    "translation": "Parc",
+    "example": "",
+    "exampleTranslation": "We play in the park.",
+    "audio": "Nous jouons au parc."
+  },
+  {
+    "word": "HOSPITAL",
+    "translation": "Hôpital",
+    "example": "",
+    "exampleTranslation": "The man is at the hospital.",
+    "audio": "L'homme est à l'hôpital."
+  },
+  {
+    "word": "LIBRARY",
+    "translation": "Bibliothèque",
+    "example": "",
+    "exampleTranslation": "I read books at the library.",
+    "audio": "Je lis des livres à la bibliothèque."
+  },
+  {
+    "word": "BUILDING",
+    "translation": "Bâtiment",
+    "example": "",
+    "exampleTranslation": "This building is very tall.",
+    "audio": "Ce bâtiment est très grand."
+  },
+  {
+    "word": "BRIDGE",
+    "translation": "Pont",
+    "example": "",
+    "exampleTranslation": "I walk on the bridge.",
+    "audio": "Je marche sur le pont."
+  },
+  {
+    "word": "ROAD",
+    "translation": "Route",
+    "example": "",
+    "exampleTranslation": "The road is long.",
+    "audio": "La route est longue."
+  },
+  {
+    "word": "CITY",
+    "translation": "Ville",
+    "example": "",
+    "exampleTranslation": "I live in a big city.",
+    "audio": "J'habite dans une grande ville."
+  },
+  {
+    "word": "COUNTRY",
+    "translation": "Pays",
+    "example": "",
+    "exampleTranslation": "I live in a beautiful country.",
+    "audio": "J'habite dans un beau pays."
+  },
+  {
+    "word": "FARM",
+    "translation": "Ferme",
+    "example": "",
+    "exampleTranslation": "The farm has many animals.",
+    "audio": "La ferme a beaucoup d'animaux."
+  },
+  {
+    "word": "FOREST",
+    "translation": "Forêt",
+    "example": "",
+    "exampleTranslation": "I walk in the forest.",
+    "audio": "Je marche dans la forêt."
+  },
+  {
+    "word": "LAKE",
+    "translation": "Lac",
+    "example": "",
+    "exampleTranslation": "I swim in the lake.",
+    "audio": "Je nage dans le lac."
+  },
+  {
+    "word": "BEACH",
+    "translation": "Plage",
+    "example": "",
+    "exampleTranslation": "I play on the beach.",
+    "audio": "Je joue sur la plage."
+  },
+  {
+    "word": "ISLAND",
+    "translation": "Île",
+    "example": "",
+    "exampleTranslation": "The island is in the sea.",
+    "audio": "L'île est dans la mer."
+  },
+  {
+    "word": "FIELD",
+    "translation": "Champ",
+    "example": "",
+    "exampleTranslation": "The cows are in the field.",
+    "audio": "Les vaches sont dans le champ."
+  },
+  {
+    "word": "HILL",
+    "translation": "Colline",
+    "example": "",
+    "exampleTranslation": "The hill is green.",
+    "audio": "La colline est verte."
+  },
+  {
+    "word": "CAVE",
+    "translation": "Grotte",
+    "example": "",
+    "exampleTranslation": "The bear lives in a cave.",
+    "audio": "L'ours vit dans une grotte."
+  },
+  {
+    "word": "GATE",
+    "translation": "Portail",
+    "example": "",
+    "exampleTranslation": "Close the gate, please.",
+    "audio": "Ferme le portail, s'il te plaît."
+  },
+  {
+    "word": "FENCE",
+    "translation": "Clôture",
+    "example": "",
+    "exampleTranslation": "The fence is white.",
+    "audio": "La clôture est blanche."
+  },
+  {
+    "word": "PLACE",
+    "translation": "Endroit",
+    "example": "",
+    "exampleTranslation": "I like this place.",
+    "audio": "J'aime cet endroit."
+  },
+  {
+    "word": "CAR",
+    "translation": "Voiture",
+    "example": "My car is blue.",
+    "exampleTranslation": "Ma voiture est bleue.",
+    "audio": "Plus court que \"My father has...\"."
+  },
+  {
+    "word": "BUS",
+    "translation": "Bus",
+    "example": "I go to school by bus.",
+    "exampleTranslation": "Je vais à l'école en bus.",
+    "audio": "Parfait, très utile."
+  },
+  {
+    "word": "TRAIN",
+    "translation": "Train",
+    "example": "The train is fast.",
+    "exampleTranslation": "Le train est rapide.",
+    "audio": "Top, opposition avec \"slow\" plus tard."
+  },
+  {
+    "word": "PLANE",
+    "translation": "Avion",
+    "example": "The plane is in the sky.",
+    "exampleTranslation": "L'avion est dans le ciel.",
+    "audio": "Simple et visuel."
+  },
+  {
+    "word": "BIKE",
+    "translation": "Vélo",
+    "example": "I ride my bike.",
+    "exampleTranslation": "Je fais du vélo.",
+    "audio": "\"Every day\" n'est pas indispensable ici."
+  },
+  {
+    "word": "BOAT",
+    "translation": "Bateau",
+    "example": "The boat is on the water.",
+    "exampleTranslation": "Le bateau est sur l'eau.",
+    "audio": "Plus simple que \"the sea\"."
+  },
+  {
+    "word": "WHEEL",
+    "translation": "Roue",
+    "example": "The wheel is round.",
+    "exampleTranslation": "La roue est ronde.",
+    "audio": "Utilise une forme/adjectif de base."
+  },
+  {
+    "word": "TICKET",
+    "translation": "Billet",
+    "example": "I have a ticket.",
+    "exampleTranslation": "J'ai un billet.",
+    "audio": "Court et efficace."
+  },
+  {
+    "word": "BOOK",
+    "translation": "Livre",
+    "example": "Read your book.",
+    "exampleTranslation": "Lis ton livre.",
+    "audio": "Phrase d'action typique."
+  },
+  {
+    "word": "PEN",
+    "translation": "Stylo",
+    "example": "I write with a pen.",
+    "exampleTranslation": "J'écris avec un stylo.",
+    "audio": "Incontournable."
+  },
+  {
+    "word": "PAPER",
+    "translation": "Papier",
+    "example": "Draw on the paper.",
+    "exampleTranslation": "Dessine sur le papier.",
+    "audio": "Très concret."
+  },
+  {
+    "word": "PICTURE",
+    "translation": "Image",
+    "example": "Look at the picture.",
+    "exampleTranslation": "Regarde l'image.",
+    "audio": "Simple et impératif."
+  },
+  {
+    "word": "PAGE",
+    "translation": "Page",
+    "example": "Turn the page.",
+    "exampleTranslation": "Tourne la page.",
+    "audio": "Plus simple que \"Open at page ten\"."
+  },
+  {
+    "word": "LETTER",
+    "translation": "Lettre",
+    "example": "A is a letter.",
+    "exampleTranslation": "A est une lettre.",
+    "audio": "Hyper pédagogique."
+  },
+  {
+    "word": "WORD",
+    "translation": "Mot",
+    "example": "Cat is a word.",
+    "exampleTranslation": "Cat est un mot.",
+    "audio": "Rigolo pour un enfant."
+  },
+  {
+    "word": "LESSON",
+    "translation": "Leçon",
+    "example": "The lesson is easy.",
+    "exampleTranslation": "La leçon est facile.",
+    "audio": "Très utile."
+  },
+  {
+    "word": "QUESTION",
+    "translation": "Question",
+    "example": "I have a question.",
+    "exampleTranslation": "J'ai une question.",
+    "audio": "La base en classe."
+  },
+  {
+    "word": "MAP",
+    "translation": "Carte",
+    "example": "Look at the map.",
+    "exampleTranslation": "Regarde la carte.",
+    "audio": "Simple."
+  },
+  {
+    "word": "FLAG",
+    "translation": "Drapeau",
+    "example": "The flag is blue.",
+    "exampleTranslation": "Le drapeau est bleu.",
+    "audio": "Simple et efficace."
+  },
+  {
+    "word": "PHONE",
+    "translation": "Téléphone",
+    "example": "I use my phone.",
+    "exampleTranslation": "J'utilise mon téléphone.",
+    "audio": "Plus simple que \"I call with\"."
+  },
+  {
+    "word": "COMPUTER",
+    "translation": "Ordinateur",
+    "example": "I work on the computer.",
+    "exampleTranslation": "Je travaille sur l'ordinateur.",
+    "audio": "Description simple."
+  },
+  {
+    "word": "TELEVISION",
+    "translation": "Télévision",
+    "example": "I watch television.",
+    "exampleTranslation": "Je regarde la télévision.",
+    "audio": "On enlève \"at night\"."
+  },
+  {
+    "word": "RADIO",
+    "translation": "Radio",
+    "example": "I listen to the radio.",
+    "exampleTranslation": "J'écoute la radio.",
+    "audio": "Un classique indémodable."
+  },
+  {
+    "word": "CAMERA",
+    "translation": "Appareil photo",
+    "example": "I have a camera.",
+    "exampleTranslation": "J'ai un appareil photo.",
+    "audio": "Très simple."
+  },
+  {
+    "word": "SOAP",
+    "translation": "Savon",
+    "example": "Wash your hands with soap.",
+    "exampleTranslation": "Lave tes mains avec du savon.",
+    "audio": "On évite la phrase longue \"Je me lave...\"."
+  },
+  {
+    "word": "TOWEL",
+    "translation": "Serviette",
+    "example": "The towel is dry.",
+    "exampleTranslation": "La serviette est sèche.",
+    "audio": "Utile pour apprendre l'adjectif \"dry\"."
+  },
+  {
+    "word": "LADDER",
+    "translation": "Échelle",
+    "example": "The ladder is tall.",
+    "exampleTranslation": "L'échelle est grande.",
+    "audio": "On réutilise \"tall\" (vertical)."
+  },
+  {
+    "word": "ROPE",
+    "translation": "Corde",
+    "example": "The rope is long.",
+    "exampleTranslation": "La corde est longue.",
+    "audio": "Très visuel."
+  },
+  {
+    "word": "TOY",
+    "translation": "Jouet",
+    "example": "I like my toy.",
+    "exampleTranslation": "J'aime mon jouet.",
+    "audio": "Simple et positif."
+  },
+  {
+    "word": "GIFT",
+    "translation": "Cadeau",
+    "example": "A gift for you!",
+    "exampleTranslation": "Un cadeau pour toi !",
+    "audio": "Court et joyeux."
+  },
+  {
+    "word": "BELL",
+    "translation": "Cloche",
+    "example": "I hear the bell.",
+    "exampleTranslation": "J'entends la cloche.",
+    "audio": "Parfait pour l'école."
+  },
+  {
+    "word": "TOOL",
+    "translation": "Outil",
+    "example": "This is a useful tool.",
+    "exampleTranslation": "C'est un outil utile.",
+    "audio": "(Ou \"The tool is big\")."
+  },
+  {
+    "word": "BAG",
+    "translation": "Sac",
+    "example": "My bag is green.",
+    "exampleTranslation": "Mon sac est vert.",
+    "audio": "Plus simple que \"on the chair\"."
+  },
+  {
+    "word": "SIGN",
+    "translation": "Panneau",
+    "example": "Stop at the sign.",
+    "exampleTranslation": "Arrête-toi au panneau.",
+    "audio": "Structure impérative simple."
+  },
+  {
+    "word": "COIN",
+    "translation": "Pièce",
+    "example": "I find a coin in my pocket.",
+    "exampleTranslation": "Je trouve une pièce dans ma poche.",
+    "audio": "Court."
+  },
+  {
+    "word": "STAMP",
+    "translation": "Timbre",
+    "example": "The stamp is red.",
+    "exampleTranslation": "Le timbre est rouge.",
+    "audio": "Très visuel."
+  },
+  {
+    "word": "LOCK",
+    "translation": "Serrure",
+    "example": "The lock is old.",
+    "exampleTranslation": "La serrure est vieille.",
+    "audio": "a"
+  },
+  {
+    "word": "PIPE",
+    "translation": "Tuyau",
+    "example": "The pipe is long.",
+    "exampleTranslation": "Le tuyau est long.",
+    "audio": "Simple."
+  },
+  {
+    "word": "WIRE",
+    "translation": "Fil",
+    "example": "The wire is thin.",
+    "exampleTranslation": "Le fil est fin.",
+    "audio": "Apprend le mot \"thin\" (fin)."
+  },
+  {
+    "word": "WOOD",
+    "translation": "Bois",
+    "example": "We burn wood for the fire.",
+    "exampleTranslation": "On brûle du bois pour le feu.",
+    "audio": ""
+  },
+  {
+    "word": "GLASS",
+    "translation": "Verre",
+    "example": "Glass can break easily.",
+    "exampleTranslation": "Le verre peut se casser facilement.",
+    "audio": ""
+  },
+  {
+    "word": "CLOTH",
+    "translation": "Chiffon",
+    "example": "Clean the table with a cloth.",
+    "exampleTranslation": "Nettoie la table avec un chiffon.",
+    "audio": "\"Chiffon\" validé (plus concret)."
+  },
+  {
+    "word": "METAL",
+    "translation": "Métal",
+    "example": "This box is made of metal.",
+    "exampleTranslation": "Cette boîte est en métal.",
+    "audio": ""
+  },
+  {
+    "word": "PLASTIC",
+    "translation": "Plastique",
+    "example": "Put the plastic in the bin.",
+    "exampleTranslation": "Mets le plastique à la poubelle.",
+    "audio": ""
+  },
+  {
+    "word": "GOLD",
+    "translation": "Or",
+    "example": "This is a gold bar.",
+    "exampleTranslation": "C'est un lingot d'or.",
+    "audio": "Phrase complète et visuelle."
+  },
+  {
+    "word": "SILVER",
+    "translation": "Argent",
+    "example": "The ring is made of silver.",
+    "exampleTranslation": "La bague est en argent.",
+    "audio": "Précision sur la matière."
+  },
+  {
+    "word": "COTTON",
+    "translation": "Coton",
+    "example": "This sweater is made of cotton.",
+    "exampleTranslation": "Ce pull est en coton.",
+    "audio": "Simple et correct."
+  },
+  {
+    "word": "FRUIT",
+    "translation": "Fruit",
+    "example": "I like fresh fruit.",
+    "exampleTranslation": "J'aime les fruits frais.",
+    "audio": "Apprend \"fresh\"."
+  },
+  {
+    "word": "APPLE",
+    "translation": "Pomme",
+    "example": "An apple a day.",
+    "exampleTranslation": "Une pomme par jour.",
+    "audio": "Expression courte et célèbre."
+  },
+  {
+    "word": "BANANA",
+    "translation": "Banane",
+    "example": "The banana is yellow.",
+    "exampleTranslation": "La banane est jaune.",
+    "audio": "Texture intéressante."
+  },
+  {
+    "word": "ORANGE",
+    "translation": "Orange",
+    "example": "Peel the orange.",
+    "exampleTranslation": "Épluche l'orange.",
+    "audio": "Super verbe d'action !"
+  },
+  {
+    "word": "STRAWBERRY",
+    "translation": "Fraise",
+    "example": "I love strawberry jam.",
+    "exampleTranslation": "J'adore la confiture de fraises.",
+    "audio": "Nouveau mot : jam."
+  },
+  {
+    "word": "GRAPE",
+    "translation": "Raisin",
+    "example": "The grapes are delicious.",
+    "exampleTranslation": "Les raisins sont délicieux.",
+    "audio": "Couleur moins commune que \"red\"."
+  },
+  {
+    "word": "LEMON",
+    "translation": "Citron",
+    "example": "I like lemon juice.",
+    "exampleTranslation": "J'aime le jus de citron",
+    "audio": "ESSENTIEL : apprendre \"sour\"."
+  },
+  {
+    "word": "CHERRY",
+    "translation": "Cerise",
+    "example": "I like my cherry lollipop.",
+    "exampleTranslation": "J'aime ma sucette à la cerise.",
+    "audio": "Image classique."
+  },
+  {
+    "word": "PEAR",
+    "translation": "Poire",
+    "example": "The pear is juicy.",
+    "exampleTranslation": "La poire est juteuse.",
+    "audio": "Apprend \"juicy\"."
+  },
+  {
+    "word": "PEACH",
+    "translation": "Pêche",
+    "example": "This peach is sweet.",
+    "exampleTranslation": "Cette pêche est sucrée.",
+    "audio": ""
+  },
+  {
+    "word": "NUT",
+    "translation": "Noix",
+    "example": "Crack the nut.",
+    "exampleTranslation": "Casse la noix.",
+    "audio": "Verbe d'action."
+  },
+  {
+    "word": "COCONUT",
+    "translation": "Noix de coco",
+    "example": "Coconut milk is white.",
+    "exampleTranslation": "Le lait de coco est blanc.",
+    "audio": ""
+  },
+  {
+    "word": "FOOD",
+    "translation": "Nourriture",
+    "example": "The food is good.",
+    "exampleTranslation": "La nourriture est bonne.",
+    "audio": "Simple et positif."
+  },
+  {
+    "word": "BREAD",
+    "translation": "Pain",
+    "example": "The bread is warm.",
+    "exampleTranslation": "Le pain est chaud.",
+    "audio": "Une action concrète."
+  },
+  {
+    "word": "RICE",
+    "translation": "Riz",
+    "example": "I like rice with chicken.",
+    "exampleTranslation": "J'aime le riz avec du poulet.",
+    "audio": "Plus courant que le poisson pour un enfant."
+  },
+  {
+    "word": "MEAT",
+    "translation": "Viande",
+    "example": "The meat is tasty.",
+    "exampleTranslation": "La viande est savoureuse.",
+    "audio": "Apprend l'adjectif \"tasty\"."
+  },
+  {
+    "word": "FISH",
+    "translation": "Poisson",
+    "example": "I eat fish with a fork.",
+    "exampleTranslation": "Je mange du poisson avec une fourchette.",
+    "audio": "On évite \"le poisson est dans la mer\" (trop nature)."
+  },
+  {
+    "word": "EGG",
+    "translation": "Œuf",
+    "example": "I want a boiled egg.",
+    "exampleTranslation": "Je veux un œuf à la coque.",
+    "audio": "(Ou simplement \"I eat an egg\")."
+  },
+  {
+    "word": "CHEESE",
+    "translation": "Fromage",
+    "example": "This cheese smells strong.",
+    "exampleTranslation": "Ce fromage sent fort.",
+    "audio": "Phrase très française et amusante !"
+  },
+  {
+    "word": "SOUP",
+    "translation": "Soupe",
+    "example": "Eat your soup.",
+    "exampleTranslation": "Mange ta soupe.",
+    "audio": "La phrase classique des parents."
+  },
+  {
+    "word": "PASTA",
+    "translation": "Pâtes",
+    "example": "I love pasta with tomato.",
+    "exampleTranslation": "J'adore les pâtes à la tomate.",
+    "audio": "Plus gourmand."
+  },
+  {
+    "word": "SALT",
+    "translation": "Sel",
+    "example": "Don't put too much salt.",
+    "exampleTranslation": "Ne mets pas trop de sel.",
+    "audio": "Utile pour la santé/cuisine."
+  },
+  {
+    "word": "SUGAR",
+    "translation": "Sucre",
+    "example": "Sugar is sweet.",
+    "exampleTranslation": "Le sucre est sucré.",
+    "audio": "Un fait simple et logique."
+  },
+  {
+    "word": "BUTTER",
+    "translation": "Beurre",
+    "example": "Spread the butter.",
+    "exampleTranslation": "Étale le beurre.",
+    "audio": "Verbe d'action super intéressant."
+  },
+  {
+    "word": "VEGETABLE",
+    "translation": "Légume",
+    "example": "Vegetables are good for health.",
+    "exampleTranslation": "Les légumes sont bons pour la santé.",
+    "audio": "Plus pédagogique."
+  },
+  {
+    "word": "TOMATO",
+    "translation": "Tomate",
+    "example": "I like tomato sauce.",
+    "exampleTranslation": "J'aime la sauce tomate.",
+    "audio": "Concret (pâtes, pizza)."
+  },
+  {
+    "word": "POTATO",
+    "translation": "Pomme de terre",
+    "example": "I peel the potato.",
+    "exampleTranslation": "J'épluche la pomme de terre.",
+    "audio": "Validé : simple et efficace."
+  },
+  {
+    "word": "CARROT",
+    "translation": "Carotte",
+    "example": "The carrot is crunchy.",
+    "exampleTranslation": "La carotte est croquante.",
+    "audio": "Apprend l'adjectif \"crunchy\"."
+  },
+  {
+    "word": "ONION",
+    "translation": "Oignon",
+    "example": "The onion has a strong smell.",
+    "exampleTranslation": "L'oignon a une odeur forte.",
+    "audio": "Validé : évite le causatif complexe."
+  },
+  {
+    "word": "BEAN",
+    "translation": "Haricot",
+    "example": "The green bean is long.",
+    "exampleTranslation": "Le haricot vert est long.",
+    "audio": "Précision \"green bean\"."
+  },
+  {
+    "word": "CORN",
+    "translation": "Maïs",
+    "example": "I add corn to my salad.",
+    "exampleTranslation": "Je mets du maïs dans ma salade.",
+    "audio": "Ajout de \"sweet\" pour le goût."
+  },
+  {
+    "word": "LETTUCE",
+    "translation": "Salade",
+    "example": "I have a shrimp salad.",
+    "exampleTranslation": "J'ai une salade aux crevettes.",
+    "audio": "Utilise \"fresh\"."
+  },
+  {
+    "word": "MUSHROOM",
+    "translation": "Champignon",
+    "example": "Mushrooms grow in the forest.",
+    "exampleTranslation": "Les champignons poussent en forêt.",
+    "audio": "Contexte nature."
+  },
+  {
+    "word": "PEPPER",
+    "translation": "Poivre",
+    "example": "Put salt and pepper.",
+    "exampleTranslation": "Mets du sel et du poivre.",
+    "audio": "Validé : duo indispensable."
+  },
+  {
+    "word": "WATER",
+    "translation": "Eau",
+    "example": "A glass of cold water.",
+    "exampleTranslation": "Un verre d'eau froide.",
+    "audio": "Structure \"A glass of\"."
+  },
+  {
+    "word": "MILK",
+    "translation": "Lait",
+    "example": "Drink your milk.",
+    "exampleTranslation": "Bois ton lait.",
+    "audio": "Phrase réflexe du quotidien."
+  },
+  {
+    "word": "JUICE",
+    "translation": "Jus",
+    "example": "I want some apple juice.",
+    "exampleTranslation": "Je veux du jus de pomme.",
+    "audio": "Change de l'orange."
+  },
+  {
+    "word": "TEA",
+    "translation": "Thé",
+    "example": "The tea is too hot.",
+    "exampleTranslation": "Le thé est trop chaud.",
+    "audio": "Apprend \"too hot\" (sécurité)."
+  },
+  {
+    "word": "COFFEE",
+    "translation": "Café",
+    "example": "Coffee is for adults.",
+    "exampleTranslation": "Le café est pour les adultes.",
+    "audio": "Réalité de l'enfant."
+  },
+  {
+    "word": "HOT CHOCOLATE",
+    "translation": "Chocolat chaud",
+    "example": "I love hot chocolate.",
+    "exampleTranslation": "J'adore le chocolat chaud.",
+    "audio": "Simple et positif."
+  },
+  {
+    "word": "LEMONADE",
+    "translation": "Limonade",
+    "example": "I drink lemonade.",
+    "exampleTranslation": "Je bois de la limonade.",
+    "audio": "Pas de slash, adjectif utile."
+  },
+  {
+    "word": "BREAKFAST",
+    "translation": "Petit-déjeuner",
+    "example": "I eat eggs for breakfast.",
+    "exampleTranslation": "Je mange des œufs au petit-déjeuner.",
+    "audio": "Très bien."
+  },
+  {
+    "word": "LUNCH",
+    "translation": "Déjeuner",
+    "example": "I have lunch at school.",
+    "exampleTranslation": "Je déjeune à l'école.",
+    "audio": "\"Have lunch\" est très UK."
+  },
+  {
+    "word": "DINNER",
+    "translation": "Dîner",
+    "example": "Dinner is ready!",
+    "exampleTranslation": "Le dîner est prêt !",
+    "audio": "Simple et efficace."
+  },
+  {
+    "word": "SNACK",
+    "translation": "Goûter",
+    "example": "I have a snack at 4 pm.",
+    "exampleTranslation": "Je prends un goûter à 16 heures.",
+    "audio": "Classique du \"tea time\" / goûter."
+  },
+  {
+    "word": "MEAL",
+    "translation": "Repas",
+    "example": "Enjoy your meal!",
+    "exampleTranslation": "Bon appétit !",
+    "audio": "La version polie."
+  },
+  {
+    "word": "CAKE",
+    "translation": "Gâteau",
+    "example": "A chocolate cake.",
+    "exampleTranslation": "Un gâteau au chocolat.",
+    "audio": "Visuel."
+  },
+  {
+    "word": "CHOCOLATE",
+    "translation": "Chocolat",
+    "example": "I love chocolate!",
+    "exampleTranslation": "J'adore le chocolat !",
+    "audio": "Universel."
+  },
+  {
+    "word": "ICE CREAM",
+    "translation": "Glace",
+    "example": "I want an ice cream.",
+    "exampleTranslation": "Je veux une glace.",
+    "audio": "Simplifié au maximum."
+  },
+  {
+    "word": "SWEET",
+    "translation": "Bonbon",
+    "example": "I want a sweet.",
+    "exampleTranslation": "Je veux un bonbon.",
+    "audio": "C'est le mot typique UK."
+  },
+  {
+    "word": "PIE",
+    "translation": "Tarte",
+    "example": "An apple pie.",
+    "exampleTranslation": "Une tarte aux pommes.",
+    "audio": "Incontournable."
+  },
+  {
+    "word": "SANDWICH",
+    "translation": "Sandwich",
+    "example": "A chicken sandwich.",
+    "exampleTranslation": "Un sandwich au poulet.",
+    "audio": "Très concret."
+  },
+  {
+    "word": "CHICKEN",
+    "translation": "Poulet",
+    "example": "I like roast chicken.",
+    "exampleTranslation": "J'aime le poulet rôti.",
+    "audio": ""
+  },
+  {
+    "word": "BEEF",
+    "translation": "Bœuf",
+    "example": "I eat beef and potatoes.",
+    "exampleTranslation": "Je mange du bœuf et des pommes de terre.",
+    "audio": ""
+  },
+  {
+    "word": "LAMB",
+    "translation": "Agneau",
+    "example": "I like lamb.",
+    "exampleTranslation": "J'aime l'agneau.",
+    "audio": ""
+  },
+  {
+    "word": "SHRIMP",
+    "translation": "Crevette",
+    "example": "I eat pink shrimps.",
+    "exampleTranslation": "Je mange des crevettes roses.",
+    "audio": ""
+  },
+  {
+    "word": "HONEY",
+    "translation": "Miel",
+    "example": "Honey is sweet.",
+    "exampleTranslation": "Le miel est sucré.",
+    "audio": ""
+  },
+  {
+    "word": "JAM",
+    "translation": "Confiture",
+    "example": "This is strawberry jam.",
+    "exampleTranslation": "C'est de la confiture de fraise.",
+    "audio": ""
+  },
+  {
+    "word": "SAUCE",
+    "translation": "Sauce",
+    "example": "Tomato sauce for pasta.",
+    "exampleTranslation": "De la sauce tomate pour les pâtes.",
+    "audio": ""
+  },
+  {
+    "word": "TASTE",
+    "translation": "Goût / Goûter",
+    "example": "Taste this soup!",
+    "exampleTranslation": "Goûte cette soupe !",
+    "audio": "Parfait."
+  },
+  {
+    "word": "SMELL",
+    "translation": "Sentir",
+    "example": "It smells good!",
+    "exampleTranslation": "Ça sent bon !",
+    "audio": "Plus court et très utilisé à table."
+  },
+  {
+    "word": "MIX",
+    "translation": "Mélanger",
+    "example": "Mix the sugar and the flour.",
+    "exampleTranslation": "Mélange le sucre et la farine.",
+    "audio": "Très bien."
+  },
+  {
+    "word": "POUR",
+    "translation": "Verser",
+    "example": "Pour the milk.",
+    "exampleTranslation": "Verse le lait.",
+    "audio": "Plus simple pour un petit."
+  },
+  {
+    "word": "RECIPE",
+    "translation": "Recette",
+    "example": "This is a secret recipe.",
+    "exampleTranslation": "C'est une recette secrète.",
+    "audio": "Un peu plus amusant pour un enfant."
+  },
+  {
+    "word": "SPOON",
+    "translation": "Cuillère",
+    "example": "I eat soup with a spoon.",
+    "exampleTranslation": "Je mange la soupe avec une cuillère.",
+    "audio": "Impeccable."
+  },
+  {
+    "word": "FORK",
+    "translation": "Fourchette",
+    "example": "I have a fork and a knife.",
+    "exampleTranslation": "J'ai une fourchette et un couteau.",
+    "audio": "\"I have\" est plus simple que \"I eat with...\"."
+  },
+  {
+    "word": "POT",
+    "translation": "Casserole",
+    "example": "The soup is in the pot.",
+    "exampleTranslation": "La soupe est dans la casserole.",
+    "audio": "Plus cohérent avec l'ID 483."
+  },
+  {
+    "word": "PAN",
+    "translation": "Poêle",
+    "example": "I cook an egg in the pan.",
+    "exampleTranslation": "Je cuis un œuf dans la poêle.",
+    "audio": "Très visuel."
+  },
+  {
+    "word": "OVEN",
+    "translation": "Four",
+    "example": "The pizza is in the oven.",
+    "exampleTranslation": "La pizza est dans le four.",
+    "audio": "\"Pizza\" parle plus aux enfants que \"pain\"."
+  },
+  {
+    "word": "FRIDGE",
+    "translation": "Réfrigérateur",
+    "example": "The milk is in the fridge.",
+    "exampleTranslation": "Le lait est dans le réfrigérateur.",
+    "audio": "Version sérieuse et académique."
+  },
+  {
+    "word": "OIL",
+    "translation": "Huile",
+    "example": "I cook with oil.",
+    "exampleTranslation": "Je cuisine avec de l'huile.",
+    "audio": "Simple."
+  },
+  {
+    "word": "FLOUR",
+    "translation": "Farine",
+    "example": "I need flour for the cake.",
+    "exampleTranslation": "J'ai besoin de farine pour le gâteau.",
+    "audio": "Rappel de l'ID 470 (Cake)."
+  },
+  {
+    "word": "DELICIOUS",
+    "translation": "Délicieux",
+    "example": "This cake is delicious!",
+    "exampleTranslation": "Ce gâteau est délicieux !",
+    "audio": "On adore."
+  },
+  {
+    "word": "HOT",
+    "translation": "Chaud",
+    "example": "The soup is hot.",
+    "exampleTranslation": "La soupe est chaude.",
+    "audio": "Efficace."
+  },
+  {
+    "word": "COLD",
+    "translation": "Froid",
+    "example": "The water is cold.",
+    "exampleTranslation": "L'eau est froide.",
+    "audio": "Rappel ID 458."
+  },
+  {
+    "word": "FRESH",
+    "translation": "Frais",
+    "example": "The fruit is fresh.",
+    "exampleTranslation": "Le fruit est frais.",
+    "audio": "Simple."
+  },
+  {
+    "word": "RAW",
+    "translation": "Cru",
+    "example": "I don't eat raw meat.",
+    "exampleTranslation": "Je ne mange pas de viande crue.",
+    "audio": ""
+  },
+  {
+    "word": "RIPE",
+    "translation": "Mûr",
+    "example": "The banana is ripe.",
+    "exampleTranslation": "La banane est mûre.",
+    "audio": "Classique."
+  },
+  {
+    "word": "SOUR",
+    "translation": "Acide",
+    "example": "The lemon is sour.",
+    "exampleTranslation": "Le citron est acide.",
+    "audio": "Rappel ID 464 (Lemonade)."
+  },
+  {
+    "word": "BITTER",
+    "translation": "Amer",
+    "example": "The coffee is bitter.",
+    "exampleTranslation": "Le café est amer.",
+    "audio": "Rappel ID 462."
+  },
+  {
+    "word": "SPICY",
+    "translation": "Épicé",
+    "example": "This sauce is spicy.",
+    "exampleTranslation": "Cette sauce est épicée.",
+    "audio": "Rappel ID 482."
+  },
+  {
+    "word": "HUNGRY",
+    "translation": "Avoir faim",
+    "example": "I am hungry!",
+    "exampleTranslation": "J'ai faim !",
+    "audio": "Indispensable."
+  },
+  {
+    "word": "THIRSTY",
+    "translation": "Avoir soif",
+    "example": "I am thirsty!",
+    "exampleTranslation": "J'ai soif !",
+    "audio": "Indispensable."
+  },
+  {
+    "word": "FULL",
+    "translation": "Rassasié",
+    "example": "I am full, thank you.",
+    "exampleTranslation": "Je n'ai plus faim, merci.",
+    "audio": "\"Full\" est très utilisé."
+  },
+  {
+    "word": "SOMETHING",
+    "translation": "Quelque chose",
+    "example": "I want something to eat.",
+    "exampleTranslation": "Je veux quelque chose à manger.",
+    "audio": ""
+  },
+  {
+    "word": "NOTHING",
+    "translation": "Rien",
+    "example": "There is nothing in the box.",
+    "exampleTranslation": "Il n'y a rien dans la boîte.",
+    "audio": ""
+  },
+  {
+    "word": "EVERYTHING",
+    "translation": "Tout",
+    "example": "Everything is fine.",
+    "exampleTranslation": "Tout va bien.",
+    "audio": ""
+  },
+  {
+    "word": "ANYTHING",
+    "translation": "Quelque chose",
+    "example": "Do you need anything?",
+    "exampleTranslation": "As-tu besoin de quelque chose ?",
+    "audio": "Question/Négatif."
+  },
+  {
+    "word": "SOMEONE",
+    "translation": "Quelqu'un",
+    "example": "Someone is at the door.",
+    "exampleTranslation": "Quelqu'un est à la porte.",
+    "audio": ""
+  },
+  {
+    "word": "EVERYONE",
+    "translation": "Tout le monde",
+    "example": "Everyone is here today.",
+    "exampleTranslation": "Tout le monde est là aujourd'hui.",
+    "audio": ""
+  },
+  {
+    "word": "NOBODY",
+    "translation": "Personne",
+    "example": "Nobody knows the answer.",
+    "exampleTranslation": "Personne ne connaît la réponse.",
+    "audio": ""
+  },
+  {
+    "word": "MYSELF",
+    "translation": "Moi-même",
+    "example": "I can do it myself.",
+    "exampleTranslation": "Je peux le faire moi-même.",
+    "audio": ""
+  },
+  {
+    "word": "BECOME",
+    "translation": "Devenir",
+    "example": "I want to become a doctor.",
+    "exampleTranslation": "Je veux devenir médecin.",
+    "audio": ""
+  },
+  {
+    "word": "MEAN",
+    "translation": "Vouloir dire",
+    "example": "What do you mean?",
+    "exampleTranslation": "Que veux-tu dire ?",
+    "audio": ""
+  },
+  {
+    "word": "UNDERSTAND",
+    "translation": "Comprendre",
+    "example": "I understand the question.",
+    "exampleTranslation": "Je comprends la question.",
+    "audio": ""
+  },
+  {
+    "word": "EXPLAIN",
+    "translation": "Expliquer",
+    "example": "Can you explain this to me?",
+    "exampleTranslation": "Peux-tu m'expliquer ça ?",
+    "audio": ""
+  },
+  {
+    "word": "SEEM",
+    "translation": "Sembler",
+    "example": "You seem tired today.",
+    "exampleTranslation": "Tu as l'air fatigué aujourd'hui.",
+    "audio": ""
+  },
+  {
+    "word": "SPEND",
+    "translation": "Passer (temps)",
+    "example": "I spend time with my family.",
+    "exampleTranslation": "Je passe du temps avec ma famille.",
+    "audio": ""
+  },
+  {
+    "word": "HANG",
+    "translation": "Accrocher",
+    "example": "I hang my coat on the hook.",
+    "exampleTranslation": "J'accroche mon manteau au crochet.",
+    "audio": "UK English."
+  },
+  {
+    "word": "OFFER",
+    "translation": "Offrir",
+    "example": "I offer you my help.",
+    "exampleTranslation": "Je t'offre mon aide.",
+    "audio": ""
+  },
+  {
+    "word": "HUSBAND",
+    "translation": "Mari",
+    "example": "Her husband is very kind.",
+    "exampleTranslation": "Son mari est très gentil.",
+    "audio": ""
+  },
+  {
+    "word": "WIFE",
+    "translation": "Épouse",
+    "example": "His wife is a teacher.",
+    "exampleTranslation": "Son épouse est professeur.",
+    "audio": "Plus formel."
+  },
+  {
+    "word": "AGE",
+    "translation": "Âge",
+    "example": "What is your age?",
+    "exampleTranslation": "Quel est ton âge ?",
+    "audio": ""
+  },
+  {
+    "word": "BORN",
+    "translation": "Né",
+    "example": "I was born in France.",
+    "exampleTranslation": "Je suis né en France.",
+    "audio": "Toujours au passé."
+  },
+  {
+    "word": "HIGH",
+    "translation": "Haut",
+    "example": "The mountain is very high.",
+    "exampleTranslation": "La montagne est très haute.",
+    "audio": ""
+  },
+  {
+    "word": "LOW",
+    "translation": "Bas",
+    "example": "The clouds are low today.",
+    "exampleTranslation": "Les nuages sont bas aujourd'hui.",
+    "audio": "Visuel."
+  },
+  {
+    "word": "REAL",
+    "translation": "true",
+    "example": "Is this a real dog?",
+    "exampleTranslation": "Est-ce un vrai chien ?",
+    "audio": ""
+  },
+  {
+    "word": "OWN",
+    "translation": "Propre (à soi)",
+    "example": "I have my own room.",
+    "exampleTranslation": "J'ai ma propre chambre.",
+    "audio": ""
+  },
+  {
+    "word": "WHOLE",
+    "translation": "Entier",
+    "example": "I eat the whole cake.",
+    "exampleTranslation": "Je mange le gâteau entier.",
+    "audio": ""
+  },
+  {
+    "word": "ABLE",
+    "translation": "Capable",
+    "example": "I am able to swim.",
+    "exampleTranslation": "Je suis capable de nager.",
+    "audio": ""
+  },
+  {
+    "word": "OUT",
+    "translation": "Dehors",
+    "example": "",
+    "exampleTranslation": "Go out and play.",
+    "audio": "Va jouer dehors."
+  },
+  {
+    "word": "OFF",
+    "translation": "Éteint",
+    "example": "",
+    "exampleTranslation": "Turn off the TV.",
+    "audio": "Éteins la télé."
+  },
+  {
+    "word": "OTHER",
+    "translation": "Autre",
+    "example": "",
+    "exampleTranslation": "I want the other toy.",
+    "audio": "Je veux l'autre jouet."
+  },
+  {
+    "word": "WELL",
+    "translation": "Bien",
+    "example": "",
+    "exampleTranslation": "I am very well.",
+    "audio": "Je vais très bien."
+  },
+  {
+    "word": "MOST",
+    "translation": "La plupart",
+    "example": "",
+    "exampleTranslation": "Most kids like games.",
+    "audio": "La plupart des enfants aiment les jeux."
+  },
+  {
+    "word": "SUCH",
+    "translation": "Si",
+    "example": "Si ici signifie “tellement” (pas une condition). Il sert à insister.\r\nOn peut aussi le traduire par “tel” dans certains cas.",
+    "exampleTranslation": "He is such a good boy.",
+    "audio": "C'est un si bon garçon."
+  },
+  {
+    "word": "LITTLE",
+    "translation": "Petit",
+    "example": "",
+    "exampleTranslation": "I have a little dog.",
+    "audio": "J'ai un petit chien."
+  },
+  {
+    "word": "MIGHT",
+    "translation": "Pourrait",
+    "example": "modal",
+    "exampleTranslation": "It might rain today.",
+    "audio": "Il pourrait pleuvoir aujourd'hui."
+  },
+  {
+    "word": "AS",
+    "translation": "Aussi...que",
+    "example": "Veut aussi dire \"comme\" (ex: il fait comme moi).",
+    "exampleTranslation": "I am as tall as you.",
+    "audio": "Je suis aussi grand que toi."
+  },
+  {
+    "word": "WAY",
+    "translation": "Chemin",
+    "example": "Peut aussi signifier direction et être utilisé dans d'autres cas.",
+    "exampleTranslation": "This is the right way.",
+    "audio": "C'est le bon chemin."
+  },
+  {
+    "word": "WORLD",
+    "translation": "Monde",
+    "example": "",
+    "exampleTranslation": "The world is big.",
+    "audio": "Le monde est grand."
+  },
+  {
+    "word": "AIR",
+    "translation": "Air",
+    "example": "",
+    "exampleTranslation": "Breathe the fresh air.",
+    "audio": "Respire l'air frais."
+  },
+  {
+    "word": "GREAT",
+    "translation": "Super",
+    "example": "",
+    "exampleTranslation": "This is a great game.",
+    "audio": "C'est un super jeu."
+  },
+  {
+    "word": "THING",
+    "translation": "Chose",
+    "example": "",
+    "exampleTranslation": "What is that thing?",
+    "audio": "C'est quoi cette chose ?"
+  },
+  {
+    "word": "JOB",
+    "translation": "Travail",
+    "example": "",
+    "exampleTranslation": "My dad has a job.",
+    "audio": "Mon papa a un travail."
+  },
+  {
+    "word": "DOG",
+    "translation": "Chien",
+    "example": "",
+    "exampleTranslation": "My dog is happy.",
+    "audio": "Mon chien est heureux."
+  },
+  {
+    "word": "CAT",
+    "translation": "Chat",
+    "example": "",
+    "exampleTranslation": "The cat sleeps on the chair.",
+    "audio": "Le chat dort sur la chaise."
+  },
+  {
+    "word": "RABBIT",
+    "translation": "Lapin",
+    "example": "",
+    "exampleTranslation": "The rabbit is in the garden.",
+    "audio": "Le lapin est dans le jardin."
+  },
+  {
+    "word": "BIRD",
+    "translation": "Oiseau",
+    "example": "",
+    "exampleTranslation": "The bird sings in the tree.",
+    "audio": "L'oiseau chante dans l'arbre."
+  },
+  {
+    "word": "HORSE",
+    "translation": "Cheval",
+    "example": "",
+    "exampleTranslation": "The horse runs fast.",
+    "audio": "Le cheval court vite."
+  },
+  {
+    "word": "COW",
+    "translation": "Vache",
+    "example": "",
+    "exampleTranslation": "The cow gives us milk.",
+    "audio": "La vache nous donne du lait."
+  },
+  {
+    "word": "PIG",
+    "translation": "Cochon",
+    "example": "",
+    "exampleTranslation": "The pig is in the mud.",
+    "audio": "Le cochon est dans la boue."
+  },
+  {
+    "word": "SHEEP",
+    "translation": "Mouton",
+    "example": "",
+    "exampleTranslation": "I see sheep on the hill.",
+    "audio": "Je vois des moutons sur la colline."
+  },
+  {
+    "word": "CHICKEN",
+    "translation": "Poule",
+    "example": "",
+    "exampleTranslation": "The chicken is in the garden.",
+    "audio": "La poule est dans le jardin."
+  },
+  {
+    "word": "DUCK",
+    "translation": "Canard",
+    "example": "",
+    "exampleTranslation": "The duck swims in the water.",
+    "audio": "Le canard nage dans l'eau."
+  },
+  {
+    "word": "GOAT",
+    "translation": "Chèvre",
+    "example": "",
+    "exampleTranslation": "The goat eats grass.",
+    "audio": "La chèvre mange de l'herbe."
+  },
+  {
+    "word": "DONKEY",
+    "translation": "Âne",
+    "example": "",
+    "exampleTranslation": "The donkey is very strong.",
+    "audio": "L'âne est très fort."
+  },
+  {
+    "word": "LION",
+    "translation": "Lion",
+    "example": "",
+    "exampleTranslation": "The lion is the king.",
+    "audio": "Le lion est le roi."
+  },
+  {
+    "word": "TIGER",
+    "translation": "Tigre",
+    "example": "",
+    "exampleTranslation": "The tiger is fast and strong.",
+    "audio": "Le tigre est rapide et fort."
+  },
+  {
+    "word": "ELEPHANT",
+    "translation": "Éléphant",
+    "example": "",
+    "exampleTranslation": "The elephant is very big.",
+    "audio": "L'éléphant est très grand."
+  },
+  {
+    "word": "MONKEY",
+    "translation": "Singe",
+    "example": "",
+    "exampleTranslation": "The monkey climbs the tree.",
+    "audio": "Le singe grimpe à l'arbre."
+  },
+  {
+    "word": "SNAKE",
+    "translation": "Serpent",
+    "example": "",
+    "exampleTranslation": "I am scared of snakes.",
+    "audio": "J'ai peur des serpents."
+  },
+  {
+    "word": "BEAR",
+    "translation": "Ours",
+    "example": "",
+    "exampleTranslation": "The bear sleeps in winter.",
+    "audio": "L'ours dort en hiver."
+  },
+  {
+    "word": "SHARK",
+    "translation": "Requin",
+    "example": "",
+    "exampleTranslation": "The shark lives in the sea.",
+    "audio": "Le requin vit dans la mer."
+  },
+  {
+    "word": "WHALE",
+    "translation": "Baleine",
+    "example": "",
+    "exampleTranslation": "The whale is very big.",
+    "audio": "La baleine est très grande."
+  },
+  {
+    "word": "WOLF",
+    "translation": "Loup",
+    "example": "",
+    "exampleTranslation": "The wolf lives in the forest.",
+    "audio": "Le loup vit dans la forêt."
+  },
+  {
+    "word": "FOX",
+    "translation": "Renard",
+    "example": "",
+    "exampleTranslation": "The fox is fast and smart.",
+    "audio": "Le renard est rapide et intelligent."
+  },
+  {
+    "word": "CROCODILE",
+    "translation": "Crocodile",
+    "example": "",
+    "exampleTranslation": "The crocodile lives in the river.",
+    "audio": "Le crocodile vit dans la rivière."
+  },
+  {
+    "word": "DOLPHIN",
+    "translation": "Dauphin",
+    "example": "",
+    "exampleTranslation": "The dolphin swims fast.",
+    "audio": "Le dauphin nage vite."
+  },
+  {
+    "word": "TURTLE",
+    "translation": "Tortue",
+    "example": "",
+    "exampleTranslation": "The turtle is very slow.",
+    "audio": "La tortue est très lente."
+  },
+  {
+    "word": "FROG",
+    "translation": "Grenouille",
+    "example": "",
+    "exampleTranslation": "The frog jumps in the water.",
+    "audio": "La grenouille saute dans l'eau."
+  },
+  {
+    "word": "SPIDER",
+    "translation": "Araignée",
+    "example": "",
+    "exampleTranslation": "I see a spider on the wall.",
+    "audio": "Je vois une araignée sur le mur."
+  },
+  {
+    "word": "BEE",
+    "translation": "Abeille",
+    "example": "",
+    "exampleTranslation": "The bee makes honey.",
+    "audio": "L'abeille fait du miel."
+  },
+  {
+    "word": "BUTTERFLY",
+    "translation": "Papillon",
+    "example": "",
+    "exampleTranslation": "The butterfly is beautiful.",
+    "audio": "Le papillon est beau."
+  },
+  {
+    "word": "ANT",
+    "translation": "Fourmi",
+    "example": "",
+    "exampleTranslation": "The ant is very small.",
+    "audio": "La fourmi est très petite."
+  },
+  {
+    "word": "FLY",
+    "translation": "Mouche",
+    "example": "",
+    "exampleTranslation": "The fly is on the food.",
+    "audio": "La mouche est sur la nourriture."
+  },
+  {
+    "word": "MOSQUITO",
+    "translation": "Moustique",
+    "example": "",
+    "exampleTranslation": "The mosquito bites me.",
+    "audio": "Le moustique me pique."
+  },
+  {
+    "word": "WORM",
+    "translation": "Ver",
+    "example": "",
+    "exampleTranslation": "The bird eats the worm.",
+    "audio": "L'oiseau mange le ver."
+  },
+  {
+    "word": "SNAIL",
+    "translation": "Escargot",
+    "example": "",
+    "exampleTranslation": "The snail is very slow.",
+    "audio": "L'escargot est très lent."
+  },
+  {
+    "word": "OWL",
+    "translation": "Hibou",
+    "example": "",
+    "exampleTranslation": "The owl sees at night.",
+    "audio": "Le hibou voit la nuit."
+  },
+  {
+    "word": "PARROT",
+    "translation": "Perroquet",
+    "example": "",
+    "exampleTranslation": "The parrot can speak!",
+    "audio": "Le perroquet peut parler !"
+  },
+  {
+    "word": "MOUSE",
+    "translation": "Souris",
+    "example": "",
+    "exampleTranslation": "The cat runs after the mouse.",
+    "audio": "Le chat court après la souris."
+  },
+  {
+    "word": "PENGUIN",
+    "translation": "Pingouin",
+    "example": "",
+    "exampleTranslation": "The penguin lives in the cold.",
+    "audio": "Le pingouin vit dans le froid."
+  },
+  {
+    "word": "TAIL",
+    "translation": "Queue",
+    "example": "",
+    "exampleTranslation": "The dog has a long tail.",
+    "audio": "Le chien a une longue queue."
+  },
+  {
+    "word": "WING",
+    "translation": "Aile",
+    "example": "",
+    "exampleTranslation": "The bird has two wings.",
+    "audio": "L'oiseau a deux ailes."
+  },
+  {
+    "word": "FEATHER",
+    "translation": "Plume",
+    "example": "",
+    "exampleTranslation": "The bird has beautiful feathers.",
+    "audio": "L'oiseau a de belles plumes."
+  },
+  {
+    "word": "FUR",
+    "translation": "Fourrure",
+    "example": "",
+    "exampleTranslation": "The cat has soft fur.",
+    "audio": "Le chat a une fourrure douce."
+  },
+  {
+    "word": "PAW",
+    "translation": "Patte",
+    "example": "",
+    "exampleTranslation": "The dog gives me its paw.",
+    "audio": "Le chien me donne sa patte."
+  },
+  {
+    "word": "HORN",
+    "translation": "Corne",
+    "example": "",
+    "exampleTranslation": "The cow has two horns.",
+    "audio": "La vache a deux cornes."
+  },
+  {
+    "word": "SHELL",
+    "translation": "Coquille",
+    "example": "",
+    "exampleTranslation": "I find a shell on the beach.",
+    "audio": "Je trouve un coquillage sur la plage."
+  },
+  {
+    "word": "NEST",
+    "translation": "Nid",
+    "example": "",
+    "exampleTranslation": "The bird builds a nest.",
+    "audio": "L'oiseau construit un nid."
+  },
+  {
+    "word": "EGG",
+    "translation": "Œuf",
+    "example": "",
+    "exampleTranslation": "The bird sits on its eggs.",
+    "audio": "L'oiseau est sur ses œufs."
+  },
+  {
+    "word": "SKIN",
+    "translation": "Peau",
+    "example": "",
+    "exampleTranslation": "The snake changes its skin.",
+    "audio": "Le serpent change de peau."
+  },
+  {
+    "word": "SUN",
+    "translation": "Soleil",
+    "example": "",
+    "exampleTranslation": "The sun is hot.",
+    "audio": "Le soleil est chaud."
+  },
+  {
+    "word": "MOON",
+    "translation": "Lune",
+    "example": "",
+    "exampleTranslation": "I see the moon at night.",
+    "audio": "Je vois la lune la nuit."
+  },
+  {
+    "word": "STAR",
+    "translation": "Étoile",
+    "example": "",
+    "exampleTranslation": "I see many stars in the sky.",
+    "audio": "Je vois beaucoup d'étoiles dans le ciel."
+  },
+  {
+    "word": "SKY",
+    "translation": "Ciel",
+    "example": "",
+    "exampleTranslation": "The sky is blue today.",
+    "audio": "Le ciel est bleu aujourd'hui."
+  },
+  {
+    "word": "EARTH",
+    "translation": "Terre",
+    "example": "",
+    "exampleTranslation": "We live on Earth.",
+    "audio": "Nous vivons sur la Terre."
+  },
+  {
+    "word": "SEA",
+    "translation": "Mer",
+    "example": "",
+    "exampleTranslation": "I swim in the sea.",
+    "audio": "Je nage dans la mer."
+  },
+  {
+    "word": "RIVER",
+    "translation": "Rivière",
+    "example": "",
+    "exampleTranslation": "The river is long.",
+    "audio": "La rivière est longue."
+  },
+  {
+    "word": "MOUNTAIN",
+    "translation": "Montagne",
+    "example": "",
+    "exampleTranslation": "The mountain is very tall.",
+    "audio": "La montagne est très haute."
+  },
+  {
+    "word": "FIRE",
+    "translation": "Feu",
+    "example": "",
+    "exampleTranslation": "The fire is hot. Do not touch!",
+    "audio": "Le feu est chaud. Ne touche pas !"
+  },
+  {
+    "word": "STONE",
+    "translation": "Pierre",
+    "example": "",
+    "exampleTranslation": "I throw a stone in the water.",
+    "audio": "Je lance une pierre dans l'eau."
+  },
+  {
+    "word": "SAND",
+    "translation": "Sable",
+    "example": "",
+    "exampleTranslation": "I play in the sand.",
+    "audio": "Je joue dans le sable."
+  },
+  {
+    "word": "MUD",
+    "translation": "Boue",
+    "example": "",
+    "exampleTranslation": "My shoes are in the mud.",
+    "audio": "Mes chaussures sont dans la boue."
+  },
+  {
+    "word": "WAVE",
+    "translation": "Vague",
+    "example": "",
+    "exampleTranslation": "I see big waves in the sea.",
+    "audio": "Je vois de grandes vagues dans la mer."
+  },
+  {
+    "word": "ROCK",
+    "translation": "Rocher",
+    "example": "",
+    "exampleTranslation": "I sit on a big rock.",
+    "audio": "Je m'assieds sur un gros rocher."
+  },
+  {
+    "word": "TREE",
+    "translation": "Arbre",
+    "example": "",
+    "exampleTranslation": "The tree is very tall.",
+    "audio": "L'arbre est très grand."
+  },
+  {
+    "word": "FLOWER",
+    "translation": "Fleur",
+    "example": "",
+    "exampleTranslation": "The flower is red and beautiful.",
+    "audio": "La fleur est rouge et belle."
+  },
+  {
+    "word": "GRASS",
+    "translation": "Herbe",
+    "example": "",
+    "exampleTranslation": "The children play on the grass.",
+    "audio": "Les enfants jouent sur l'herbe."
+  },
+  {
+    "word": "PLANT",
+    "translation": "Plante",
+    "example": "",
+    "exampleTranslation": "I have a plant in my room.",
+    "audio": "J'ai une plante dans ma chambre."
+  },
+  {
+    "word": "LEAF",
+    "translation": "Feuille",
+    "example": "",
+    "exampleTranslation": "The leaf falls from the tree.",
+    "audio": "La feuille tombe de l'arbre."
+  },
+  {
+    "word": "SEED",
+    "translation": "Graine",
+    "example": "",
+    "exampleTranslation": "I put the seed in the ground.",
+    "audio": "Je mets la graine en terre."
+  },
+  {
+    "word": "ROOT",
+    "translation": "Racine",
+    "example": "",
+    "exampleTranslation": "The tree has big roots.",
+    "audio": "L'arbre a de grandes racines."
+  },
+  {
+    "word": "BRANCH",
+    "translation": "Branche",
+    "example": "",
+    "exampleTranslation": "The bird is on the branch.",
+    "audio": "L'oiseau est sur la branche."
+  },
+  {
+    "word": "ROSE",
+    "translation": "Rose",
+    "example": "",
+    "exampleTranslation": "The rose is red and beautiful.",
+    "audio": "La rose est rouge et belle."
+  },
+  {
+    "word": "FOREST",
+    "translation": "Forêt",
+    "example": "",
+    "exampleTranslation": "I walk in the forest.",
+    "audio": "Je marche dans la forêt."
+  },
+  {
+    "word": "WOOD",
+    "translation": "Bois",
+    "example": "",
+    "exampleTranslation": "The table is made of wood.",
+    "audio": "La table est en bois."
+  },
+  {
+    "word": "GARDEN",
+    "translation": "Jardin",
+    "example": "",
+    "exampleTranslation": "I grow flowers in the garden.",
+    "audio": "Je fais pousser des fleurs dans le jardin."
+  },
+  {
+    "word": "RAIN",
+    "translation": "Pluie",
+    "example": "",
+    "exampleTranslation": "The rain falls on the house.",
+    "audio": "La pluie tombe sur la maison."
+  },
+  {
+    "word": "SNOW",
+    "translation": "Neige",
+    "example": "",
+    "exampleTranslation": "The snow is white and cold.",
+    "audio": "La neige est blanche et froide."
+  },
+  {
+    "word": "WIND",
+    "translation": "Vent",
+    "example": "",
+    "exampleTranslation": "The wind is strong today.",
+    "audio": "Le vent est fort aujourd'hui."
+  },
+  {
+    "word": "CLOUD",
+    "translation": "Nuage",
+    "example": "",
+    "exampleTranslation": "I see clouds in the sky.",
+    "audio": "Je vois des nuages dans le ciel."
+  },
+  {
+    "word": "STORM",
+    "translation": "Orage",
+    "example": "",
+    "exampleTranslation": "There is a big storm tonight.",
+    "audio": "Il y a un gros orage ce soir."
+  },
+  {
+    "word": "ICE",
+    "translation": "Glace",
+    "example": "",
+    "exampleTranslation": "I put ice in my drink.",
+    "audio": "Je mets des glaçons dans ma boisson."
+  },
+  {
+    "word": "WARM",
+    "translation": "Chaud",
+    "example": "Warm=agréable/confortable; Hot=intense/brûlant",
+    "exampleTranslation": "My coat is warm.",
+    "audio": "Mon manteau est chaud."
+  },
+  {
+    "word": "DRY",
+    "translation": "Sec",
+    "example": "",
+    "exampleTranslation": "The ground is dry.",
+    "audio": "Le sol est sec."
+  },
+  {
+    "word": "WET",
+    "translation": "Mouillé",
+    "example": "",
+    "exampleTranslation": "My shoes are wet.",
+    "audio": "Mes chaussures sont mouillées."
+  },
+  {
+    "word": "RAINBOW",
+    "translation": "Arc-en-ciel",
+    "example": "",
+    "exampleTranslation": "I see a rainbow after the rain.",
+    "audio": "Je vois un arc-en-ciel après la pluie."
+  },
+  {
+    "word": "FOG",
+    "translation": "Brouillard",
+    "example": "",
+    "exampleTranslation": "I cannot see in the fog.",
+    "audio": "Je ne vois rien dans le brouillard."
+  },
+  {
+    "word": "THUNDER",
+    "translation": "Tonnerre",
+    "example": "",
+    "exampleTranslation": "I hear the thunder.",
+    "audio": "J'entends le tonnerre."
+  },
+  {
+    "word": "SUMMER",
+    "translation": "Été",
+    "example": "",
+    "exampleTranslation": "I swim in summer.",
+    "audio": "Je nage en été."
+  },
+  {
+    "word": "WINTER",
+    "translation": "Hiver",
+    "example": "",
+    "exampleTranslation": "It is cold in winter.",
+    "audio": "Il fait froid en hiver."
+  },
+  {
+    "word": "SPRING",
+    "translation": "Printemps",
+    "example": "",
+    "exampleTranslation": "Flowers grow in spring.",
+    "audio": "Les fleurs poussent au printemps."
+  },
+  {
+    "word": "AUTUMN",
+    "translation": "Automne",
+    "example": "",
+    "exampleTranslation": "The leaves fall in autumn.",
+    "audio": "Les feuilles tombent en automne."
+  },
+  {
+    "word": "SEASON",
+    "translation": "Saison",
+    "example": "",
+    "exampleTranslation": "Summer is my favourite season.",
+    "audio": "L'été est ma saison préférée."
+  },
+  {
+    "word": "DAY",
+    "translation": "Jour",
+    "example": "",
+    "exampleTranslation": "Tomorrow is the big day.",
+    "audio": "Demain est le grand jour."
+  },
+  {
+    "word": "NIGHT",
+    "translation": "Nuit",
+    "example": "",
+    "exampleTranslation": "I sleep at night.",
+    "audio": "Je dors la nuit."
+  },
+  {
+    "word": "MORNING",
+    "translation": "Matin",
+    "example": "",
+    "exampleTranslation": "I eat in the morning.",
+    "audio": "Je mange le matin."
+  },
+  {
+    "word": "AFTERNOON",
+    "translation": "Après-midi",
+    "example": "",
+    "exampleTranslation": "I play in the afternoon.",
+    "audio": "Je joue l'après-midi."
+  },
+  {
+    "word": "EVENING",
+    "translation": "Soir",
+    "example": "",
+    "exampleTranslation": "I read in the evening.",
+    "audio": "Je lis le soir."
+  },
+  {
+    "word": "SUNRISE",
+    "translation": "Lever de soleil",
+    "example": "",
+    "exampleTranslation": "The sunrise is beautiful.",
+    "audio": "Le lever de soleil est beau."
+  },
+  {
+    "word": "SUNSET",
+    "translation": "Coucher de soleil",
+    "example": "",
+    "exampleTranslation": "I look at the sunset.",
+    "audio": "Je regarde le coucher de soleil."
+  },
+  {
+    "word": "SHADOW",
+    "translation": "Ombre",
+    "example": "",
+    "exampleTranslation": "I see my shadow on the floor.",
+    "audio": "Je vois mon ombre au sol."
+  },
+  {
+    "word": "LIGHT",
+    "translation": "Lumière",
+    "example": "",
+    "exampleTranslation": "The light is on.",
+    "audio": "La lumière est allumée."
+  },
+  {
+    "word": "ZERO",
+    "translation": "Zéro",
+    "example": "",
+    "exampleTranslation": "I have zero problems.",
+    "audio": "J'ai zéro problème."
+  },
+  {
+    "word": "ONE",
+    "translation": "Un",
+    "example": "",
+    "exampleTranslation": "I have one dog.",
+    "audio": "J'ai un chien."
+  },
+  {
+    "word": "TWO",
+    "translation": "Deux",
+    "example": "",
+    "exampleTranslation": "I have two eyes.",
+    "audio": "J'ai deux yeux."
+  },
+  {
+    "word": "THREE",
+    "translation": "Trois",
+    "example": "",
+    "exampleTranslation": "I see three birds.",
+    "audio": "Je vois trois oiseaux."
+  },
+  {
+    "word": "FOUR",
+    "translation": "Quatre",
+    "example": "",
+    "exampleTranslation": "A cat has four legs.",
+    "audio": "Un chat a quatre pattes."
+  },
+  {
+    "word": "FIVE",
+    "translation": "Cinq",
+    "example": "",
+    "exampleTranslation": "I have five fingers.",
+    "audio": "J'ai cinq doigts."
+  },
+  {
+    "word": "SIX",
+    "translation": "Six",
+    "example": "",
+    "exampleTranslation": "There are six eggs.",
+    "audio": "Il y a six œufs."
+  },
+  {
+    "word": "SEVEN",
+    "translation": "Sept",
+    "example": "",
+    "exampleTranslation": "I wake up at seven.",
+    "audio": "Je me réveille à sept heures."
+  },
+  {
+    "word": "EIGHT",
+    "translation": "Huit",
+    "example": "",
+    "exampleTranslation": "School starts at eight.",
+    "audio": "L'école commence à huit heures."
+  },
+  {
+    "word": "NINE",
+    "translation": "Neuf",
+    "example": "",
+    "exampleTranslation": "I have nine friends.",
+    "audio": "J'ai neuf amis."
+  },
+  {
+    "word": "TEN",
+    "translation": "Dix",
+    "example": "",
+    "exampleTranslation": "I have ten fingers.",
+    "audio": "J'ai dix doigts."
+  },
+  {
+    "word": "ELEVEN",
+    "translation": "Onze",
+    "example": "",
+    "exampleTranslation": "There are eleven children.",
+    "audio": "Il y a onze enfants."
+  },
+  {
+    "word": "TWELVE",
+    "translation": "Douze",
+    "example": "",
+    "exampleTranslation": "I have twelve pens.",
+    "audio": "J'ai douze stylos."
+  },
+  {
+    "word": "THIRTEEN",
+    "translation": "Treize",
+    "example": "",
+    "exampleTranslation": "I am thirteen years old.",
+    "audio": "J'ai treize ans."
+  },
+  {
+    "word": "FOURTEEN",
+    "translation": "Quatorze",
+    "example": "",
+    "exampleTranslation": "There are fourteen girls.",
+    "audio": "Il y a quatorze filles."
+  },
+  {
+    "word": "FIFTEEN",
+    "translation": "Quinze",
+    "example": "",
+    "exampleTranslation": "I wait fifteen minutes.",
+    "audio": "J'attends quinze minutes."
+  },
+  {
+    "word": "SIXTEEN",
+    "translation": "Seize",
+    "example": "",
+    "exampleTranslation": "I am sixteen years old.",
+    "audio": "J'ai seize ans."
+  },
+  {
+    "word": "SEVENTEEN",
+    "translation": "Dix-sept",
+    "example": "Children is an irregular plural.",
+    "exampleTranslation": "There are seventeen children.",
+    "audio": "Il y a dix-sept enfants."
+  },
+  {
+    "word": "EIGHTEEN",
+    "translation": "Dix-huit",
+    "example": "",
+    "exampleTranslation": "I have eighteen books.",
+    "audio": "J'ai dix-huit livres."
+  },
+  {
+    "word": "NINETEEN",
+    "translation": "Dix-neuf",
+    "example": "",
+    "exampleTranslation": "There are nineteen people.",
+    "audio": "Il y a dix-neuf personnes."
+  },
+  {
+    "word": "TWENTY",
+    "translation": "Vingt",
+    "example": "",
+    "exampleTranslation": "I have twenty books.",
+    "audio": "J'ai vingt livres."
+  },
+  {
+    "word": "THIRTY",
+    "translation": "Trente",
+    "example": "",
+    "exampleTranslation": "She is thirty years old.",
+    "audio": "Elle a trente ans."
+  },
+  {
+    "word": "FIFTY",
+    "translation": "Cinquante",
+    "example": "",
+    "exampleTranslation": "I count to fifty.",
+    "audio": "Je compte jusqu'à cinquante."
+  },
+  {
+    "word": "HUNDRED",
+    "translation": "Cent",
+    "example": "",
+    "exampleTranslation": "There are a hundred people.",
+    "audio": "Il y a cent personnes."
+  },
+  {
+    "word": "THOUSAND",
+    "translation": "Mille",
+    "example": "",
+    "exampleTranslation": "I see a thousand stars.",
+    "audio": "Je vois mille étoiles."
+  },
+  {
+    "word": "FIRST",
+    "translation": "Premier",
+    "example": "",
+    "exampleTranslation": "I am the first in line.",
+    "audio": "Je suis le premier de la ligne."
+  },
+  {
+    "word": "SECOND",
+    "translation": "Deuxième",
+    "example": "",
+    "exampleTranslation": "I am the second.",
+    "audio": "Je suis le deuxième."
+  },
+  {
+    "word": "THIRD",
+    "translation": "Troisième",
+    "example": "",
+    "exampleTranslation": "My room is on the third floor.",
+    "audio": "Ma chambre est au troisième étage."
+  },
+  {
+    "word": "LAST",
+    "translation": "Dernier",
+    "example": "",
+    "exampleTranslation": "I am the last one.",
+    "audio": "Je suis le dernier."
+  },
+  {
+    "word": "HALF",
+    "translation": "Moitié / Demi",
+    "example": "",
+    "exampleTranslation": "I eat half of the apple.",
+    "audio": "Je mange la moitié de la pomme."
+  },
+  {
+    "word": "NUMBER",
+    "translation": "Nombre / Numéro",
+    "example": "",
+    "exampleTranslation": "What is your phone number?",
+    "audio": "Quel est ton numéro de téléphone ?"
+  },
+  {
+    "word": "MORE",
+    "translation": "Plus",
+    "example": "",
+    "exampleTranslation": "I want more water.",
+    "audio": "Je veux plus d'eau."
+  },
+  {
+    "word": "LESS",
+    "translation": "Moins",
+    "example": "",
+    "exampleTranslation": "I eat less sugar now.",
+    "audio": "Je mange moins de sucre maintenant."
+  },
+  {
+    "word": "A LOT",
+    "translation": "Beaucoup",
+    "example": "",
+    "exampleTranslation": "I have a lot of friends.",
+    "audio": "J'ai beaucoup d'amis."
+  },
+  {
+    "word": "A LITTLE",
+    "translation": "Un peu",
+    "example": "",
+    "exampleTranslation": "I speak a little English.",
+    "audio": "Je parle un peu anglais."
+  },
+  {
+    "word": "RED",
+    "translation": "Rouge",
+    "example": "",
+    "exampleTranslation": "The apple is red.",
+    "audio": "La pomme est rouge."
+  },
+  {
+    "word": "BLUE",
+    "translation": "Bleu",
+    "example": "",
+    "exampleTranslation": "I have a blue ball.",
+    "audio": "J'ai un ballon bleu."
+  },
+  {
+    "word": "GREEN",
+    "translation": "Vert",
+    "example": "",
+    "exampleTranslation": "The grass is green.",
+    "audio": "L'herbe est verte."
+  },
+  {
+    "word": "YELLOW",
+    "translation": "Jaune",
+    "example": "",
+    "exampleTranslation": "The sun is yellow.",
+    "audio": "Le soleil est jaune."
+  },
+  {
+    "word": "BLACK",
+    "translation": "Noir",
+    "example": "",
+    "exampleTranslation": "My cat is black.",
+    "audio": "Mon chat est noir."
+  },
+  {
+    "word": "WHITE",
+    "translation": "Blanc",
+    "example": "",
+    "exampleTranslation": "The snow is white.",
+    "audio": "La neige est blanche."
+  },
+  {
+    "word": "BROWN",
+    "translation": "Marron",
+    "example": "",
+    "exampleTranslation": "The dog is brown.",
+    "audio": "Le chien est marron."
+  },
+  {
+    "word": "PINK",
+    "translation": "Rose",
+    "example": "",
+    "exampleTranslation": "She likes pink flowers.",
+    "audio": "Elle aime les fleurs roses."
+  },
+  {
+    "word": "PURPLE",
+    "translation": "Violet",
+    "example": "",
+    "exampleTranslation": "I like the purple flower.",
+    "audio": "J'aime la fleur violette."
+  },
+  {
+    "word": "GREY",
+    "translation": "Gris",
+    "example": "",
+    "exampleTranslation": "The sky is grey today.",
+    "audio": "Le ciel est gris aujourd'hui."
+  },
+  {
+    "word": "ORANGE",
+    "translation": "Orange",
+    "example": "",
+    "exampleTranslation": "The cat is orange.",
+    "audio": "Le chat est orange."
+  },
+  {
+    "word": "BIG",
+    "translation": "Grand",
+    "example": "",
+    "exampleTranslation": "This is a big house.",
+    "audio": "C'est une grande maison."
+  },
+  {
+    "word": "SMALL",
+    "translation": "Petit",
+    "example": "",
+    "exampleTranslation": "I have a small cat.",
+    "audio": "J'ai un petit chat."
+  },
+  {
+    "word": "LONG",
+    "translation": "Long",
+    "example": "",
+    "exampleTranslation": "The road is very long.",
+    "audio": "La route est très longue."
+  },
+  {
+    "word": "SHORT",
+    "translation": "Court",
+    "example": "",
+    "exampleTranslation": "My hair is short.",
+    "audio": "Mes cheveux sont courts."
+  },
+  {
+    "word": "HEAVY",
+    "translation": "Lourd",
+    "example": "",
+    "exampleTranslation": "This bag is very heavy.",
+    "audio": "Ce sac est très lourd."
+  },
+  {
+    "word": "ROUND",
+    "translation": "Rond",
+    "example": "",
+    "exampleTranslation": "The ball is round.",
+    "audio": "Le ballon est rond."
+  },
+  {
+    "word": "WIDE",
+    "translation": "Large",
+    "example": "",
+    "exampleTranslation": "The river is wide.",
+    "audio": "La rivière est large."
+  },
+  {
+    "word": "THIN",
+    "translation": "Fin",
+    "example": "",
+    "exampleTranslation": "The book is very thin.",
+    "audio": "Le livre est très fin."
+  },
+  {
+    "word": "THICK",
+    "translation": "Épais",
+    "example": "",
+    "exampleTranslation": "The wall is thick.",
+    "audio": "Le mur est épais."
+  },
+  {
+    "word": "DEEP",
+    "translation": "Profond",
+    "example": "",
+    "exampleTranslation": "The sea is very deep.",
+    "audio": "La mer est très profonde."
+  },
+  {
+    "word": "FLAT",
+    "translation": "Plat",
+    "example": "",
+    "exampleTranslation": "The road is flat.",
+    "audio": "La route est plate."
+  },
+  {
+    "word": "STRAIGHT",
+    "translation": "Droit",
+    "example": "",
+    "exampleTranslation": "The road is straight.",
+    "audio": "La route est droite."
+  },
+  {
+    "word": "GOOD",
+    "translation": "Bon",
+    "example": "",
+    "exampleTranslation": "This cake is very good.",
+    "audio": "Ce gâteau est très bon."
+  },
+  {
+    "word": "BAD",
+    "translation": "Mauvais",
+    "example": "",
+    "exampleTranslation": "The connection is bad.",
+    "audio": "La connexion est mauvaise."
+  },
+  {
+    "word": "NEW",
+    "translation": "Nouveau",
+    "example": "",
+    "exampleTranslation": "I have new shoes.",
+    "audio": "J'ai des chaussures neuves."
+  },
+  {
+    "word": "OLD",
+    "translation": "Vieux",
+    "example": "",
+    "exampleTranslation": "My house is very old.",
+    "audio": "Ma maison est très vieille."
+  },
+  {
+    "word": "FAST",
+    "translation": "Rapide",
+    "example": "",
+    "exampleTranslation": "The horse is very fast.",
+    "audio": "Le cheval est très rapide."
+  },
+  {
+    "word": "SLOW",
+    "translation": "Lent",
+    "example": "",
+    "exampleTranslation": "The turtle is slow.",
+    "audio": "La tortue est lente."
+  },
+  {
+    "word": "EASY",
+    "translation": "Facile",
+    "example": "",
+    "exampleTranslation": "This question is easy.",
+    "audio": "Cette question est facile."
+  },
+  {
+    "word": "HARD",
+    "translation": "Difficile",
+    "example": "",
+    "exampleTranslation": "This exercise is hard.",
+    "audio": "Cet exercice est difficile."
+  },
+  {
+    "word": "CLEAN",
+    "translation": "Propre",
+    "example": "",
+    "exampleTranslation": "My room is clean.",
+    "audio": "Ma chambre est propre."
+  },
+  {
+    "word": "DIRTY",
+    "translation": "Sale",
+    "example": "",
+    "exampleTranslation": "My shoes are dirty.",
+    "audio": "Mes chaussures sont sales."
+  },
+  {
+    "word": "FULL",
+    "translation": "Plein",
+    "example": "",
+    "exampleTranslation": "The bottle is full.",
+    "audio": "La bouteille est pleine."
+  },
+  {
+    "word": "EMPTY",
+    "translation": "Vide",
+    "example": "",
+    "exampleTranslation": "The cup is empty.",
+    "audio": "La tasse est vide."
+  },
+  {
+    "word": "SAME",
+    "translation": "Même",
+    "example": "",
+    "exampleTranslation": "We have the same bag.",
+    "audio": "Nous avons le même sac."
+  },
+  {
+    "word": "DIFFERENT",
+    "translation": "Différent",
+    "example": "",
+    "exampleTranslation": "These two flowers are different.",
+    "audio": "Ces deux fleurs sont différentes."
+  },
+  {
+    "word": "WRONG",
+    "translation": "false",
+    "example": "",
+    "exampleTranslation": "This answer is wrong.",
+    "audio": "Cette réponse est fausse."
+  },
+  {
+    "word": "BRIGHT",
+    "translation": "Lumineux",
+    "example": "",
+    "exampleTranslation": "The sun is very bright.",
+    "audio": "Le soleil est très lumineux."
+  },
+  {
+    "word": "DARK",
+    "translation": "Sombre",
+    "example": "",
+    "exampleTranslation": "It is dark at night.",
+    "audio": "Il fait sombre la nuit."
+  },
+  {
+    "word": "SOFT",
+    "translation": "Doux",
+    "example": "",
+    "exampleTranslation": "The pillow is soft.",
+    "audio": "L'oreiller est doux."
+  },
+  {
+    "word": "SHARP",
+    "translation": "Tranchant",
+    "example": "",
+    "exampleTranslation": "The knife is sharp!",
+    "audio": "Le couteau est tranchant !"
+  },
+  {
+    "word": "SMOOTH",
+    "translation": "Lisse",
+    "example": "",
+    "exampleTranslation": "The table is smooth.",
+    "audio": "La table est lisse."
+  },
+  {
+    "word": "ROUGH",
+    "translation": "Rugueux",
+    "example": "",
+    "exampleTranslation": "The rock is rough.",
+    "audio": "Le rocher est rugueux."
+  },
+  {
+    "word": "RICH",
+    "translation": "Riche",
+    "example": "",
+    "exampleTranslation": "The king is very rich.",
+    "audio": "Le roi est très riche."
+  },
+  {
+    "word": "POOR",
+    "translation": "Pauvre",
+    "example": "",
+    "exampleTranslation": "The man is poor but kind.",
+    "audio": "L'homme est pauvre mais gentil."
+  },
+  {
+    "word": "CHEAP",
+    "translation": "Pas cher",
+    "example": "",
+    "exampleTranslation": "This book is cheap.",
+    "audio": "Ce livre n'est pas cher."
+  },
+  {
+    "word": "EXPENSIVE",
+    "translation": "Cher",
+    "example": "",
+    "exampleTranslation": "This car is expensive.",
+    "audio": "Cette voiture est chère."
+  },
+  {
+    "word": "SAFE",
+    "translation": "Sûr",
+    "example": "",
+    "exampleTranslation": "The children are in a safe place.",
+    "audio": "Les enfants sont dans un endroit sûr."
+  },
+  {
+    "word": "DANGEROUS",
+    "translation": "Dangereux",
+    "example": "",
+    "exampleTranslation": "The road is dangerous.",
+    "audio": "La route est dangereuse."
+  },
+  {
+    "word": "QUIET",
+    "translation": "Calme",
+    "example": "",
+    "exampleTranslation": "Please be quiet.",
+    "audio": "Sois silencieux, s'il te plaît."
+  },
+  {
+    "word": "LOUD",
+    "translation": "Fort",
+    "example": "",
+    "exampleTranslation": "The music is too loud.",
+    "audio": "La musique est trop forte."
+  },
+  {
+    "word": "OPEN",
+    "translation": "Ouvert",
+    "example": "",
+    "exampleTranslation": "The door is open.",
+    "audio": "La porte est ouverte."
+  },
+  {
+    "word": "FAVOURITE",
+    "translation": "Préféré",
+    "example": "",
+    "exampleTranslation": "Blue is my favourite colour.",
+    "audio": "Le bleu est ma couleur préférée."
+  },
+  {
+    "word": "IMPORTANT",
+    "translation": "Important",
+    "example": "",
+    "exampleTranslation": "This lesson is important.",
+    "audio": "Cette leçon est importante."
+  },
+  {
+    "word": "POSSIBLE",
+    "translation": "Possible",
+    "example": "",
+    "exampleTranslation": "It is possible to learn.",
+    "audio": "Il est possible d'apprendre."
+  },
+  {
+    "word": "IMPOSSIBLE",
+    "translation": "Impossible",
+    "example": "",
+    "exampleTranslation": "It is not impossible!",
+    "audio": "Ce n'est pas impossible !"
+  },
+  {
+    "word": "INTERESTING",
+    "translation": "Intéressant",
+    "example": "",
+    "exampleTranslation": "The book is interesting.",
+    "audio": "Le livre est intéressant."
+  },
+  {
+    "word": "BORING",
+    "translation": "Ennuyeux",
+    "example": "",
+    "exampleTranslation": "This film is boring.",
+    "audio": "Ce film est ennuyeux."
+  },
+  {
+    "word": "PERFECT",
+    "translation": "Parfait",
+    "example": "",
+    "exampleTranslation": "This day is perfect!",
+    "audio": "Cette journée est parfaite !"
+  },
+  {
+    "word": "TERRIBLE",
+    "translation": "Affreux",
+    "example": "",
+    "exampleTranslation": "The noise is terrible.",
+    "audio": "Le bruit est affreux."
+  },
+  {
+    "word": "STRANGE",
+    "translation": "Étrange",
+    "example": "",
+    "exampleTranslation": "This story is strange.",
+    "audio": "Cette histoire est étrange."
+  },
+  {
+    "word": "NORMAL",
+    "translation": "Normal",
+    "example": "",
+    "exampleTranslation": "This is normal.",
+    "audio": "C'est normal."
+  },
+  {
+    "word": "SPECIAL",
+    "translation": "Spécial",
+    "example": "",
+    "exampleTranslation": "Today is a special day.",
+    "audio": "Aujourd'hui est un jour spécial."
+  },
+  {
+    "word": "TRUE",
+    "translation": "true",
+    "example": "",
+    "exampleTranslation": "Is this true?",
+    "audio": "Est-ce que c'est vrai ?"
+  },
+  {
+    "word": "BALL",
+    "translation": "Ballon",
+    "example": "",
+    "exampleTranslation": "Throw the ball to me!",
+    "audio": "Lance-moi le ballon !"
+  },
+  {
+    "word": "FOOTBALL",
+    "translation": "Football",
+    "example": "",
+    "exampleTranslation": "I play football at school.",
+    "audio": "Je joue au football à l'école."
+  },
+  {
+    "word": "BASKETBALL",
+    "translation": "Basket-ball",
+    "example": "",
+    "exampleTranslation": "I play basketball with my friends.",
+    "audio": "Je joue au basket avec mes amis."
+  },
+  {
+    "word": "TENNIS",
+    "translation": "Tennis",
+    "example": "",
+    "exampleTranslation": "She plays tennis every week.",
+    "audio": "Elle joue au tennis chaque semaine."
+  },
+  {
+    "word": "SWIMMING",
+    "translation": "Natation",
+    "example": "",
+    "exampleTranslation": "I like swimming in the sea.",
+    "audio": "J'aime nager dans la mer."
+  },
+  {
+    "word": "GAME",
+    "translation": "Jeu",
+    "example": "",
+    "exampleTranslation": "We play a game together.",
+    "audio": "Nous jouons à un jeu ensemble."
+  },
+  {
+    "word": "TEAM",
+    "translation": "Équipe",
+    "example": "",
+    "exampleTranslation": "I am in the football team.",
+    "audio": "Je suis dans l'équipe de football."
+  },
+  {
+    "word": "WIN",
+    "translation": "Gagner",
+    "example": "",
+    "exampleTranslation": "I want to win the game!",
+    "audio": "Je veux gagner la partie !"
+  },
+  {
+    "word": "LOSE",
+    "translation": "Perdre",
+    "example": "Do not = forme complète (plus formelle / pédagogique)\r\n Don’t = contraction (plus naturelle à l’oral)",
+    "exampleTranslation": "I do not like to lose.",
+    "audio": "Je n'aime pas perdre."
+  },
+  {
+    "word": "RACE",
+    "translation": "Course",
+    "example": "",
+    "exampleTranslation": "I run in a race.",
+    "audio": "Je cours dans une course."
+  },
+  {
+    "word": "GOAL",
+    "translation": "But",
+    "example": "",
+    "exampleTranslation": "He scores a goal!",
+    "audio": "Il marque un but !"
+  },
+  {
+    "word": "SCORE",
+    "translation": "Score",
+    "example": "",
+    "exampleTranslation": "What is the score?",
+    "audio": "Quel est le score ?"
+  },
+  {
+    "word": "PLAYER",
+    "translation": "Joueur",
+    "example": "",
+    "exampleTranslation": "He is a good player.",
+    "audio": "C'est un bon joueur."
+  },
+  {
+    "word": "MUSIC",
+    "translation": "Musique",
+    "example": "",
+    "exampleTranslation": "The music is on TV.",
+    "audio": "La musique est à la télé."
+  },
+  {
+    "word": "SONG",
+    "translation": "Chanson",
+    "example": "",
+    "exampleTranslation": "The song is on the radio.",
+    "audio": "La chanson passe à la radio."
+  },
+  {
+    "word": "SING",
+    "translation": "Chanter",
+    "example": "",
+    "exampleTranslation": "He sings.",
+    "audio": "Il chante."
+  },
+  {
+    "word": "MOVIE",
+    "translation": "Film",
+    "example": "",
+    "exampleTranslation": "I watch a movie at home.",
+    "audio": "Je regarde un film à la maison."
+  },
+  {
+    "word": "PHOTO",
+    "translation": "Photo",
+    "example": "",
+    "exampleTranslation": "I take a photo of my family.",
+    "audio": "Je prends une photo de ma famille."
+  },
+  {
+    "word": "STORY",
+    "translation": "Histoire",
+    "example": "",
+    "exampleTranslation": "Tell me a story.",
+    "audio": "Raconte-moi une histoire."
+  },
+  {
+    "word": "GUITAR",
+    "translation": "Guitare",
+    "example": "",
+    "exampleTranslation": "He plays the guitar.",
+    "audio": "Il joue de la guitare."
+  },
+  {
+    "word": "PIANO",
+    "translation": "Piano",
+    "example": "",
+    "exampleTranslation": "She plays the piano.",
+    "audio": "Elle joue du piano."
+  },
+  {
+    "word": "PAINT",
+    "translation": "Peindre",
+    "example": "",
+    "exampleTranslation": "I paint a picture.",
+    "audio": "Je peins une image."
+  },
+  {
+    "word": "COLOUR",
+    "translation": "Colorier",
+    "example": "",
+    "exampleTranslation": "Colour the page.",
+    "audio": "Colorie la page."
+  },
+  {
+    "word": "VIDEO",
+    "translation": "Vidéo",
+    "example": "",
+    "exampleTranslation": "I watch a video at home.",
+    "audio": "Je regarde une vidéo à la maison."
+  },
+  {
+    "word": "SHOW",
+    "translation": "Spectacle",
+    "example": "",
+    "exampleTranslation": "We go to a show tonight.",
+    "audio": "We go to a show tonight."
+  },
+  {
+    "word": "STAGE",
+    "translation": "Scène",
+    "example": "",
+    "exampleTranslation": "She sings on the stage.",
+    "audio": "Elle chante sur la scène."
+  },
+  {
+    "word": "BIRTHDAY",
+    "translation": "Anniversaire",
+    "example": "",
+    "exampleTranslation": "A birthday is the day you were born.",
+    "audio": "Un anniversaire est le jour où tu es né(e)."
+  },
+  {
+    "word": "PARTY",
+    "translation": "Fête",
+    "example": "",
+    "exampleTranslation": "We have a party at home.",
+    "audio": "Nous faisons une fête à la maison."
+  },
+  {
+    "word": "HOLIDAY",
+    "translation": "Vacances",
+    "example": "",
+    "exampleTranslation": "I go to the beach for the holiday.",
+    "audio": "Je vais à la plage pour les vacances."
+  },
+  {
+    "word": "PRESENT",
+    "translation": "Cadeau",
+    "example": "",
+    "exampleTranslation": "She gave me a nice present.",
+    "audio": "Elle m'a fait un joli cadeau."
+  },
+  {
+    "word": "SURPRISE",
+    "translation": "Surprise",
+    "example": "",
+    "exampleTranslation": "I have a surprise for you!",
+    "audio": "J'ai une surprise pour toi !"
+  },
+  {
+    "word": "PRIZE",
+    "translation": "Récompense",
+    "example": "",
+    "exampleTranslation": "I win the first prize!",
+    "audio": "Je gagne le premier prix !"
+  },
+  {
+    "word": "CLAP",
+    "translation": "Applaudir",
+    "example": "",
+    "exampleTranslation": "The children clap for the show.",
+    "audio": "Les enfants applaudissent le spectacle."
+  },
+  {
+    "word": "JOKE",
+    "translation": "Blague",
+    "example": "",
+    "exampleTranslation": "He tells a funny joke.",
+    "audio": "Il raconte une blague drôle."
+  },
+  {
+    "word": "FUN",
+    "translation": "Amusant",
+    "example": "",
+    "exampleTranslation": "The game is very fun!",
+    "audio": "Le jeu est très amusant !"
+  },
+  {
+    "word": "TIME",
+    "translation": "Temps / Heure",
+    "example": "",
+    "exampleTranslation": "What time is it?",
+    "audio": "Quelle heure est-il ?"
+  },
+  {
+    "word": "TODAY",
+    "translation": "Aujourd'hui",
+    "example": "",
+    "exampleTranslation": "Today I go to the market.",
+    "audio": "Aujourd'hui je vais au marché."
+  },
+  {
+    "word": "TOMORROW",
+    "translation": "Demain",
+    "example": "",
+    "exampleTranslation": "I see you tomorrow.",
+    "audio": "Je te vois demain."
+  },
+  {
+    "word": "YESTERDAY",
+    "translation": "Hier",
+    "example": "",
+    "exampleTranslation": "Yesterday, I was at school.",
+    "audio": "Hier, j'étais à l'école."
+  },
+  {
+    "word": "WEEK",
+    "translation": "Semaine",
+    "example": "",
+    "exampleTranslation": "I go to school every week.",
+    "audio": "Je vais à l'école chaque semaine."
+  },
+  {
+    "word": "MONTH",
+    "translation": "Mois",
+    "example": "",
+    "exampleTranslation": "The school year starts this month.",
+    "audio": "L'année scolaire commence ce mois-ci."
+  },
+  {
+    "word": "YEAR",
+    "translation": "Année",
+    "example": "",
+    "exampleTranslation": "I am eight years old.",
+    "audio": "J'ai huit ans."
+  },
+  {
+    "word": "HOUR",
+    "translation": "Heure",
+    "example": "",
+    "exampleTranslation": "I waited for one hour.",
+    "audio": "J'ai attendu une heure."
+  },
+  {
+    "word": "MINUTE",
+    "translation": "Minute",
+    "example": "",
+    "exampleTranslation": "Wait five minutes.",
+    "audio": "Attends cinq minutes."
+  },
+  {
+    "word": "CLOCK",
+    "translation": "Horloge",
+    "example": "",
+    "exampleTranslation": "I look at the clock.",
+    "audio": "Je regarde l'horloge."
+  },
+  {
+    "word": "LATE",
+    "translation": "En retard",
+    "example": "",
+    "exampleTranslation": "I am late for school.",
+    "audio": "Je suis en retard à l'école."
+  },
+  {
+    "word": "EARLY",
+    "translation": "Tôt",
+    "example": "",
+    "exampleTranslation": "I wake up early.",
+    "audio": "Je me réveille tôt."
+  },
+  {
+    "word": "AGO",
+    "translation": "Il y a",
+    "example": "",
+    "exampleTranslation": "I saw him two days ago.",
+    "audio": "Je l'ai vu il y a deux jours."
+  },
+  {
+    "word": "WEEKEND",
+    "translation": "Week-end",
+    "example": "",
+    "exampleTranslation": "I play football at the weekend.",
+    "audio": "Je joue au football le week-end."
+  },
+  {
+    "word": "DATE",
+    "translation": "Date",
+    "example": "",
+    "exampleTranslation": "What is the date today?",
+    "audio": "Quelle est la date aujourd'hui ?"
+  },
+  {
+    "word": "HELLO",
+    "translation": "Bonjour",
+    "example": "",
+    "exampleTranslation": "Hello, how are you?",
+    "audio": "Bonjour, comment vas-tu ?"
+  },
+  {
+    "word": "GOODBYE",
+    "translation": "Au revoir",
+    "example": "",
+    "exampleTranslation": "Goodbye, see you tomorrow!",
+    "audio": "Au revoir, à demain !"
+  },
+  {
+    "word": "PLEASE",
+    "translation": "S'il vous plaît",
+    "example": "",
+    "exampleTranslation": "Water, please.",
+    "audio": "De l'eau, s'il vous plaît."
+  },
+  {
+    "word": "THANKS",
+    "translation": "Merci",
+    "example": "",
+    "exampleTranslation": "Thanks for the help.",
+    "audio": "Merci pour l'aide."
+  },
+  {
+    "word": "SORRY",
+    "translation": "Désolé",
+    "example": "",
+    "exampleTranslation": "Sorry, I am late.",
+    "audio": "Désolé, je suis en retard."
+  },
+  {
+    "word": "WELCOME",
+    "translation": "Bienvenue",
+    "example": "",
+    "exampleTranslation": "Welcome to my house!",
+    "audio": "Bienvenue chez moi !"
+  },
+  {
+    "word": "EXCUSE ME",
+    "translation": "Excusez-moi",
+    "example": "",
+    "exampleTranslation": "Excuse me, where is the park?",
+    "audio": "Excusez-moi, où est le parc ?"
+  },
+  {
+    "word": "OK",
+    "translation": "D'accord",
+    "example": "",
+    "exampleTranslation": "OK, I am coming.",
+    "audio": "D'accord, j'arrive."
+  },
+  {
+    "word": "OF COURSE",
+    "translation": "Bien sûr",
+    "example": "",
+    "exampleTranslation": "Of course, I can help you.",
+    "audio": "Bien sûr, je peux t'aider."
+  },
+  {
+    "word": "WELL DONE",
+    "translation": "Bravo",
+    "example": "",
+    "exampleTranslation": "Well done! You are the first!",
+    "audio": "Bravo ! Tu es le premier !"
+  },
+  {
+    "word": "GOOD MORNING",
+    "translation": "Bonjour",
+    "example": "",
+    "exampleTranslation": "Good morning, teacher!",
+    "audio": "Bonjour, professeur !"
+  },
+  {
+    "word": "GOOD NIGHT",
+    "translation": "Bonne nuit",
+    "example": "",
+    "exampleTranslation": "Good night! See you tomorrow.",
+    "audio": "Bonne nuit, à demain."
+  },
+  {
+    "word": "CAMP",
+    "translation": "Camper",
+    "example": "",
+    "exampleTranslation": "We camp near the lake.",
+    "audio": "Nous campons près du lac."
+  },
+  {
+    "word": "FISH",
+    "translation": "Pêcher",
+    "example": "",
+    "exampleTranslation": "I fish in the river.",
+    "audio": "Je pêche dans la rivière."
+  },
+  {
+    "word": "HUNT",
+    "translation": "Chasser",
+    "example": "",
+    "exampleTranslation": "The cat hunts the mouse.",
+    "audio": "Le chat chasse la souris."
+  },
+  {
+    "word": "HIKE",
+    "translation": "Randonner",
+    "example": "",
+    "exampleTranslation": "We hike in the mountains.",
+    "audio": "Nous faisons de la randonnée en montagne."
+  },
+  {
+    "word": "EXPLORE",
+    "translation": "Explorer",
+    "example": "",
+    "exampleTranslation": "I explore the forest.",
+    "audio": "J'explore la forêt."
+  },
+  {
+    "word": "COLLECT",
+    "translation": "Collectionner",
+    "example": "",
+    "exampleTranslation": "I collect shells.",
+    "audio": "Je collectionne les coquillages."
+  },
+  {
+    "word": "GARDEN",
+    "translation": "Jardiner",
+    "example": "",
+    "exampleTranslation": "My mother likes to garden.",
+    "audio": "Ma mère aime jardiner."
+  },
+  {
+    "word": "PICNIC",
+    "translation": "Pique-niquer",
+    "example": "",
+    "exampleTranslation": "We have a picnic in the park.",
+    "audio": "Nous faisons un pique-nique dans le parc."
+  },
+  {
+    "word": "TENT",
+    "translation": "Tente",
+    "example": "",
+    "exampleTranslation": "We sleep in a tent.",
+    "audio": "Nous dormons dans une tente."
+  },
+  {
+    "word": "ADVENTURE",
+    "translation": "Aventure",
+    "example": "",
+    "exampleTranslation": "I like adventure!",
+    "audio": "J'aime l'aventure !"
+  },
+  {
+    "word": "NAME",
+    "translation": "Nom",
+    "example": "",
+    "exampleTranslation": "My name is Tom.",
+    "audio": "Je m'appelle  Tom."
+  },
+  {
+    "word": "LIFE",
+    "translation": "Vie",
+    "example": "",
+    "exampleTranslation": "I have a good life.",
+    "audio": "J'ai une belle vie."
+  },
+  {
+    "word": "HOME",
+    "translation": "Maison",
+    "example": "",
+    "exampleTranslation": "I go home after school.",
+    "audio": "Je rentre à la maison après l'école."
+  },
+  {
+    "word": "DREAM",
+    "translation": "Rêve",
+    "example": "",
+    "exampleTranslation": "I had a beautiful dream.",
+    "audio": "J'ai fait un beau rêve."
+  },
+  {
+    "word": "IDEA",
+    "translation": "Idée",
+    "example": "",
+    "exampleTranslation": "I have a good idea!",
+    "audio": "J'ai une bonne idée !"
+  },
+  {
+    "word": "PROBLEM",
+    "translation": "Problème",
+    "example": "",
+    "exampleTranslation": "I have a problem.",
+    "audio": "J'ai un problème."
+  },
+  {
+    "word": "ANSWER",
+    "translation": "Réponse",
+    "example": "",
+    "exampleTranslation": "I know the answer.",
+    "audio": "Je connais la réponse."
+  },
+  {
+    "word": "RULE",
+    "translation": "Règle",
+    "example": "",
+    "exampleTranslation": "We follow the rules at home.",
+    "audio": "Nous suivons les règles à la maison."
+  },
+  {
+    "word": "GROUP",
+    "translation": "Groupe",
+    "example": "",
+    "exampleTranslation": "I am in a group of five.",
+    "audio": "Je suis dans un groupe de cinq."
+  },
+  {
+    "word": "EXAMPLE",
+    "translation": "Exemple",
+    "example": "",
+    "exampleTranslation": "This is a good example.",
+    "audio": "C'est un bon exemple."
+  },
+  {
+    "word": "REASON",
+    "translation": "Raison",
+    "example": "",
+    "exampleTranslation": "What is the reason?",
+    "audio": "Quelle est la raison ?"
+  },
+  {
+    "word": "VOICE",
+    "translation": "Voix",
+    "example": "",
+    "exampleTranslation": "I hear a voice behind the door.",
+    "audio": "J'entends une voix derrière la porte."
+  },
+  {
+    "word": "MISTAKE",
+    "translation": "Erreur",
+    "example": "",
+    "exampleTranslation": "I make a mistake.",
+    "audio": "Je fais une erreur."
+  },
+  {
+    "word": "SECRET",
+    "translation": "Secret",
+    "example": "",
+    "exampleTranslation": "I have a secret for you.",
+    "audio": "J'ai un secret pour toi."
+  },
+  {
+    "word": "PROMISE",
+    "translation": "Promettre",
+    "example": "",
+    "exampleTranslation": "I promise to help you.",
+    "audio": "Je promets de t'aider."
+  },
+  {
+    "word": "HOPE",
+    "translation": "Espérer",
+    "example": "",
+    "exampleTranslation": "I hope you are happy.",
+    "audio": "J'espère que tu es heureux."
+  },
+  {
+    "word": "BELIEVE",
+    "translation": "Croire",
+    "example": "",
+    "exampleTranslation": "I believe you.",
+    "audio": "Je te crois."
+  },
+  {
+    "word": "AGREE",
+    "translation": "Être d'accord",
+    "example": "",
+    "exampleTranslation": "I agree with you.",
+    "audio": "Je suis d'accord avec toi."
+  },
+  {
+    "word": "REFUSE",
+    "translation": "Refuser",
+    "example": "",
+    "exampleTranslation": "I refuse to go.",
+    "audio": "Je refuse d'y aller."
+  },
+  {
+    "word": "PREFER",
+    "translation": "Préférer",
+    "example": "",
+    "exampleTranslation": "I prefer tea.",
+    "audio": "Je préfère le thé."
+  },
+  {
+    "word": "HATE",
+    "translation": "Détester",
+    "example": "",
+    "exampleTranslation": "I hate losing.",
+    "audio": "Je déteste perdre."
+  },
+  {
+    "word": "ENJOY",
+    "translation": "Apprécier",
+    "example": "",
+    "exampleTranslation": "I enjoy this game.",
+    "audio": "J'apprécie ce jeu."
+  },
+  {
+    "word": "WORRY",
+    "translation": "S'inquiéter",
+    "example": "",
+    "exampleTranslation": "Do not worry!",
+    "audio": "Ne t'inquiète pas !"
+  },
+  {
+    "word": "CARE",
+    "translation": "Se soucier",
+    "example": "",
+    "exampleTranslation": "I care about you.",
+    "audio": "Je me soucie de toi."
+  },
+  {
+    "word": "MISS",
+    "translation": "Manquer",
+    "example": "",
+    "exampleTranslation": "My friend misses me.",
+    "audio": "Mon ami me manque."
+  },
+  {
+    "word": "WONDER",
+    "translation": "Se demander",
+    "example": "",
+    "exampleTranslation": "I wonder what it is.",
+    "audio": "Je me demande ce que c'est."
+  },
+  {
+    "word": "THANK",
+    "translation": "Remercier",
+    "example": "",
+    "exampleTranslation": "I thank my teacher.",
+    "audio": "Je remercie mon professeur,"
+  },
+  {
+    "word": "DECIDE",
+    "translation": "Décider",
+    "example": "",
+    "exampleTranslation": "I cannot decide. Can you help me?",
+    "audio": "Je n'arrive pas à décider. Peux-tu m'aider ?"
+  }
+]
