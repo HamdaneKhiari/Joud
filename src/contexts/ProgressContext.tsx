@@ -31,6 +31,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [progress, dispatch] = useReducer(progressReducer, null, () => createInitialProgress());
   const [isLoading, setIsLoading] = React.useState(true);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const saveChainRef = useRef<Promise<void>>(Promise.resolve());
 
   // =================== CHARGEMENT ===================
   // Priorité : SQLite (source de vérité) → AsyncStorage (cache) → migration ancienne clé
@@ -99,38 +100,45 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [progress, isLoading, user?.id]);
 
   // =================== SYNC SQLITE ===================
+  // Série les appels pour éviter "cannot start a transaction within a transaction"
+  // (ex: auto-save + useExerciseSaveOnUnmount déclenchés en parallèle)
   const syncToSQLite = useCallback(async (state: ProgressState) => {
     if (!db || typeof db === 'number' || !user) return;
 
-    // Transaction pour garantir l'atomicité — pas d'état partiel en cas de crash
-    await db.execAsync('BEGIN TRANSACTION');
-    try {
-      for (const [levelKey, levelData] of Object.entries(state)) {
-        const levelNum = Number.parseInt(levelKey.replace('level', ''), 10);
-        if (Number.isNaN(levelNum) || !levelData) continue;
+    const runTransaction = async () => {
+      await db.execAsync('BEGIN TRANSACTION');
+      try {
+        for (const [levelKey, levelData] of Object.entries(state)) {
+          const levelNum = Number.parseInt(levelKey.replace('level', ''), 10);
+          if (Number.isNaN(levelNum) || !levelData) continue;
 
-        for (const [, exerciseData] of Object.entries(levelData)) {
-          for (const [compositeKey, family] of Object.entries(exerciseData)) {
-            if (!family || family.total === 0) continue;
-            const { familyId, subfamilyId } = parseCompositeKey(compositeKey);
-            if (Number.isNaN(familyId) || familyId <= 0) continue;
-            await upsertProgress(db, {
-              user_id: user.id,
-              family_id: familyId,
-              subfamily_id: subfamilyId,
-              level: levelNum,
-              completed: family.completed,
-              total: family.total,
-              score: Math.round((family.completed / family.total) * 100),
-            });
+          for (const [, exerciseData] of Object.entries(levelData)) {
+            for (const [compositeKey, family] of Object.entries(exerciseData)) {
+              if (!family || family.total === 0) continue;
+              const { familyId, subfamilyId } = parseCompositeKey(compositeKey);
+              if (Number.isNaN(familyId) || familyId <= 0) continue;
+              await upsertProgress(db, {
+                user_id: user.id,
+                family_id: familyId,
+                subfamily_id: subfamilyId,
+                level: levelNum,
+                completed: family.completed,
+                total: family.total,
+                score: Math.round((family.completed / family.total) * 100),
+              });
+            }
           }
         }
+        await db.execAsync('COMMIT');
+      } catch (e) {
+        await db.execAsync('ROLLBACK');
+        log.warn('[syncToSQLite] Transaction rollback:', e);
       }
-      await db.execAsync('COMMIT');
-    } catch (e) {
-      await db.execAsync('ROLLBACK');
-      log.warn('[syncToSQLite] Transaction rollback:', e);
-    }
+    };
+
+    const prev = saveChainRef.current;
+    saveChainRef.current = prev.then(runTransaction);
+    await saveChainRef.current;
   }, [db, user]);
 
   // =================== ACTIONS ===================
