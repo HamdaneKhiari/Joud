@@ -1,8 +1,16 @@
 /**
  * ============================================
  * MIGRATION V2 - 002: Seed Config
- * Branding, modules, levels, families,
- * identity_palettes, module_availability
+ * État consolidé final — incorpore l'ensemble des
+ * migrations 002→039 relatives à la config :
+ * - Branding 4 identités (état final migration 035)
+ * - Palettes 5 couleurs (état final migration 038)
+ * - Modules (sans fastvocab)
+ * - Levels (4 par audience)
+ * - Families (vocab core + dialogues + reading + word_games + assessment)
+ * - Module availability (connector lycee 1-4 + adult 1-4)
+ * - Feedback messages
+ * - Daily words
  * ============================================
  */
 
@@ -15,7 +23,7 @@ export default createMigration(
   async (db: SQLite.SQLiteDatabase) => {
 
     // ============================================
-    // BRANDING (4 identités)
+    // BRANDING (4 identités — état final migration 035)
     // ============================================
     await db.execAsync(`
       INSERT OR REPLACE INTO branding (
@@ -39,11 +47,11 @@ export default createMigration(
        NULL, '["#E8EAF6","#C5CAE9"]', 'none',
        '#34495E', 14, 1, 'playful'),
 
-      ('lycee', '#00E5FF', '#FF6B35', '#FFFFFF', 'light',
-       '#00E5FF', '#FF6B35', '#FFFFFF', NULL, NULL,
+      ('lycee', '#5C35E8', '#FF6B35', '#FFFFFF', 'light',
+       '#5C35E8', '#FF6B35', '#FFFFFF', NULL, NULL,
        '🎓', 'Bonjour,',
        '#E0F7FA', NULL, 'none',
-       '#00E5FF', 12, 0, 'minimal'),
+       '#5C35E8', 12, 0, 'minimal'),
 
       ('adult', '#1E3A5F', '#D97706', '#FFFFFF', 'light',
        '#1E3A5F', '#D97706', '#FFFFFF', NULL, NULL,
@@ -53,22 +61,41 @@ export default createMigration(
     `);
 
     // ============================================
-    // IDENTITY PALETTES
+    // IDENTITY PALETTES (5 couleurs — état final migration 038)
     // ============================================
     await db.execAsync(`
       INSERT OR REPLACE INTO identity_palettes (identity_id, color_index, color_value) VALUES
+      -- PRIMARY (enfants) — vif, chaud, ludique
       ('primary', 0, '#FF5722'),
       ('primary', 1, '#FFCE00'),
+      ('primary', 2, '#4CAF50'),
+      ('primary', 3, '#2196F3'),
+      ('primary', 4, '#E91E63'),
+
+      -- COLLEGE (ados) — moderne, contrasté
       ('college', 0, '#34495E'),
       ('college', 1, '#FFD700'),
-      ('lycee',   0, '#00E5FF'),
-      ('lycee',   1, '#FF6B35'),
-      ('adult',   0, '#1E3A5F'),
-      ('adult',   1, '#D97706');
+      ('college', 2, '#1ABC9C'),
+      ('college', 3, '#E74C3C'),
+      ('college', 4, '#8E44AD'),
+
+      -- LYCEE (grands ados) — violet électrique accessible (contrast 10.5:1)
+      ('lycee', 0, '#5C35E8'),
+      ('lycee', 1, '#FF6B35'),
+      ('lycee', 2, '#00BCD4'),
+      ('lycee', 3, '#E91E63'),
+      ('lycee', 4, '#FDD835'),
+
+      -- ADULT (pro) — blue/bronze/emerald/violet distinctifs
+      ('adult', 0, '#111827'),
+      ('adult', 1, '#1D4ED8'),
+      ('adult', 2, '#B45309'),
+      ('adult', 3, '#047857'),
+      ('adult', 4, '#6D28D9');
     `);
 
     // ============================================
-    // MODULES (9 modules)
+    // MODULES (8 modules — sans fastvocab)
     // ============================================
     await db.execAsync(`
       INSERT OR REPLACE INTO modules (slug, name, icon_name, description, order_index, is_core, target_audience) VALUES
@@ -105,39 +132,48 @@ export default createMigration(
     }
 
     // ============================================
-    // FAMILIES (12 familles)
+    // FAMILIES
+    // Seules les familles à structure prédéfinie sont ici.
+    // Les familles grammar, phrase_types, connector
+    // sont créées par le script Python (source : Excel).
     // ============================================
     await db.execAsync(`
-      -- Vocab (Core 100 - 6 familles)
+      -- Vocab Core (6 familles — état final migration 030)
       INSERT OR REPLACE INTO families (slug, module_slug, name, emoji, icon, description, order_index) VALUES
-      ('the-glue',      'vocab', 'The Glue',       '🔗', 'link-variant',  'Structure & Grammaire',            1),
-      ('action-center', 'vocab', 'Action Center',   '⚡', 'run-fast',      'Verbes essentiels pour agir',       2),
-      ('human-world',   'vocab', 'Human World',     '👥', 'account-group', 'Personnes & Émotions',             3),
-      ('the-kingdom',   'vocab', 'The Kingdom',     '🏰', 'home',          'Lieux & Objets du quotidien',      4),
-      ('quality-time',  'vocab', 'Quality & Time',  '⏰', 'clock',         'Nuances & Temps',                  5),
-      ('social',        'vocab', 'Social',          '💬', 'comment',       'Interactions sociales',            6);
+      ('the-glue',      'vocab', 'The Glue',       '🔗', 'link-variant',  'Structure & Grammaire',         1),
+      ('action-center', 'vocab', 'Action Center',   '⚡', 'run-fast',      'Verbes essentiels pour agir',   2),
+      ('human-world',   'vocab', 'Human World',     '👥', 'account-group', 'Personnes & Émotions',          3),
+      ('the-kingdom',   'vocab', 'The Kingdom',     '🏰', 'home',          'Lieux & Objets du quotidien',   4),
+      ('quality-time',  'vocab', 'Quality & Time',  '⏰', 'clock',         'Nuances & Temps',               5),
+      ('social',        'vocab', 'Social',          '💬', 'comment',       'Interactions sociales',         6);
 
-      -- Grammar
+      -- Dialogues (3 familles prédéfinies)
       INSERT OR REPLACE INTO families (slug, module_slug, name, icon, emoji, description, order_index) VALUES
-      ('present', 'grammar', 'Present Tense', 'clock-outline', '⏰', 'Le présent simple', 1);
+      ('at_restaurant',       'dialogues', 'At the Restaurant',    'silverware',     '🍽️', 'Commander et payer',         1),
+      ('shopping',            'dialogues', 'Shopping',             'cart',           '🛍️', 'Achats et magasins',         2),
+      ('social_conversations','dialogues', 'Social Conversations', 'account-multiple','💬', 'Rencontres et discussions',  3);
 
-      -- Phrases
+      -- Reading (3 familles prédéfinies)
       INSERT OR REPLACE INTO families (slug, module_slug, name, icon, emoji, description, order_index) VALUES
-      ('daily_life', 'phrase_types', 'Daily Life', 'home', '🏠', 'Phrases du quotidien', 1);
+      ('short_stories',  'reading', 'Short Stories', 'book-open-variant', '📖', 'Histoires courtes',       1),
+      ('articles',       'reading', 'Articles',      'newspaper',         '📰', 'Articles et actualités',  2),
+      ('professional',   'reading', 'Professional',  'briefcase',         '💼', 'Lecture professionnelle', 3);
 
       -- Word Games (3 familles)
       INSERT OR REPLACE INTO families (slug, module_slug, name, icon, emoji, description, order_index) VALUES
       ('definition_master', 'word_games', 'Definition Master', 'book-open-variant', '📖', 'Maîtrisez les définitions', 1),
-      ('grammar_detective', 'word_games', 'Grammar Detective', 'magnify', '🕵️', 'Analyse grammaticale', 2),
-      ('quick_match',       'word_games', 'Quick Match',       'lightning-bolt',    '⚡', 'Reliez les mots vite', 3);
+      ('grammar_detective', 'word_games', 'Grammar Detective', 'magnify',           '🕵️', 'Analyse grammaticale',      2),
+      ('quick_match',       'word_games', 'Quick Match',       'lightning-bolt',    '⚡', 'Reliez les mots vite',      3);
 
-      -- Assessment
+      -- Assessment (1 famille)
       INSERT OR REPLACE INTO families (slug, module_slug, name, icon, emoji, description, order_index) VALUES
       ('assessment_pool', 'assessment', 'Assessment Pool', 'clipboard-check', '📝', 'Évaluation globale', 1);
     `);
 
     // ============================================
-    // MODULE AVAILABILITY (7 core × 4 audiences × 4 levels + connector)
+    // MODULE AVAILABILITY
+    // 7 core modules × 4 audiences × 4 levels
+    // + connector lycee 1-4 + adult 1-4 (migration 039)
     // ============================================
     const coreModules = ['vocab', 'phrase_types', 'grammar', 'reading', 'dialogues', 'word_games', 'assessment'];
 
@@ -153,14 +189,19 @@ export default createMigration(
       }
     }
 
-    // Connector uniquement pour lycée
-    await db.runAsync(
-      `INSERT OR REPLACE INTO module_availability (module_slug, identity_id, level_number, is_available)
-       VALUES ('connector', 'lycee', 1, 1)`
-    );
+    // Connector : lycee + adult, niveaux 1-4
+    for (const aud of ['lycee', 'adult']) {
+      for (let level = 1; level <= 4; level++) {
+        await db.runAsync(
+          `INSERT OR REPLACE INTO module_availability (module_slug, identity_id, level_number, is_available)
+           VALUES ('connector', ?, ?, 1)`,
+          [aud, level]
+        );
+      }
+    }
 
     // ============================================
-    // GLOBAL LEVEL LABELS (4 levels × 4 identités = 16)
+    // GLOBAL LEVEL LABELS (4 levels × 4 identités)
     // ============================================
     const labelConfig: Record<string, { titles: string[]; badges: string[]; descs: string[] }> = {
       primary: {
@@ -194,5 +235,99 @@ export default createMigration(
         );
       }
     }
+
+    // ============================================
+    // FEEDBACK MESSAGES (migration 009 — config UI)
+    // ============================================
+    await db.execAsync(`
+      INSERT OR REPLACE INTO feedback_messages (identity_id, context, state, icon, title, message) VALUES
+      -- PRIMARY
+      ('primary', 'exercise',   'correct',            '🌟', 'Bravo !',          'Tu as trouvé la bonne réponse !'),
+      ('primary', 'wordgames',  'correct',            '⭐', 'Super !',           'Bonne réponse, continue comme ça !'),
+      ('primary', 'vocabulary', 'correct',            '✨', 'Excellent !',       'Tu connais bien ce mot !'),
+      ('primary', 'exercise',   'incorrect_attempt_1','💪', 'Pas encore...',     'Essaie encore, tu peux le faire !'),
+      ('primary', 'wordgames',  'incorrect_attempt_1','🤔', 'Oups !',            'Réfléchis bien et réessaie !'),
+      ('primary', 'exercise',   'incorrect_attempt_2','🎯', 'Dernière chance !', 'Prends ton temps pour répondre.'),
+      ('primary', 'exercise',   'skip',               '📖', 'Réponse',           'Voici la bonne réponse pour t''aider.'),
+      ('primary', 'wordgames',  'skip',               '💡', 'La réponse',        'Ne t''inquiète pas, tu feras mieux la prochaine fois !'),
+
+      -- COLLEGE
+      ('college', 'exercise',   'correct',            '✓', 'Correct !',          'Bonne réponse, bien joué !'),
+      ('college', 'wordgames',  'correct',            '✓', 'Exact !',            'Tu maîtrises bien, continue !'),
+      ('college', 'vocabulary', 'correct',            '✓', 'Parfait !',          'Excellente réponse !'),
+      ('college', 'exercise',   'incorrect_attempt_1','→', 'Pas tout à fait',    'Essaie à nouveau, tu y es presque.'),
+      ('college', 'wordgames',  'incorrect_attempt_1','?', 'Incorrect',          'Réfléchis bien et réessaie.'),
+      ('college', 'exercise',   'incorrect_attempt_2','!', 'Dernière tentative', 'Concentre-toi bien.'),
+      ('college', 'exercise',   'skip',               'ℹ', 'Réponse',            'Voici la bonne réponse.'),
+      ('college', 'wordgames',  'skip',               'ℹ', 'Solution',           'Pas de problème, tu progresseras !'),
+
+      -- LYCEE
+      ('lycee', 'exercise',   'correct',            '✓', 'Correct',          'Réponse exacte, bon travail.'),
+      ('lycee', 'wordgames',  'correct',            '✓', 'Juste',            'Bonne maîtrise du concept.'),
+      ('lycee', 'vocabulary', 'correct',            '✓', 'Excellent',        'Vocabulaire bien assimilé.'),
+      ('lycee', 'exercise',   'incorrect_attempt_1','×', 'Incorrect',        'Revois ta réponse.'),
+      ('lycee', 'wordgames',  'incorrect_attempt_1','×', 'Faux',             'Réessaie avec attention.'),
+      ('lycee', 'exercise',   'incorrect_attempt_2','!', 'Dernière chance',  'Analyse bien la question.'),
+      ('lycee', 'exercise',   'skip',               'ℹ', 'Réponse correcte', 'Étudie cette solution.'),
+      ('lycee', 'wordgames',  'skip',               'ℹ', 'Solution',         'Retiens bien pour la prochaine fois.'),
+
+      -- ADULT
+      ('adult', 'exercise',   'correct',            '✓', 'Correct',       'Exact, bien joué.'),
+      ('adult', 'wordgames',  'correct',            '✓', 'Right',         'Good answer.'),
+      ('adult', 'vocabulary', 'correct',            '✓', 'Perfect',       'Well done.'),
+      ('adult', 'exercise',   'incorrect_attempt_1','×', 'Incorrect',     'Try again.'),
+      ('adult', 'wordgames',  'incorrect_attempt_1','×', 'Wrong',         'Think it over.'),
+      ('adult', 'exercise',   'incorrect_attempt_2','!', 'Last attempt',  'Focus carefully.'),
+      ('adult', 'exercise',   'skip',               'ℹ', 'Answer',        'Here''s the correct answer.'),
+      ('adult', 'wordgames',  'skip',               'ℹ', 'Solution',      'Review this for next time.');
+    `);
+
+    // ============================================
+    // DAILY WORDS (migration 010 — config UI)
+    // ============================================
+    await db.execAsync(`
+      INSERT OR REPLACE INTO daily_words (identity_id, level, english, french, emoji, category, difficulty) VALUES
+      -- PRIMARY
+      ('primary', 1, 'Happy',      'Joyeux',      '😊', 'vocabulary', 'easy'),
+      ('primary', 1, 'Cat',        'Chat',         '🐱', 'vocabulary', 'easy'),
+      ('primary', 1, 'Sun',        'Soleil',       '☀️', 'vocabulary', 'easy'),
+      ('primary', 1, 'Book',       'Livre',        '📚', 'vocabulary', 'easy'),
+      ('primary', 2, 'Friendship', 'Amitié',       '🤝', 'vocabulary', 'medium'),
+      ('primary', 2, 'Rainbow',    'Arc-en-ciel',  '🌈', 'vocabulary', 'medium'),
+      ('primary', 3, 'Adventure',  'Aventure',     '🗺️', 'vocabulary', 'medium'),
+      ('primary', 3, 'Courage',    'Courage',      '💪', 'vocabulary', 'medium'),
+
+      -- COLLEGE
+      ('college', 1, 'Resilience',     'Résilience',     '🌱', 'vocabulary', 'medium'),
+      ('college', 1, 'Challenge',      'Défi',           '🎯', 'vocabulary', 'medium'),
+      ('college', 2, 'Opportunity',    'Opportunité',    '🚪', 'vocabulary', 'medium'),
+      ('college', 2, 'Achievement',    'Accomplissement','🏆', 'vocabulary', 'medium'),
+      ('college', 3, 'Determination',  'Détermination',  '🔥', 'vocabulary', 'hard'),
+      ('college', 3, 'Innovation',     'Innovation',     '💡', 'vocabulary', 'hard'),
+      ('college', 3, 'Break the ice',  'Briser la glace','🧊', 'idiom',      'medium'),
+      ('college', 4, 'Every cloud has a silver lining', 'À quelque chose malheur est bon', '☁️', 'idiom', 'hard'),
+
+      -- LYCEE
+      ('lycee', 1, 'Analysis',    'Analyse',       '🔍', 'vocabulary', 'medium'),
+      ('lycee', 1, 'Perspective', 'Perspective',   '👁️', 'vocabulary', 'medium'),
+      ('lycee', 2, 'Ambiguity',   'Ambiguïté',     '❓', 'vocabulary', 'hard'),
+      ('lycee', 2, 'Synthesis',   'Synthèse',      '⚗️', 'vocabulary', 'hard'),
+      ('lycee', 3, 'Paradigm',    'Paradigme',     '🔄', 'vocabulary', 'hard'),
+      ('lycee', 3, 'Dichotomy',   'Dichotomie',    '⚖️', 'vocabulary', 'hard'),
+      ('lycee', 4, 'Beat around the bush',      'Tourner autour du pot', '🌳', 'idiom', 'medium'),
+      ('lycee', 5, 'The ball is in your court', 'C''est à toi de jouer', '🎾', 'idiom', 'hard'),
+
+      -- ADULT
+      ('adult', 1, 'Efficiency',   'Efficacité',       '⚡', 'vocabulary', 'medium'),
+      ('adult', 1, 'Strategy',     'Stratégie',        '♟️', 'vocabulary', 'medium'),
+      ('adult', 2, 'Leverage',     'Effet de levier',  '🎚️', 'vocabulary', 'hard'),
+      ('adult', 2, 'Stakeholder',  'Partie prenante',  '🤝', 'vocabulary', 'hard'),
+      ('adult', 3, 'Synergy',      'Synergie',         '🔗', 'vocabulary', 'hard'),
+      ('adult', 3, 'Benchmark',    'Référence',        '📊', 'vocabulary', 'hard'),
+      ('adult', 4, 'Think outside the box', 'Penser autrement',  '📦', 'idiom', 'medium'),
+      ('adult', 5, 'Get the ball rolling',  'Lancer le processus','⚽', 'idiom', 'medium');
+    `);
+
+    console.log('[Migration V2-002] ✓ Config complète seedée');
   }
 );

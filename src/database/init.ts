@@ -1,49 +1,14 @@
 import * as SQLite from 'expo-sqlite';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MigrationRunner } from './migrations/runner';
+import { log } from '@/utils/logUtils';
 
 // ============================================
-// IMPORTS DES MIGRATIONS (Ordre Logique Corrigé)
+// MIGRATIONS V2 — base consolidée
 // ============================================
-import migration001 from './migrations/001_initial_schema';
-import migration002 from './migrations/002_seed_whitelabel';       // 1er : Identités (adulte/enfant)
-import migration003 from './migrations/003_seed_core_modules';    // 2ème : Modules
-import migration004 from './migrations/004_seed_families';        // 3ème : Familles
-import migration005 from './migrations/005_seed_subfamily_labels';// 4ème : Labels (Dépend de 002 et 004)
-import migration006 from './migrations/006_seed_content_vocab';    // 5ème : Contenu
-import migration007 from './migrations/007_seed_content_assessment';
-import migration008 from './migrations/008_seed_content_wordgames';
-import migration009 from './migrations/009_seed_feedback_messages';
-import migration010 from './migrations/010_seed_dashboard_data';
-import migration011 from './migrations/011_add_target_audience_to_content';
-import migration013 from './migrations/013_seed_content_phrases';
-import migration014 from './migrations/014_seed_content_dialogues';
-import migration015 from './migrations/015_seed_content_grammar';
-import migration016 from './migrations/016_seed_content_reading';
-import migration017 from './migrations/017_seed_content_connector';
-import migration018 from './migrations/018_add_subfamily_id_to_content';
-import migration019 from './migrations/019_seed_phrases_subfamilies';
-import migration020 from './migrations/020_seed_grammar_subfamilies';
-import migration021 from './migrations/021_seed_dialogues_subfamilies';
-import migration022 from './migrations/022_seed_reading_subfamilies';
-import migration023 from './migrations/023_fix_activity_log_family_id';
-import migration024 from './migrations/024_create_exercise_errors';
-import migration025 from './migrations/025_create_chat_conversations';
-import migration026 from './migrations/026_create_vocabulary_seen';
-import migration027 from './migrations/027_create_ai_settings';
-import migration028 from './migrations/028_seed_core_100_words';
-import migration029 from './migrations/029_create_core_vocab_subfamilies';
-import migration030 from './migrations/030_restructure_core_vocab_families';
-import migration031 from './migrations/031_add_subfamily_to_progress';
-import migration032 from './migrations/032_add_userid_to_exercise_errors';
-import migration033 from './migrations/033_fix_branding_styles';
-import migration034 from './migrations/034_add_card_mood';
-import migration035 from './migrations/035_adult_light_theme';
-import migration036 from './migrations/036_seed_test_data';  // TEST DATA — à supprimer quand la vraie data est prête
-import migration037 from './migrations/037_enrich_identity_palettes';
-import migration038 from './migrations/038_redesign_palettes';
-import migration039 from './migrations/039_fix_module_availability';
-import { log } from '@/utils/logUtils';
+import migrationV2_001 from './migrations_v2/001_schema';
+import migrationV2_002 from './migrations_v2/002_seed_config';
+import migrationV2_003 from './migrations_v2/003_seed_subfamily_labels';
 
 // ============================================
 // SINGLETON — une seule initialisation simultanée
@@ -79,49 +44,14 @@ const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
     await runner.initialize();
 
     const migrations = [
-      migration001,
-      migration002,
-      migration003,
-      migration004,
-      migration005,
-      migration006,
-      migration007,
-      migration008,
-      migration009,
-      migration010,
-      migration011,
-      migration013,
-      migration014,
-      migration015,
-      migration016,
-      migration017,
-      migration018,
-      migration019,
-      migration020,
-      migration021,
-      migration022,
-      migration023,
-      migration024,
-      migration025,
-      migration026,
-      migration027,
-      migration028,
-      migration029,
-      migration030,
-      migration031,
-      migration032,
-      migration033,
-      migration034,
-      migration035,
-      migration036,  // TEST DATA
-      migration037,
-      migration038,
-      migration039,
+      migrationV2_001, // Schéma complet
+      migrationV2_002, // Config : branding, palettes, modules, levels, families, availability, feedback, daily_words
+      migrationV2_003, // Subfamily labels : vocab core, dialogues, reading
     ];
 
-    console.log('[JanaCore] 🚀 Running migrations in sequence...');
+    console.log('[JanaCore] 🚀 Running migrations V2...');
     await runner.runMigrations(migrations);
-    console.log('✅ JanaCore Ready and Synchronized');
+    console.log('[JanaCore] ✅ Ready — V2 synchronized');
 
     _retryCount = 0;
     return db;
@@ -129,20 +59,18 @@ const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
   } catch (error) {
     log.error('❌ Init Error:', error);
 
-    // Stratégie de récupération : supprime le fichier et réessaie une seule fois
     if (__DEV__ && _retryCount < 1) {
       _retryCount++;
       console.log('🔄 Attempting clean reset...');
 
-      // Fermer proprement avant de supprimer
       if (db) {
-        try { await db.closeAsync(); } catch { /* handle déjà invalide */ }
+        try { await db.closeAsync(); } catch { /* already invalid */ }
       }
       await new Promise(resolve => setTimeout(resolve, 500));
       try {
         await SQLite.deleteDatabaseAsync('janacore.db');
         await AsyncStorage.removeItem('JOUDPRIMARY_PROGRESS');
-        console.log('🗑️ Database + stale progress deleted successfully');
+        console.log('🗑️ Database + stale progress deleted');
       } catch (e) {
         if (!String(e).includes('does not exist')) {
           log.warn('⚠️ Deletion error:', e);

@@ -75,6 +75,7 @@ export default createMigration(
         difficulty TEXT,
         tags TEXT,
         target_audience TEXT DEFAULT 'all',
+        order_index INTEGER DEFAULT 0,
         FOREIGN KEY (family_id) REFERENCES families(id)
       );
 

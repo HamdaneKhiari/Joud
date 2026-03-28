@@ -22,7 +22,6 @@
 | Module | Slug |
 |--------|------|
 | Vocabulaire | `vocab` |
-| Vocabulaire rapide | `fastvocab` |
 | Grammaire | `grammar` |
 | Phrases | `phrase_types` |
 | Lecture | `reading` |
@@ -33,7 +32,7 @@
 
 ---
 
-## 1. VOCABULAIRE (`vocab` / `fastvocab`)
+## 1. VOCABULAIRE (`vocab`)
 
 ```json
 {
@@ -52,8 +51,6 @@
 | `example` | ✅ | Phrase exemple en anglais |
 | `exampleTranslation` | ⬜ | Traduction de l'exemple |
 | `audio` | ⬜ | Chemin fichier audio (laisser `""` si absent) |
-
-> `fastvocab` utilise le même format que `vocab`.
 
 ---
 
@@ -387,7 +384,7 @@ Chaque ligne de contenu cible un public spécifique :
 
 ### `subfamily_id`
 - Modules **avec** sous-familles : `vocab`, `grammar`, `phrase_types`, `reading`, `dialogues` → `subfamily_id` obligatoire (≥ 1)
-- Modules **sans** sous-familles : `word_games`, `connector`, `assessment`, `fastvocab` → `subfamily_id = 0`
+- Modules **sans** sous-familles : `word_games`, `connector`, `assessment` → `subfamily_id = 0`
 
 ### Ordre des items
 `order_index` détermine l'ordre d'affichage. Commencer à `1`, incrémenter de 1.
