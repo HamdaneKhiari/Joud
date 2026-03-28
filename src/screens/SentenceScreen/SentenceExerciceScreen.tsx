@@ -72,9 +72,9 @@ const SentenceExerciseScreen: React.FC = () => {
 
   const currentItem = contentItems[currentIndex];
   // Détection du mode selon l'audience :
-  // Primary → blanks (guidé avec options)
-  // College + Lycée + Adult → free (saisie libre, rappel actif)
-  const isBlanksAudience = identity.id === 'primary';
+  // Primary + College → blanks (guidé avec options)
+  // Lycée + Adult → free (saisie libre, rappel actif)
+  const isBlanksAudience = identity.id === 'primary' || identity.id === 'college';
   const hasBlanksData = currentItem?.data?.sentence && currentItem?.data?.options;
   const mode = (isBlanksAudience && hasBlanksData) ? 'blanks' : 'free';
   
