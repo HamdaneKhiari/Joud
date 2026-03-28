@@ -51,7 +51,6 @@ export default function ExerciseDispatcher() {
   // 4. Switch Complet
   switch (exerciseId) {
     case 'vocab':
-    case 'fastvocab':
       return <VocabularyExerciseScreen {...(screenProps as any)} />;
 
     case 'phrases':

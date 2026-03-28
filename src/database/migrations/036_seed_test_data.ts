@@ -3,7 +3,7 @@
  * MIGRATION 036: Seed Test Data
  * Crée les familles manquantes + contenu de test
  * pour TOUS les modules vides (grammar, reading,
- * dialogues, connector, fastvocab)
+ * dialogues, connector)
  * ============================================
  * À SUPPRIMER quand la vraie data sera prête
  */

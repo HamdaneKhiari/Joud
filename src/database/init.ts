@@ -16,7 +16,6 @@ import migration008 from './migrations/008_seed_content_wordgames';
 import migration009 from './migrations/009_seed_feedback_messages';
 import migration010 from './migrations/010_seed_dashboard_data';
 import migration011 from './migrations/011_add_target_audience_to_content';
-import migration012 from './migrations/012_seed_content_fastvocab';
 import migration013 from './migrations/013_seed_content_phrases';
 import migration014 from './migrations/014_seed_content_dialogues';
 import migration015 from './migrations/015_seed_content_grammar';
@@ -54,12 +53,10 @@ let _initPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 let _retryCount = 0;
 
 export const initDatabase = (): Promise<SQLite.SQLiteDatabase> => {
-  if (!_initPromise) {
-    _initPromise = _doInit().catch((err) => {
-      _initPromise = null; // Permet une nouvelle tentative après échec
-      throw err;
-    });
-  }
+  _initPromise ??= _doInit().catch((err) => {
+    _initPromise = null; // Permet une nouvelle tentative après échec
+    throw err;
+  });
   return _initPromise;
 };
 
@@ -93,7 +90,6 @@ const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
       migration009,
       migration010,
       migration011,
-      migration012,
       migration013,
       migration014,
       migration015,

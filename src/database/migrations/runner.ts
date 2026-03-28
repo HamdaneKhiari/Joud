@@ -29,7 +29,7 @@ interface MigrationRecord {
 // ============================================
 
 export class MigrationRunner {
-  private db: SQLite.SQLiteDatabase;
+  private readonly db: SQLite.SQLiteDatabase;
 
   constructor(db: SQLite.SQLiteDatabase) {
     this.db = db;
@@ -116,7 +116,7 @@ export class MigrationRunner {
    */
   async runMigrations(migrations: Migration[]): Promise<void> {
     // Trier par version (au cas où)
-    const sorted = migrations.sort((a, b) => a.version - b.version);
+    const sorted = migrations.toSorted((a, b) => a.version - b.version);
 
     for (const migration of sorted) {
       await this.runMigration(migration);
@@ -175,7 +175,7 @@ export class MigrationRunner {
     });
 
     const pending = allMigrations.filter(
-      (m) => !executed.find((e) => e.version === m.version)
+      (m) => !executed.some((e) => e.version === m.version)
     );
 
     if (pending.length > 0) {

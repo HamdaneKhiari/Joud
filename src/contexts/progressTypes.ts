@@ -20,7 +20,6 @@ export interface LevelProgress {
   dialogues: ExerciseProgress;
   word_games: ExerciseProgress;
   connector: ExerciseProgress;
-  fastvocab: ExerciseProgress;
   [key: string]: ExerciseProgress;
 }
 

@@ -12,7 +12,6 @@ describe('moduleHasSubfamilies', () => {
   it('returns false for modules without subfamilies', () => {
     expect(moduleHasSubfamilies('word_games')).toBe(false);
     expect(moduleHasSubfamilies('connector')).toBe(false);
-    expect(moduleHasSubfamilies('fastvocab')).toBe(false);
   });
 
   it('returns false for unknown slugs (safe default)', () => {
@@ -24,10 +23,10 @@ describe('moduleHasSubfamilies', () => {
 describe('MODULE_CONFIG', () => {
   const ALL_MODULES = [
     'vocab', 'grammar', 'phrase_types', 'reading', 'dialogues',
-    'word_games', 'connector', 'fastvocab',
+    'word_games', 'connector',
   ];
 
-  it('has entries for all 8 modules', () => {
+  it('has entries for all 7 modules', () => {
     ALL_MODULES.forEach(slug => {
       expect(MODULE_CONFIG[slug]).toBeDefined();
     });
@@ -50,7 +49,7 @@ describe('MODULE_CONFIG', () => {
   });
 
   it('modules without subfamilies have hasSubfamilies=false', () => {
-    ['word_games', 'connector', 'fastvocab'].forEach(slug => {
+    ['word_games', 'connector'].forEach(slug => {
       expect(MODULE_CONFIG[slug].hasSubfamilies).toBe(false);
     });
   });

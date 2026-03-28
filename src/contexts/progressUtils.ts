@@ -16,7 +16,7 @@ import type {
 
 export const ALL_MODULE_SLUGS = [
   'vocab', 'grammar', 'phrase_types', 'reading', 'dialogues',
-  'word_games', 'connector', 'fastvocab',
+  'word_games', 'connector',
 ];
 
 const MAX_LEVELS = 8;

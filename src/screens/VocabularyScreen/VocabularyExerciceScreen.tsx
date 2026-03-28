@@ -51,7 +51,6 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
   // 1. 🛡️ Normalisation des entrées
   const params = route.params || {};
 
-  // exerciseType dynamique : 'vocab' ou 'fastvocab' selon le module lancé
   const EXERCISE_TYPE = (params as any).exerciseType || 'vocab';
 
   // On récupère les valeurs de base

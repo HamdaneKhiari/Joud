@@ -79,8 +79,7 @@ export default createMigration(
       ('dialogues',    'Conversation',   'chat',                  'Pratique dialogues',        5, 1, 'all'),
       ('word_games',   'Jeux',           'gamepad-variant',       'Exercices ludiques',        6, 1, 'all'),
       ('assessment',   'Évaluation',     'clipboard-check',       'Teste ton niveau',          7, 1, 'all'),
-      ('connector',    'The Connector',  'connection',            'Syntax & articulation',     8, 0, 'lycee'),
-      ('fastvocab',    'Fast Vocab',     'flash',                 '500 mots essentiels',       9, 0, 'adult');
+      ('connector',    'The Connector',  'connection',            'Syntax & articulation',     8, 0, 'lycee');
     `);
 
     // ============================================

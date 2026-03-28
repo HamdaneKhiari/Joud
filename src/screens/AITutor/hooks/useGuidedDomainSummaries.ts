@@ -98,7 +98,7 @@ export const useGuidedDomainSummaries = () => {
           `SELECT e.question, e.user_answer, e.correct_answer, COALESCE(f.name, 'Vocabulaire') as family_name
            FROM exercise_errors e
            LEFT JOIN families f ON e.family_id = f.id
-           WHERE e.module_slug IN ('vocab', 'fastvocab') AND e.timestamp > ?
+           WHERE e.module_slug = 'vocab' AND e.timestamp > ?
            ORDER BY e.timestamp DESC LIMIT 3`,
           [periodStart]
         );

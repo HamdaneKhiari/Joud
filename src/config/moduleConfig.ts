@@ -48,10 +48,6 @@ export const MODULE_CONFIG: Record<string, ModuleConfig> = {
 
   connector: {
     hasSubfamilies: false
-  },
-
-  fastvocab: {
-    hasSubfamilies: false
   }
 };
 
