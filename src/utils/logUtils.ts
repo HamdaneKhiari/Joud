@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Logger conditionnel White Label
  * Affiche les logs uniquement en mode __DEV__
@@ -28,7 +29,6 @@ export const log = {
   /** * ERROR: Toujours actif, même en PROD (pour le monitoring)
    */
   error: (...args: any[]): void => {
-    /* eslint-disable-next-line no-console */
     console.error('❌ ERROR:', ...args);
   },
 

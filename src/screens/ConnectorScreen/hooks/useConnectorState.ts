@@ -37,7 +37,7 @@ const INITIAL_STATE: UnifiedConnectorState = {
   attemptCount: 0,
 };
 
-export const useConnectorState = (exerciseType: 'logic' | 'fusion' | 'rephrasing') => {
+export const useConnectorState = (_exerciseType: 'logic' | 'fusion' | 'rephrasing') => {
   // ============================================
   // UN SEUL ÉTAT UNIFIÉ (au lieu de 3 séparés)
   // ============================================

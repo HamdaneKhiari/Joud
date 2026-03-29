@@ -198,6 +198,7 @@ class RAGService {
    */
   trackRAGUsage(used: boolean, confidence?: number): void {
     if (__DEV__) {
+      // eslint-disable-next-line no-console
       console.log(`[RAG] used=${used}, confidence=${confidence ?? 'n/a'}`);
     }
   }

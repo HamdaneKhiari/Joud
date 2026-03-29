@@ -12,7 +12,6 @@
  */
 export function sanitizeUserInput(input: string, maxLength = 2000): string {
   return input
-    // eslint-disable-next-line no-control-regex
     .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '') // contrôle sauf \t \n \r
     .trim()
     .substring(0, maxLength);

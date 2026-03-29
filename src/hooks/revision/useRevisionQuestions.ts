@@ -190,6 +190,7 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
     } finally {
       setIsLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- resetQuestionState has stable empty deps, safe to omit
   }, [db, user, currentLevel, wordsToQuestions]);
 
   /**

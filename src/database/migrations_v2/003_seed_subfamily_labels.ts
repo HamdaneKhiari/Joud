@@ -225,6 +225,7 @@ export default createMigration(
       );
     }
 
+    // eslint-disable-next-line no-console
     console.log('[Migration V2-003] ✓ Subfamily labels seedés (vocab, dialogues, reading)');
   }
 );

@@ -76,7 +76,7 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
   );
 
   // Hook de validation
-  const { canSkip, validationState, buttonDisabled } = useExerciseValidationState(
+  const { canSkip: _canSkip, validationState, buttonDisabled } = useExerciseValidationState(
     isValidated,
     isCorrect,
     attemptCount,

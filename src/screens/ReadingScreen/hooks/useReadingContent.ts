@@ -7,8 +7,16 @@ import { useState, useEffect } from 'react';
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { log } from '@/utils/logUtils';
 
+export interface ReadingQuestion {
+  passage: string;
+  question_text: string;
+  options: string[];
+  correct_answer: string;
+  hint?: string;
+}
+
 interface UseReadingContentResult {
-  questions: Record<string, any>[];
+  questions: ReadingQuestion[];
   loading: boolean;
 }
 
@@ -17,7 +25,7 @@ export const useReadingContent = (
   familyId: number | undefined,
   subfamilyId: number
 ): UseReadingContentResult => {
-  const [questions, setQuestions] = useState<Record<string, any>[]>([]);
+  const [questions, setQuestions] = useState<ReadingQuestion[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,8 +44,8 @@ export const useReadingContent = (
         if (result && result.length > 0) {
           const parsed = result.map(item => {
             const data = typeof item.data === 'string' ? JSON.parse(item.data) : item.data;
-            return (data.passage && data.question_text) ? data : null;
-          }).filter(Boolean) as Record<string, any>[];
+            return (data.passage && data.question_text) ? data as ReadingQuestion : null;
+          }).filter((q): q is ReadingQuestion => q !== null);
           setQuestions(parsed);
         }
       } catch (error) {

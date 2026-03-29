@@ -160,7 +160,7 @@ Return ONLY the JSON, no other text.`;
           throw new Error(`Provider non supporté : ${provider}`);
       }
     } catch (error: any) {
-      log.error('[AIService] Error:', error);
+      log.error('[AIService] Error:', error?.message ?? 'Unknown error');
       throw new Error(this.formatAIError(error));
     }
   }

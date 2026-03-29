@@ -6,9 +6,9 @@
  */
 
 import { log } from '@/utils/logUtils';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@/contexts/UserContext';
-import { getUserMetrics, calculateUserMetrics } from '@/database/queries';
+import { calculateUserMetrics } from '@/database/queries';
 import type { UserMetrics } from '@/database/schema';
 
 interface UseUserMetricsReturn {
@@ -35,7 +35,7 @@ export const useUserMetrics = (): UseUserMetricsReturn => {
   const [badges, setBadges] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async () => {
     if (!db || typeof db === 'number' || !user) {
       setIsLoading(false);
       return;
@@ -67,11 +67,11 @@ export const useUserMetrics = (): UseUserMetricsReturn => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [db, user]);
 
   useEffect(() => {
     fetchMetrics();
-  }, [db, user]);
+  }, [fetchMetrics]);
 
   const refresh = () => {
     fetchMetrics();

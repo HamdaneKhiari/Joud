@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { spacing, fontSize, fontWeight, shadows } from '@/themes/tokens';
+import { spacing, fontWeight, shadows } from '@/themes/tokens';
 import type { Identity } from '@/themes/ThemeContext';
 
 export const createStyles = (identity: Identity) => StyleSheet.create({

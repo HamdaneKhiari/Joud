@@ -21,7 +21,7 @@ interface APIKeyInputProps {
 }
 
 export const APIKeyInput: React.FC<APIKeyInputProps> = ({
-  provider,
+  provider: _provider,
   providerName,
   apiKey,
   onChangeApiKey,

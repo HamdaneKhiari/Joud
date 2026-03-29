@@ -6,7 +6,7 @@
  */
 
 import { log } from '@/utils/logUtils';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { getWordsToReview } from '@/database/queries';
 
@@ -30,7 +30,7 @@ export const useRevisions = (): UseRevisionsReturn => {
   const [wordsToReview, setWordsToReview] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchWordsToReview = async () => {
+  const fetchWordsToReview = useCallback(async () => {
     if (!db || typeof db === 'number' || !user) {
       setIsLoading(false);
       return;
@@ -46,11 +46,11 @@ export const useRevisions = (): UseRevisionsReturn => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [db, user]);
 
   useEffect(() => {
     fetchWordsToReview();
-  }, [db, user]);
+  }, [fetchWordsToReview]);
 
   const refresh = () => {
     fetchWordsToReview();

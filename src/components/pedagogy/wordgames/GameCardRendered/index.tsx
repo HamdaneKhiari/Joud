@@ -65,7 +65,7 @@ const GameCardRenderer: React.FC<GameCardRendererProps> = ({
   currentQuestion,
   currentQuestionIndex,
   isLastQuestion,
-  gameFamily,
+  gameFamily: _gameFamily,
   states,
   handlers,
 }) => {

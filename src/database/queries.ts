@@ -11,7 +11,6 @@ import {
   LevelLabel,
   IdentityPalette,
   FeedbackMessage,
-  DailyWord,
   UserBadge,
   SpacedRepetition,
   UserMetrics

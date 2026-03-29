@@ -97,6 +97,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }, 1500);
 
     return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current); };
+    // db and syncToSQLite intentionally omitted: syncToSQLite is defined after this effect;
+    // adding it would cause unnecessary re-subscriptions on every identity change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progress, isLoading, user?.id]);
 
   // =================== SYNC SQLITE ===================
@@ -132,12 +135,14 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         await db.execAsync('COMMIT');
       } catch (e) {
         await db.execAsync('ROLLBACK');
-        log.warn('[syncToSQLite] Transaction rollback:', e);
+        throw e;
       }
     };
 
     const prev = saveChainRef.current;
-    saveChainRef.current = prev.then(runTransaction);
+    saveChainRef.current = prev.then(runTransaction).catch((e) => {
+      log.warn('[syncToSQLite] Transaction rollback:', e);
+    });
     await saveChainRef.current;
   }, [db, user]);
 
@@ -150,7 +155,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch (e) {
       log.error('[ProgressContext] Save error:', e);
     }
-  }, [progress, syncToSQLite, user?.id]);
+  }, [db, progress, syncToSQLite, user?.id]);
 
   const refreshProgress = useCallback(async () => {
     if (!db || typeof db === 'number' || !user?.id) return;

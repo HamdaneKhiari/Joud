@@ -1,17 +1,6 @@
 import { useMemo } from 'react';
 
 /**
- * Types pour les entrées du hook
- */
-interface ValidationParams {
-  isValidated: boolean;
-  isCorrect: boolean;
-  attemptCount: number;
-  maxAttempts: number;
-  hasAnswer: boolean;
-}
-
-/**
  * Types pour le retour du hook
  * ✅ Aligné avec ExerciseValidation/types.ts
  */

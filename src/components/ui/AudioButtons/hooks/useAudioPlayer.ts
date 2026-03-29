@@ -96,7 +96,7 @@ export const useAudioPlayer = (
       });
 
       await newSound.playAsync();
-    } catch (error) {
+    } catch (_) {
       setPlaying(false);
     }
   }, [onAudioPlayCallback]);
@@ -122,7 +122,7 @@ export const useAudioPlayer = (
         }
       });
       await newSound.playAsync();
-    } catch (error) {
+    } catch (_) {
       setPlaying(false);
     }
   }, [audioSource, onAudioPlayCallback]);
@@ -165,7 +165,7 @@ export const useAudioPlayer = (
             setPlaying(false);
           },
         });
-      } catch (error) {
+      } catch (_) {
         clearSafetyTimer();
         setPlaying(false);
       }

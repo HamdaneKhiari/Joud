@@ -16,7 +16,7 @@ export const useExerciseSaveOnUnmount = () => {
     // Fonction de nettoyage appelée au démontage du composant
     return () => {
       log.debug('💾 Sauvegarde automatique à la sortie...');
-      saveProgressNow();
+      saveProgressNow().catch((e) => log.warn('[useExerciseSaveOnUnmount] Save error:', e));
     };
   }, [saveProgressNow]);
 };

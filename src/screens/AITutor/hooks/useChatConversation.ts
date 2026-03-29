@@ -109,6 +109,7 @@ export const useChatConversation = (mode: 'free' | 'guided' = 'free') => {
     };
 
     init();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- createConversation is defined after this effect; adding it would cause re-init on every send
   }, [db, loadConversations, loadMessages]);
 
   // =================== CRÉER une nouvelle conversation ===================

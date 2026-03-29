@@ -7,7 +7,6 @@
 
 import React, { useMemo } from 'react';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { View } from 'react-native';
 import FlowCard from '@/components/flow/FlowCard';
 import { ActivityData } from '@/hooks/useLastActivity';
 import { useTheme } from '@/themes/ThemeContext';

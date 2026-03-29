@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as SQLite from 'expo-sqlite';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MigrationRunner } from './migrations/runner';

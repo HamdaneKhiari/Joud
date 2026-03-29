@@ -176,7 +176,7 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
   // Animation de glow sur succès
   useEffect(() => {
     if (state === 'correct') {
-      Animated.loop(
+      const anim = Animated.loop(
         Animated.sequence([
           Animated.timing(glowAnim, {
             toValue: 1,
@@ -189,7 +189,9 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
             useNativeDriver: false,
           }),
         ])
-      ).start();
+      );
+      anim.start();
+      return () => anim.stop();
     } else {
       glowAnim.setValue(0);
     }

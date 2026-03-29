@@ -6,11 +6,10 @@
  * ============================================
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { useTheme } from '@/themes/ThemeContext';
 import { getFeedbackMessage } from '@/database/queries';
-import type { FeedbackMessage } from '@/database/schema';
 import { log } from '@/utils/logUtils';
 
 /**

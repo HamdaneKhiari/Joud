@@ -126,7 +126,7 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
     if (currentWordIndex < totalWords - 1) {
       setCurrentWordIndex(prev => prev + 1);
     }
-  }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen]);
+  }, [dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen]);
 
   const handleFinish = useCallback(() => {
     const executeFinish = async () => {
@@ -143,7 +143,7 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
       setShowCompletion(true);
     };
     executeFinish().catch(err => log.error("Finish error:", err));
-  }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen, saveProgressNow]);
+  }, [dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen, saveProgressNow]);
 
   const handleBack = useCallback(() => {
     safeGoBack.navigate();

@@ -149,7 +149,7 @@ export const useGameHandlers = ({
     onAnswer: (option: string) => setState(prev => ({ ...prev, selectedOption: option })),
     onValidate: () => {
       if (!state.selectedOption || currentQuestion.type !== questionType) return;
-      const correct = normalize(state.selectedOption) === normalize(currentQuestion.correctAnswer);
+      const correct = normalize(state.selectedOption) === normalize((currentQuestion as { correctAnswer: string }).correctAnswer);
       setState(prev => ({ ...prev, isValidated: true, isCorrect: correct, attemptCount: prev.attemptCount + 1 }));
       if (correct || state.attemptCount + 1 >= MAX_ATTEMPTS) {
         trackItemCompletion(numLevelId, MODULE_ID, familyId, currentQuestionIndex, totalQuestions);

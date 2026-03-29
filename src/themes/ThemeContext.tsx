@@ -314,7 +314,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     if (user?.audience && user.audience !== currentApp) {
       setCurrentApp(user.audience);
     }
-  }, [user?.audience]);
+  }, [user?.audience, currentApp]);
 
   const isDark = useMemo(() => {
     if (identity.themeMode === 'dark') return true;

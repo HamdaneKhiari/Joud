@@ -41,7 +41,7 @@ const SkeletonItem: React.FC<SkeletonItemProps> = ({
   borderRadius = 8,
   style
 }) => {
-  const { identity, isDark } = useTheme();
+  const { isDark } = useTheme();
   const opacity = useSharedValue(0.3);
 
   useEffect(() => {
@@ -53,7 +53,7 @@ const SkeletonItem: React.FC<SkeletonItemProps> = ({
       -1, // Infini
       true // Reverse
     );
-  }, []);
+  }, [opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

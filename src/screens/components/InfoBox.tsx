@@ -3,9 +3,9 @@
  */
 
 import React from 'react';
-import { View, Text, ViewStyle, TextStyle } from 'react-native';
+import { View, Text, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { withOpacity, tokens } from '@/themes/tokens';
+import { tokens } from '@/themes/tokens';
 
 interface InfoBoxProps {
   icon: keyof typeof Ionicons.glyphMap;

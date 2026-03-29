@@ -82,23 +82,27 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   // Changer l'audience (et persister)
   const updateAudience = useCallback(async (newAudience: User['audience']) => {
-    setUser(prev => {
-      if (!prev) return prev;
-      const updated = { ...prev, audience: newAudience };
-      AsyncStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updated)).catch((e) => log.warn(e));
-      return updated;
-    });
-  }, []);
+    if (!user) return;
+    const updated = { ...user, audience: newAudience };
+    setUser(updated);
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updated));
+    } catch (e) {
+      log.warn('[UserContext] updateAudience persist error:', e);
+    }
+  }, [user]);
 
   // Mettre a jour le profil utilisateur (et persister)
   const updateUser = useCallback(async (partial: Partial<Omit<User, 'id'>>) => {
-    setUser(prev => {
-      if (!prev) return prev;
-      const updated = { ...prev, ...partial, isOnboarded: true };
-      AsyncStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updated)).catch((e) => log.warn(e));
-      return updated;
-    });
-  }, []);
+    if (!user) return;
+    const updated = { ...user, ...partial, isOnboarded: true };
+    setUser(updated);
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updated));
+    } catch (e) {
+      log.warn('[UserContext] updateUser persist error:', e);
+    }
+  }, [user]);
 
   const isOnboarded = user?.isOnboarded ?? false;
 

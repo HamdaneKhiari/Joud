@@ -6,7 +6,7 @@
  */
 
 import React, { useRef, useEffect } from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { Modal, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 

@@ -15,6 +15,7 @@ import { DynamicIcon } from '@/components/ui/DynamicIcon';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
 import CompletionModal from '@/components/common/CompletionModal';
 import ConnectorCardRenderer from '../../components/pedagogy/Connector/ConnectorCardRenderer';
+import type { LogicQuestion, FusionQuestion, RephrasingQuestion } from '../../components/pedagogy/Connector/types';
 import { useConnectorState } from './hooks/useConnectorState';
 import { useConnectorHandlers } from './hooks/useConnectorHandlers';
 import { useConnectorContent } from './hooks/useConnectorContent';
@@ -55,7 +56,7 @@ const ConnectorExerciseScreen: React.FC = () => {
   const [showCompletion, setShowCompletion] = useState(false);
 
   const currentItem = questions[currentIndex];
-  const exerciseType = currentItem?.type || 'logic';
+  const exerciseType = (currentItem?.type || 'logic') as 'logic' | 'fusion' | 'rephrasing';
 
   const connectorStates = useConnectorState(exerciseType);
   const currentState = connectorStates.logicState;
@@ -109,7 +110,7 @@ const ConnectorExerciseScreen: React.FC = () => {
   }, [trackItemCompletion, levelId, safeFamilyId, questions.length, saveProgressNow]);
 
   const handlers = useConnectorHandlers({
-    question: currentItem?.data,
+    question: currentItem?.data as LogicQuestion | FusionQuestion | RephrasingQuestion | undefined,
     isLastQuestion: currentIndex === questions.length - 1,
     onNavigateBack: () => { handleNavigateBack(); },
     setCurrentQuestionIndex: setCurrentIndex,
@@ -187,7 +188,7 @@ const ConnectorExerciseScreen: React.FC = () => {
       >
         <ConnectorCardRenderer
           exerciseType={exerciseType}
-          currentQuestion={currentItem.data}
+          currentQuestion={currentItem.data as LogicQuestion | FusionQuestion | RephrasingQuestion}
           currentQuestionIndex={currentIndex}
           isLastQuestion={currentIndex === questions.length - 1}
           exerciseFamily={{ color: moduleColor }}

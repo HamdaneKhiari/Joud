@@ -62,7 +62,7 @@ interface SaveFamilyProgressParams {
 export const getCompletedWordsForLevel = async (
   params: GetCompletedWordsParams
 ): Promise<Set<string>> => {
-  const { asyncStorage, levelId, mode, STORAGE_KEYS } = params;
+  const { asyncStorage, levelId, mode: _mode, STORAGE_KEYS } = params;
 
   try {
     const storageKey = STORAGE_KEYS.PROGRESS || 'JOUDPRIMARY_PROGRESS';

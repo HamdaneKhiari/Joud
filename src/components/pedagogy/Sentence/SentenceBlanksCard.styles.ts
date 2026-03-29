@@ -16,8 +16,8 @@ import { getExerciseConfig } from '@/utils/exerciseMoodHelper';
  * @param moduleColor - Couleur du module sentences
  */
 export const getSentenceBlanksCardStyles = (identity: Identity, moduleColor: string) => {
-  const { palette, text, themeMode, ui } = identity;
-  const isDark = themeMode === 'dark';
+  const { palette: _palette, text, themeMode, ui } = identity;
+  const _isDark = themeMode === 'dark';
   const config = getExerciseConfig(identity);
 
   return StyleSheet.create({

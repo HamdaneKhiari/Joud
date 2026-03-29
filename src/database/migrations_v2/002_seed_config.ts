@@ -328,6 +328,7 @@ export default createMigration(
       ('adult', 5, 'Get the ball rolling',  'Lancer le processus','⚽', 'idiom', 'medium');
     `);
 
+    // eslint-disable-next-line no-console
     console.log('[Migration V2-002] ✓ Config complète seedée');
   }
 );

@@ -23,7 +23,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
   badgeLabel,
   value,
   label,
-  encouragement,
+  encouragement: _encouragement,
   isDark,
   variant,
   animationDelay = 0
@@ -37,7 +37,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
   const valueStyleKey = `value${variantKey}` as keyof ReturnType<typeof createStyles>;
   const valueStyle = variantKey && valueStyleKey in styles ? styles[valueStyleKey] : null;
 
-  const hasVariant = !!variant;
+  const _hasVariant = !!variant;
   const labelVariantKey = variant ? `label${variant.charAt(0).toUpperCase() + variant.slice(1)}` : null;
   const labelVariantStyle = labelVariantKey ? styles[labelVariantKey as keyof ReturnType<typeof createStyles>] : null;
 

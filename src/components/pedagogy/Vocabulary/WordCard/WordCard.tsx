@@ -29,7 +29,7 @@ const WordCard: FC<WordCardProps> = ({
   exampleTranslation,
   highlightWord,
   audio,
-  moduleSlug,
+  moduleSlug: _moduleSlug,
 }) => {
   const { identity } = useTheme();
 

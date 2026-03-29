@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { SQLiteDatabase } from 'expo-sqlite';
 import { initDatabase } from '../init';
