@@ -136,7 +136,7 @@ const LevelCard: React.FC<LevelCardProps> = ({
 
           <View style={styles.iconContainer}>
             <MaterialCommunityIcons
-              name={config.icon as any}
+              name={config.icon as React.ComponentProps<typeof MaterialCommunityIcons>['name']}
               size={28}
               color={config.badgeColor}
             />

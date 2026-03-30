@@ -32,8 +32,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   };
 
   const icons = {
-    hint: (identity.icons?.hint || "bulb-outline") as any,
-    hideHint: (identity.icons?.hideHint || "eye-off-outline") as any,
+    hint: (identity.icons?.hint || "bulb-outline") as React.ComponentProps<typeof Ionicons>['name'],
+    hideHint: (identity.icons?.hideHint || "eye-off-outline") as React.ComponentProps<typeof Ionicons>['name'],
   };
 
   // ✅ Transforme l'index en lettre (0 -> A, 1 -> B, etc.)

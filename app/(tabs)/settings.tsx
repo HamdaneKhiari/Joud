@@ -9,7 +9,7 @@ import {
   Alert, StyleSheet, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { useTheme } from '@/themes/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
 import { useProgress } from '@/contexts/ProgressContext';
@@ -282,7 +282,7 @@ export default function SettingsScreen() {
             sublabel="Clés API, modèles et limites"
             identity={identity}
             separator={false}
-            onPress={() => router.push('/settings-ai' as any)}
+            onPress={() => router.push('/settings-ai' as Href)}
           />
         </Section>
 

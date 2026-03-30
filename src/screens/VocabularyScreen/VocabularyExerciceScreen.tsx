@@ -35,6 +35,8 @@ type VocabularyStackParamList = {
     familyId: string | number;
     levelId?: string | number;
     level?: string | number;
+    exerciseType?: string;
+    subfamilyId?: string | number;
   };
 };
 
@@ -51,7 +53,7 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
   // 1. 🛡️ Normalisation des entrées
   const params = route.params || {};
 
-  const EXERCISE_TYPE = (params as any).exerciseType || 'vocab';
+  const EXERCISE_TYPE = params.exerciseType || 'vocab';
 
   // On récupère les valeurs de base
   const rawFamilyId = params.familyId ?? '';
@@ -64,7 +66,7 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
 
   // ✅ Protection anti-NaN : Si la conversion échoue, on force à 1
   // ⚠️ CLARIFICATION : params.subfamilyId contient l'ID de sous-famille (ex: 1 = Le Salé, 2 = Le Sucré)
-  const rawSubfamilyId = Number((params as any).subfamilyId || params.level || '1');
+  const rawSubfamilyId = Number(params.subfamilyId || params.level || '1');
   const subfamilyId = Number.isNaN(rawSubfamilyId) ? 1 : rawSubfamilyId;
 
   // 🎯 CORRECTION : Les sous-familles sont stockées avec un familyId composite : "familyId-subfamilyId"

@@ -15,7 +15,7 @@ export const getButtonConfig = (
   state: ValidationState,
   isLastQuestion: boolean,
   canSkip: boolean,
-  styles: Record<string, any>
+  styles: Record<string, object>
 ): ButtonConfig => {
   const configs: Record<ValidationState, ButtonConfig> = {
     initial: {

@@ -33,7 +33,7 @@ export interface Message {
   speaker: string;
   text: string;
   textFr?: string;
-  audio?: any;
+  audio?: string | null;
 }
 
 export interface Dialogue {

@@ -12,7 +12,7 @@ interface ProviderSelectorProps {
   providers: Array<{ id: Provider; name: string; icon: string }>;
   selectedProvider: Provider;
   onSelectProvider: (provider: Provider) => void;
-  styles: any;
+  styles: Record<string, object>;
 }
 
 export const ProviderSelector: React.FC<ProviderSelectorProps> = ({

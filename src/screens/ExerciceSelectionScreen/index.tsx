@@ -30,15 +30,30 @@ import { navigateToExercise } from '@/utils/navigationHelper';
 
 // Styles
 import { createStyles } from './style';
+import type { Identity } from '@/themes/ThemeContext';
+
+// ============================================
+// TYPES
+// ============================================
+
+interface ExerciseItem {
+  id: string;
+  icon: string;
+  title: string;
+  description?: string;
+  color?: string;
+  badge?: string;
+  progress?: number;
+}
 
 // ============================================
 // COMPOSANT HELPER : UNE CARTE DE MODULE (MISE À JOUR)
 // ============================================
 
 interface ModuleItemProps {
-  exercise: any;
+  exercise: ExerciseItem;
   levelId: number;
-  identity: any;
+  identity: Identity;
   index: number;
   onPress: () => void;
 }
@@ -98,7 +113,7 @@ const ExerciseSelectionScreen: React.FC = () => {
   );
 
   const [levelLabel, setLevelLabel] = useState({ title: '', badge: '', description: '' });
-  const [exercises, setExercises] = useState<any[]>([]);
+  const [exercises, setExercises] = useState<ExerciseItem[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
   // ✅ 1. TRI INTELLIGENT : Module en cours en premier
@@ -153,7 +168,7 @@ const ExerciseSelectionScreen: React.FC = () => {
     loadData();
   }, [db, numLevelId, identity.id]);
 
-  const handleExercisePress = (exercise: any) => {
+  const handleExercisePress = (exercise: ExerciseItem) => {
     safeNavigate.execute(() => {
       navigateToExercise(router, { type: exercise.id, levelId: numLevelId });
     });
@@ -165,7 +180,7 @@ const ExerciseSelectionScreen: React.FC = () => {
   // ✅ Détecter si card unique pour layout adaptatif
   const isSingleCard = sortedExercises.length === 1;
 
-  const renderItem = ({ item, index }: { item: any; index: number }) => {
+  const renderItem = ({ item, index }: { item: ExerciseItem; index: number }) => {
     const card = (
       <ModuleItem
         exercise={item}

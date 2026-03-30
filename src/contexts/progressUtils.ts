@@ -7,7 +7,7 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 import { log } from '@/utils/logUtils';
 import type {
   ProgressState, LevelProgress, ExerciseProgress,
-  ProgressAction, TrackItemPayload,
+  ProgressAction, TrackItemPayload, RevisionFamily,
 } from './progressTypes';
 
 // ============================================
@@ -44,7 +44,7 @@ export const parseCompositeKey = (key: string): { familyId: number; subfamilyId:
 // ============================================
 
 export const createEmptyLevelProgress = (): LevelProgress => {
-  const lp: any = {};
+  const lp: Record<string, ExerciseProgress> = {};
   ALL_MODULE_SLUGS.forEach(slug => { lp[slug] = {}; });
   return lp as LevelProgress;
 };
@@ -64,7 +64,7 @@ export const createInitialProgress = (): ProgressState => {
 export const progressReducer = (state: ProgressState, action: ProgressAction): ProgressState => {
   switch (action.type) {
     case 'SET_PROGRESS':
-      return action.payload;
+      return action.payload as ProgressState;
 
     case 'TRACK_ITEM': {
       const { levelId, exerciseType, familyId, itemIndex, totalItems } = action.payload as TrackItemPayload;
@@ -101,7 +101,7 @@ export const loadFromSQLite = async (
   try {
     const rows = await db.getAllAsync<{
       family_id: number; subfamily_id: number; level: number;
-      completed: number; total: number; last_accessed: string;
+      completed: number; total: number; last_accessed: string; module_slug: string;
     }>(
       `SELECT p.family_id, p.subfamily_id, p.level, p.completed, p.total, p.last_accessed,
               f.module_slug
@@ -117,7 +117,7 @@ export const loadFromSQLite = async (
 
     for (const row of rows) {
       const levelKey = `level${row.level}`;
-      const moduleSlug = (row as any).module_slug;
+      const moduleSlug = row.module_slug;
       if (!state[levelKey] || !moduleSlug) continue;
 
       const compositeKey = row.subfamily_id > 0
@@ -146,12 +146,12 @@ export const loadFromSQLite = async (
 // REVISION HELPER
 // ============================================
 
-export const filterRevisionFamilies = (progress: ProgressState | null, levelId: number): any[] => {
+export const filterRevisionFamilies = (progress: ProgressState | null, levelId: number): RevisionFamily[] => {
   if (!progress) return [];
   const levelData = progress[`level${levelId}`];
   if (!levelData) return [];
 
-  const families: any[] = [];
+  const families: RevisionFamily[] = [];
   Object.entries(levelData).forEach(([exerciseType, exerciseData]) => {
     Object.entries(exerciseData as ExerciseProgress).forEach(([familyId, family]) => {
       if (family.completed > 0) {

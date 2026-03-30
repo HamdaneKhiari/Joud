@@ -20,7 +20,7 @@ import { useTheme } from '@/themes/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
 import { useProgress } from '@/contexts/ProgressContext';
 import useSafeNavigation from '@/hooks/useSafeNavigation';
-import useFamiliesWithProgress from '@/hooks/familySelection/useFamiliesWithProgress';
+import useFamiliesWithProgress, { FamilyWithProgress } from '@/hooks/familySelection/useFamiliesWithProgress';
 
 // Utils
 import { getModuleLabel, getLevelLabel, getAvailableModules } from '@/utils/labelMapper';
@@ -40,9 +40,17 @@ interface RouteParams {
   familyId?: string;
 }
 
+interface LegacyNavigation {
+  goBack?: () => void;
+}
+
+interface LegacyRoute {
+  params?: RouteParams;
+}
+
 interface FamilySelectionScreenProps {
-  navigation?: any;
-  route?: any;
+  navigation?: LegacyNavigation;
+  route?: LegacyRoute;
 }
 
 // ============================================
@@ -98,7 +106,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
 
           const availableModules = await getAvailableModules(db, identity.id, numLevelId);
           const slugs = Array.isArray(availableModules)
-            ? availableModules.map((m: any) => (typeof m === 'string' ? m : m.slug))
+            ? availableModules.map((m: string | { slug: string }) => (typeof m === 'string' ? m : m.slug))
             : [];
 
           const mColor = await getModuleColor(moduleId, identity.id, db, slugs);
@@ -117,7 +125,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
     const lastActivity = getLastActivity(numLevelId, moduleId);
     if (!lastActivity) return null;
 
-    const family = families.find((f: any) => f.id === lastActivity.familyId);
+    const family = families.find((f) => f.id === Number(lastActivity.familyId));
     if (!family) return null;
 
     return { ...family, progress: lastActivity.progress || 0 };
@@ -129,7 +137,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
     if (!recentActivity) return families;
 
     // Séparer recentActivity des autres
-    const others = families.filter((f: any) => f.id !== recentActivity.id);
+    const others = families.filter((f) => f.id !== recentActivity.id);
 
     // Mettre recentActivity en premier avec son badge "EN COURS"
     return [
@@ -190,7 +198,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   // ✅ Détecter si card unique pour layout adaptatif
   const isSingleCard = sortedFamilies.length === 1;
 
-  const renderItem = ({ item, index }: { item: any; index: number }) => {
+  const renderItem = ({ item, index }: { item: FamilyWithProgress & { badge?: string; isRecent?: boolean; locked?: boolean }; index: number }) => {
     const card = (
       <FamilyCard
         icon={item.icon}

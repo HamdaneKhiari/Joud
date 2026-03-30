@@ -13,13 +13,13 @@ import { useCallback, useRef, useState } from 'react';
 interface UseSafeActionOptions {
   debounceMs?: number;
   allowConcurrent?: boolean;
-  onStart?: (...args: any[]) => void;
-  onEnd?: (result?: any, ...args: any[]) => void;
-  onError?: (error: Error, ...args: any[]) => void;
+  onStart?: (...args: unknown[]) => void;
+  onEnd?: (result?: unknown, ...args: unknown[]) => void;
+  onError?: (error: Error, ...args: unknown[]) => void;
 }
 
 interface UseSafeActionReturn {
-  execute: (dynamicAction?: (...args: any[]) => any | Promise<any>, ...args: any[]) => Promise<any>;
+  execute: (dynamicAction?: (...args: unknown[]) => unknown, ...args: unknown[]) => Promise<unknown>;
   loading: boolean;
   disabled: boolean;
   lastExecuted: number;
@@ -31,7 +31,7 @@ interface UseSafeActionReturn {
 // ============================================
 
 export default function useSafeAction(
-  initialAction?: (...args: any[]) => any | Promise<any>,
+  initialAction?: (...args: unknown[]) => unknown,
   options: UseSafeActionOptions = {}
 ): UseSafeActionReturn {
   const {
@@ -47,7 +47,7 @@ export default function useSafeAction(
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const execute = useCallback(
-    async (dynamicAction?: (...args: any[]) => any | Promise<any>, ...args: any[]) => {
+    async (dynamicAction?: (...args: unknown[]) => unknown, ...args: unknown[]) => {
       const now = Date.now();
 
       // Vérifier si on est déjà en cours d'exécution

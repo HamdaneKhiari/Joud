@@ -1,9 +1,13 @@
 import { useCallback } from 'react';
-import { 
-  LogicQuestion, 
-  FusionQuestion, 
-  RephrasingQuestion 
+import {
+  LogicQuestion,
+  FusionQuestion,
+  RephrasingQuestion
 } from '../../../components/pedagogy/Connector/types';
+import type { useConnectorState, UnifiedConnectorState } from './useConnectorState';
+
+type ConnectorStates = ReturnType<typeof useConnectorState>;
+type StateSetter = (updater: (prev: UnifiedConnectorState) => UnifiedConnectorState) => void;
 
 /**
  * Normalise les entrées utilisateur pour la comparaison textuelle.
@@ -22,7 +26,7 @@ interface UseConnectorHandlersProps {
   isLastQuestion: boolean;
   onNavigateBack: () => void;
   setCurrentQuestionIndex: React.Dispatch<React.SetStateAction<number>>;
-  states: any;
+  states: ConnectorStates;
   onValidationSuccess: () => void;
   recordError?: (userAnswer: string) => void;
 }
@@ -57,13 +61,13 @@ export const useConnectorHandlers = ({
   const validateInputExercise = useCallback((
     userAnswer: string | undefined,
     correctAnswer: string,
-    setState: any
+    setState: StateSetter
   ) => {
     if (!userAnswer?.trim()) return;
 
     const isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(correctAnswer);
 
-    setState((prev: any) => ({
+    setState((prev) => ({
       ...prev,
       isValidated: true,
       isCorrect,
@@ -81,31 +85,31 @@ export const useConnectorHandlers = ({
 
   return {
     logic: {
-      onAnswer: (option: string) => setLogicState((prev: any) => ({ ...prev, selectedOption: option })),
+      onAnswer: (option: string) => setLogicState((prev) => ({ ...prev, selectedOption: option })),
       onValidate: () => {
         if (!logicState.selectedOption || !currentQuestion) return;
         const q = currentQuestion as LogicQuestion;
         const isCorrect = normalizeAnswer(logicState.selectedOption) === normalizeAnswer(q.correctAnswer);
-        setLogicState((prev: any) => ({ ...prev, isValidated: true, isCorrect, attemptCount: prev.attemptCount + 1 }));
+        setLogicState((prev) => ({ ...prev, isValidated: true, isCorrect, attemptCount: prev.attemptCount + 1 }));
         if (isCorrect) {
           onValidationSuccess();
         } else {
           recordError?.(logicState.selectedOption);
         }
       },
-      onRetry: () => setLogicState((prev: any) => ({ ...prev, selectedOption: undefined, isValidated: false, isCorrect: false })),
+      onRetry: () => setLogicState((prev) => ({ ...prev, selectedOption: undefined, isValidated: false, isCorrect: false })),
       onNext: handleNavigationNext,
     },
     fusion: {
-      onAnswer: (text: string) => setFusionState((prev: any) => ({ ...prev, userAnswer: text })),
+      onAnswer: (text: string) => setFusionState((prev) => ({ ...prev, userAnswer: text })),
       onValidate: () => currentQuestion && validateInputExercise(fusionState.userAnswer, (currentQuestion as FusionQuestion).correctAnswer, setFusionState),
-      onRetry: () => setFusionState((prev: any) => ({ ...prev, userAnswer: undefined, isValidated: false, isCorrect: false })),
+      onRetry: () => setFusionState((prev) => ({ ...prev, userAnswer: undefined, isValidated: false, isCorrect: false })),
       onNext: handleNavigationNext,
     },
     rephrasing: {
-      onAnswer: (text: string) => setRephrasingState((prev: any) => ({ ...prev, userAnswer: text })),
+      onAnswer: (text: string) => setRephrasingState((prev) => ({ ...prev, userAnswer: text })),
       onValidate: () => currentQuestion && validateInputExercise(rephrasingState.userAnswer, (currentQuestion as RephrasingQuestion).correctAnswer, setRephrasingState),
-      onRetry: () => setRephrasingState((prev: any) => ({ ...prev, userAnswer: undefined, isValidated: false, isCorrect: false })),
+      onRetry: () => setRephrasingState((prev) => ({ ...prev, userAnswer: undefined, isValidated: false, isCorrect: false })),
       onNext: handleNavigationNext,
     },
   };

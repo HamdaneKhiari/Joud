@@ -238,7 +238,7 @@ class RAGService {
   /**
    * Extrait du texte lisible depuis le JSON de contenu
    */
-  private extractReadableContent(parsed: any, contentType: string): string {
+  private extractReadableContent(parsed: Record<string, string | undefined>, contentType: string): string {
     switch (contentType) {
       case 'word':
         return `${parsed.english || parsed.word} = ${parsed.french || parsed.translation}${parsed.example ? ` (ex: ${parsed.example})` : ''}`;

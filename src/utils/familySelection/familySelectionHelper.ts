@@ -17,7 +17,7 @@ interface Family {
   subtitle?: string;
   icon?: string;
   color?: string;
-  words?: any[];
+  words?: string[];
   totalWords?: number;
 }
 
@@ -79,8 +79,9 @@ export const getCompletedWordsForLevel = async (
     const completedWords = new Set<string>();
 
     // Parcourir tous les exercices et familles pour collecter les mots complétés
-    Object.values(levelData).forEach((exerciseData: any) => {
-      Object.entries(exerciseData).forEach(([familyId, family]: [string, any]) => {
+    type FamilyEntry = { completed: number };
+    Object.values(levelData as Record<string, Record<string, FamilyEntry>>).forEach((exerciseData) => {
+      Object.entries(exerciseData).forEach(([familyId, family]) => {
         if (family.completed > 0) {
           // Ajouter les mots complétés (simulé avec des IDs)
           for (let i = 0; i < family.completed; i++) {

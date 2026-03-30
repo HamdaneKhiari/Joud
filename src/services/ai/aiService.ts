@@ -159,8 +159,8 @@ Return ONLY the JSON, no other text.`;
         default:
           throw new Error(`Provider non supporté : ${provider}`);
       }
-    } catch (error: any) {
-      log.error('[AIService] Error:', error?.message ?? 'Unknown error');
+    } catch (error: unknown) {
+      log.error('[AIService] Error:', error instanceof Error ? error.message : 'Unknown error');
       throw new Error(this.formatAIError(error));
     }
   }
@@ -277,21 +277,22 @@ Return ONLY the JSON, no other text.`;
   /**
    * Formate une erreur AI en message lisible
    */
-  formatAIError(error: any): string {
-    if (error?.message) {
-      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+  formatAIError(error: unknown): string {
+    const message = error instanceof Error ? error.message : undefined;
+    if (message) {
+      if (message.includes('401') || message.includes('Unauthorized')) {
         return 'Clé API invalide. Vérifie ta clé dans les paramètres.';
       }
-      if (error.message.includes('429') || error.message.includes('rate limit')) {
+      if (message.includes('429') || message.includes('rate limit')) {
         return 'Limite d\'utilisation atteinte. Réessaye dans quelques instants.';
       }
-      if (error.message.includes('quota')) {
+      if (message.includes('quota')) {
         return 'Quota API dépassé. Vérifie ton compte provider.';
       }
-      if (error.message.includes('Clé API manquante')) {
-        return error.message;
+      if (message.includes('Clé API manquante')) {
+        return message;
       }
-      return error.message;
+      return message;
     }
     return 'Erreur de communication avec l\'IA. Vérifie ta connexion.';
   }

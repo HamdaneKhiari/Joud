@@ -10,7 +10,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 // Hooks & Contexts
@@ -40,14 +40,14 @@ const AITutorSelectionScreen: React.FC = () => {
 
   const handleModePress = (route: string) => {
     if (isConfigured) {
-      router.push(route as any);
+      router.push(route as Href);
     } else {
       Alert.alert(
         'Clé API requise',
         'Configure ta clé API pour discuter avec le coach IA.',
         [
           { text: 'Plus tard', style: 'cancel' },
-          { text: 'Configurer', onPress: () => router.push('/settings-ai' as any) },
+          { text: 'Configurer', onPress: () => router.push('/settings-ai' as Href) },
         ]
       );
     }
@@ -79,7 +79,7 @@ const AITutorSelectionScreen: React.FC = () => {
         {!isConfigured && (
           <TouchableOpacity
             style={styles.configBanner}
-            onPress={() => router.push('/settings-ai' as any)}
+            onPress={() => router.push('/settings-ai' as Href)}
             activeOpacity={0.8}
           >
             <Ionicons name="key-outline" size={18} color={identity.palette.accent} />

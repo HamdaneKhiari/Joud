@@ -185,6 +185,6 @@ export const createWordGameStyles = (identity: Identity): ReturnType<typeof Styl
  * @param customStyles - Styles personnalisés
  * @returns Styles fusionnés
  */
-export const mergeStyles = (baseStyles: any, customStyles: any = {}) => {
+export const mergeStyles = (baseStyles: Record<string, object>, customStyles: Record<string, object> = {}) => {
   return { ...baseStyles, ...customStyles };
 };

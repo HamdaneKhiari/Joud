@@ -9,7 +9,7 @@ import { useUser } from './UserContext';
 import { upsertProgress } from '../database/queries';
 import { log } from '@/utils/logUtils';
 
-import type { ProgressState, LevelProgress, ProgressContextValue } from './progressTypes';
+import type { ProgressState, LevelProgress, ProgressContextValue, ExerciseProgress, RevisionFamily } from './progressTypes';
 import {
   ALL_MODULE_SLUGS,
   getStorageKey,
@@ -57,8 +57,9 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           for (const levelKey of Object.keys(parsed)) {
             const level = parsed[levelKey];
             if (level && 'sentences' in level && !('phrase_types' in level)) {
-              (level as any).phrase_types = (level as any).sentences;
-              delete (level as any).sentences;
+              const lvl = level as Record<string, ExerciseProgress>;
+              lvl['phrase_types'] = lvl['sentences'];
+              delete lvl['sentences'];
             }
           }
           dispatch({ type: 'SET_PROGRESS', payload: parsed });
@@ -207,7 +208,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return Math.round(total / ALL_MODULE_SLUGS.length);
   }, [progress, getExerciseProgress]);
 
-  const getRevisionFamilies = useCallback((levelId: number): any[] => {
+  const getRevisionFamilies = useCallback((levelId: number): RevisionFamily[] => {
     return filterRevisionFamilies(progress, levelId);
   }, [progress]);
 

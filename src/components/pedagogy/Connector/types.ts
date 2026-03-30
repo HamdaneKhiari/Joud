@@ -73,7 +73,7 @@ export interface RephrasingState {
 }
 
 export interface ConnectorHandlers {
-  onAnswer: (answer: any) => void;
+  onAnswer: (answer: string) => void;
   onValidate: () => void;
   onRetry: () => void;
   onNext: () => void;
@@ -86,7 +86,7 @@ export interface ConnectorCardRendererProps {
   isLastQuestion: boolean;
   exerciseFamily: {
     color: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
   states: {
     logicState: LogicState;

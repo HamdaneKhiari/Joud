@@ -137,11 +137,12 @@ const AITutorFreeScreen: React.FC = () => {
       setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), type: 'ai', content: aiResponse, timestamp: new Date(), source: 'ai_api', provider: settings.provider }]);
       saveMessage('ai', aiResponse, 'ai_api', settings.provider);
       incrementUsage();
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorContent = aiService.formatAIError(error);
       setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), type: 'error', content: errorContent, timestamp: new Date() }]);
       saveMessage('error', errorContent);
-      if (error.message?.includes('api key') || error.message?.includes('401')) {
+      const errorMessage = error instanceof Error ? error.message : '';
+      if (errorMessage.includes('api key') || errorMessage.includes('401')) {
         Alert.alert(
           'Problème de clé API',
           'Ta clé API semble invalide. Veux-tu la reconfigurer ?',

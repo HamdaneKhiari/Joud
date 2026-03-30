@@ -25,7 +25,7 @@ const DailyWordCard: React.FC<DailyWordProps> = ({ word }) => {
 
   // Gestion du fond : Couleur unie ou Dégradé
   const isGradient = Array.isArray(identity.dailyWord.background);
-  const Container: any = isGradient ? LinearGradient : View;
+  const Container = (isGradient ? LinearGradient : View) as React.ElementType;
 
   const containerProps = isGradient
     ? { colors: identity.dailyWord.background, start: { x: 0, y: 0 }, end: { x: 1, y: 1 } }

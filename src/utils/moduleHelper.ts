@@ -8,6 +8,9 @@ import { useUser } from '@/contexts/UserContext';
 import { useTheme } from '@/themes/ThemeContext';
 import { getIdentityPalette } from '@/database/queries';
 import { useState, useEffect } from 'react';
+import type { SQLiteDatabase } from 'expo-sqlite';
+
+type DB = SQLiteDatabase | number | null | undefined;
 
 // ============================================
 // CACHE GLOBAL (Optimisation)
@@ -16,10 +19,11 @@ import { useState, useEffect } from 'react';
 // Cache simple pour éviter les requêtes SQL répétitives sur les palettes
 const globalPaletteCache: Record<string, string[]> = {};
 
-const getCachedPalette = async (db: any, identityId: string): Promise<string[]> => {
+const getCachedPalette = async (db: DB, identityId: string): Promise<string[]> => {
   if (globalPaletteCache[identityId]) {
     return globalPaletteCache[identityId];
   }
+  if (!db || typeof db === 'number') return [];
   const palette = await getIdentityPalette(db, identityId);
   if (palette && palette.length > 0) {
     globalPaletteCache[identityId] = palette;
@@ -66,7 +70,7 @@ export const useIdentityPalette = (): string[] => {
 export const getModuleColor = async (
   moduleSlug: string,
   identityId: string,
-  db: any,
+  db: DB,
   availableModules: string[]
 ): Promise<string> => {
   if (!db || typeof db === 'number') {
@@ -98,7 +102,7 @@ export const getModuleColor = async (
 export const getModuleIcon = async (
   moduleSlug: string,
   identityId: string,
-  db: any
+  db: DB
 ): Promise<string> => {
   if (!db || typeof db === 'number') {
     return 'book';
@@ -121,7 +125,7 @@ export const getModuleIcon = async (
 export const isValidLevel = async (
   levelNumber: number,
   identityId: string,
-  db: any
+  db: DB
 ): Promise<boolean> => {
   if (!db || typeof db === 'number') {
     return levelNumber >= 1 && levelNumber <= 4; // Fallback conservateur
@@ -144,7 +148,7 @@ export const isValidLevel = async (
  */
 export const getMaxLevels = async (
   identityId: string,
-  db: any
+  db: DB
 ): Promise<number> => {
   if (!db || typeof db === 'number') {
     return 4; // Fallback

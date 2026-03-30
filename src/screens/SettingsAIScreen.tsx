@@ -119,8 +119,8 @@ export default function SettingsAIScreen() {
         'Ta clé a été chiffrée (AES-256) et stockée dans le Keychain. Tes paramètres sont prêts !',
         [{ text: 'OK', onPress: () => router.back() }]
       );
-    } catch (error: any) {
-      Alert.alert('Erreur', error.message || "Impossible d'enregistrer les paramètres");
+    } catch (error: unknown) {
+      Alert.alert('Erreur', error instanceof Error ? error.message : "Impossible d'enregistrer les paramètres");
     } finally {
       setIsSaving(false);
     }

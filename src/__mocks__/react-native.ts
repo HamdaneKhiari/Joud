@@ -6,9 +6,10 @@
 
 export const StyleSheet = {
   hairlineWidth: 1,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Jest mock: StyleSheet.create returns the same object at runtime
   create: (styles: Record<string, any>) => styles,
-  flatten: (style: any) => style,
-  compose: (style1: any, style2: any) => [style1, style2],
+  flatten: (style: unknown) => style,
+  compose: (style1: unknown, style2: unknown) => [style1, style2],
   absoluteFill: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
   absoluteFillObject: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
 };
@@ -16,7 +17,7 @@ export const StyleSheet = {
 export const Platform = {
   OS: 'ios' as const,
   Version: 16,
-  select: (specifics: any) => specifics.ios ?? specifics.native ?? specifics.default,
+  select: (specifics: Partial<Record<'ios' | 'android' | 'native' | 'default', unknown>>) => specifics.ios ?? specifics.native ?? specifics.default,
 };
 
 export const Dimensions = {

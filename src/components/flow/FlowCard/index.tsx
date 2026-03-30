@@ -73,7 +73,7 @@ const FlowCard: React.FC<FlowCardProps> = ({
 
     if (typeof icon === 'string') {
       if (isEmoji(icon)) return <Text style={styles.iconText}>{icon}</Text>;
-      return <MaterialCommunityIcons name={icon as any} size={iconSize} color={iconColor} />;
+      return <MaterialCommunityIcons name={icon as React.ComponentProps<typeof MaterialCommunityIcons>['name']} size={iconSize} color={iconColor} />;
     }
     return icon || <MaterialCommunityIcons name={isHorizontal ? 'bookmark' : 'folder-open'} size={iconSize} color={iconColor} />;
   };

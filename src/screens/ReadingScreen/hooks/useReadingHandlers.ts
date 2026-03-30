@@ -1,12 +1,14 @@
 import { useCallback } from 'react';
+import type { ReadingQuestion } from './useReadingContent';
+import type { ReadingState } from '@/components/pedagogy/reading/types';
 
 interface UseReadingHandlersProps {
-  question: any;
+  question: ReadingQuestion | undefined;
   isLastQuestion: boolean;
-  onFinish: () => void; // ✅ Ajouté pour corriger l'erreur TS
+  onFinish: () => void;
   setCurrentQuestionIndex: React.Dispatch<React.SetStateAction<number>>;
-  state: any;
-  setState: any;
+  state: ReadingState;
+  setState: React.Dispatch<React.SetStateAction<ReadingState>>;
   resetState: () => void;
   onError?: (params: { question: string; userAnswer: string; correctAnswer: string }) => void;
   maxAttempts?: number;
@@ -26,17 +28,17 @@ export const useReadingHandlers = ({
 
   const handleAnswer = useCallback((option: string) => {
     if (state.isValidated) return;
-    setState((prev: any) => ({ ...prev, selectedOption: option }));
+    setState((prev) => ({ ...prev, selectedOption: option }));
   }, [state.isValidated, setState]);
 
   const handleValidate = useCallback(() => {
-    if (!state.selectedOption) return;
+    if (!state.selectedOption || !question) return;
 
     // On compare la lettre choisie (A, B, C...) avec la bonne réponse
     const isCorrect = state.selectedOption === question.correct_answer;
     const newAttemptCount = state.attemptCount + 1;
 
-    setState((prev: any) => ({
+    setState((prev) => ({
       ...prev,
       isValidated: true,
       isCorrect,
@@ -63,7 +65,7 @@ export const useReadingHandlers = ({
   }, [isLastQuestion, onFinish, setCurrentQuestionIndex, resetState]);
 
   const handleRetry = useCallback(() => {
-    setState((prev: any) => ({
+    setState((prev) => ({
       ...prev,
       selectedOption: undefined,
       isValidated: false,

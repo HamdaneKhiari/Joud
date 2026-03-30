@@ -113,7 +113,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 // HELPERS
 // ============================================
 
-const parseJson = <T = any>(jsonStr?: string): T | undefined => {
+const parseJson = <T = unknown>(jsonStr?: string): T | undefined => {
   if (!jsonStr) return undefined;
   try {
     return JSON.parse(jsonStr) as T;

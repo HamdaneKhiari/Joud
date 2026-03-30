@@ -5,6 +5,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import type { Identity } from '@/themes/ThemeContext';
 
 interface ModeCardProps {
   emoji: string;
@@ -13,8 +14,8 @@ interface ModeCardProps {
   description: string;
   features: readonly string[];
   onPress: () => void;
-  styles: any;
-  identity: any;
+  styles: Record<string, object>;
+  identity: Identity;
 }
 
 export const ModeCard: React.FC<ModeCardProps> = ({

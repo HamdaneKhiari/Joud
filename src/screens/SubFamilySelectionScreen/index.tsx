@@ -12,6 +12,7 @@ import SkeletonLoader from '@/components/ui/SkeletonLoader';
 import { useTheme } from '@/themes/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
 import useSubfamilies from '@/hooks/subFamilySelection/useSubfamilies';
+import type { SubFamily } from '@/services/subfamilyService';
 import useSafeNavigation from '@/hooks/useSafeNavigation';
 import { createStyles } from './style';
 
@@ -60,7 +61,7 @@ const SubfamilySelectionScreen = () => {
   // ✅ Détecter si card unique pour layout adaptatif
   const isSingleCard = subfamilies.length === 1;
 
-  const renderItem = ({ item, index }: { item: any; index: number }) => {
+  const renderItem = ({ item, index }: { item: SubFamily; index: number }) => {
     const card = (
       <FamilyCard
         icon={item.icon}

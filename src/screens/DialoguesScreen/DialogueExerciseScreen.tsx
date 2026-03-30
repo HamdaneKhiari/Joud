@@ -42,7 +42,7 @@ interface RouteParams {
 }
 
 interface DialogueExerciseScreenProps {
-  navigation?: { navigate?: (screen: string, params: any) => void; goBack?: () => void };
+  navigation?: { navigate?: (screen: string, params: Record<string, unknown>) => void; goBack?: () => void };
   route?: { params?: RouteParams };
 }
 

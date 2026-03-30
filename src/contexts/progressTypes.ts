@@ -35,9 +35,17 @@ export interface TrackItemPayload {
   totalItems: number;
 }
 
+export interface RevisionFamily {
+  exerciseType: string;
+  familyId: string;
+  completed: number;
+  total: number;
+  lastReviewed?: number;
+}
+
 export interface ProgressAction {
   type: 'SET_PROGRESS' | 'TRACK_ITEM';
-  payload?: any;
+  payload?: ProgressState | TrackItemPayload;
 }
 
 export interface ProgressContextValue {
@@ -50,7 +58,7 @@ export interface ProgressContextValue {
   getFamilyProgress: (levelId: number, exerciseType: string, familyId: string) => number;
   getExerciseProgress: (levelId: number, exerciseType: string, allFamilyIds?: string[] | null) => number;
   getLevelProgress: (levelId: number) => number;
-  getRevisionFamilies: (levelId: number) => any[];
+  getRevisionFamilies: (levelId: number) => RevisionFamily[];
   getLastActivity: (levelId: number, exerciseType: string) => { familyId: string; progress: number; lastReviewed: number } | null;
   getRecommendedModule: (levelId: number) => { exerciseType: string; progress: number; lastReviewed: number } | null;
 }

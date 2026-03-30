@@ -36,5 +36,5 @@ export interface FeedbackBannerProps {
 export interface ButtonConfig {
   icon: string;
   label: string;
-  style: any; // StyleSheet style object
+  style: object; // StyleSheet style object
 }

@@ -65,8 +65,8 @@ const SkeletonItem: React.FC<SkeletonItemProps> = ({
     <View
       style={[
         {
-          width: width as any,
-          height: height as any,
+          width: width as number,
+          height: height as number,
           borderRadius,
           backgroundColor: baseColor,
           overflow: 'hidden',

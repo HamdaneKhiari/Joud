@@ -10,6 +10,7 @@ import { log } from '@/utils/logUtils';
 export interface ConnectorQuestion {
   id: number;
   type: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Record<string, any>;
 }
 

@@ -374,7 +374,7 @@ export const isModuleAvailable = async (
 // QUERIES ACTIVITY_LOG (Dashboard)
 // ============================================
 
-export const getRecentActivity = async (db: SQLiteDatabase, limit: number = 10): Promise<any[]> => {
+export const getRecentActivity = async (db: SQLiteDatabase, limit: number = 10): Promise<Record<string, unknown>[]> => {
   return await db.getAllAsync(
     `SELECT * FROM activity_log ORDER BY timestamp DESC LIMIT ?`,
     [limit]
@@ -537,7 +537,7 @@ export const updateUserMetrics = async (
   metrics: Partial<UserMetrics>
 ): Promise<void> => {
   const fields = Object.keys(metrics).filter((k) => k !== 'user_id' && k !== 'id');
-  const values = fields.map((k) => (metrics as any)[k]);
+  const values = fields.map((k) => (metrics as Record<string, string | number | null>)[k]);
 
   if (fields.length === 0) return;
 
@@ -729,7 +729,7 @@ export const getSpacedReviewWords = async (
        AND sr.next_review_date <= ?
        AND c.content_type = 'word'`;
 
-  const params: any[] = [userId, today];
+  const params: (string | number)[] = [userId, today];
 
   if (audience) {
     query += ` AND (c.target_audience = ? OR c.target_audience = 'all')`;

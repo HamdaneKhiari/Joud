@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, type TextStyle } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens'; // ✅ withOpacity supprimé car inutilisé
@@ -21,7 +21,15 @@ type IdentityId = Identity['id'];
 // CONFIGURATION DES VARIANTS (DRY)
 // ============================================
 
-const TYPOGRAPHY_CONFIG: Record<IdentityId, any> = {
+interface TypographyConfig {
+  titleSize: number;
+  titleWeight: TextStyle['fontWeight'];
+  titleLetterSpacing: number;
+  titleLineHeight: number;
+  subtitleWeight: TextStyle['fontWeight'];
+}
+
+const TYPOGRAPHY_CONFIG: Record<IdentityId, TypographyConfig> = {
   primary: {
     titleSize: tokens.fontSize.xxxl,
     titleWeight: tokens.fontWeight.black,

@@ -167,7 +167,7 @@ export const getLevelLabel = async (
       FROM level_labels 
       WHERE level_number = ? AND identity_id = ?
     `;
-    const params: any[] = [levelNumber, identityId];
+    const params: (string | number)[] = [levelNumber, identityId];
 
     if (familyId) {
       query += ` AND family_id = ?`;

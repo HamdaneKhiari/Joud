@@ -2,7 +2,7 @@ import { log } from '@/utils/logUtils';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { ScrollView, View, ActivityIndicator, Text } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { useRouter, useFocusEffect } from 'expo-router';
+import { useRouter, useFocusEffect, type Href } from 'expo-router';
 import { useTheme } from '@/themes/ThemeContext';
 import { withOpacity } from '@/themes/tokens';
 import { createStyles } from './styles/dashboardStyle';
@@ -110,7 +110,7 @@ export default function Dashboard() {
           activity={lastActivity}
           onPress={lastActivity ? () => {
             if (lastActivity.moduleSlug === 'revision') {
-              router.push('/revision' as any);
+              router.push('/revision' as Href);
             } else {
               // Décomposer le familyId composite "12-1" en familyId + subfamilyId
               const parts = lastActivity.familyId.split('-');
@@ -124,7 +124,7 @@ export default function Dashboard() {
                   levelId: lastActivity.level.toString(),
                   ...(subId ? { subfamilyId: subId } : {}),
                 },
-              } as any);
+              } as Href);
             }
           } : undefined}
           onStartPress={() => navigateToExerciseSelection(router, 1)}
@@ -135,7 +135,7 @@ export default function Dashboard() {
       <View style={styles.section}>
         <RevisionCard
           wordsToReview={wordsToReview}
-          onPress={() => router.push('/revision' as any)}
+          onPress={() => router.push('/revision' as Href)}
         />
       </View>
 

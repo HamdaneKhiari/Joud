@@ -13,7 +13,7 @@ import { useState, useCallback } from 'react';
  * État unifié pour tous les types d'exercices
  * Peut contenir soit selectedOption (logic) soit userAnswer (fusion/rephrasing)
  */
-interface UnifiedConnectorState {
+export interface UnifiedConnectorState {
   // Pour Logic Links (choix multiple)
   selectedOption?: string;
   
@@ -51,21 +51,21 @@ export const useConnectorState = (_exerciseType: 'logic' | 'fusion' | 'rephrasin
   /**
    * Setter pour Logic Links
    */
-  const setLogicState = useCallback((updater: (prev: any) => any) => {
+  const setLogicState = useCallback((updater: (prev: UnifiedConnectorState) => UnifiedConnectorState) => {
     setState((prev) => updater(prev));
   }, []);
 
   /**
    * Setter pour Sentence Fusion
    */
-  const setFusionState = useCallback((updater: (prev: any) => any) => {
+  const setFusionState = useCallback((updater: (prev: UnifiedConnectorState) => UnifiedConnectorState) => {
     setState((prev) => updater(prev));
   }, []);
 
   /**
    * Setter pour Rephrasing
    */
-  const setRephrasingState = useCallback((updater: (prev: any) => any) => {
+  const setRephrasingState = useCallback((updater: (prev: UnifiedConnectorState) => UnifiedConnectorState) => {
     setState((prev) => updater(prev));
   }, []);
 

@@ -41,7 +41,7 @@ interface UseExerciseContentReturn<T> {
  *
  * ⚠️ Ancien nom "levelId" était trompeur car on confondait avec les "vrais levels" (Primary/Collège)
  */
-export const useExerciseContent = <T = any>(
+export const useExerciseContent = <T = unknown>(
   familyId: number,
   subfamilyId: number
 ): UseExerciseContentReturn<T> => {

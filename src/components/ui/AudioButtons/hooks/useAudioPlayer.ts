@@ -51,7 +51,7 @@ const preprocessTextForTTS = (text: string): string => {
  * Custom Hook TypeScript pour gérer la lecture audio et TTS
  */
 export const useAudioPlayer = (
-  audioSource?: any,
+  audioSource?: string | null,
   onAudioPlayCallback?: () => void
 ): AudioPlayerReturn => {
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);

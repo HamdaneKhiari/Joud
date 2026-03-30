@@ -10,8 +10,17 @@ import { log } from '@/utils/logUtils';
 
 const SPEAKER_COLORS = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0', '#E91E63'];
 
+interface RawQuestion {
+  correctAnswer?: number | string;
+  correct_answer?: number | string;
+  options?: string[];
+  question?: string;
+  text?: string;
+  hint?: string;
+}
+
 /** Mappe une question brute (formats variés selon la migration) vers le type Question */
-function mapQuestion(q: any): Question {
+function mapQuestion(q: RawQuestion): Question {
   let correctIndex = 0;
 
   if (typeof q.correctAnswer === 'number') {
@@ -19,7 +28,7 @@ function mapQuestion(q: any): Question {
   } else if (typeof q.correct_answer === 'number') {
     correctIndex = q.correct_answer;
   } else if (typeof q.correct_answer === 'string' && q.options) {
-    const idx = (q.options as string[]).indexOf(q.correct_answer);
+    const idx = q.options.indexOf(q.correct_answer);
     if (idx >= 0) {
       correctIndex = idx;
     } else {

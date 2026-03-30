@@ -157,7 +157,7 @@ const AITutorGuidedScreen: React.FC = () => {
       setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), type: 'ai', content: aiResponse, timestamp: new Date(), source: 'ai_api', provider: settings.provider }]);
       saveMessage('ai', aiResponse, 'ai_api', settings.provider);
       incrementUsage();
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorContent = aiService.formatAIError(error);
       setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), type: 'error', content: errorContent, timestamp: new Date() }]);
       saveMessage('error', errorContent);

@@ -259,7 +259,7 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
           >
             {/* Icône */}
             <View style={styles.buttonIconContainer}>
-              <Ionicons name={buttonConfig.icon as any} size={26} color={identity.text.onPrimary} />
+              <Ionicons name={buttonConfig.icon as React.ComponentProps<typeof Ionicons>['name']} size={26} color={identity.text.onPrimary} />
             </View>
 
             {/* Label */}

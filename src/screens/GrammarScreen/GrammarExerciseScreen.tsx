@@ -33,7 +33,7 @@ const MAX_ATTEMPTS = 2;
 
 type RootStackParamList = {
   GrammarExercise: GrammarScreenRouteParams;
-  [key: string]: any;
+  [key: string]: object | undefined;
 };
 
 interface GrammarExerciseScreenProps {

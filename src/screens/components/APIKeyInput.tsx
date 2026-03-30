@@ -8,6 +8,7 @@ import { withOpacity } from '@/themes/tokens';
 import { InfoBox } from './InfoBox';
 import { INFO_BOXES } from '../SettingsAIScreen.config';
 import type { AISettings } from '@/hooks/useAISettings';
+import type { Identity } from '@/themes/ThemeContext';
 
 type Provider = AISettings['provider'];
 
@@ -16,8 +17,8 @@ interface APIKeyInputProps {
   providerName: string;
   apiKey: string;
   onChangeApiKey: (key: string) => void;
-  styles: any;
-  identity: any;
+  styles: Record<string, object>;
+  identity: Identity;
 }
 
 export const APIKeyInput: React.FC<APIKeyInputProps> = ({

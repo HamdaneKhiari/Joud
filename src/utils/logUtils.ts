@@ -12,7 +12,7 @@ const isDevelopment = __DEV__;
 export const log = {
   /** * INFO: Utilise console.log en DEV uniquement 
    */
-  info: (...args: any[]): void => {
+  info: (...args: unknown[]): void => {
     if (isDevelopment) {
       console.log('📘 INFO:', ...args);
     }
@@ -20,7 +20,7 @@ export const log = {
 
   /** * WARN: Utilise console.warn en DEV uniquement 
    */
-  warn: (...args: any[]): void => {
+  warn: (...args: unknown[]): void => {
     if (isDevelopment) {
       console.warn('⚠️ WARN:', ...args);
     }
@@ -28,13 +28,13 @@ export const log = {
 
   /** * ERROR: Toujours actif, même en PROD (pour le monitoring)
    */
-  error: (...args: any[]): void => {
+  error: (...args: unknown[]): void => {
     console.error('❌ ERROR:', ...args);
   },
 
   /** * DEBUG: Logs techniques détaillés en DEV uniquement
    */
-  debug: (...args: any[]): void => {
+  debug: (...args: unknown[]): void => {
     if (isDevelopment) {
       console.log('🔍 DEBUG:', ...args);
     }
@@ -43,7 +43,7 @@ export const log = {
   /**
    * SUCCESS: Petit ajout sympa pour voir les succès d'API par exemple
    */
-  success: (...args: any[]): void => {
+  success: (...args: unknown[]): void => {
     if (isDevelopment) {
       console.log('✅ SUCCESS:', ...args);
     }

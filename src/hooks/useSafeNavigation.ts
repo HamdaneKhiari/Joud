@@ -17,7 +17,7 @@ interface UseSafeNavigationOptions {
 }
 
 interface UseSafeNavigationReturn {
-  navigate: (...args: any[]) => Promise<any>;
+  navigate: (...args: unknown[]) => Promise<unknown>;
   loading: boolean;
   disabled: boolean;
   canNavigate: boolean;
@@ -30,7 +30,7 @@ interface UseSafeNavigationReturn {
  * @param options - Options de debounce et sécurité
  */
 export default function useSafeNavigation(
-  navigationAction?: (...args: any[]) => any | Promise<any>, // Rendu optionnel avec le "?"
+  navigationAction?: (...args: unknown[]) => unknown,
   options: UseSafeNavigationOptions = {}
 ): UseSafeNavigationReturn {
   const navigation = useNavigation();
@@ -55,9 +55,9 @@ export default function useSafeNavigation(
   });
 
   const navigate = useCallback(
-    async (...args: any[]) => {
+    async (...args: unknown[]) => {
       try {
-        const result = await safeAction.execute(...args);
+        const result = await safeAction.execute(...(args as Parameters<typeof safeAction.execute>));
         return result;
       } catch (error) {
         // Retourne un objet d'erreur structuré au lieu de faire crasher l'appelant
