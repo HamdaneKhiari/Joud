@@ -67,6 +67,7 @@ export const progressReducer = (state: ProgressState, action: ProgressAction): P
       return action.payload as ProgressState;
 
     case 'TRACK_ITEM': {
+      if (!action.payload) return state;
       const { levelId, exerciseType, familyId, itemIndex, totalItems } = action.payload as TrackItemPayload;
       const levelKey = `level${levelId}`;
       return {
