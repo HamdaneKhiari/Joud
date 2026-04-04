@@ -4,7 +4,7 @@
  *          fetchLastActivity (reconstruction composite key), guard DB null
  */
 
-import { renderHook, act, waitFor } from '@testing-library/react-native';
+import { renderHook, act } from '@testing-library/react-native';
 
 // ============================================
 // Mocks

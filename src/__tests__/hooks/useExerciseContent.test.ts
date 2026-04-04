@@ -3,8 +3,7 @@
  * Couvre : sélection de requête SQL selon subfamilyId, gestion d'erreur, parsing JSON
  */
 
-import { renderHook, act, waitFor } from '@testing-library/react-native';
-import { openDatabaseAsync } from 'expo-sqlite';
+import { renderHook, waitFor } from '@testing-library/react-native';
 
 // ============================================
 // Mocks

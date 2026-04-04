@@ -3,7 +3,7 @@
  * Couvre : debounce, loading state, callbacks (onStart, onEnd, onError), cleanup
  */
 
-import { renderHook, act, waitFor } from '@testing-library/react-native';
+import { renderHook, act } from '@testing-library/react-native';
 import useSafeAction from '@/hooks/useSafeAction';
 
 // Helper pour attendre l'expiration du debounce interne (100ms max)

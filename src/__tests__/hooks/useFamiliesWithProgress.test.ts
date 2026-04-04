@@ -9,7 +9,6 @@ import { renderHook, act, waitFor } from '@testing-library/react-native';
 // The global mock calls cb() synchronously on each render → infinite re-renders with state updates
 jest.mock('expo-router', () => ({
   useFocusEffect: (cb: () => void) => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     require('react').useEffect(() => { cb(); }, []);
   },
 }));

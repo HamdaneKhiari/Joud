@@ -22,7 +22,6 @@ import {
   isModuleAvailable,
   getModulesByAudience,
   getModuleBySlug,
-  getFamiliesByModuleAndLevel,
 } from '@/database/queries';
 
 // ============================================

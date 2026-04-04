@@ -51,7 +51,7 @@ describe('[R1] Migration sentences → phrase_types', () => {
       level1: {
         sentences: { '5': { completed: 3, total: 10 } },
         vocab: {},
-      } as ProgressState['level1'],
+      } as unknown as ProgressState['level1'],
     };
 
     const migrated = migrateProgress(oldData);
@@ -63,7 +63,7 @@ describe('[R1] Migration sentences → phrase_types', () => {
     const oldData: ProgressState = {
       level1: {
         sentences: { '7': { completed: 5, total: 8 } },
-      } as ProgressState['level1'],
+      } as unknown as ProgressState['level1'],
     };
 
     const migrated = migrateProgress(oldData);
@@ -75,7 +75,7 @@ describe('[R1] Migration sentences → phrase_types', () => {
       level1: {
         phrase_types: { '3': { completed: 2, total: 6 } },
         sentences: { '9': { completed: 1, total: 4 } }, // coexistence — ne doit PAS écraser
-      } as ProgressState['level1'],
+      } as unknown as ProgressState['level1'],
     };
 
     const migrated = migrateProgress(alreadyMigrated);
@@ -87,7 +87,7 @@ describe('[R1] Migration sentences → phrase_types', () => {
 
   it('ne plante pas sur un niveau sans sentences ni phrase_types', () => {
     const normal: ProgressState = {
-      level1: { vocab: { '1': { completed: 1, total: 5 } } } as ProgressState['level1'],
+      level1: { vocab: { '1': { completed: 1, total: 5 } } } as unknown as ProgressState['level1'],
     };
 
     expect(() => migrateProgress(normal)).not.toThrow();
@@ -157,7 +157,7 @@ describe('[R3] progressReducer — immutabilité de l\'état', () => {
 
   it('SET_PROGRESS retourne un nouvel objet, pas une référence', () => {
     const initial = createInitialProgress();
-    const newState: ProgressState = { level1: { vocab: {} } as ProgressState['level1'] };
+    const newState: ProgressState = { level1: { vocab: {} } as unknown as ProgressState['level1'] };
 
     const result = progressReducer(initial, { type: 'SET_PROGRESS', payload: newState });
     expect(result).not.toBe(initial);
@@ -195,7 +195,7 @@ describe('[R4] filterRevisionFamilies — n\'inclut pas les familles completed =
           '1': { completed: 0, total: 10 }, // pas démarrée
           '2': { completed: 5, total: 10 }, // en cours
         },
-      } as ProgressState['level1'],
+      } as unknown as ProgressState['level1'],
     };
 
     const families = filterRevisionFamilies(state, 1);
@@ -209,7 +209,7 @@ describe('[R4] filterRevisionFamilies — n\'inclut pas les familles completed =
         grammar: {
           '10': { completed: 8, total: 8 }, // 100%
         },
-      } as ProgressState['level1'],
+      } as unknown as ProgressState['level1'],
     };
 
     const families = filterRevisionFamilies(state, 1);

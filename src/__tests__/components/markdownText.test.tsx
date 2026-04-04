@@ -35,7 +35,7 @@ describe('MarkdownText — gras', () => {
   });
 
   it('rend le texte avant et après le gras', () => {
-    const { getAllByText, getByText } = render(
+    const { getByText } = render(
       <MarkdownText content="Dit **bonjour** en anglais" />
     );
     expect(getByText('bonjour')).toBeTruthy();

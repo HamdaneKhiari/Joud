@@ -54,4 +54,21 @@ module.exports = [
       'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
   },
+  // Règles assouplies pour les fichiers de test
+  {
+    files: ['src/**/__tests__/**/*.{ts,tsx}', 'src/**/*.test.{ts,tsx}'],
+    rules: {
+      // require() est un pattern Jest standard pour accéder aux modules mockés
+      '@typescript-eslint/no-require-imports': 'off',
+      // Les tests peuvent avoir des vars unused (fixtures, helpers partiels)
+      '@typescript-eslint/no-unused-vars': ['warn', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+        destructuredArrayIgnorePattern: '^_',
+      }],
+      // Les tests utilisent console pour débugger
+      'no-console': 'off',
+    },
+  },
 ];

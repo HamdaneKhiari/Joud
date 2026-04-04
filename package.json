@@ -13,7 +13,9 @@
     "build:my-words": "node convert_excel_to_my_words.js",
     "validate:vocab": "node validate.js",
     "lint": "eslint src app --ext .ts,.tsx --max-warnings 0",
-    "lint:fix": "eslint src app --ext .ts,.tsx --fix"
+    "lint:fix": "eslint src app --ext .ts,.tsx --fix",
+    "typecheck": "tsc --noEmit",
+    "validate": "npx tsc --noEmit && npx eslint src app --ext .ts,.tsx --max-warnings 0 && jest --no-coverage"
   },
   "dependencies": {
     "@expo-google-fonts/dm-sans": "^0.4.2",

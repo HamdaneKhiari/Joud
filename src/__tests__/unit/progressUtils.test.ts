@@ -123,7 +123,7 @@ describe('progressReducer — SET_PROGRESS', () => {
 
   it('remplace tout l\'état par le payload', () => {
     const newState: ProgressState = {
-      level1: { vocab: { '5': { completed: 3, total: 10 } } } as ProgressState['level1'],
+      level1: { vocab: { '5': { completed: 3, total: 10 } } } as unknown as ProgressState['level1'],
     };
     const result = progressReducer(initial, { type: 'SET_PROGRESS', payload: newState });
     expect(result).toEqual(newState);
