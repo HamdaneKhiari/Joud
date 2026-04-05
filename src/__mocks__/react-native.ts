@@ -26,11 +26,28 @@ export const Dimensions = {
   removeEventListener: jest.fn(),
 };
 
+const makeAnimatedValue = (val: number) => ({
+  _value: val,
+  setValue: jest.fn(),
+  interpolate: jest.fn().mockReturnValue('interpolated'),
+  addListener: jest.fn(),
+  removeAllListeners: jest.fn(),
+  stopAnimation: jest.fn(),
+});
+
+const makeAnimation = () => ({ start: jest.fn(), stop: jest.fn(), reset: jest.fn() });
+
 export const Animated = {
-  Value: jest.fn().mockImplementation((val: number) => ({ _value: val })),
-  timing: jest.fn().mockReturnValue({ start: jest.fn() }),
-  spring: jest.fn().mockReturnValue({ start: jest.fn() }),
+  Value: jest.fn().mockImplementation(makeAnimatedValue),
+  timing: jest.fn().mockReturnValue(makeAnimation()),
+  spring: jest.fn().mockReturnValue(makeAnimation()),
+  sequence: jest.fn().mockReturnValue(makeAnimation()),
+  parallel: jest.fn().mockReturnValue(makeAnimation()),
+  loop: jest.fn().mockReturnValue(makeAnimation()),
+  delay: jest.fn().mockReturnValue(makeAnimation()),
   View: 'Animated.View',
+  Text: 'Animated.Text',
+  Image: 'Animated.Image',
 };
 
 export const View = 'View';
@@ -43,12 +60,17 @@ export const FlatList = 'FlatList';
 export const TextInput = 'TextInput';
 export const Modal = 'Modal';
 export const ActivityIndicator = 'ActivityIndicator';
+export const StatusBar = 'StatusBar';
+export const SafeAreaView = 'SafeAreaView';
+export const KeyboardAvoidingView = 'KeyboardAvoidingView';
 
 export const Alert = { alert: jest.fn() };
 export const Vibration = { vibrate: jest.fn() };
 export const Keyboard = { dismiss: jest.fn(), addListener: jest.fn() };
 
 export const AccessibilityInfo = { isReduceMotionEnabled: jest.fn().mockResolvedValue(false) };
+
+export const useColorScheme = jest.fn().mockReturnValue('light');
 
 export default {
   StyleSheet,
@@ -69,4 +91,5 @@ export default {
   Vibration,
   Keyboard,
   AccessibilityInfo,
+  useColorScheme,
 };
