@@ -1,11 +1,75 @@
 /**
  * Tests unitaires — familySelectionHelper.ts
- * Couvre : enrichFamiliesWithProgress (fonction pure)
- * Note : getCompletedWordsForLevel et saveFamilyProgress sont testés dans les tests d'intégration
- *        car ils nécessitent AsyncStorage
+ * Couvre : enrichFamiliesWithProgress, getCompletedWordsForLevel, saveFamilyProgress
  */
 
-import { enrichFamiliesWithProgress } from '@/utils/familySelection/familySelectionHelper';
+jest.mock('@/utils/logUtils', () => ({
+  log: { error: jest.fn(), warn: jest.fn(), info: jest.fn() },
+}));
+
+import {
+  enrichFamiliesWithProgress,
+  getCompletedWordsForLevel,
+  saveFamilyProgress,
+} from '@/utils/familySelection/familySelectionHelper';
+
+const STORAGE_KEYS = { PROGRESS: 'TEST_PROGRESS', FAMILY_PROGRESS: 'TEST_FAMILY' };
+const makeStorage = (data: string | null) => ({
+  getItem: jest.fn().mockResolvedValue(data),
+  setItem: jest.fn().mockResolvedValue(undefined),
+});
+
+// ============================================
+// getCompletedWordsForLevel
+// ============================================
+
+describe('getCompletedWordsForLevel', () => {
+  it('retourne Set vide si storage vide', async () => {
+    const storage = makeStorage(null) as any;
+    const result = await getCompletedWordsForLevel({ asyncStorage: storage, levelId: 1, mode: 'vocab', STORAGE_KEYS });
+    expect(result.size).toBe(0);
+  });
+
+  it('retourne Set vide si niveau absent', async () => {
+    const storage = makeStorage(JSON.stringify({ level2: {} })) as any;
+    const result = await getCompletedWordsForLevel({ asyncStorage: storage, levelId: 1, mode: 'vocab', STORAGE_KEYS });
+    expect(result.size).toBe(0);
+  });
+
+  it('collecte les mots complétés', async () => {
+    const progress = { level1: { vocab: { fam1: { completed: 3 }, fam2: { completed: 0 } } } };
+    const storage = makeStorage(JSON.stringify(progress)) as any;
+    const result = await getCompletedWordsForLevel({ asyncStorage: storage, levelId: 1, mode: 'vocab', STORAGE_KEYS });
+    expect(result.size).toBe(3);
+    expect(result.has('fam1_word_0')).toBe(true);
+  });
+
+  it('retourne Set vide si erreur storage', async () => {
+    const storage = { getItem: jest.fn().mockRejectedValue(new Error('IO')) } as any;
+    const result = await getCompletedWordsForLevel({ asyncStorage: storage, levelId: 1, mode: 'vocab', STORAGE_KEYS });
+    expect(result.size).toBe(0);
+  });
+});
+
+// ============================================
+// saveFamilyProgress
+// ============================================
+
+describe('saveFamilyProgress', () => {
+  it('sérialise et sauvegarde', async () => {
+    const asyncStorage = makeStorage(null) as any;
+    const familyProgress = { fam1: { progress: 50, completed: 5, totalWords: 10 } };
+    await saveFamilyProgress({ familyProgress, asyncStorage, STORAGE_KEYS });
+    expect(asyncStorage.setItem).toHaveBeenCalledWith('TEST_FAMILY', JSON.stringify(familyProgress));
+  });
+
+  it('swallowe les erreurs silencieusement', async () => {
+    const asyncStorage = { setItem: jest.fn().mockRejectedValue(new Error('Full')) } as any;
+    await expect(
+      saveFamilyProgress({ familyProgress: {}, asyncStorage, STORAGE_KEYS })
+    ).resolves.not.toThrow();
+  });
+});
 
 // ============================================
 // enrichFamiliesWithProgress

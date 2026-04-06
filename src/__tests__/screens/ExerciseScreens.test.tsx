@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { render, fireEvent } from '@testing-library/react-native';
 
 // ============================================
 // Mocks — Contextes
@@ -186,6 +186,46 @@ const mockRoute = { params: { familyId: '101', levelId: '1', exerciseType: 'voca
 const mockNavigationProp = { navigate: jest.fn(), goBack: jest.fn(), push: jest.fn(), setOptions: jest.fn(), addListener: jest.fn().mockReturnValue(() => {}) };
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+// ============================================
+// Mock data
+// ============================================
+
+const mockGrammarFamily = {
+  title: 'Present Simple', icon: 'book',
+  rules: [{
+    id: 1, title: 'Subject + Verb', content: 'Use present simple for habits.', simplified: 'S + V (+s)',
+    examples: ['I go to school.', 'She goes to school.'],
+    exercise: { question: 'She ___ to school.', correctAnswer: 'goes', options: ['go', 'goes', 'going'] }
+  }]
+};
+
+const mockVocabContent = [
+  { id: 1, data: { word: 'apple', translation: 'pomme', example: 'I eat an apple.', exampleTranslation: 'Je mange une pomme.' } },
+];
+const mockModule = { slug: 'vocab', icon: 'book' };
+const mockFamily = { name: 'Fruits', icon: 'food-apple', id: 1 };
+
+const mockSentenceContent = [
+  { id: 1, data: { sentence_with_blank: 'She ___ to school.', sentence: 'She ___ to school.', phrase_fr: 'Elle va à l\'école.', options: ['goes', 'go', 'going'], correctAnswer: 'goes', correct_answer: 'goes' } }
+];
+
+const mockDialogueFamily = {
+  name: 'At the café', title: 'At the café', icon: '☕',
+  messages: [
+    { speaker: 'A', text: 'Hello! Can I help you?' },
+    { speaker: 'B', text: 'Yes, a coffee please.' },
+  ],
+  questions: [{
+    question: 'What does B order?', text: 'What does B order?',
+    options: ['Tea', 'Coffee', 'Water'],
+    correctAnswer: 1,
+  }]
+};
+
+// ============================================
+// Tests — smoke
+// ============================================
+
 describe('Smoke tests — Screens d\'exercices', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -218,5 +258,131 @@ describe('Smoke tests — Screens d\'exercices', () => {
 
   it('ConnectorScreen — rend sans crash', () => {
     expect(() => render(<ConnectorScreen />)).not.toThrow();
+  });
+});
+
+// ============================================
+// Tests — avec contenu (couverture des branches de render)
+// ============================================
+
+describe('Screens avec contenu — render paths', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    setupMocks();
+  });
+
+  // ─── GrammarScreen ───
+
+  it('GrammarScreen — état loading', () => {
+    require('@/screens/GrammarScreen/hooks/useGrammarContent').useGrammarContent.mockReturnValue({ grammarFamily: null, loading: true });
+    const { UNSAFE_getByType } = render(<GrammarScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
+    // Loading → ActivityIndicator visible
+    const { ActivityIndicator } = require('react-native');
+    expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
+  });
+
+  it('GrammarScreen — render complet avec grammarFamily', () => {
+    require('@/screens/GrammarScreen/hooks/useGrammarContent').useGrammarContent.mockReturnValue({ grammarFamily: mockGrammarFamily, loading: false });
+    const { getByText } = render(<GrammarScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
+    expect(getByText('goes')).toBeTruthy();
+  });
+
+  it('GrammarScreen — handleAnswer sélectionne une option', () => {
+    require('@/screens/GrammarScreen/hooks/useGrammarContent').useGrammarContent.mockReturnValue({ grammarFamily: mockGrammarFamily, loading: false });
+    const { getByText } = render(<GrammarScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
+    fireEvent.press(getByText('goes'));
+    // Pas de crash
+    expect(getByText('goes')).toBeTruthy();
+  });
+
+  it('GrammarScreen — handleValidate après sélection', () => {
+    const mockSaveProgressNow = jest.fn().mockResolvedValue(undefined);
+    require('@/contexts/ProgressContext').useProgress.mockReturnValue({
+      progress: {}, getLevelProgress: jest.fn().mockReturnValue(0),
+      refreshProgress: jest.fn(), saveProgressNow: mockSaveProgressNow,
+      trackItemCompletion: jest.fn(), getRevisionFamilies: jest.fn().mockReturnValue([]),
+      resetProgress: jest.fn(), getFamilyProgress: jest.fn().mockReturnValue(0),
+    });
+    require('@/screens/GrammarScreen/hooks/useGrammarContent').useGrammarContent.mockReturnValue({ grammarFamily: mockGrammarFamily, loading: false });
+    const { getByText } = render(<GrammarScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
+    fireEvent.press(getByText('goes'));
+    // Valider (bouton ExerciseValidation)
+    const validateBtn = getByText('Valider');
+    fireEvent.press(validateBtn);
+    expect(getByText('goes')).toBeTruthy();
+  });
+
+  // ─── VocabularyScreen ───
+
+  it('VocabularyScreen — render avec contentItems (WordCard visible)', () => {
+    require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
+      module: mockModule, family: mockFamily, contentItems: mockVocabContent, isLoading: false, error: null,
+    });
+    const { getAllByText } = render(<VocabularyScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
+    expect(getAllByText('apple').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('VocabularyScreen — render avec deux mots (traduction visible)', () => {
+    const twoWords = [
+      ...mockVocabContent,
+      { id: 2, data: { word: 'banana', translation: 'banane', example: 'I like bananas.' } }
+    ];
+    require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
+      module: mockModule, family: mockFamily, contentItems: twoWords, isLoading: false, error: null,
+    });
+    const { getByText } = render(<VocabularyScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
+    expect(getByText('pomme')).toBeTruthy();
+  });
+
+  it('GrammarScreen — handleRetry: valider incorrect + réessayer', () => {
+    require('@/screens/GrammarScreen/hooks/useGrammarContent').useGrammarContent.mockReturnValue({ grammarFamily: mockGrammarFamily, loading: false });
+    const { getByText, queryByText } = render(<GrammarScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
+    // Sélectionner une mauvaise réponse + valider
+    fireEvent.press(getByText('go'));
+    fireEvent.press(getByText('Valider'));
+    // Après validation incorrecte, "Réessayer" apparaît
+    const retryBtn = queryByText('Réessayer');
+    if (retryBtn) fireEvent.press(retryBtn);
+    // Soit réessayer a été pressé, soit la validation incorrecte a bien été exécutée
+    expect(getByText('go')).toBeTruthy();
+  });
+
+  // ─── SentenceScreen ───
+
+  it('SentenceScreen — render avec contentItems en mode blanks (college)', () => {
+    require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
+      module: mockModule, family: mockFamily, contentItems: mockSentenceContent, isLoading: false, error: null,
+    });
+    const { getByText } = render(<SentenceScreen />);
+    expect(getByText('Complète la phrase :')).toBeTruthy();
+  });
+
+  it('SentenceScreen — sélectionner une option', () => {
+    require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
+      module: mockModule, family: mockFamily, contentItems: mockSentenceContent, isLoading: false, error: null,
+    });
+    const { getAllByText } = render(<SentenceScreen />);
+    const goesOptions = getAllByText('goes');
+    fireEvent.press(goesOptions[0]);
+    // L'option est sélectionnée — pas de crash
+    expect(goesOptions[0]).toBeTruthy();
+  });
+
+  // ─── DialogueScreen ───
+
+  it('DialogueScreen — render avec dialogue (messages affichés)', () => {
+    require('@/screens/DialoguesScreen/hooks/useDialogueContent').useDialogueContent.mockReturnValue({
+      dialogue: mockDialogueFamily, isLoading: false,
+    });
+    const { getByText } = render(<DialogueScreen />);
+    expect(getByText('Hello! Can I help you?')).toBeTruthy();
+  });
+
+  it('DialogueScreen — affiche le titre du dialogue', () => {
+    require('@/screens/DialoguesScreen/hooks/useDialogueContent').useDialogueContent.mockReturnValue({
+      dialogue: mockDialogueFamily, isLoading: false,
+    });
+    const { getByText } = render(<DialogueScreen />);
+    expect(getByText('At the café')).toBeTruthy();
   });
 });

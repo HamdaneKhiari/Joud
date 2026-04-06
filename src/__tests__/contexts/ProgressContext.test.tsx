@@ -395,4 +395,78 @@ describe('ProgressContext', () => {
       expect(result.current.progress?.level3?.reading?.['999']?.completed).toBe(6);
     });
   });
+
+  describe('getLastActivity', () => {
+    it('retourne null si aucune donnée pour le niveau', async () => {
+      setupUser(makeDb());
+      const { result } = renderHook(() => useProgress(), { wrapper });
+      await act(flushPromises);
+      expect(result.current.getLastActivity(99, 'vocab')).toBeNull();
+    });
+
+    it('retourne la famille la plus récemment révisée', async () => {
+      const now = Date.now();
+      const progressData = {
+        level1: {
+          vocab: {
+            '5': { completed: 3, total: 5, lastReviewed: now - 1000 },
+            '6': { completed: 5, total: 5, lastReviewed: now },
+          }
+        }
+      };
+      AsyncStorage.setItem('JOUD_PROGRESS_user_01', JSON.stringify(progressData));
+      setupUser(makeDb());
+      const { result } = renderHook(() => useProgress(), { wrapper });
+      await act(flushPromises);
+      const activity = result.current.getLastActivity(1, 'vocab');
+      expect(activity?.familyId).toBe('6');
+      expect(activity?.progress).toBe(100);
+    });
+
+    it('retourne null si aucune famille avec lastReviewed', async () => {
+      const progressData = {
+        level1: { vocab: { '5': { completed: 2, total: 5 } } }
+      };
+      AsyncStorage.setItem('JOUD_PROGRESS_user_01', JSON.stringify(progressData));
+      setupUser(makeDb());
+      const { result } = renderHook(() => useProgress(), { wrapper });
+      await act(flushPromises);
+      expect(result.current.getLastActivity(1, 'vocab')).toBeNull();
+    });
+  });
+
+  describe('getRecommendedModule', () => {
+    it('retourne null si aucune donnée pour le niveau', async () => {
+      setupUser(makeDb());
+      const { result } = renderHook(() => useProgress(), { wrapper });
+      await act(flushPromises);
+      expect(result.current.getRecommendedModule(99)).toBeNull();
+    });
+
+    it('retourne le module le plus récent', async () => {
+      const now = Date.now();
+      const progressData = {
+        level1: {
+          vocab:   { '5': { completed: 3, total: 5, lastReviewed: now - 5000 } },
+          grammar: { '7': { completed: 1, total: 8, lastReviewed: now } },
+        }
+      };
+      AsyncStorage.setItem('JOUD_PROGRESS_user_01', JSON.stringify(progressData));
+      setupUser(makeDb());
+      const { result } = renderHook(() => useProgress(), { wrapper });
+      await act(flushPromises);
+      const recommended = result.current.getRecommendedModule(1);
+      expect(recommended?.exerciseType).toBe('grammar');
+    });
+  });
+
+  describe('getRevisionFamilies', () => {
+    it('retourne un tableau vide si aucune progression', async () => {
+      setupUser(makeDb());
+      const { result } = renderHook(() => useProgress(), { wrapper });
+      await act(flushPromises);
+      const families = result.current.getRevisionFamilies(1);
+      expect(Array.isArray(families)).toBe(true);
+    });
+  });
 });

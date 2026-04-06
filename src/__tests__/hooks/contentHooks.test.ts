@@ -1,0 +1,187 @@
+/**
+ * Tests: useGrammarContent + useConnectorContent + useRevisions
+ * DB content loaders — même pattern : guard db + query + setLoading.
+ */
+
+import { renderHook, act } from '@testing-library/react-native';
+
+jest.mock('@/utils/logUtils', () => ({
+  log: { error: jest.fn(), warn: jest.fn(), info: jest.fn() },
+}));
+jest.mock('@/contexts/UserContext', () => ({ useUser: jest.fn() }));
+jest.mock('@/database/queries', () => ({ getWordsToReview: jest.fn() }));
+
+const flushPromises = () => new Promise<void>(resolve => setTimeout(resolve, 0));
+
+// ──────────────────────────────────────────────
+// useGrammarContent
+// ──────────────────────────────────────────────
+
+describe('useGrammarContent', () => {
+  const makeDb = (family: object | null, rows: object[]) => ({
+    getFirstAsync: jest.fn().mockResolvedValue(family),
+    getAllAsync: jest.fn().mockResolvedValue(rows),
+  });
+
+  it('db=null → loading=false, grammarFamily=null', async () => {
+    const { useGrammarContent } = require('@/screens/GrammarScreen/hooks/useGrammarContent');
+    const { result } = renderHook(() => useGrammarContent(null, 'f1', 1));
+    await act(async () => { await flushPromises(); });
+    expect(result.current.loading).toBe(false);
+    expect(result.current.grammarFamily).toBeNull();
+  });
+
+  it('familyId vide → loading=false', async () => {
+    const { useGrammarContent } = require('@/screens/GrammarScreen/hooks/useGrammarContent');
+    const db = makeDb({ name: 'Test' }, []);
+    const { result } = renderHook(() => useGrammarContent(db, '', 1));
+    await act(async () => { await flushPromises(); });
+    expect(result.current.loading).toBe(false);
+  });
+
+  it('charge et mappe les règles de grammaire', async () => {
+    const { useGrammarContent } = require('@/screens/GrammarScreen/hooks/useGrammarContent');
+    const db = makeDb(
+      { name: 'Present Tense', icon: '📝' },
+      [{
+        id: 1,
+        data: JSON.stringify({
+          rule_title: 'Simple Present',
+          explanation: 'Used for habits.',
+          simplified: 'S + V',
+          examples: ['I eat.', 'She runs.'],
+          exercises: [{ question: 'Fill in:', correct_answer: 'eat', options: ['eat', 'ate'] }],
+        }),
+      }]
+    );
+    const { result } = renderHook(() => useGrammarContent(db, 'f1', 1));
+    await act(async () => { await flushPromises(); });
+    expect(result.current.loading).toBe(false);
+    expect(result.current.grammarFamily?.title).toBe('Present Tense');
+    expect(result.current.grammarFamily?.rules).toHaveLength(1);
+    expect(result.current.grammarFamily?.rules[0].title).toBe('Simple Present');
+    expect(result.current.grammarFamily?.rules[0].examples).toEqual(['I eat.', 'She runs.']);
+  });
+
+  it('famille DB null → title vide', async () => {
+    const { useGrammarContent } = require('@/screens/GrammarScreen/hooks/useGrammarContent');
+    const db = makeDb(null, []);
+    const { result } = renderHook(() => useGrammarContent(db, 'f1', 1));
+    await act(async () => { await flushPromises(); });
+    expect(result.current.grammarFamily?.title).toBe('');
+  });
+
+  it('erreur DB → loading=false, grammarFamily=null', async () => {
+    const { useGrammarContent } = require('@/screens/GrammarScreen/hooks/useGrammarContent');
+    const db = { getFirstAsync: jest.fn().mockRejectedValue(new Error('DB crash')), getAllAsync: jest.fn() };
+    const { result } = renderHook(() => useGrammarContent(db, 'f1', 1));
+    await act(async () => { await flushPromises(); });
+    expect(result.current.loading).toBe(false);
+  });
+});
+
+// ──────────────────────────────────────────────
+// useConnectorContent
+// ──────────────────────────────────────────────
+
+describe('useConnectorContent', () => {
+  it('db=null → loading=false, questions=[]', async () => {
+    const { useConnectorContent } = require('@/screens/ConnectorScreen/hooks/useConnectorContent');
+    const { result } = renderHook(() => useConnectorContent(null, 1, 1));
+    await act(async () => { await flushPromises(); });
+    expect(result.current.loading).toBe(false);
+    expect(result.current.questions).toEqual([]);
+  });
+
+  it('familyId undefined → loading=false', async () => {
+    const { useConnectorContent } = require('@/screens/ConnectorScreen/hooks/useConnectorContent');
+    const db = { getAllAsync: jest.fn() };
+    const { result } = renderHook(() => useConnectorContent(db, undefined, 1));
+    await act(async () => { await flushPromises(); });
+    expect(result.current.loading).toBe(false);
+    expect(db.getAllAsync).not.toHaveBeenCalled();
+  });
+
+  it('charge et parse les questions', async () => {
+    const { useConnectorContent } = require('@/screens/ConnectorScreen/hooks/useConnectorContent');
+    const rows = [
+      { id: 1, content_type: 'logic', data: JSON.stringify({ sentence: 'She studies ... she wants to pass.', connector: 'because' }) },
+      { id: 2, content_type: 'fusion', data: JSON.stringify({ sentence1: 'I like coffee.', sentence2: 'It is hot.' }) },
+    ];
+    const db = { getAllAsync: jest.fn().mockResolvedValue(rows) };
+    const { result } = renderHook(() => useConnectorContent(db, 1, 1));
+    await act(async () => { await flushPromises(); });
+    expect(result.current.questions).toHaveLength(2);
+    expect(result.current.questions[0].type).toBe('logic');
+    expect(result.current.questions[1].type).toBe('fusion');
+  });
+
+  it('résultat DB vide → questions=[]', async () => {
+    const { useConnectorContent } = require('@/screens/ConnectorScreen/hooks/useConnectorContent');
+    const db = { getAllAsync: jest.fn().mockResolvedValue([]) };
+    const { result } = renderHook(() => useConnectorContent(db, 1, 1));
+    await act(async () => { await flushPromises(); });
+    expect(result.current.questions).toEqual([]);
+  });
+
+  it('erreur DB → loading=false', async () => {
+    const { useConnectorContent } = require('@/screens/ConnectorScreen/hooks/useConnectorContent');
+    const db = { getAllAsync: jest.fn().mockRejectedValue(new Error('fail')) };
+    const { result } = renderHook(() => useConnectorContent(db, 1, 1));
+    await act(async () => { await flushPromises(); });
+    expect(result.current.loading).toBe(false);
+  });
+});
+
+// ──────────────────────────────────────────────
+// useRevisions
+// ──────────────────────────────────────────────
+
+describe('useRevisions', () => {
+  const { useUser } = require('@/contexts/UserContext');
+  const { getWordsToReview } = require('@/database/queries');
+
+  const mockDb = { getAllAsync: jest.fn(), getFirstAsync: jest.fn() };
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('db=null → isLoading=false, wordsToReview=0', async () => {
+    useUser.mockReturnValue({ db: null, user: null });
+    const { useRevisions } = require('@/hooks/dashboard/useRevisions');
+    const { result } = renderHook(() => useRevisions());
+    await act(async () => { await flushPromises(); });
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.wordsToReview).toBe(0);
+  });
+
+  it('charge le nombre de mots à réviser', async () => {
+    useUser.mockReturnValue({ db: mockDb, user: { id: 1 } });
+    (getWordsToReview as jest.Mock).mockResolvedValue(7);
+    const { useRevisions } = require('@/hooks/dashboard/useRevisions');
+    const { result } = renderHook(() => useRevisions());
+    await act(async () => { await flushPromises(); });
+    expect(result.current.wordsToReview).toBe(7);
+    expect(result.current.isLoading).toBe(false);
+  });
+
+  it('erreur DB → wordsToReview=0', async () => {
+    useUser.mockReturnValue({ db: mockDb, user: { id: 1 } });
+    (getWordsToReview as jest.Mock).mockRejectedValue(new Error('DB fail'));
+    const { useRevisions } = require('@/hooks/dashboard/useRevisions');
+    const { result } = renderHook(() => useRevisions());
+    await act(async () => { await flushPromises(); });
+    expect(result.current.wordsToReview).toBe(0);
+    expect(result.current.isLoading).toBe(false);
+  });
+
+  it('refresh() re-déclenche le fetch', async () => {
+    useUser.mockReturnValue({ db: mockDb, user: { id: 1 } });
+    (getWordsToReview as jest.Mock).mockResolvedValueOnce(3).mockResolvedValueOnce(8);
+    const { useRevisions } = require('@/hooks/dashboard/useRevisions');
+    const { result } = renderHook(() => useRevisions());
+    await act(async () => { await flushPromises(); });
+    expect(result.current.wordsToReview).toBe(3);
+    await act(async () => { result.current.refresh(); await flushPromises(); });
+    expect(result.current.wordsToReview).toBe(8);
+  });
+});

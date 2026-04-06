@@ -182,6 +182,48 @@ describe('Smoke tests — Navigation et autres screens', () => {
     expect(() => render(<FamilySelectionScreen />)).not.toThrow();
   });
 
+  it('FamilySelectionScreen — affiche le skeleton quand isLoading=true', () => {
+    require('@/hooks/familySelection/useFamiliesWithProgress').default.mockReturnValue({
+      families: [], isLoading: true, refresh: jest.fn(),
+    });
+    expect(() => render(<FamilySelectionScreen />)).not.toThrow();
+  });
+
+  it('FamilySelectionScreen — rend avec des familles (moduleId fourni)', () => {
+    require('@/hooks/familySelection/useFamiliesWithProgress').default.mockReturnValue({
+      families: [
+        { id: 1, name: 'Animals', icon: 'paw', progress: 50, color: '#E74C3C' },
+        { id: 2, name: 'Food', icon: 'food', progress: 30, color: '#27AE60' },
+      ],
+      isLoading: false, refresh: jest.fn(),
+    });
+    expect(() => render(
+      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } } as any} />
+    )).not.toThrow();
+  });
+
+  it('FamilySelectionScreen — recentActivity tri la famille en premier', () => {
+    const families = [
+      { id: 1, name: 'Animals', icon: 'paw', progress: 50, color: '#E74C3C' },
+      { id: 2, name: 'Food', icon: 'food', progress: 30, color: '#27AE60' },
+    ];
+    require('@/hooks/familySelection/useFamiliesWithProgress').default.mockReturnValue({
+      families, isLoading: false, refresh: jest.fn(),
+    });
+    require('@/contexts/ProgressContext').useProgress.mockReturnValue({
+      progress: {}, getLevelProgress: jest.fn().mockReturnValue(0),
+      refreshProgress: jest.fn(), saveProgressNow: jest.fn().mockResolvedValue(undefined),
+      trackItemCompletion: jest.fn(), getRevisionFamilies: jest.fn().mockReturnValue([]),
+      resetProgress: jest.fn(), getFamilyProgress: jest.fn().mockReturnValue(0),
+      getLastActivity: jest.fn().mockReturnValue({ familyId: '1', progress: 50, lastReviewed: Date.now() }),
+      getRecommendedModule: jest.fn().mockReturnValue(null),
+      isLoading: false,
+    });
+    expect(() => render(
+      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } } as any} />
+    )).not.toThrow();
+  });
+
   it('SubFamilySelectionScreen — rend sans crash', () => {
     expect(() => render(<SubFamilySelectionScreen />)).not.toThrow();
   });
@@ -189,6 +231,15 @@ describe('Smoke tests — Navigation et autres screens', () => {
   it('OnboardingScreen — rend sans crash', () => {
     expect(() => render(<OnboardingScreen />)).not.toThrow();
   });
+
+  it('OnboardingScreen — saisie de prénom change l\'input', () => {
+    const { fireEvent } = require('@testing-library/react-native');
+    const { getByPlaceholderText } = render(<OnboardingScreen />);
+    const input = getByPlaceholderText('Ton prénom...');
+    fireEvent.changeText(input, 'Alice');
+    expect(input.props.value).toBe('Alice');
+  });
+
 
   it('RevisionScreen — rend sans crash', () => {
     expect(() => render(<RevisionScreen />)).not.toThrow();

@@ -22,6 +22,25 @@ import {
   isModuleAvailable,
   getModulesByAudience,
   getModuleBySlug,
+  getFamiliesByModuleAndLevel,
+  getContentByFamilyAndLevel,
+  getBrandingById,
+  getRecentActivity,
+  getFeedbackMessage,
+  getFeedbackMessagesByContext,
+  getDailyWord,
+  getUserBadges,
+  getWordsToReview,
+  getUserMetrics,
+  updateUserMetrics,
+  getDailyReviewWords,
+  getSpacedReviewWords,
+  addWordToSRS,
+  updateSpacedRepetitionResult,
+  getSpacedReviewCount,
+  calculateUserMetrics,
+  insertFamily,
+  insertContent,
 } from '@/database/queries';
 
 // ============================================
@@ -494,5 +513,409 @@ describe('getModuleBySlug', () => {
 
     const result = await getModuleBySlug(db, 'nonexistent');
     expect(result).toBeNull();
+  });
+});
+
+// ============================================
+// getFamiliesByModuleAndLevel
+// ============================================
+
+describe('getFamiliesByModuleAndLevel', () => {
+  it('appelle getAllAsync avec le bon module slug et level', async () => {
+    (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
+    await getFamiliesByModuleAndLevel(db, 'vocab', 2);
+    expect(db.getAllAsync).toHaveBeenCalledWith(
+      expect.stringContaining('module_slug = ? AND c.level = ?'),
+      ['vocab', 2]
+    );
+  });
+});
+
+// ============================================
+// getContentByFamilyAndLevel
+// ============================================
+
+describe('getContentByFamilyAndLevel', () => {
+  it('sans audience → query simple', async () => {
+    (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
+    await getContentByFamilyAndLevel(db, 1, 1);
+    expect(db.getAllAsync).toHaveBeenCalledWith(
+      expect.stringContaining('family_id = ? AND level = ?'),
+      [1, 1]
+    );
+  });
+
+  it('avec audience → filtre target_audience', async () => {
+    (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
+    await getContentByFamilyAndLevel(db, 1, 1, 'adult');
+    expect(db.getAllAsync).toHaveBeenCalledWith(
+      expect.stringContaining('target_audience'),
+      [1, 1, 'adult']
+    );
+  });
+});
+
+// ============================================
+// getBrandingById
+// ============================================
+
+describe('getBrandingById', () => {
+  it('retourne le branding correspondant', async () => {
+    const brand = { id: 'jana', primary_color: '#1F6FEB' };
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(brand);
+    const result = await getBrandingById(db, 'jana');
+    expect(result).toEqual(brand);
+  });
+
+  it('retourne null si erreur DB', async () => {
+    (db.getFirstAsync as jest.Mock).mockRejectedValueOnce(new Error('not ready'));
+    const result = await getBrandingById(db, 'jana');
+    expect(result).toBeNull();
+  });
+});
+
+// ============================================
+// getRecentActivity
+// ============================================
+
+describe('getRecentActivity', () => {
+  it('utilise la limite par défaut 10', async () => {
+    (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
+    await getRecentActivity(db);
+    expect(db.getAllAsync).toHaveBeenCalledWith(
+      expect.stringContaining('LIMIT ?'),
+      [10]
+    );
+  });
+
+  it('utilise la limite personnalisée', async () => {
+    (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
+    await getRecentActivity(db, 5);
+    expect(db.getAllAsync).toHaveBeenCalledWith(expect.any(String), [5]);
+  });
+});
+
+// ============================================
+// getFeedbackMessage / getFeedbackMessagesByContext
+// ============================================
+
+describe('getFeedbackMessage', () => {
+  it('requête avec identityId, context, state', async () => {
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(null);
+    await getFeedbackMessage(db, 'jana', 'exercise', 'correct');
+    expect(db.getFirstAsync).toHaveBeenCalledWith(
+      expect.stringContaining('feedback_messages'),
+      ['jana', 'exercise', 'correct']
+    );
+  });
+});
+
+describe('getFeedbackMessagesByContext', () => {
+  it('retourne tous les feedbacks pour un contexte', async () => {
+    (db.getAllAsync as jest.Mock).mockResolvedValueOnce([{ id: 1 }]);
+    const result = await getFeedbackMessagesByContext(db, 'jana', 'exercise');
+    expect(result).toHaveLength(1);
+  });
+});
+
+// ============================================
+// getDailyWord
+// ============================================
+
+describe('getDailyWord', () => {
+  it('retourne un mot parsé depuis les données JSON', async () => {
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce({
+      data: JSON.stringify({ word: 'apple', translation: 'pomme' }),
+    });
+    const result = await getDailyWord(db, 'jana');
+    expect(result).toEqual({ english: 'apple', french: 'pomme' });
+  });
+
+  it('fallback si première query retourne null', async () => {
+    (db.getFirstAsync as jest.Mock)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ data: JSON.stringify({ word: 'cat', translation: 'chat' }) });
+    const result = await getDailyWord(db, 'jana');
+    expect(result).toEqual({ english: 'cat', french: 'chat' });
+  });
+
+  it('retourne null si aucun mot trouvé', async () => {
+    (db.getFirstAsync as jest.Mock).mockResolvedValue(null);
+    const result = await getDailyWord(db, 'jana');
+    expect(result).toBeNull();
+  });
+});
+
+// ============================================
+// getUserBadges
+// ============================================
+
+describe('getUserBadges', () => {
+  it('retourne les badges de l\'utilisateur', async () => {
+    const badges = [{ id: 1, user_id: 'u1', badge_type: 'streak_7' }];
+    (db.getAllAsync as jest.Mock).mockResolvedValueOnce(badges);
+    const result = await getUserBadges(db, 'u1');
+    expect(result).toEqual(badges);
+  });
+});
+
+// ============================================
+// getWordsToReview / getSpacedReviewCount
+// ============================================
+
+describe('getWordsToReview', () => {
+  it('retourne le nombre de mots à réviser', async () => {
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce({ count: 5 });
+    const result = await getWordsToReview(db, 'u1');
+    expect(result).toBe(5);
+  });
+
+  it('retourne 0 si aucun résultat', async () => {
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(null);
+    const result = await getWordsToReview(db, 'u1');
+    expect(result).toBe(0);
+  });
+});
+
+describe('getSpacedReviewCount', () => {
+  it('délègue à getWordsToReview', async () => {
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce({ count: 3 });
+    const result = await getSpacedReviewCount(db, 'u1');
+    expect(result).toBe(3);
+  });
+});
+
+// ============================================
+// getUserMetrics / updateUserMetrics
+// ============================================
+
+describe('getUserMetrics', () => {
+  it('retourne les métriques existantes', async () => {
+    const metrics = { user_id: 'u1', words_learned: 10, exercises_completed: 5, current_streak: 3, longest_streak: 7, total_time_minutes: 20 };
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(metrics);
+    const result = await getUserMetrics(db, 'u1');
+    expect(result.words_learned).toBe(10);
+  });
+
+  it('crée les métriques si absentes', async () => {
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(null);
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
+    const result = await getUserMetrics(db, 'u1');
+    expect(db.runAsync).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO user_metrics'), expect.any(Array));
+    expect(result.words_learned).toBe(0);
+  });
+});
+
+describe('updateUserMetrics', () => {
+  it('ne fait rien si pas de champs à mettre à jour', async () => {
+    await updateUserMetrics(db, 'u1', {});
+    expect(db.runAsync).not.toHaveBeenCalled();
+  });
+
+  it('appelle runAsync avec les bons champs', async () => {
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
+    await updateUserMetrics(db, 'u1', { words_learned: 15 });
+    expect(db.runAsync).toHaveBeenCalledWith(
+      expect.stringContaining('words_learned = ?'),
+      expect.arrayContaining([15])
+    );
+  });
+});
+
+// ============================================
+// getDailyReviewWords / getSpacedReviewWords
+// ============================================
+
+describe('getDailyReviewWords', () => {
+  it('utilise la limite selon l\'audience', async () => {
+    (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
+    await getDailyReviewWords(db, 'u1', 'lycee', 2);
+    expect(db.getAllAsync).toHaveBeenCalledWith(
+      expect.stringContaining('LIMIT ?'),
+      expect.arrayContaining([15])
+    );
+  });
+});
+
+describe('getSpacedReviewWords', () => {
+  it('sans audience → query de base', async () => {
+    (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
+    await getSpacedReviewWords(db, 'u1');
+    expect(db.getAllAsync).toHaveBeenCalledWith(
+      expect.stringContaining('spaced_repetition'),
+      expect.arrayContaining(['u1'])
+    );
+  });
+
+  it('avec audience → filtre target_audience', async () => {
+    (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
+    await getSpacedReviewWords(db, 'u1', 'adult');
+    expect(db.getAllAsync).toHaveBeenCalledWith(
+      expect.stringContaining('target_audience'),
+      expect.arrayContaining(['u1', 'adult'])
+    );
+  });
+});
+
+// ============================================
+// addWordToSRS / updateSpacedRepetitionResult
+// ============================================
+
+describe('addWordToSRS', () => {
+  it('insère le mot dans spaced_repetition', async () => {
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
+    await addWordToSRS(db, 'u1', 42);
+    expect(db.runAsync).toHaveBeenCalledWith(
+      expect.stringContaining('INSERT OR IGNORE INTO spaced_repetition'),
+      expect.arrayContaining(['u1', 42])
+    );
+  });
+});
+
+describe('updateSpacedRepetitionResult', () => {
+  it('si absent du SRS → appelle addWordToSRS', async () => {
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(null);
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
+    await updateSpacedRepetitionResult(db, 'u1', 42, true);
+    expect(db.runAsync).toHaveBeenCalledWith(
+      expect.stringContaining('INSERT OR IGNORE INTO spaced_repetition'),
+      expect.any(Array)
+    );
+  });
+
+  it('réponse correcte → augmente ease_factor, calcule intervalle', async () => {
+    const current = { user_id: 'u1', content_id: 42, ease_factor: 2.5, review_count: 2, correct_count: 2 };
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(current);
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
+    await updateSpacedRepetitionResult(db, 'u1', 42, true);
+    const [, params] = (db.runAsync as jest.Mock).mock.calls[0];
+    const newEaseFactor = params[0];
+    expect(newEaseFactor).toBeGreaterThan(2.5);
+  });
+
+  it('réponse incorrecte → diminue ease_factor, intervalle=1', async () => {
+    const current = { user_id: 'u1', content_id: 42, ease_factor: 2.5, review_count: 3, correct_count: 2 };
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(current);
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
+    await updateSpacedRepetitionResult(db, 'u1', 42, false);
+    const [, params] = (db.runAsync as jest.Mock).mock.calls[0];
+    const newEaseFactor = params[0];
+    expect(newEaseFactor).toBeLessThan(2.5);
+  });
+
+  it('review_count=0 (premier révision correcte) → intervalle=1', async () => {
+    const current = { user_id: 'u1', content_id: 5, ease_factor: 2.5, review_count: 0, correct_count: 0 };
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(current);
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
+    await updateSpacedRepetitionResult(db, 'u1', 5, true);
+    expect(db.runAsync).toHaveBeenCalled();
+  });
+
+  it('review_count=1 (deuxième révision correcte) → intervalle=3', async () => {
+    const current = { user_id: 'u1', content_id: 6, ease_factor: 2.5, review_count: 1, correct_count: 1 };
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(current);
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
+    await updateSpacedRepetitionResult(db, 'u1', 6, true);
+    expect(db.runAsync).toHaveBeenCalled();
+  });
+});
+
+// ============================================
+// insertFamily / insertContent
+// ============================================
+
+describe('insertFamily', () => {
+  it('insère une famille dans la table families', async () => {
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
+    await insertFamily(db, { module_slug: 'vocab', name: 'Animals', icon: 'paw', emoji: '🐾', description: 'Animals vocabulary', order_index: 1 });
+    expect(db.runAsync).toHaveBeenCalledWith(
+      expect.stringContaining('INSERT INTO families'),
+      expect.arrayContaining(['vocab', 'Animals'])
+    );
+  });
+});
+
+describe('insertContent', () => {
+  it('insère du contenu dans la table content', async () => {
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
+    await insertContent(db, { family_id: 1, level: 1, content_type: 'word', data: '{"word":"cat"}', difficulty: 1, tags: null, target_audience: 'all' });
+    expect(db.runAsync).toHaveBeenCalledWith(
+      expect.stringContaining('INSERT INTO content'),
+      expect.arrayContaining([1, 1, 'word'])
+    );
+  });
+});
+
+// ============================================
+// calculateUserMetrics
+// ============================================
+
+describe('calculateUserMetrics', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('calcule les métriques depuis DB avec activité', async () => {
+    // words count
+    (db.getFirstAsync as jest.Mock)
+      .mockResolvedValueOnce({ count: 15 })         // wordsResult
+      .mockResolvedValueOnce({ total: 30 })          // exercisesResult
+      .mockResolvedValueOnce({ count: 10 })          // activityCount
+      .mockResolvedValueOnce(null);                  // getUserMetrics create branch
+    // streak days
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    (db.getAllAsync as jest.Mock).mockResolvedValueOnce([{ day: today }, { day: yesterday }]);
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined); // updateUserMetrics
+
+    const result = await calculateUserMetrics(db, 'u1');
+    expect(result.words_learned).toBe(15);
+    expect(result.exercises_completed).toBe(30);
+    expect(result.total_time_minutes).toBe(20); // 10 * 2
+    expect(result.current_streak).toBeGreaterThanOrEqual(1);
+  });
+
+  it('streak=0 quand dernier jour > 1 jour', async () => {
+    (db.getFirstAsync as jest.Mock)
+      .mockResolvedValueOnce({ count: 0 })
+      .mockResolvedValueOnce({ total: 0 })
+      .mockResolvedValueOnce({ count: 0 })
+      .mockResolvedValueOnce({ user_id: 'u1', words_learned: 0, exercises_completed: 0, current_streak: 0, longest_streak: 0, total_time_minutes: 0 });
+    // Pas d'activité récente — 5 jours en arrière
+    const oldDay = new Date(Date.now() - 5 * 86400000).toISOString().split('T')[0];
+    (db.getAllAsync as jest.Mock).mockResolvedValueOnce([{ day: oldDay }]);
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
+
+    const result = await calculateUserMetrics(db, 'u1');
+    expect(result.current_streak).toBe(0);
+  });
+
+  it('aucune activité → streak=0, total_time=0', async () => {
+    (db.getFirstAsync as jest.Mock)
+      .mockResolvedValueOnce({ count: 0 })
+      .mockResolvedValueOnce({ total: null })
+      .mockResolvedValueOnce({ count: 0 })
+      .mockResolvedValueOnce({ user_id: 'u1', words_learned: 0, exercises_completed: 0, current_streak: 0, longest_streak: 0, total_time_minutes: 0 });
+    (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
+
+    const result = await calculateUserMetrics(db, 'u1');
+    expect(result.current_streak).toBe(0);
+    expect(result.total_time_minutes).toBe(0);
+  });
+
+  it('streak consécutif sur plusieurs jours → longestStreak calculé', async () => {
+    (db.getFirstAsync as jest.Mock)
+      .mockResolvedValueOnce({ count: 5 })
+      .mockResolvedValueOnce({ total: 10 })
+      .mockResolvedValueOnce({ count: 3 })
+      .mockResolvedValueOnce({ user_id: 'u1', words_learned: 0, exercises_completed: 0, current_streak: 0, longest_streak: 0, total_time_minutes: 0 });
+    const days = Array.from({ length: 3 }, (_, i) => ({
+      day: new Date(Date.now() - i * 86400000).toISOString().split('T')[0]
+    }));
+    (db.getAllAsync as jest.Mock).mockResolvedValueOnce(days);
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
+
+    const result = await calculateUserMetrics(db, 'u1');
+    expect(result.current_streak).toBeGreaterThanOrEqual(2);
+    expect(result.longest_streak).toBeGreaterThanOrEqual(result.current_streak);
   });
 });
