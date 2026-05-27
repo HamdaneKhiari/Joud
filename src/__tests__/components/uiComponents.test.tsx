@@ -28,6 +28,10 @@ import ExerciseDecorative from '@/components/layout/ExerciseHeader/components/Ex
 import ConnectorCardRenderer from '@/components/pedagogy/Connector/ConnectorCardRenderer';
 import SummaryPhase from '@/screens/RevisionScreen/components/SummaryPhase';
 import CompletionModal from '@/components/common/CompletionModal';
+import DashboardCard from '@/screens/Dashboard/components/DashboardCard';
+import { InfoBox } from '@/screens/components/InfoBox';
+import RephrasingCard from '@/components/pedagogy/Connector/RephrasingCard';
+import SentenceFusionCard from '@/components/pedagogy/Connector/SentenceFusionCard';
 
 // ============================================
 // Fixture
@@ -206,5 +210,180 @@ describe('CompletionModal', () => {
   it('affiche le titre quand visible=true', () => {
     const { getByText } = render(<CompletionModal visible={true} onDone={jest.fn()} title="Lesson done!" />);
     expect(getByText('Lesson done!')).toBeTruthy();
+  });
+});
+
+// ============================================
+// DashboardCard
+// ============================================
+
+describe('DashboardCard', () => {
+  beforeEach(() => { jest.clearAllMocks(); setupMocks(); });
+
+  it('rend sans crash', () => {
+    expect(() => render(<DashboardCard icon="📚" title="Vocab" variantColor="primary" />)).not.toThrow();
+  });
+
+  it('affiche le titre', () => {
+    const { getByText } = render(<DashboardCard icon="📚" title="Mon module" variantColor="primary" />);
+    expect(getByText('Mon module')).toBeTruthy();
+  });
+
+  it('affiche le subtitle si fourni', () => {
+    const { getByText } = render(<DashboardCard icon="🎯" title="T" subtitle="Sous-titre" variantColor="accent" />);
+    expect(getByText('Sous-titre')).toBeTruthy();
+  });
+
+  it('affiche le buttonText si fourni', () => {
+    const { getByText } = render(<DashboardCard icon="⭐" title="T" buttonText="Commencer" variantColor="primary" onPress={jest.fn()} />);
+    expect(getByText('Commencer')).toBeTruthy();
+  });
+
+  it('showArrow=false → pas de flèche ➔', () => {
+    const { queryByText } = render(<DashboardCard icon="📚" title="T" variantColor="primary" onPress={jest.fn()} showArrow={false} />);
+    expect(queryByText('➔')).toBeNull();
+  });
+
+  it('rend les children', () => {
+    const { getByText } = render(
+      <DashboardCard icon="📚" title="T" variantColor="primary">
+        <></>
+      </DashboardCard>
+    );
+    expect(getByText('T')).toBeTruthy();
+  });
+});
+
+// ============================================
+// InfoBox
+// ============================================
+
+describe('InfoBox', () => {
+  it('rend sans crash', () => {
+    expect(() => render(
+      <InfoBox icon="information-circle" iconColor="#34495E" backgroundColor="#F9FAFB" borderColor="#D1D5DB" text="Test info" />
+    )).not.toThrow();
+  });
+
+  it('affiche le texte', () => {
+    const { getByText } = render(
+      <InfoBox icon="information-circle" iconColor="#34495E" backgroundColor="#F9FAFB" borderColor="#D1D5DB" text="Hello info" />
+    );
+    expect(getByText('Hello info')).toBeTruthy();
+  });
+
+  it('affiche le titre si fourni', () => {
+    const { getByText } = render(
+      <InfoBox icon="warning" iconColor="#F59E0B" backgroundColor="#FFF" borderColor="#F59E0B" title="Attention" text="Message" />
+    );
+    expect(getByText('Attention')).toBeTruthy();
+  });
+});
+
+// ============================================
+// RephrasingCard
+// ============================================
+
+describe('RephrasingCard', () => {
+  beforeEach(() => { jest.clearAllMocks(); setupMocks(); });
+
+  const baseQuestion = {
+    baseSentence: 'I am happy.', correctAnswer: 'I feel happy.',
+    instruction: 'Rephrase using "feel"', translation: 'Je suis heureux.',
+  };
+  const noop = jest.fn();
+
+  it('rend sans crash', () => {
+    expect(() => render(
+      <RephrasingCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+        onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
+    )).not.toThrow();
+  });
+
+  it('affiche la phrase originale', () => {
+    const { getByText } = render(
+      <RephrasingCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+        onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
+    );
+    expect(getByText('I am happy.')).toBeTruthy();
+  });
+
+  it('affiche l\'instruction', () => {
+    const { getByText } = render(
+      <RephrasingCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+        onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
+    );
+    expect(getByText('Rephrase using "feel"')).toBeTruthy();
+  });
+
+  it('hideValidation=true → pas de bouton Valider', () => {
+    const { queryByText } = render(
+      <RephrasingCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+        onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} hideValidation />
+    );
+    expect(queryByText('Valider')).toBeNull();
+  });
+
+  it('isValidated=true, isCorrect=false, attemptCount>=maxAttempts → affiche correctAnswer', () => {
+    const { getByText } = render(
+      <RephrasingCard question={baseQuestion as any} userAnswer="wrong" isValidated={true} isCorrect={false}
+        attemptCount={2} maxAttempts={2}
+        onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
+    );
+    expect(getByText('I feel happy.')).toBeTruthy();
+  });
+});
+
+// ============================================
+// SentenceFusionCard
+// ============================================
+
+describe('SentenceFusionCard', () => {
+  beforeEach(() => { jest.clearAllMocks(); setupMocks(); });
+
+  const baseQuestion = {
+    phrase1: 'I was tired.', phrase2: 'I went to bed.', correctAnswer: 'I was tired so I went to bed.',
+    hint: 'Use "so"', translation: 'J\'étais fatigué donc je suis allé au lit.',
+  };
+  const noop = jest.fn();
+
+  it('rend sans crash', () => {
+    expect(() => render(
+      <SentenceFusionCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+        onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
+    )).not.toThrow();
+  });
+
+  it('affiche phrase1 et phrase2', () => {
+    const { getByText } = render(
+      <SentenceFusionCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+        onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
+    );
+    expect(getByText('I was tired.')).toBeTruthy();
+    expect(getByText('I went to bed.')).toBeTruthy();
+  });
+
+  it('affiche le hint', () => {
+    const { getByText } = render(
+      <SentenceFusionCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+        onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
+    );
+    expect(getByText('Use "so"')).toBeTruthy();
+  });
+
+  it('hideValidation=true → pas de bouton', () => {
+    const { queryByText } = render(
+      <SentenceFusionCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+        onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} hideValidation />
+    );
+    expect(queryByText('Valider')).toBeNull();
+  });
+
+  it('sans hint → rend sans crash', () => {
+    const noHintQ = { ...baseQuestion, hint: undefined };
+    expect(() => render(
+      <SentenceFusionCard question={noHintQ as any} userAnswer="" isValidated={false} isCorrect={false}
+        onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
+    )).not.toThrow();
   });
 });

@@ -1,0 +1,54 @@
+name: Joud English Primary
+description: |
+  Application mobile React Native d'apprentissage de l'anglais pour
+  enfants en école primaire (niveau 'primary' dans l'architecture
+  multi-niveaux Joud Primary/College/Lycée/Adult).
+
+  Architecture data-driven : tout le contenu pédagogique (vocabulaire,
+  phrases, grammaire, dialogues, etc.) est stocké en SQLite locale.
+  Les données sources vivent en .xlsx (data_english.xlsx,
+  CORE_800_WORDS_JOUD.xlsx) et sont seedées en DB via un pipeline
+  Excel → JSON → SQLite.
+
+  Architecture JanaCore SQLite white-label.
+
+stack:
+  - React Native
+  - Expo SDK 54
+  - TypeScript strict
+  - Expo Router (app/)
+  - twrnc (Tailwind for React Native)
+  - expo-sqlite (~16.0)
+  - expo-speech (TTS)
+  - expo-av (audio)
+
+primary_language: typescript
+
+architecture: |
+  Hiérarchie : Identity → Levels → Modules → Families → Subfamilies → Content
+
+  - Identity : type d'app (primary | college | lycee | adult)
+  - Levels : 4 niveaux du Dashboard (1=Bases, 2=Essentiel, 3=Avancé, 4=Expert)
+  - Modules : types d'exercices (vocab, grammar, reading, dialogues, etc.)
+  - Families : 11 familles thématiques (FAMILLE_01 à FAMILLE_11)
+  - Subfamilies : sous-thèmes optionnels (Le Salé, Le Sucré, etc.)
+  - Content : contenu réel stocké dans la table SQLite `content`,
+    avec un champ `data` JSON dont le format est défini par data_formats.json
+
+  Le pipeline data : Excel → script JS (convert_excel_to_my_words.js,
+  convert_oxford_pdf.js) → JSON normalisé → seed SQLite via migrations_v2.
+
+  Pas de state management global. useState/useReducer/useContext local.
+  Styles via twrnc, jamais StyleSheet.create.
+
+primary_audience: primary
+
+documentation_files:
+  - data_formats.json
+  - ARCHITECTURE_DONNEES.md
+  - DATA_GUIDE.md
+  - STRUCTURE_VOCABULAIRE_800.md
+  - SENTENCES_MODES_EXAMPLES.md
+  - WHITE_LABEL_GUIDE.md
+  - GUIDE_THEMES.md
+  - TEST_PLAN.md

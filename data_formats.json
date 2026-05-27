@@ -1,0 +1,356 @@
+{
+  "_doc": "Format de référence pour le champ `data` (JSON) de la table `content`. Une ligne Excel = une ligne dans content. Utiliser ce fichier pour la macro Excel → JSON.",
+
+  "vocab": {
+    "_description": "Vocabulaire et FastVocab (même structure pour les deux)",
+    "_table_fields": {
+      "module_slug": "vocab | fastvocab",
+      "family_id": "ID de la famille (ex: 1)",
+      "subfamily_id": "ID sous-famille ou 0 si aucune",
+      "level": "Niveau 1 à 8",
+      "order_index": "Ordre dans la famille (0, 1, 2...)",
+      "target_audience": "primary | college | lycee | adult | all"
+    },
+    "data": {
+      "english": "Water",
+      "french": "Eau",
+      "emoji": "💧",
+      "example": "I drink water every day.",
+      "example_fr": "Je bois de l'eau tous les jours.",
+      "audio": null
+    },
+    "_required": ["english", "french"],
+    "_optional": ["emoji", "example", "example_fr", "audio"],
+    "_note": "Le champ `emoji` est lu aussi via `image`. `example` est optionnel mais recommandé pour lycee/adult."
+  },
+
+  "grammar": {
+    "_description": "Règles de grammaire avec explication + exercices QCM",
+    "_table_fields": {
+      "module_slug": "grammar",
+      "family_id": "ID famille grammaticale",
+      "subfamily_id": "ID sous-famille ou 0",
+      "level": "Niveau 1 à 8",
+      "order_index": "Ordre dans la famille",
+      "target_audience": "primary | college | lycee | adult | all"
+    },
+    "data": {
+      "rule_title": "Present Simple",
+      "explanation": "Le présent simple exprime une habitude ou une vérité générale.",
+      "simplified": "Tu utilises le présent simple pour dire ce que tu fais tous les jours.",
+      "examples": [
+        "I eat breakfast every day.",
+        "She works at a hospital."
+      ],
+      "exercises": [
+        {
+          "question": "He ___ to work by bus.",
+          "options": ["go", "goes", "going", "gone"],
+          "correct_answer": "goes",
+          "explanation": "Avec he/she/it, on ajoute -s ou -es au verbe."
+        },
+        {
+          "question": "They ___ football on weekends.",
+          "options": ["plays", "play", "playing", "played"],
+          "correct_answer": "play",
+          "explanation": "Avec they/we/you/I, le verbe reste à la forme de base."
+        }
+      ]
+    },
+    "_required": ["rule_title", "explanation", "examples", "exercises"],
+    "_optional": ["simplified"],
+    "_note": "exercises[] peut contenir N questions. correct_answer doit correspondre exactement à une valeur dans options[]."
+  },
+
+  "phrase_types": {
+    "_description": "Phrases à compléter (blanks pour primary) ou à construire (free pour college+)",
+    "_variants": {
+      "blanks": {
+        "_for_audience": "primary",
+        "_table_fields": {
+          "module_slug": "phrase_types",
+          "target_audience": "primary"
+        },
+        "data": {
+          "sentence": "I ___ a pizza, please.",
+          "options": ["would like", "want", "need", "take"],
+          "correct_answer": "would like",
+          "translation": "Je voudrais une pizza, s'il vous plaît.",
+          "image": "🍕",
+          "explanation": "'Would like' est la formule polie pour commander."
+        },
+        "_required": ["sentence", "options", "correct_answer", "translation"],
+        "_optional": ["image", "explanation"],
+        "_note": "sentence doit contenir ___ (3 underscores) à l'endroit du trou."
+      },
+      "free": {
+        "_for_audience": "college | lycee | adult",
+        "_table_fields": {
+          "module_slug": "phrase_types",
+          "target_audience": "college | lycee | adult"
+        },
+        "data": {
+          "phrase_en": "I would like a table for two.",
+          "phrase_fr": "Je voudrais une table pour deux.",
+          "build": "Sujet (I) + Modal (would like) + Objet (a table) + Complément (for two)",
+          "audio": null
+        },
+        "_required": ["phrase_en", "phrase_fr"],
+        "_optional": ["build", "audio"],
+        "_note": "build est le guide de construction de la phrase, très utile pour lycee/adult."
+      }
+    }
+  },
+
+  "dialogues": {
+    "_description": "Dialogue avec questions de compréhension",
+    "_table_fields": {
+      "module_slug": "dialogues",
+      "family_id": "ID famille (un dialogue = une famille)",
+      "subfamily_id": "0 (pas de sous-famille)",
+      "level": "Niveau 1 à 8",
+      "order_index": "0 (généralement 1 seul item par famille)",
+      "target_audience": "primary | college | lycee | adult | all"
+    },
+    "data": {
+      "title": "Ordering Food",
+      "icon": "🍽️",
+      "messages": [
+        { "speaker": "Waiter", "text": "Good evening! Are you ready to order?" },
+        { "speaker": "Customer", "text": "Yes, I would like the chicken salad, please." },
+        { "speaker": "Waiter", "text": "Anything to drink?" },
+        { "speaker": "Customer", "text": "Just water, thank you." }
+      ],
+      "characters": [
+        { "name": "Waiter", "color": "#4CAF50" },
+        { "name": "Customer", "color": "#2196F3" }
+      ],
+      "questions": [
+        {
+          "question": "What did the customer order?",
+          "options": ["Pizza", "Chicken salad", "Soup", "Steak"],
+          "correct_answer": "Chicken salad"
+        },
+        {
+          "question": "What does the customer want to drink?",
+          "options": ["Juice", "Coffee", "Water", "Wine"],
+          "correct_answer": "Water"
+        }
+      ]
+    },
+    "_required": ["title", "messages", "questions"],
+    "_optional": ["icon", "characters"],
+    "_note": "messages[] : speaker est le nom du personnage, text est sa réplique. questions[] : correct_answer doit être une string correspondant à une valeur dans options[]."
+  },
+
+  "reading": {
+    "_description": "Passage de lecture avec questions de compréhension. 1 ligne = 1 question sur un passage.",
+    "_table_fields": {
+      "module_slug": "reading",
+      "family_id": "ID famille (même famille pour toutes les questions d'un même texte)",
+      "order_index": "0, 1, 2... (ordre des questions)",
+      "target_audience": "primary | college | lycee | adult | all"
+    },
+    "data": {
+      "title": "A Day at the Beach",
+      "passage": "Last summer, my family and I went to the beach. We built sandcastles and swam in the ocean. My sister found a beautiful shell. We ate ice cream and watched the sunset. It was a perfect day.",
+      "question_text": "What did they build at the beach?",
+      "options": ["Sandcastles", "Houses", "Boats", "Towers"],
+      "correct_answer": "Sandcastles",
+      "image": "🏖️"
+    },
+    "_required": ["passage", "question_text", "options", "correct_answer"],
+    "_optional": ["title", "image"],
+    "_note": "Pour un même passage avec N questions, répéter le même passage dans N lignes avec order_index 0..N-1. Le champ title n'est affiché que pour la première question (order_index=0)."
+  },
+
+  "connector": {
+    "_description": "Exercices de connecteurs logiques (3 types possibles)",
+    "_table_fields": {
+      "module_slug": "connector",
+      "content_type": "logic | fusion | rephrasing (détermine le type d'exercice)"
+    },
+    "_variants": {
+      "logic": {
+        "_description": "Choisir le bon connecteur pour compléter une phrase",
+        "data": {
+          "sentence": "I was tired ___ I went to bed early.",
+          "options": ["so", "but", "because", "although"],
+          "correct_answer": "so",
+          "explanation": "'So' introduit une conséquence."
+        },
+        "_required": ["sentence", "options", "correct_answer"],
+        "_optional": ["explanation"],
+        "_note": "sentence doit contenir ___ à l'endroit du connecteur."
+      },
+      "fusion": {
+        "_description": "Fusionner deux phrases en une avec un connecteur",
+        "data": {
+          "sentence1": "It was raining.",
+          "sentence2": "We stayed inside.",
+          "correct_answer": "It was raining, so we stayed inside.",
+          "options": [
+            "It was raining, so we stayed inside.",
+            "It was raining but we stayed inside.",
+            "It was raining because we stayed inside.",
+            "It was raining although we stayed inside."
+          ],
+          "explanation": "'So' exprime la conséquence : la pluie a causé le fait de rester à l'intérieur."
+        },
+        "_required": ["sentence1", "sentence2", "correct_answer", "options"],
+        "_optional": ["explanation"]
+      },
+      "rephrasing": {
+        "_description": "Reformuler une phrase en gardant le sens",
+        "data": {
+          "original_sentence": "Despite the rain, we went out.",
+          "correct_answer": "Although it was raining, we went out.",
+          "options": [
+            "Although it was raining, we went out.",
+            "Because it was raining, we went out.",
+            "So it was raining, we went out.",
+            "It was raining, we went out."
+          ],
+          "explanation": "'Despite + nom' = 'Although + phrase'"
+        },
+        "_required": ["original_sentence", "correct_answer", "options"],
+        "_optional": ["explanation"]
+      }
+    }
+  },
+
+  "word_games": {
+    "_description": "8 types de jeux. Le champ `type` dans data détermine lequel.",
+    "_dispatch_by_audience": {
+      "primary": ["definition", "audio_match", "speed", "blanks"],
+      "college": ["definition", "audio_match", "speed", "blanks", "sentence", "detective"],
+      "lycee": ["definition", "audio_match", "speed", "blanks", "sentence", "detective", "transformer", "reply"],
+      "adult": ["definition", "audio_match", "speed", "blanks", "sentence", "detective", "transformer", "reply"]
+    },
+    "_variants": {
+      "definition": {
+        "_description": "Associer un mot à sa définition",
+        "data": {
+          "type": "definition",
+          "word": "Happy",
+          "definition": "Feeling or showing pleasure or contentment",
+          "options": ["Sad feeling", "Feeling pleased", "Angry mood", "Very tired"],
+          "correctAnswer": "Feeling pleased",
+          "image": "😊",
+          "context": "She was happy to see her friend.",
+          "difficulty": "easy"
+        },
+        "_required": ["type", "word", "definition", "options", "correctAnswer", "difficulty"],
+        "_optional": ["image", "context"]
+      },
+      "blanks": {
+        "_description": "Compléter une phrase à trou",
+        "data": {
+          "type": "blanks",
+          "sentence": "She ___ to school every morning.",
+          "options": ["go", "goes", "going", "gone"],
+          "correctAnswer": "goes",
+          "hint": "Sujet à la 3ème personne du singulier",
+          "translation": "Elle va à l'école tous les matins.",
+          "difficulty": "easy"
+        },
+        "_required": ["type", "sentence", "options", "correctAnswer", "difficulty"],
+        "_optional": ["hint", "translation"],
+        "_note": "sentence doit contenir ___ (3 underscores)."
+      },
+      "sentence": {
+        "_description": "Remettre les mots dans l'ordre pour former une phrase",
+        "data": {
+          "type": "sentence",
+          "words": ["football", "They", "weekends", "on", "play"],
+          "correctOrder": ["They", "play", "football", "on", "weekends"],
+          "translation": "Ils jouent au football le week-end.",
+          "hint": "Commence par le sujet",
+          "difficulty": "medium"
+        },
+        "_required": ["type", "words", "correctOrder", "translation", "difficulty"],
+        "_optional": ["hint"]
+      },
+      "speed": {
+        "_description": "Associer mots anglais et français contre la montre",
+        "data": {
+          "type": "speed",
+          "pairs": [
+            { "english": "Hello", "french": "Bonjour" },
+            { "english": "Goodbye", "french": "Au revoir" },
+            { "english": "Please", "french": "S'il vous plaît" },
+            { "english": "Thank you", "french": "Merci" }
+          ],
+          "timeLimit": 30,
+          "difficulty": "easy"
+        },
+        "_required": ["type", "pairs", "timeLimit", "difficulty"],
+        "_note": "pairs[] : minimum 4 paires recommandées."
+      },
+      "audio_match": {
+        "_description": "Associer un mot entendu (TTS) à son image/label",
+        "data": {
+          "type": "audio_match",
+          "pairs": [
+            { "word": "Cat", "image": "🐱" },
+            { "word": "Dog", "image": "🐶" },
+            { "word": "Bird", "image": "🐦" },
+            { "word": "Fish", "image": "🐟" }
+          ],
+          "timeLimit": 30,
+          "difficulty": "easy"
+        },
+        "_required": ["type", "pairs", "timeLimit", "difficulty"],
+        "_note": "word est prononcé via TTS. image peut être un emoji ou un label texte."
+      },
+      "detective": {
+        "_description": "Trouver l'erreur grammaticale dans une phrase",
+        "data": {
+          "type": "detective",
+          "sentence": "She go to school every day.",
+          "errorWordIndex": 1,
+          "correctWord": "goes",
+          "explanation": "Avec 'she', le verbe prend un 's' au présent simple.",
+          "difficulty": "medium"
+        },
+        "_required": ["type", "sentence", "errorWordIndex", "correctWord", "explanation", "difficulty"],
+        "_note": "errorWordIndex = index du mot erroné dans sentence.split(' ') (commence à 0)."
+      },
+      "reply": {
+        "_description": "Choisir la réponse la plus naturelle à une situation",
+        "data": {
+          "type": "reply",
+          "situation": "Someone offers you a gift.",
+          "prompt": "Here, this is for you!",
+          "options": [
+            "Thank you so much, that's very kind!",
+            "I don't want it.",
+            "What is it?",
+            "Give me another one."
+          ],
+          "correctAnswer": "Thank you so much, that's very kind!",
+          "explanation": "C'est la réponse la plus polie et naturelle en anglais.",
+          "difficulty": "medium"
+        },
+        "_required": ["type", "prompt", "options", "correctAnswer", "difficulty"],
+        "_optional": ["situation", "explanation"]
+      },
+      "transformer": {
+        "_description": "Transformer un mot racine pour compléter une phrase",
+        "data": {
+          "type": "transformer",
+          "rootWord": "WORK",
+          "sentence": "He is ___ in the garden right now.",
+          "options": ["working", "works", "worked", "work"],
+          "correctAnswer": "working",
+          "hint": "Present continuous : be + V-ing",
+          "translation": "Il est en train de travailler dans le jardin.",
+          "difficulty": "hard"
+        },
+        "_required": ["type", "rootWord", "sentence", "options", "correctAnswer", "difficulty"],
+        "_optional": ["hint", "translation"],
+        "_note": "rootWord est affiché en majuscules pour indiquer la racine à transformer. sentence doit contenir ___."
+      }
+    }
+  }
+}
