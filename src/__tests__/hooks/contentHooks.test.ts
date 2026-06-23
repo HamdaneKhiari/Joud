@@ -1,5 +1,5 @@
 /**
- * Tests: useGrammarContent + useConnectorContent + useRevisions
+ * Tests: useConnectorContent + useRevisions
  * DB content loaders — même pattern : guard db + query + setLoading.
  */
 
@@ -12,73 +12,6 @@ jest.mock('@/contexts/UserContext', () => ({ useUser: jest.fn() }));
 jest.mock('@/database/queries', () => ({ getWordsToReview: jest.fn() }));
 
 const flushPromises = () => new Promise<void>(resolve => setTimeout(resolve, 0));
-
-// ──────────────────────────────────────────────
-// useGrammarContent
-// ──────────────────────────────────────────────
-
-describe('useGrammarContent', () => {
-  const makeDb = (family: object | null, rows: object[]) => ({
-    getFirstAsync: jest.fn().mockResolvedValue(family),
-    getAllAsync: jest.fn().mockResolvedValue(rows),
-  });
-
-  it('db=null → loading=false, grammarFamily=null', async () => {
-    const { useGrammarContent } = require('@/screens/GrammarScreen/hooks/useGrammarContent');
-    const { result } = renderHook(() => useGrammarContent(null, 'f1', 1));
-    await act(async () => { await flushPromises(); });
-    expect(result.current.loading).toBe(false);
-    expect(result.current.grammarFamily).toBeNull();
-  });
-
-  it('familyId vide → loading=false', async () => {
-    const { useGrammarContent } = require('@/screens/GrammarScreen/hooks/useGrammarContent');
-    const db = makeDb({ name: 'Test' }, []);
-    const { result } = renderHook(() => useGrammarContent(db, '', 1));
-    await act(async () => { await flushPromises(); });
-    expect(result.current.loading).toBe(false);
-  });
-
-  it('charge et mappe les règles de grammaire', async () => {
-    const { useGrammarContent } = require('@/screens/GrammarScreen/hooks/useGrammarContent');
-    const db = makeDb(
-      { name: 'Present Tense', icon: '📝' },
-      [{
-        id: 1,
-        data: JSON.stringify({
-          rule_title: 'Simple Present',
-          explanation: 'Used for habits.',
-          simplified: 'S + V',
-          examples: ['I eat.', 'She runs.'],
-          exercises: [{ question: 'Fill in:', correct_answer: 'eat', options: ['eat', 'ate'] }],
-        }),
-      }]
-    );
-    const { result } = renderHook(() => useGrammarContent(db, 'f1', 1));
-    await act(async () => { await flushPromises(); });
-    expect(result.current.loading).toBe(false);
-    expect(result.current.grammarFamily?.title).toBe('Present Tense');
-    expect(result.current.grammarFamily?.rules).toHaveLength(1);
-    expect(result.current.grammarFamily?.rules[0].title).toBe('Simple Present');
-    expect(result.current.grammarFamily?.rules[0].examples).toEqual(['I eat.', 'She runs.']);
-  });
-
-  it('famille DB null → title vide', async () => {
-    const { useGrammarContent } = require('@/screens/GrammarScreen/hooks/useGrammarContent');
-    const db = makeDb(null, []);
-    const { result } = renderHook(() => useGrammarContent(db, 'f1', 1));
-    await act(async () => { await flushPromises(); });
-    expect(result.current.grammarFamily?.title).toBe('');
-  });
-
-  it('erreur DB → loading=false, grammarFamily=null', async () => {
-    const { useGrammarContent } = require('@/screens/GrammarScreen/hooks/useGrammarContent');
-    const db = { getFirstAsync: jest.fn().mockRejectedValue(new Error('DB crash')), getAllAsync: jest.fn() };
-    const { result } = renderHook(() => useGrammarContent(db, 'f1', 1));
-    await act(async () => { await flushPromises(); });
-    expect(result.current.loading).toBe(false);
-  });
-});
 
 // ──────────────────────────────────────────────
 // useConnectorContent

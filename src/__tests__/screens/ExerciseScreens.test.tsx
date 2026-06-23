@@ -48,7 +48,6 @@ jest.mock('@/utils/feedback', () => ({ generateFeedbackMessage: jest.fn().mockRe
 // Mocks — Hooks spécifiques par screen
 // ============================================
 
-jest.mock('@/screens/GrammarScreen/hooks/useGrammarContent', () => ({ useGrammarContent: jest.fn() }));
 jest.mock('@/screens/ReadingScreen/hooks/useReadingContent', () => ({ useReadingContent: jest.fn() }));
 jest.mock('@/screens/ReadingScreen/hooks/useReadingState', () => ({ useReadingState: jest.fn() }));
 jest.mock('@/screens/ReadingScreen/hooks/useReadingHandlers', () => ({ useReadingHandlers: jest.fn() }));
@@ -111,7 +110,6 @@ jest.mock('@/database/queries', () => ({
 // ============================================
 
 import VocabularyScreen from '@/screens/VocabularyScreen/VocabularyExerciceScreen';
-import GrammarScreen from '@/screens/GrammarScreen/GrammarExerciseScreen';
 import SentenceScreen from '@/screens/SentenceScreen/SentenceExerciceScreen';
 import ReadingScreen from '@/screens/ReadingScreen/ReadingExerciseScreen';
 import DialogueScreen from '@/screens/DialoguesScreen/DialogueExerciseScreen';
@@ -179,7 +177,6 @@ function setupMocks() {
   require('@/hooks/useSafeNavigation').default.mockReturnValue(mockNav);
   require('@/utils/labelMapper').useLevelLabel.mockReturnValue({ title: 'Niveau 1', badge: '1', description: '' });
 
-  require('@/screens/GrammarScreen/hooks/useGrammarContent').useGrammarContent.mockReturnValue({ grammarFamily: null, loading: false });
   require('@/screens/ReadingScreen/hooks/useReadingContent').useReadingContent.mockReturnValue({ questions: [], loading: false });
   require('@/screens/ReadingScreen/hooks/useReadingState').useReadingState.mockReturnValue({ state: {}, setState: jest.fn(), resetState: jest.fn() });
   require('@/screens/ReadingScreen/hooks/useReadingHandlers').useReadingHandlers.mockReturnValue({ handleAnswer: jest.fn(), handleNext: jest.fn(), handleSkip: jest.fn() });
@@ -228,14 +225,6 @@ const mockNavigationProp = { navigate: jest.fn(), goBack: jest.fn(), push: jest.
 // Mock data
 // ============================================
 
-const mockGrammarFamily = {
-  title: 'Present Simple', icon: 'book',
-  rules: [{
-    id: 1, title: 'Subject + Verb', content: 'Use present simple for habits.', simplified: 'S + V (+s)',
-    examples: ['I go to school.', 'She goes to school.'],
-    exercise: { question: 'She ___ to school.', correctAnswer: 'goes', options: ['go', 'goes', 'going'] }
-  }]
-};
 
 const mockVocabContent = [
   { id: 1, data: { word: 'apple', translation: 'pomme', example: 'I eat an apple.', exampleTranslation: 'Je mange une pomme.' } },
@@ -274,10 +263,6 @@ describe('Smoke tests — Screens d\'exercices', () => {
     expect(() => render(<VocabularyScreen route={mockRoute as any} navigation={mockNavigationProp as any} />)).not.toThrow();
   });
 
-  it('GrammarScreen — rend sans crash', () => {
-    expect(() => render(<GrammarScreen route={mockRoute as any} navigation={mockNavigationProp as any} />)).not.toThrow();
-  });
-
   it('SentenceScreen — rend sans crash', () => {
     expect(() => render(<SentenceScreen />)).not.toThrow();
   });
@@ -309,48 +294,8 @@ describe('Screens avec contenu — render paths', () => {
     setupMocks();
   });
 
-  // ─── GrammarScreen ───
 
-  it('GrammarScreen — état loading', () => {
-    require('@/screens/GrammarScreen/hooks/useGrammarContent').useGrammarContent.mockReturnValue({ grammarFamily: null, loading: true });
-    const { UNSAFE_getByType } = render(<GrammarScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
-    // Loading → ActivityIndicator visible
-    const { ActivityIndicator } = require('react-native');
-    expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
-  });
-
-  it('GrammarScreen — render complet avec grammarFamily', () => {
-    require('@/screens/GrammarScreen/hooks/useGrammarContent').useGrammarContent.mockReturnValue({ grammarFamily: mockGrammarFamily, loading: false });
-    const { getByText } = render(<GrammarScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
-    expect(getByText('goes')).toBeTruthy();
-  });
-
-  it('GrammarScreen — handleAnswer sélectionne une option', () => {
-    require('@/screens/GrammarScreen/hooks/useGrammarContent').useGrammarContent.mockReturnValue({ grammarFamily: mockGrammarFamily, loading: false });
-    const { getByText } = render(<GrammarScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
-    fireEvent.press(getByText('goes'));
-    // Pas de crash
-    expect(getByText('goes')).toBeTruthy();
-  });
-
-  it('GrammarScreen — handleValidate après sélection', () => {
-    const mockSaveProgressNow = jest.fn().mockResolvedValue(undefined);
-    require('@/contexts/ProgressContext').useProgress.mockReturnValue({
-      progress: {}, getLevelProgress: jest.fn().mockReturnValue(0),
-      refreshProgress: jest.fn(), saveProgressNow: mockSaveProgressNow,
-      trackItemCompletion: jest.fn(), getRevisionFamilies: jest.fn().mockReturnValue([]),
-      resetProgress: jest.fn(), getFamilyProgress: jest.fn().mockReturnValue(0),
-    });
-    require('@/screens/GrammarScreen/hooks/useGrammarContent').useGrammarContent.mockReturnValue({ grammarFamily: mockGrammarFamily, loading: false });
-    const { getByText } = render(<GrammarScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
-    fireEvent.press(getByText('goes'));
-    // Valider (bouton ExerciseValidation)
-    const validateBtn = getByText('Valider');
-    fireEvent.press(validateBtn);
-    expect(getByText('goes')).toBeTruthy();
-  });
-
-  // ─── VocabularyScreen ───
+// ─── VocabularyScreen ───
 
   it('VocabularyScreen — render avec contentItems (WordCard visible)', () => {
     require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
@@ -372,20 +317,7 @@ describe('Screens avec contenu — render paths', () => {
     expect(getByText('pomme')).toBeTruthy();
   });
 
-  it('GrammarScreen — handleRetry: valider incorrect + réessayer', () => {
-    require('@/screens/GrammarScreen/hooks/useGrammarContent').useGrammarContent.mockReturnValue({ grammarFamily: mockGrammarFamily, loading: false });
-    const { getByText, queryByText } = render(<GrammarScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
-    // Sélectionner une mauvaise réponse + valider
-    fireEvent.press(getByText('go'));
-    fireEvent.press(getByText('Valider'));
-    // Après validation incorrecte, "Réessayer" apparaît
-    const retryBtn = queryByText('Réessayer');
-    if (retryBtn) fireEvent.press(retryBtn);
-    // Soit réessayer a été pressé, soit la validation incorrecte a bien été exécutée
-    expect(getByText('go')).toBeTruthy();
-  });
-
-  // ─── SentenceScreen ───
+// ─── SentenceScreen ───
 
   it('SentenceScreen — render avec contentItems en mode blanks (college)', () => {
     require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
@@ -532,48 +464,7 @@ describe('Screens avec contenu — render paths', () => {
     expect(getByText('OBSERVE LA NUANCE')).toBeTruthy();
   });
 
-  // ─── GrammarScreen CompletionModal ───
-
-  it('GrammarScreen — handleNext dernière règle → CompletionModal (async)', async () => {
-    const saveProgressNow = jest.fn().mockResolvedValue(undefined);
-    require('@/contexts/ProgressContext').useProgress.mockReturnValue({
-      progress: {}, getLevelProgress: jest.fn().mockReturnValue(0),
-      refreshProgress: jest.fn(), saveProgressNow,
-      trackItemCompletion: jest.fn(), getRevisionFamilies: jest.fn().mockReturnValue([]),
-      resetProgress: jest.fn(), getFamilyProgress: jest.fn().mockReturnValue(0),
-    });
-    require('@/screens/GrammarScreen/hooks/useGrammarContent').useGrammarContent.mockReturnValue({ grammarFamily: mockGrammarFamily, loading: false });
-    const { getByText } = render(<GrammarScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
-    // Correct answer then Continuer/Terminer
-    fireEvent.press(getByText('goes'));
-    fireEvent.press(getByText('Valider'));
-    // After correct: isLastRule=true → button is "Terminer"
-    const continueBtn = getByText('Terminer');
-    fireEvent.press(continueBtn);
-    // saveProgressNow called
-    expect(saveProgressNow).toHaveBeenCalled();
-  });
-
-  it('GrammarScreen — multiple règles: handleNext avance à la règle suivante', () => {
-    const twoRuleFamily = {
-      title: 'Present Simple', icon: 'book',
-      rules: [
-        { id: 1, title: 'Rule 1', content: 'Content 1', simplified: 'S1', examples: [], exercise: { question: 'Q1', correctAnswer: 'a', options: ['a', 'b', 'c'] } },
-        { id: 2, title: 'Rule 2', content: 'Content 2', simplified: 'S2', examples: [], exercise: { question: 'Q2', correctAnswer: 'x', options: ['x', 'y', 'z'] } },
-      ]
-    };
-    require('@/screens/GrammarScreen/hooks/useGrammarContent').useGrammarContent.mockReturnValue({ grammarFamily: twoRuleFamily, loading: false });
-    const { getByText } = render(<GrammarScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
-    // First rule: select correct + validate
-    fireEvent.press(getByText('a'));
-    fireEvent.press(getByText('Valider'));
-    // Now "Continuer" (not last question)
-    fireEvent.press(getByText('Continuer'));
-    // Second rule shown
-    expect(getByText('Q2')).toBeTruthy();
-  });
-
-  // ─── ReadingScreen ───
+// ─── ReadingScreen ───
 
   it('ReadingScreen — état loading', () => {
     require('@/screens/ReadingScreen/hooks/useReadingContent').useReadingContent.mockReturnValue({ questions: [], loading: true });

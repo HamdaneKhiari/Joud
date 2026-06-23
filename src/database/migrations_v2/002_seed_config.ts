@@ -101,12 +101,11 @@ export default createMigration(
       INSERT OR REPLACE INTO modules (slug, name, icon_name, description, order_index, is_core, target_audience) VALUES
       ('vocab',        'Vocabulaire',    'book-alphabet',         'Enrichis ton vocabulaire',  1, 1, 'all'),
       ('phrase_types', 'Phrases',        'format-quote-close',    'Structure et syntaxe',      2, 1, 'all'),
-      ('grammar',      'Grammaire',      'format-list-bulleted',  'Maîtrise les règles',       3, 1, 'all'),
-      ('reading',      'Lecture',        'text-box',              'Analyse de textes',         4, 1, 'all'),
-      ('dialogues',    'Conversation',   'chat',                  'Pratique dialogues',        5, 1, 'all'),
-      ('word_games',   'Jeux',           'gamepad-variant',       'Exercices ludiques',        6, 1, 'all'),
-      ('assessment',   'Évaluation',     'clipboard-check',       'Teste ton niveau',          7, 1, 'all'),
-      ('connector',    'The Connector',  'connection',            'Syntax & articulation',     8, 0, 'lycee');
+      ('reading',      'Lecture',        'text-box',              'Analyse de textes',         3, 1, 'all'),
+      ('dialogues',    'Conversation',   'chat',                  'Pratique dialogues',        4, 1, 'all'),
+      ('word_games',   'Jeux',           'gamepad-variant',       'Exercices ludiques',        5, 1, 'all'),
+      ('assessment',   'Évaluation',     'clipboard-check',       'Teste ton niveau',          6, 1, 'all'),
+      ('connector',    'The Connector',  'connection',            'Syntax & articulation',     7, 0, 'lycee');
     `);
 
     // ============================================
@@ -175,7 +174,7 @@ export default createMigration(
     // 7 core modules × 4 audiences × 4 levels
     // + connector lycee 1-4 + adult 1-4 (migration 039)
     // ============================================
-    const coreModules = ['vocab', 'phrase_types', 'grammar', 'reading', 'dialogues', 'word_games', 'assessment'];
+    const coreModules = ['vocab', 'phrase_types', 'reading', 'dialogues', 'word_games', 'assessment'];
 
     for (const mod of coreModules) {
       for (const aud of audiences) {

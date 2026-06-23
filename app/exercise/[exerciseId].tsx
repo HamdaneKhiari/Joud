@@ -11,7 +11,6 @@ import ConnectorExerciseScreen from '@/screens/ConnectorScreen/ConnectorExercise
 import ReadingExerciseScreen from '@/screens/ReadingScreen/ReadingExerciseScreen';
 import DialogueExerciseScreen from '@/screens/DialoguesScreen/DialogueExerciseScreen';
 import WordGamesExerciseScreen from '@/screens/WordGames/WordGamesExerciseScreen';
-import GrammarExerciseScreen from '@/screens/GrammarScreen/GrammarExerciseScreen';
 
 export default function ExerciseDispatcher() {
   const params = useLocalSearchParams();
@@ -57,9 +56,6 @@ export default function ExerciseDispatcher() {
     case 'phrases':
     case 'phrase_types':
       return <SentenceScreen {...buildProps<React.ComponentProps<typeof SentenceScreen>>()} />;
-
-    case 'grammar':
-      return <GrammarExerciseScreen {...buildProps<React.ComponentProps<typeof GrammarExerciseScreen>>()} />;
 
     case 'reading':
       return <ReadingExerciseScreen {...buildProps<React.ComponentProps<typeof ReadingExerciseScreen>>()} />;

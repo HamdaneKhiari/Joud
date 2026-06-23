@@ -1,7 +1,7 @@
 /**
  * Tests de composants pédagogiques
  *
- * Couvre : WordCard, GrammarCard, QuestionCard, ExerciseValidation, RevisionQuestionCard
+ * Couvre : WordCard, QuestionCard, ExerciseValidation, RevisionQuestionCard
  * Stratégie : smoke test + comportement (fireEvent) + contenu (getByText)
  */
 
@@ -35,7 +35,6 @@ jest.mock('@/hooks/useSafeAction', () => ({
 // ============================================
 
 import WordCard from '@/components/pedagogy/Vocabulary/WordCard/WordCard';
-import GrammarCard from '@/components/pedagogy/grammar/GrammarCard';
 import QuestionCard from '@/components/pedagogy/shared/QuestionCard';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
 import RevisionQuestionCard from '@/components/pedagogy/revision/RevisionQuestionCard';
@@ -124,106 +123,6 @@ describe('WordCard', () => {
         frenchWord="pomme"
         exampleSentence="I eat an apple every day."
         highlightWord="apple"
-      />
-    )).not.toThrow();
-  });
-});
-
-// ============================================
-// GrammarCard
-// ============================================
-
-const mockLessonData = {
-  title: 'Present Simple',
-  rule: 'Use the base form of the verb for I/you/we/they.',
-  simplified: 'Pour les actions habituelles.',
-  examples: ['I play football.', 'She plays tennis.'],
-  exercise: {
-    question: 'Which is correct?',
-    options: ['He play football', 'He plays football', 'He playing football'],
-    correctAnswer: 'He plays football',
-  },
-};
-
-describe('GrammarCard', () => {
-  const onAnswer = jest.fn();
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    setupMocks();
-    onAnswer.mockReset();
-  });
-
-  it('rend sans crash', () => {
-    expect(() => render(
-      <GrammarCard
-        lessonData={mockLessonData}
-        exerciseState={{ selectedOption: null, isValidated: false, isCorrect: false, attemptCount: 0 }}
-        onAnswer={onAnswer}
-      />
-    )).not.toThrow();
-  });
-
-  it('affiche le titre, la règle, les exemples et la question', () => {
-    const { getByText } = render(
-      <GrammarCard
-        lessonData={mockLessonData}
-        exerciseState={{ selectedOption: null, isValidated: false, isCorrect: false, attemptCount: 0 }}
-        onAnswer={onAnswer}
-      />
-    );
-    expect(getByText('Present Simple')).toBeTruthy();
-    expect(getByText('Use the base form of the verb for I/you/we/they.')).toBeTruthy();
-    expect(getByText('I play football.')).toBeTruthy();
-    expect(getByText('Which is correct?')).toBeTruthy();
-  });
-
-  it('affiche "En bref" quand simplified est fourni', () => {
-    const { getByText } = render(
-      <GrammarCard
-        lessonData={mockLessonData}
-        exerciseState={{ selectedOption: null, isValidated: false, isCorrect: false, attemptCount: 0 }}
-        onAnswer={onAnswer}
-      />
-    );
-    expect(getByText('Pour les actions habituelles.')).toBeTruthy();
-  });
-
-  it('appelle onAnswer quand une option est pressée (non validé)', () => {
-    const { getByText } = render(
-      <GrammarCard
-        lessonData={mockLessonData}
-        exerciseState={{ selectedOption: null, isValidated: false, isCorrect: false, attemptCount: 0 }}
-        onAnswer={onAnswer}
-      />
-    );
-    fireEvent.press(getByText('He plays football'));
-    expect(onAnswer).toHaveBeenCalledWith('He plays football');
-  });
-
-  it('n\'appelle PAS onAnswer quand validé (options désactivées)', () => {
-    const { getByText } = render(
-      <GrammarCard
-        lessonData={mockLessonData}
-        exerciseState={{ selectedOption: 'He plays football', isValidated: true, isCorrect: true, attemptCount: 1 }}
-        onAnswer={onAnswer}
-      />
-    );
-    fireEvent.press(getByText('He plays football'));
-    expect(onAnswer).not.toHaveBeenCalled();
-  });
-
-  it('rend sans titre ni simplified', () => {
-    const lessonWithoutOptional = {
-      rule: 'Simple rule.',
-      examples: [],
-      exercise: { question: 'Q?', options: ['A', 'B'], correctAnswer: 'A' },
-    };
-    expect(() => render(
-      <GrammarCard
-        lessonData={lessonWithoutOptional}
-        exerciseState={{ selectedOption: null, isValidated: false, isCorrect: false, attemptCount: 0 }}
-        onAnswer={onAnswer}
       />
     )).not.toThrow();
   });
