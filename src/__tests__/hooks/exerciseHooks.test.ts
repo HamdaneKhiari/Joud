@@ -71,10 +71,10 @@ describe('useFirstIncompleteIndex', () => {
 
   it('construit la bonne clé de niveau (level2)', () => {
     useProgress.mockReturnValue({
-      progress: { level2: { grammar: { famG: { completed: 5, total: 8 } } } },
+      progress: { level2: { reading: { famG: { completed: 5, total: 8 } } } },
     });
     const { useFirstIncompleteIndex } = require('@/hooks/exercises/useFirstIncompleteIndex');
-    const { result } = renderHook(() => useFirstIncompleteIndex(2, 'grammar', 'famG', 8));
+    const { result } = renderHook(() => useFirstIncompleteIndex(2, 'reading', 'famG', 8));
     expect(result.current()).toBe(5);
   });
 });
@@ -247,7 +247,7 @@ describe('useRecordError', () => {
     const { useRecordError } = require('@/hooks/exercises/useRecordError');
     const { result } = renderHook(() => useRecordError());
     await act(async () => {
-      await result.current.recordError({ familyId: 'f1', moduleSlug: 'grammar', question: 'q?', userAnswer: 'wrong', correctAnswer: 'right', level: 1 });
+      await result.current.recordError({ familyId: 'f1', moduleSlug: 'reading', question: 'q?', userAnswer: 'wrong', correctAnswer: 'right', level: 1 });
     });
     expect(mockDb.runAsync).not.toHaveBeenCalled();
   });
@@ -257,11 +257,11 @@ describe('useRecordError', () => {
     const { useRecordError } = require('@/hooks/exercises/useRecordError');
     const { result } = renderHook(() => useRecordError());
     await act(async () => {
-      await result.current.recordError({ familyId: 5, moduleSlug: 'grammar', question: 'Fill in:', userAnswer: 'go', correctAnswer: 'went', level: 2 });
+      await result.current.recordError({ familyId: 5, moduleSlug: 'reading', question: 'Fill in:', userAnswer: 'go', correctAnswer: 'went', level: 2 });
     });
     expect(mockDb.runAsync).toHaveBeenCalledWith(
       expect.stringContaining('INSERT INTO exercise_errors'),
-      expect.arrayContaining(['u1', 5, 'grammar', 'Fill in:', 'go', 'went', 2])
+      expect.arrayContaining(['u1', 5, 'reading', 'Fill in:', 'go', 'went', 2])
     );
   });
 

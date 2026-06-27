@@ -1,5 +1,5 @@
 import { log } from '@/utils/logUtils';
-import { sanitizeExerciseInput } from '@/utils/inputSanitizer';
+
 /**
  * ============================================
  * AI SERVICE
@@ -65,67 +65,6 @@ class AIService {
     );
 
     return { content };
-  }
-
-  /**
-   * Analyse un texte pour des erreurs grammaticales via l'IA
-   */
-  async analyzeGrammar(
-    provider: Provider,
-    apiKey: string,
-    text: string,
-    model?: string
-  ): Promise<{ errors: Array<{ type: string; message: string; position: number }> }> {
-    const systemPrompt = `You are a grammar checker for English learners. Analyze the text and return a JSON array of errors.
-Each error should have: {"type": "grammar"|"spelling"|"punctuation", "message": "explanation in French", "position": 0}
-Return ONLY the JSON array, no other text.`;
-
-    const content = await this.sendChatMessage(
-      provider,
-      apiKey,
-      [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: sanitizeExerciseInput(text) },
-      ],
-      { model, maxTokens: 300, temperature: 0.3 }
-    );
-
-    try {
-      const errors = JSON.parse(content);
-      return { errors: Array.isArray(errors) ? errors : [] };
-    } catch {
-      return { errors: [] };
-    }
-  }
-
-  /**
-   * Suggère des corrections pour un texte via l'IA
-   */
-  async suggestCorrections(
-    provider: Provider,
-    apiKey: string,
-    text: string,
-    model?: string
-  ): Promise<{ corrected: string; changes: string[] }> {
-    const systemPrompt = `You are an English text corrector for French learners. Correct the text and list changes.
-Return JSON: {"corrected": "corrected text", "changes": ["change 1 in French", "change 2 in French"]}
-Return ONLY the JSON, no other text.`;
-
-    const content = await this.sendChatMessage(
-      provider,
-      apiKey,
-      [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: sanitizeExerciseInput(text) },
-      ],
-      { model, maxTokens: 300, temperature: 0.3 }
-    );
-
-    try {
-      return JSON.parse(content);
-    } catch {
-      return { corrected: text, changes: [] };
-    }
   }
 
   /**

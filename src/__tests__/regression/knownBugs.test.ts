@@ -206,7 +206,7 @@ describe('[R4] filterRevisionFamilies — n\'inclut pas les familles completed =
   it('inclut les familles 100% complétées (à réviser)', () => {
     const state: ProgressState = {
       level1: {
-        grammar: {
+        reading: {
           '10': { completed: 8, total: 8 }, // 100%
         },
       } as unknown as ProgressState['level1'],

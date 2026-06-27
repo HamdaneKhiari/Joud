@@ -15,7 +15,7 @@ import { useUser } from '@/contexts/UserContext';
 // TYPES
 // ============================================
 
-export type GuidedDomain = 'vocab' | 'grammar' | 'dialogues' | 'reading' | 'phrase_types';
+export type GuidedDomain = 'vocab' | 'dialogues' | 'reading' | 'phrase_types';
 
 export interface ErrorExample {
   question: string;
@@ -48,7 +48,6 @@ export interface DomainSummary {
 
 const DOMAIN_META: Record<GuidedDomain, { label: string; emoji: string }> = {
   vocab:        { label: 'Vocabulaire',  emoji: '📝' },
-  grammar:      { label: 'Grammaire',    emoji: '📐' },
   dialogues:    { label: 'Dialogues',    emoji: '💬' },
   reading:      { label: 'Lecture',       emoji: '📖' },
   phrase_types:  { label: 'Phrases',      emoji: '✍️' },
@@ -183,11 +182,6 @@ export const useGuidedDomainSummaries = () => {
           const meta = DOMAIN_META[domain];
 
           switch (domain) {
-            case 'grammar': {
-              const errPart = numErrors > 0 ? `, ${numErrors} erreur${numErrors > 1 ? 's' : ''}` : '';
-              subtitle = `${numFamilies} regle${numFamilies > 1 ? 's' : ''} travaillee${numFamilies > 1 ? 's' : ''}${errPart}`;
-              break;
-            }
             case 'dialogues':
               subtitle = `${numFamilies} dialogue${numFamilies > 1 ? 's' : ''} termine${numFamilies > 1 ? 's' : ''}`;
               break;
@@ -208,10 +202,6 @@ export const useGuidedDomainSummaries = () => {
             stats,
           };
         };
-
-        // =================== GRAMMAIRE ===================
-        const grammar = await loadModuleDomain('grammar', ['grammar']);
-        if (grammar) results.push(grammar);
 
         // =================== DIALOGUES ===================
         const dialogues = await loadModuleDomain('dialogues', ['dialogues']);

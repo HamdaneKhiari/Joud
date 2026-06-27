@@ -24,44 +24,6 @@
     "_note": "Le champ `emoji` est lu aussi via `image`. `example` est optionnel mais recommandé pour lycee/adult."
   },
 
-  "grammar": {
-    "_description": "Règles de grammaire avec explication + exercices QCM",
-    "_table_fields": {
-      "module_slug": "grammar",
-      "family_id": "ID famille grammaticale",
-      "subfamily_id": "ID sous-famille ou 0",
-      "level": "Niveau 1 à 8",
-      "order_index": "Ordre dans la famille",
-      "target_audience": "primary | college | lycee | adult | all"
-    },
-    "data": {
-      "rule_title": "Present Simple",
-      "explanation": "Le présent simple exprime une habitude ou une vérité générale.",
-      "simplified": "Tu utilises le présent simple pour dire ce que tu fais tous les jours.",
-      "examples": [
-        "I eat breakfast every day.",
-        "She works at a hospital."
-      ],
-      "exercises": [
-        {
-          "question": "He ___ to work by bus.",
-          "options": ["go", "goes", "going", "gone"],
-          "correct_answer": "goes",
-          "explanation": "Avec he/she/it, on ajoute -s ou -es au verbe."
-        },
-        {
-          "question": "They ___ football on weekends.",
-          "options": ["plays", "play", "playing", "played"],
-          "correct_answer": "play",
-          "explanation": "Avec they/we/you/I, le verbe reste à la forme de base."
-        }
-      ]
-    },
-    "_required": ["rule_title", "explanation", "examples", "exercises"],
-    "_optional": ["simplified"],
-    "_note": "exercises[] peut contenir N questions. correct_answer doit correspondre exactement à une valeur dans options[]."
-  },
-
   "phrase_types": {
     "_description": "Phrases à compléter (blanks pour primary) ou à construire (free pour college+)",
     "_variants": {

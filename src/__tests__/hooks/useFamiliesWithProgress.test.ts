@@ -100,11 +100,11 @@ describe('useFamiliesWithProgress — paramètres SQL avec user', () => {
   });
 
   it('passe moduleId dans les params (slug et cast)', async () => {
-    const { result } = renderHook(() => useFamiliesWithProgress('grammar', 1));
+    const { result } = renderHook(() => useFamiliesWithProgress('reading', 1));
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     const [, params] = mockDb.getAllAsync.mock.calls[0];
-    expect(params).toContain('grammar');
+    expect(params).toContain('reading');
   });
 
   it('retourne les familles parsées', async () => {

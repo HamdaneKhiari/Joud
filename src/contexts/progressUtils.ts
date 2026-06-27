@@ -15,7 +15,7 @@ import type {
 // ============================================
 
 export const ALL_MODULE_SLUGS = [
-  'vocab', 'grammar', 'phrase_types', 'reading', 'dialogues',
+  'vocab', 'phrase_types', 'reading', 'dialogues',
   'word_games', 'connector',
 ];
 

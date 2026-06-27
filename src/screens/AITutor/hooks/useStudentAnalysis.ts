@@ -34,7 +34,6 @@ export interface ErrorsByModule {
 // ============================================
 
 export const MODULE_LABELS: Record<string, { label: string; emoji: string }> = {
-  grammar:   { label: 'Grammaire', emoji: '📚' },
   sentences:  { label: 'Phrases', emoji: '💬' },
   reading:   { label: 'Lecture',   emoji: '📖' },
 };

@@ -89,7 +89,7 @@ describe('getModuleColor', () => {
     const id = nextId();
     mockGetIdentityPalette().mockResolvedValue(['#AA0000', '#BB0000', '#CC0000']);
 
-    const result = await getModuleColor('vocab', id, db as any, ['vocab', 'grammar', 'reading']);
+    const result = await getModuleColor('vocab', id, db as any, ['vocab', 'reading', 'dialogues']);
     expect(result).toBe('#AA0000');
   });
 
@@ -98,7 +98,7 @@ describe('getModuleColor', () => {
     const id = nextId();
     mockGetIdentityPalette().mockResolvedValue(['#AA0000', '#BB0000', '#CC0000']);
 
-    const result = await getModuleColor('reading', id, db as any, ['vocab', 'grammar', 'reading']);
+    const result = await getModuleColor('reading', id, db as any, ['vocab', 'reading', 'dialogues']);
     expect(result).toBe('#CC0000');
   });
 
@@ -108,7 +108,7 @@ describe('getModuleColor', () => {
     mockGetIdentityPalette().mockResolvedValue(['#AA0000', '#BB0000']); // 2 couleurs
 
     // 4e module, index=3 → 3 % 2 = 1 → palette[1]
-    const modules = ['vocab', 'grammar', 'reading', 'dialogues'];
+    const modules = ['vocab', 'reading', 'dialogues', 'phrase_types'];
     const result = await getModuleColor('dialogues', id, db as any, modules);
     expect(result).toBe('#BB0000');
   });
@@ -118,7 +118,7 @@ describe('getModuleColor', () => {
     const id = nextId();
     mockGetIdentityPalette().mockResolvedValue(['#AA0000', '#BB0000', '#CC0000']);
 
-    const result = await getModuleColor('unknown_module', id, db as any, ['vocab', 'grammar']);
+    const result = await getModuleColor('unknown_module', id, db as any, ['vocab', 'reading']);
     expect(result).toBe('#AA0000');
   });
 
@@ -128,7 +128,7 @@ describe('getModuleColor', () => {
     mockGetIdentityPalette().mockResolvedValue(['#DD0000', '#EE0000']);
 
     await getModuleColor('vocab', id, db as any, ['vocab']);
-    await getModuleColor('grammar', id, db as any, ['vocab', 'grammar']);
+    await getModuleColor('reading', id, db as any, ['vocab', 'reading']);
 
     // getIdentityPalette ne doit être appelé qu'une seule fois (cache hit au 2e appel)
     expect(mockGetIdentityPalette()).toHaveBeenCalledTimes(1);

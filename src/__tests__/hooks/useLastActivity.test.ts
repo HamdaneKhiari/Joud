@@ -197,7 +197,7 @@ describe('useLastActivity — fetchLastActivity', () => {
 
   it('clé composite → reconstruit "familyId-subfamilyId"', async () => {
     mockDb.getFirstAsync.mockResolvedValue({
-      moduleSlug: 'grammar',
+      moduleSlug: 'reading',
       familyId: 12,
       subfamilyId: 3,
       level: 2,

@@ -105,12 +105,6 @@ export const JoudPrimaryThemeColors = {
  * Thèmes legacy pour exercices spécifiques
  * ⚠️ DEPRECATED: À migrer vers Identity
  */
-export const grammarTheme = {
-  primary: '#6366F1',
-  secondary: '#818CF8',
-  accent: '#4F46E5',
-};
-
 export const readingTheme = {
   primary: '#8B5CF6',
   secondary: '#A78BFA',

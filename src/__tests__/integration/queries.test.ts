@@ -229,7 +229,7 @@ describe('getFamiliesForModule', () => {
   it('retourne les familles triées par order_index', async () => {
     const sql = (await (async () => {
       (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
-      await getFamiliesForModule(db, 'grammar');
+      await getFamiliesForModule(db, 'reading');
       return (db.getAllAsync as jest.Mock).mock.calls[0][0] as string;
     })());
     expect(sql).toContain('ORDER BY order_index');
@@ -419,11 +419,11 @@ describe('getIdentityPalette', () => {
 describe('getAvailableModules', () => {
   it('retourne les slugs des modules disponibles', async () => {
     (db.getAllAsync as jest.Mock).mockResolvedValueOnce([
-      { slug: 'vocab' }, { slug: 'grammar' }, { slug: 'phrase_types' }
+      { slug: 'vocab' }, { slug: 'reading' }, { slug: 'phrase_types' }
     ]);
 
     const result = await getAvailableModules(db, 'primary', 1);
-    expect(result).toEqual(['vocab', 'grammar', 'phrase_types']);
+    expect(result).toEqual(['vocab', 'reading', 'phrase_types']);
   });
 
   it('passe identity_id et level_number à la query', async () => {

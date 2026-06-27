@@ -59,7 +59,6 @@ const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
     if (!activity) return '';
     const slug = activity.moduleSlug || '';
     const moduleNames: Record<string, string> = {
-      grammar: 'Grammaire',
       dialogues: 'Dialogues',
       phrase_types: 'Phrases',
       reading: 'Lecture',

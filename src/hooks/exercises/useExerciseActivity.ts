@@ -2,7 +2,7 @@
  * ============================================
  * HOOK: useExerciseActivity
  * Calcule la progression locale et enregistre l'activité.
- * ✅ Universel : Fonctionne pour Vocab, Sentences, Grammaire, etc.
+ * ✅ Universel : Fonctionne pour Vocab, Sentences, etc.
  * ============================================
  */
 
@@ -10,7 +10,7 @@ import { useEffect, useRef } from 'react';
 import { useLastActivity } from '@/hooks/useLastActivity';
 
 interface UseExerciseActivityProps {
-  moduleSlug: string;    // ex: 'vocab', 'sentences', 'grammar'
+  moduleSlug: string;   
   familyId: string;
   levelId: number;
   familyName: string;

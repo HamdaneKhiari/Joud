@@ -15,7 +15,7 @@ import { SQLiteDatabase } from 'expo-sqlite';
 interface RAGDocument {
   id: string;
   content: string;
-  type: 'vocabulary' | 'grammar' | 'sentence' | 'rule';
+  type: 'vocabulary' | 'sentence' | 'rule';
   relevance: number;
 }
 
@@ -34,15 +34,6 @@ interface RAGResponse {
 // ============================================
 // KEYWORDS pour le matching local
 // ============================================
-
-const GRAMMAR_KEYWORDS = [
-  'present', 'past', 'future', 'tense', 'verb', 'conjugation', 'conjugaison',
-  'preterit', 'perfect', 'continuous', 'progressive', 'modal', 'auxiliary',
-  'pronoun', 'pronom', 'article', 'preposition', 'adverb', 'adjective',
-  'comparatif', 'superlatif', 'comparative', 'superlative',
-  'conditionnel', 'conditional', 'passive', 'passif', 'gerund', 'infinitive',
-  'pluriel', 'plural', 'singular', 'singulier', 'possessive', 'possessif',
-];
 
 const VOCAB_KEYWORDS = [
   'mot', 'word', 'vocabulaire', 'vocabulary', 'traduction', 'translation',
@@ -174,19 +165,14 @@ class RAGService {
 
   /**
    * Détermine si RAG doit être utilisé pour cette requête.
-   * Vérifie si la requête contient des mots-clés pédagogiques connus.
+   * Vérifie si la requête contient des mots-clés de vocabulaire connus.
    */
   shouldUseRAG(query: string, _level: number): { useRAG: boolean; context?: string } {
     const lowerQuery = query.toLowerCase();
 
-    // Vérifier si la requête touche un sujet couvert par la DB
-    const hasGrammarKeyword = GRAMMAR_KEYWORDS.some(kw => lowerQuery.includes(kw));
     const hasVocabKeyword = VOCAB_KEYWORDS.some(kw => lowerQuery.includes(kw));
 
-    // On ne peut pas faire de recherche SQL synchrone ici,
-    // donc on indique seulement si RAG DEVRAIT être tenté.
-    // Le vrai enrichissement se fait via enrichContext() appelé par le screen.
-    if (hasGrammarKeyword || hasVocabKeyword) {
+    if (hasVocabKeyword) {
       return { useRAG: true };
     }
 
@@ -242,9 +228,6 @@ class RAGService {
     switch (contentType) {
       case 'word':
         return `${parsed.english || parsed.word} = ${parsed.french || parsed.translation}${parsed.example ? ` (ex: ${parsed.example})` : ''}`;
-      case 'rule':
-      case 'grammar_rule':
-        return `Règle: ${parsed.title || parsed.rule || ''}\n${parsed.explanation || parsed.description || ''}${parsed.example ? `\nExemple: ${parsed.example}` : ''}`;
       case 'sentence':
         return `${parsed.english || ''} → ${parsed.french || ''}`;
       case 'dialogue':
@@ -259,9 +242,8 @@ class RAGService {
    */
   private mapContentType(ct: string): RAGDocument['type'] {
     if (ct === 'word') return 'vocabulary';
-    if (ct === 'rule' || ct === 'grammar_rule') return 'grammar';
     if (ct === 'sentence') return 'sentence';
-    return 'rule';
+    return 'vocabulary';
   }
 
   /**

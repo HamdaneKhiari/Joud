@@ -12,7 +12,7 @@ import { useUser } from '@/contexts/UserContext';
 
 interface RecordErrorParams {
   familyId: string | number;
-  moduleSlug: string;   // 'grammar' | 'sentences' | 'reading'
+  moduleSlug: string;   // | 'sentences' | 'reading'
   question: string;     // La question posée (ou la phrase à reproduire)
   userAnswer: string;   // Ce que l'utilisateur a répondu
   correctAnswer: string;// La bonne réponse

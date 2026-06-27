@@ -26,7 +26,7 @@ interface UseGetFamiliesByModuleReturn {
 
 /**
  * Récupère les familles d'un module pour un niveau depuis SQLite
- * @param moduleSlug - Slug du module (ex: 'vocab', 'grammar')
+ * @param moduleSlug - Slug du module (ex: 'vocab')
  * @param level - Numéro du niveau (ex: 1, 2, 3, 4)
  */
 export const useGetFamiliesByModule = (

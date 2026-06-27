@@ -14,7 +14,6 @@ export interface ExerciseProgress {
 
 export interface LevelProgress {
   vocab: ExerciseProgress;
-  grammar: ExerciseProgress;
   phrase_types: ExerciseProgress;
   reading: ExerciseProgress;
   dialogues: ExerciseProgress;

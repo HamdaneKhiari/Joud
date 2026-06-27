@@ -13,7 +13,6 @@ describe('moduleHasSubfamilies', () => {
   // Modules AVEC sous-familles
   it('vocab → true', () => expect(moduleHasSubfamilies('vocab')).toBe(true));
   it('phrase_types → true', () => expect(moduleHasSubfamilies('phrase_types')).toBe(true));
-  it('grammar → true', () => expect(moduleHasSubfamilies('grammar')).toBe(true));
   it('dialogues → true', () => expect(moduleHasSubfamilies('dialogues')).toBe(true));
   it('reading → true', () => expect(moduleHasSubfamilies('reading')).toBe(true));
 
@@ -34,10 +33,6 @@ describe('moduleHasSubfamilies', () => {
 describe('MODULE_CONFIG — requiresSubfamilyForAllFamilies', () => {
   it('phrase_types nécessite des subfamilies pour toutes les familles', () => {
     expect(MODULE_CONFIG['phrase_types'].requiresSubfamilyForAllFamilies).toBe(true);
-  });
-
-  it('grammar nécessite des subfamilies pour toutes les familles', () => {
-    expect(MODULE_CONFIG['grammar'].requiresSubfamilyForAllFamilies).toBe(true);
   });
 
   it('dialogues nécessite des subfamilies pour toutes les familles', () => {
@@ -66,7 +61,7 @@ describe('MODULE_CONFIG — cohérence', () => {
   });
 
   it('aucun module inconnu dans la config', () => {
-    const expectedModules = ['vocab', 'phrase_types', 'grammar', 'dialogues', 'reading', 'word_games', 'connector'];
+    const expectedModules = ['vocab', 'phrase_types', 'dialogues', 'reading', 'word_games', 'connector'];
     Object.keys(MODULE_CONFIG).forEach(slug => {
       expect(expectedModules).toContain(slug);
     });

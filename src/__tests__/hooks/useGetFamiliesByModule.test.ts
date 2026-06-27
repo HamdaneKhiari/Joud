@@ -86,15 +86,15 @@ describe('useGetFamiliesByModule — chargement normal', () => {
   it('appelle les bonnes queries', async () => {
     const db = makeDb();
     setupMocks(db);
-    mockGetModuleBySlug().mockResolvedValue({ id: 1, slug: 'grammar', name: 'Grammar' });
+    mockGetModuleBySlug().mockResolvedValue({ id: 1, slug: 'reading', name: 'Reading' });
     mockGetFamiliesByModuleAndLevel().mockResolvedValue([]);
 
-    renderHook(() => useGetFamiliesByModule('grammar', 2));
+    renderHook(() => useGetFamiliesByModule('reading', 2));
 
     await act(flushPromises);
 
-    expect(mockGetModuleBySlug()).toHaveBeenCalledWith(db, 'grammar');
-    expect(mockGetFamiliesByModuleAndLevel()).toHaveBeenCalledWith(db, 'grammar', 2);
+    expect(mockGetModuleBySlug()).toHaveBeenCalledWith(db, 'reading');
+    expect(mockGetFamiliesByModuleAndLevel()).toHaveBeenCalledWith(db, 'reading', 2);
   });
 });
 

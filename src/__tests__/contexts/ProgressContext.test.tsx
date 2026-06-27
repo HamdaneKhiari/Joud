@@ -85,7 +85,7 @@ describe('ProgressContext', () => {
     it('met à jour AsyncStorage après chargement SQLite (cache sync)', async () => {
       const db = makeDb({
         getAllAsync: jest.fn().mockResolvedValue([
-          { family_id: 202, subfamily_id: 1, level: 2, completed: 5, total: 8, last_accessed: '2025-01-15', module_slug: 'grammar' },
+          { family_id: 202, subfamily_id: 1, level: 2, completed: 5, total: 8, last_accessed: '2025-01-15', module_slug: 'reading' },
         ]),
       });
       setupUser(db);
@@ -103,7 +103,7 @@ describe('ProgressContext', () => {
       const savedProgress = {
         level1: {
           vocab: { '301': { completed: 7, total: 10 } },
-          grammar: {}, phrase_types: {}, reading: {}, dialogues: {}, word_games: {}, connector: {},
+          phrase_types: {}, reading: {}, dialogues: {}, word_games: {}, connector: {},
         },
       };
       await AsyncStorage.setItem(getStorageKey(MOCK_USER.id), JSON.stringify(savedProgress));
@@ -119,7 +119,7 @@ describe('ProgressContext', () => {
       const savedProgress = {
         level1: {
           vocab: { '401': { completed: 2, total: 8 } },
-          grammar: {}, phrase_types: {}, reading: {}, dialogues: {}, word_games: {}, connector: {},
+          phrase_types: {}, reading: {}, dialogues: {}, word_games: {}, connector: {},
         },
       };
       await AsyncStorage.setItem(getStorageKey(MOCK_USER.id), JSON.stringify(savedProgress));
@@ -142,7 +142,7 @@ describe('ProgressContext', () => {
       const legacyProgress = {
         level1: {
           sentences: { '501': { completed: 3, total: 5 } },
-          vocab: {}, grammar: {}, reading: {}, dialogues: {}, word_games: {}, connector: {},
+          vocab: {}, reading: {}, dialogues: {}, word_games: {}, connector: {},
         },
       };
       await AsyncStorage.setItem(getStorageKey(MOCK_USER.id), JSON.stringify(legacyProgress));
@@ -315,9 +315,9 @@ describe('ProgressContext', () => {
       const { result } = renderHook(() => useProgress(), { wrapper });
       await act(flushPromises);
 
-      act(() => { result.current.trackItemCompletion(2, 'grammar', '15-3', 0, 5); });
+      act(() => { result.current.trackItemCompletion(2, 'reading', '15-3', 0, 5); });
 
-      expect(result.current.progress?.level2?.grammar?.['15-3']?.completed).toBe(1);
+      expect(result.current.progress?.level2?.reading?.['15-3']?.completed).toBe(1);
     });
 
     it('écrase la progression précédente du même item', async () => {
@@ -358,7 +358,7 @@ describe('ProgressContext', () => {
     });
 
     it('calcule correctement : tous les modules à 100% = 100%', async () => {
-      const allModuleSlugs = ['vocab', 'grammar', 'phrase_types', 'reading', 'dialogues', 'word_games', 'connector'];
+      const allModuleSlugs = ['vocab', 'phrase_types', 'reading', 'dialogues', 'word_games', 'connector'];
       const rows = allModuleSlugs.map((slug, i) => ({
         family_id: 100 + i, subfamily_id: 0, level: 1, completed: 10, total: 10, last_accessed: null, module_slug: slug,
       }));
@@ -448,7 +448,7 @@ describe('ProgressContext', () => {
       const progressData = {
         level1: {
           vocab:   { '5': { completed: 3, total: 5, lastReviewed: now - 5000 } },
-          grammar: { '7': { completed: 1, total: 8, lastReviewed: now } },
+          reading: { '7': { completed: 1, total: 8, lastReviewed: now } },
         }
       };
       AsyncStorage.setItem('JOUD_PROGRESS_user_01', JSON.stringify(progressData));
@@ -456,7 +456,7 @@ describe('ProgressContext', () => {
       const { result } = renderHook(() => useProgress(), { wrapper });
       await act(flushPromises);
       const recommended = result.current.getRecommendedModule(1);
-      expect(recommended?.exerciseType).toBe('grammar');
+      expect(recommended?.exerciseType).toBe('reading');
     });
   });
 

@@ -33,23 +33,21 @@ export interface Content {
   family_id: number;
   level: number;
   content_type:
-    | 'word'        // Vocabulaire
-    | 'rule'        // Règles de grammaire
-    | 'sentence'    // Phrases types
-    | 'dialogue'    // Dialogues
-    | 'logic'       // Exercices logiques
-    | 'fusion'      // Fusion de phrases
-    | 'rephrasing'  // Reformulation
+    | 'word'             // Vocabulaire
+    | 'sentence'         // Phrases types
+    | 'dialogue'         // Dialogues
+    | 'logic'            // Exercices logiques
+    | 'fusion'           // Fusion de phrases
+    | 'rephrasing'       // Reformulation
     // WordGames types
-    | 'definition'  // Jeu de définitions
-    | 'blanks'      // Phrases à trous
-    | 'speed'       // Speed match
-    | 'detective'   // Trouver l'erreur
-    | 'idioms'      // Expressions idiomatiques
-    | 'syntax'      // Syntax master
+    | 'definition'       // Jeu de définitions
+    | 'blanks'           // Phrases à trous
+    | 'speed'            // Speed match
+    | 'detective'        // Trouver l'erreur
+    | 'idioms'           // Expressions idiomatiques
+    | 'syntax'           // Syntax master
     | 'sentence_blanks'  // Phrases à trous (phrase_types)
     | 'reading_passage'  // Passages de lecture
-    | 'grammar_rule'     // Règles de grammaire
     // Assessment types
     | 'assessment_definition'  // Assessment choix multiples
     | 'assessment_blanks'      // Assessment input texte
@@ -58,7 +56,7 @@ export interface Content {
   data: string; // JSON stringifié
   difficulty?: 'easy' | 'medium' | 'hard';
   tags?: string;
-  target_audience?: 'primary' | 'college' | 'lycee' | 'adult' | 'all'; // Nouveau champ
+  target_audience?: 'primary' | 'college' | 'lycee' | 'adult' | 'all';
 }
 
 export interface Progress {
@@ -210,7 +208,7 @@ export interface SpacedRepetition {
   id?: number;
   user_id: string;
   content_id: number;
-  content_type: 'word' | 'rule' | 'sentence';
+  content_type: 'word' | 'sentence';
   last_review_date?: string;
   next_review_date?: string;
   ease_factor: number;

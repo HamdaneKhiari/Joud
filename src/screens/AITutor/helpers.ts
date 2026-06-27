@@ -48,7 +48,7 @@ export const toUIMessage = (msg: ChatMessage): ChatUIMessage => ({
 export const getLevelWelcomeMessage = (level: number): string => {
   switch (level) {
     case 1: return "Pose-moi des questions simples sur l'anglais, je vais t'aider !";
-    case 2: return 'Tu peux me poser des questions sur la grammaire, le vocabulaire... Je suis là pour toi !';
+    case 2: return 'Tu peux me poser des questions sur le vocabulaire, les phrases... Je suis là pour toi !';
     case 3: return "N'hésite pas à me demander des explications sur des concepts plus complexes. On va progresser ensemble !";
     case 4: return "Discutons en anglais ou en français, je m'adapte à ton niveau avancé. Let's chat!";
     default: return "Pose-moi n'importe quelle question sur l'anglais !";
@@ -61,7 +61,7 @@ export const buildLevelAdaptedSystemPrompt = (
   const baseTone: Record<number, string> = {
     1: 'Utilise un langage très simple et encourageant. Évite les termes complexes. Réponds en 2-3 phrases courtes maximum.',
     2: 'Utilise un langage clair et pédagogique. Tu peux introduire quelques termes techniques en les expliquant. Réponds en 3-4 phrases.',
-    3: 'Utilise un langage précis. Tu peux utiliser des termes grammaticaux et donner des explications plus nuancées. Réponds en 4-5 phrases.',
+    3: 'Utilise un langage précis. Tu peux donner des explications plus nuancées et des exemples variés. Réponds en 4-5 phrases.',
     4: "Utilise un langage riche et précis. Tu peux discuter de concepts avancés et donner des exemples variés. N'hésite pas à mélanger français et anglais si pertinent. Réponds en 5-6 phrases.",
   };
   const levelLabel: Record<number, string> = { 1: 'beginner', 2: 'intermediate', 3: 'advanced', 4: 'expert' };
@@ -71,7 +71,7 @@ export const buildLevelAdaptedSystemPrompt = (
 Tone adaptation:
 ${baseTone[level] || baseTone[2]}
 
-IMPORTANT: If you detect that the question is about a grammar rule or vocabulary that exists in Joud's lesson data, mention it so the student knows it's certified content.`
+IMPORTANT: If you detect that the question is about vocabulary that exists in Joud's lesson data, mention it so the student knows it's certified content.`
   );
 };
 
@@ -88,10 +88,6 @@ export const buildOpeningMessage = (domain: DomainSummary): string => {
       const words = stats.recentWords?.slice(0, 3).map((w: { word: string }) => w.word).join(', ') || '';
       if (words) return `Salut ! Tu as vu récemment : *${words}*. ${errPart}On les travaille ensemble ? Envoie-moi un message pour commencer !`;
       return `Salut ! ${errPart}On travaille ton vocabulaire ? Envoie-moi un message !`;
-    }
-    case 'grammar': {
-      const f = stats.familiesWorked;
-      return `Salut ! Tu as travaillé ${f} règle${f > 1 ? 's' : ''} de grammaire. ${errPart}On reprend ensemble ? Dis-moi ce que tu veux revoir !`;
     }
     case 'dialogues': {
       const f = stats.familiesWorked;

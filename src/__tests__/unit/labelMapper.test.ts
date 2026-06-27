@@ -65,8 +65,8 @@ describe('getModuleLabel', () => {
 
   it('db=number (invalide) → retourne le fallback', async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await getModuleLabel(42 as any, 'grammar', 'college');
-    expect(result).toEqual({ title: 'grammar', description: 'Module', icon: 'book' });
+    const result = await getModuleLabel(42 as any, 'reading', 'college');
+    expect(result).toEqual({ title: 'reading', description: 'Module', icon: 'book' });
   });
 
   it('cas normal → appelle getModuleLabelWithFallback et mappe le résultat', async () => {
@@ -243,12 +243,12 @@ describe('getAvailableModules', () => {
 
   it('cas normal → délègue à getAvailableModulesFromDB', async () => {
     const db = makeDb();
-    mockGetAvailableModulesFromDB().mockResolvedValue(['vocab', 'grammar', 'reading']);
+    mockGetAvailableModulesFromDB().mockResolvedValue(['vocab', 'reading', 'phrase_types']);
 
     const result = await getAvailableModules(db as any, 'college', 1);
 
     expect(mockGetAvailableModulesFromDB()).toHaveBeenCalledWith(db, 'college', 1);
-    expect(result).toEqual(['vocab', 'grammar', 'reading']);
+    expect(result).toEqual(['vocab', 'reading', 'phrase_types']);
   });
 
   it('DB lance une erreur → retourne []', async () => {
@@ -273,7 +273,7 @@ describe('isModuleAvailable', () => {
 
   it('module présent dans la liste → true', async () => {
     const db = makeDb();
-    mockGetAvailableModulesFromDB().mockResolvedValue(['vocab', 'grammar']);
+    mockGetAvailableModulesFromDB().mockResolvedValue(['vocab', 'reading']);
 
     const result = await isModuleAvailable(db as any, 'vocab', 'college', 1);
     expect(result).toBe(true);
@@ -281,7 +281,7 @@ describe('isModuleAvailable', () => {
 
   it('module absent de la liste → false', async () => {
     const db = makeDb();
-    mockGetAvailableModulesFromDB().mockResolvedValue(['vocab', 'grammar']);
+    mockGetAvailableModulesFromDB().mockResolvedValue(['vocab', 'reading']);
 
     const result = await isModuleAvailable(db as any, 'word_games', 'college', 1);
     expect(result).toBe(false);
@@ -327,13 +327,13 @@ describe('useModuleLabel', () => {
   it('db=null → reste sur le fallback (pas de chargement)', async () => {
     setupHookMocks(null);
 
-    const { result } = renderHook(() => useModuleLabel('grammar'));
+    const { result } = renderHook(() => useModuleLabel('reading'));
 
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    expect(result.current.title).toBe('grammar');
+    expect(result.current.title).toBe('reading');
     expect(mockGetModuleLabelWithFallback()).not.toHaveBeenCalled();
   });
 
@@ -346,7 +346,7 @@ describe('useModuleLabel', () => {
       icon_name: 'pencil',
     });
 
-    const { result } = renderHook(() => useModuleLabel('grammar'));
+    const { result } = renderHook(() => useModuleLabel('reading'));
 
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 0));

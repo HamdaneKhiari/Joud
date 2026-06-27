@@ -10,6 +10,7 @@ import { log } from '@/utils/logUtils';
 import migrationV2_001 from './migrations_v2/001_schema';
 import migrationV2_002 from './migrations_v2/002_seed_config';
 import migrationV2_003 from './migrations_v2/003_seed_subfamily_labels';
+import migrationV2_004 from './migrations_v2/004_remove_grammar_module';
 
 // ============================================
 // SINGLETON — une seule initialisation simultanée
@@ -48,6 +49,7 @@ const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
       migrationV2_001, // Schéma complet
       migrationV2_002, // Config : branding, palettes, modules, levels, families, availability, feedback, daily_words
       migrationV2_003, // Subfamily labels : vocab core, dialogues, reading
+      migrationV2_004, // Suppression du module grammar (données résiduelles)
     ];
 
     console.log('[JanaCore] 🚀 Running migrations V2...');

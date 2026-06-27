@@ -7,7 +7,6 @@
  * - Reading (short_stories, articles, professional)
  *
  * NON inclus ici (viennent du script Python via Excel) :
- * - Grammar (Family IDs 1→51, subfamily_id=1 partout)
  * - Phrase types (Family IDs 1→10 collège, 30 sous-familles)
  * - Connector (pas de sous-familles, subfamily_id=0)
  * - Word games (pas de sous-familles, subfamily_id=0)

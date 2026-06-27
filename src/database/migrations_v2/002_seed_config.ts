@@ -95,7 +95,7 @@ export default createMigration(
     `);
 
     // ============================================
-    // MODULES (8 modules — sans fastvocab)
+    // MODULES (7 modules — sans fastvocab, sans grammar)
     // ============================================
     await db.execAsync(`
       INSERT OR REPLACE INTO modules (slug, name, icon_name, description, order_index, is_core, target_audience) VALUES
@@ -133,7 +133,7 @@ export default createMigration(
     // ============================================
     // FAMILIES
     // Seules les familles à structure prédéfinie sont ici.
-    // Les familles grammar, phrase_types, connector
+    // Les familles phrase_types, connector
     // sont créées par le script Python (source : Excel).
     // ============================================
     await db.execAsync(`
@@ -158,11 +158,10 @@ export default createMigration(
       ('articles',       'reading', 'Articles',      'newspaper',         '📰', 'Articles et actualités',  2),
       ('professional',   'reading', 'Professional',  'briefcase',         '💼', 'Lecture professionnelle', 3);
 
-      -- Word Games (3 familles)
+      -- Word Games (2 familles — grammar_detective supprimé)
       INSERT OR REPLACE INTO families (slug, module_slug, name, icon, emoji, description, order_index) VALUES
       ('definition_master', 'word_games', 'Definition Master', 'book-open-variant', '📖', 'Maîtrisez les définitions', 1),
-      ('grammar_detective', 'word_games', 'Grammar Detective', 'magnify',           '🕵️', 'Analyse grammaticale',      2),
-      ('quick_match',       'word_games', 'Quick Match',       'lightning-bolt',    '⚡', 'Reliez les mots vite',      3);
+      ('quick_match',       'word_games', 'Quick Match',       'lightning-bolt',    '⚡', 'Reliez les mots vite',      2);
 
       -- Assessment (1 famille)
       INSERT OR REPLACE INTO families (slug, module_slug, name, icon, emoji, description, order_index) VALUES
@@ -171,7 +170,7 @@ export default createMigration(
 
     // ============================================
     // MODULE AVAILABILITY
-    // 7 core modules × 4 audiences × 4 levels
+    // 6 core modules × 4 audiences × 4 levels
     // + connector lycee 1-4 + adult 1-4 (migration 039)
     // ============================================
     const coreModules = ['vocab', 'phrase_types', 'reading', 'dialogues', 'word_games', 'assessment'];

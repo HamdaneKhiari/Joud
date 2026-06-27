@@ -75,10 +75,9 @@ describe('createEmptyLevelProgress', () => {
     });
   });
 
-  it('contient exactement les 7 modules attendus', () => {
-    expect(ALL_MODULE_SLUGS).toHaveLength(7);
+  it('contient exactement les 6 modules attendus', () => {
+    expect(ALL_MODULE_SLUGS).toHaveLength(6);
     expect(ALL_MODULE_SLUGS).toContain('vocab');
-    expect(ALL_MODULE_SLUGS).toContain('grammar');
     expect(ALL_MODULE_SLUGS).toContain('phrase_types');
     expect(ALL_MODULE_SLUGS).toContain('reading');
     expect(ALL_MODULE_SLUGS).toContain('dialogues');
@@ -130,7 +129,7 @@ describe('progressReducer — SET_PROGRESS', () => {
   });
 
   it('ne mute pas l\'état précédent', () => {
-    const newState: ProgressState = { level2: { grammar: {} } as ProgressState['level2'] };
+    const newState: ProgressState = { level2: { reading: {} } as ProgressState['level2'] };
     const result = progressReducer(initial, { type: 'SET_PROGRESS', payload: newState });
     expect(result).not.toBe(initial);
   });
@@ -158,9 +157,9 @@ describe('progressReducer — TRACK_ITEM', () => {
   it('completed = itemIndex + 1 (ex: index 0 → completed 1)', () => {
     const result = progressReducer(initial, {
       type: 'TRACK_ITEM',
-      payload: { levelId: 1, exerciseType: 'grammar', familyId: '8', itemIndex: 0, totalItems: 5 },
+      payload: { levelId: 1, exerciseType: 'reading', familyId: '8', itemIndex: 0, totalItems: 5 },
     });
-    expect(result['level1']['grammar']['8'].completed).toBe(1);
+    expect(result['level1']['reading']['8'].completed).toBe(1);
   });
 
   it('ne modifie pas les autres modules du même niveau', () => {
@@ -168,7 +167,6 @@ describe('progressReducer — TRACK_ITEM', () => {
       type: 'TRACK_ITEM',
       payload: { levelId: 1, exerciseType: 'vocab', familyId: '1', itemIndex: 0, totalItems: 5 },
     });
-    expect(result['level1']['grammar']).toEqual({});
     expect(result['level1']['reading']).toEqual({});
   });
 
@@ -248,12 +246,12 @@ describe('filterRevisionFamilies', () => {
     });
     state = progressReducer(state, {
       type: 'TRACK_ITEM',
-      payload: { levelId: 1, exerciseType: 'grammar', familyId: '2', itemIndex: 1, totalItems: 8 },
+      payload: { levelId: 1, exerciseType: 'reading', familyId: '2', itemIndex: 1, totalItems: 8 },
     });
     const families = filterRevisionFamilies(state, 1);
     expect(families).toHaveLength(2);
     expect(families.map(f => f.exerciseType)).toContain('vocab');
-    expect(families.map(f => f.exerciseType)).toContain('grammar');
+    expect(families.map(f => f.exerciseType)).toContain('reading');
   });
 
   it('n\'inclut pas les familles d\'un autre niveau', () => {

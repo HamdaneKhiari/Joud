@@ -173,7 +173,6 @@ describe('ALL_MODULE_SLUGS — cohérence des slugs', () => {
   const EXPECTED_MODULES = [
     'vocab',
     'phrase_types',
-    'grammar',
     'dialogues',
     'reading',
     'word_games',
@@ -208,14 +207,13 @@ describe('Isolation — la progression d\'un niveau n\'affecte pas les autres', 
     expect(result['level2']['vocab']).toEqual({});
   });
 
-  it('tracker level1/vocab ne touche pas level1/grammar', () => {
+  it('tracker level1/vocab ne touche pas level1/reading', () => {
     const initial = createInitialProgress();
     const result = progressReducer(initial, {
       type: 'TRACK_ITEM',
       payload: { levelId: 1, exerciseType: 'vocab', familyId: '1', itemIndex: 0, totalItems: 5 },
     });
 
-    // grammar du même niveau doit être vide
-    expect(result['level1']['grammar']).toEqual({});
+    expect(result['level1']['reading']).toEqual({});
   });
 });

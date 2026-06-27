@@ -26,11 +26,6 @@ export const MODULE_CONFIG: Record<string, ModuleConfig> = {
     requiresSubfamilyForAllFamilies: true // Toutes les familles de phrases ont des subfamilies
   },
 
-  grammar: {
-    hasSubfamilies: true,
-    requiresSubfamilyForAllFamilies: true // Toutes les familles de grammaire ont des subfamilies
-  },
-
   dialogues: {
     hasSubfamilies: true,
     requiresSubfamilyForAllFamilies: true // Toutes les conversations ont des subfamilies

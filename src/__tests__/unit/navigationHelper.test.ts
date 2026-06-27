@@ -55,10 +55,10 @@ describe('navigateToExercise — avec familyId', () => {
 
   it('utilise type comme moduleId si moduleId non fourni', () => {
     const router = makeRouter();
-    navigateToExercise(router, { type: 'grammar', levelId: 1, familyId: '3' });
+    navigateToExercise(router, { type: 'reading', levelId: 1, familyId: '3' });
 
     expect(router.push).toHaveBeenCalledWith(expect.objectContaining({
-      params: expect.objectContaining({ moduleId: 'grammar' }),
+      params: expect.objectContaining({ moduleId: 'reading' }),
     }));
   });
 });

@@ -61,7 +61,7 @@ jest.mock('@/utils/navigationHelper', () => ({
 }));
 jest.mock('@/config/moduleConfig', () => ({
   moduleHasSubfamilies: jest.fn().mockReturnValue(false),
-  ALL_MODULE_SLUGS: ['vocab', 'grammar', 'phrase_types', 'reading', 'dialogues', 'word_games', 'connector'],
+  ALL_MODULE_SLUGS: ['vocab', 'phrase_types', 'reading', 'dialogues', 'word_games', 'connector'],
 }));
 jest.mock('@/utils/logUtils', () => ({
   log: { error: jest.fn(), warn: jest.fn(), debug: jest.fn(), info: jest.fn() },
@@ -291,7 +291,7 @@ describe('Smoke tests — Navigation et autres screens', () => {
   });
 
   it('ExerciceSelectionScreen — charge les modules via l\'async effect', async () => {
-    require('@/utils/labelMapper').getAvailableModules.mockResolvedValueOnce(['vocab', 'grammar']);
+    require('@/utils/labelMapper').getAvailableModules.mockResolvedValueOnce(['vocab', 'reading']);
     require('@/utils/labelMapper').getModuleLabel
       .mockResolvedValueOnce({ title: 'Vocabulaire', description: 'Apprenez le vocab', icon: 'book' })
       .mockResolvedValueOnce({ title: 'Grammaire', description: 'Les règles', icon: 'pencil' });
@@ -301,7 +301,7 @@ describe('Smoke tests — Navigation et autres screens', () => {
   });
 
   it('ExerciceSelectionScreen — sortedExercises avec module recommandé (lines 124-129)', async () => {
-    require('@/utils/labelMapper').getAvailableModules.mockResolvedValueOnce(['vocab', 'grammar']);
+    require('@/utils/labelMapper').getAvailableModules.mockResolvedValueOnce(['vocab', 'reading']);
     require('@/utils/labelMapper').getModuleLabel
       .mockResolvedValueOnce({ title: 'Vocabulaire', description: '', icon: 'book' })
       .mockResolvedValueOnce({ title: 'Grammaire', description: '', icon: 'pencil' });
@@ -526,7 +526,7 @@ describe('Smoke tests — Navigation et autres screens', () => {
   });
 
   it('FamilySelectionScreen — loadLabels async avec modules non-vides (ligne 109)', async () => {
-    require('@/utils/labelMapper').getAvailableModules.mockResolvedValueOnce(['vocab', 'grammar']);
+    require('@/utils/labelMapper').getAvailableModules.mockResolvedValueOnce(['vocab', 'reading']);
     require('@/utils/labelMapper').getLevelLabel.mockResolvedValueOnce({ badge: 'N1', title: 'Les Bases', description: '' });
     require('@/utils/labelMapper').getModuleLabel.mockResolvedValueOnce({ title: 'Vocabulaire', icon: 'book', description: '' });
     require('@/utils/moduleHelper').getModuleColor.mockResolvedValueOnce('#E74C3C');
