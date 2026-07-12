@@ -24,12 +24,36 @@ const KEYS = {
   PROVIDER: 'ai_provider',         // Provider actuel (optionnel, backup)
 } as const;
 
-// Options de sécurité renforcées
-const SECURE_OPTIONS: SecureStore.SecureStoreOptions = {
+// Options de sécurité de base (sans authentification biométrique)
+const BASE_SECURE_OPTIONS: SecureStore.SecureStoreOptions = {
   // iOS : Accessibilité uniquement quand l'appareil est déverrouillé
   keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-  // Android : Nécessite authentification biométrique (si disponible)
-  requireAuthentication: false, // Mettre true pour forcer Touch ID/Face ID
+};
+
+/**
+ * Options de sécurité utilisées pour lire/écrire la clé API.
+ * Ajoute Face ID / Touch ID / empreinte quand l'appareil le permet
+ * (Keychain access control sur iOS, setUserAuthenticationRequired sur Android).
+ * Sur un appareil sans biométrie configurée, on retombe sur les options de base
+ * pour ne jamais bloquer la fonctionnalité BYOK.
+ */
+const getSecureOptions = (): SecureStore.SecureStoreOptions => {
+  let canUseBiometrics = false;
+  try {
+    canUseBiometrics = SecureStore.canUseBiometricAuthentication();
+  } catch {
+    canUseBiometrics = false;
+  }
+
+  if (!canUseBiometrics) {
+    return BASE_SECURE_OPTIONS;
+  }
+
+  return {
+    ...BASE_SECURE_OPTIONS,
+    requireAuthentication: true,
+    authenticationPrompt: 'Authentifie-toi pour accéder à ta clé API IA',
+  };
 };
 
 // ============================================
@@ -62,7 +86,14 @@ class SecureStorageService {
     }
 
     try {
-      await SecureStore.setItemAsync(KEYS.API_KEY, apiKey.trim(), SECURE_OPTIONS);
+      try {
+        await SecureStore.setItemAsync(KEYS.API_KEY, apiKey.trim(), getSecureOptions());
+      } catch (authError) {
+        // Repli sans authentification biométrique si celle-ci n'est pas disponible
+        // (ex: build Expo Go, biométrie retirée entre-temps)
+        log.warn('[SecureStorage] Stockage avec authentification indisponible, repli sans biométrie:', authError);
+        await SecureStore.setItemAsync(KEYS.API_KEY, apiKey.trim(), BASE_SECURE_OPTIONS);
+      }
       log.info('[SecureStorage] Clé API stockée avec succès (chiffrée)');
     } catch (error) {
       log.error('[SecureStorage] Erreur lors du stockage:', error);
@@ -82,7 +113,13 @@ class SecureStorageService {
     }
 
     try {
-      const apiKey = await SecureStore.getItemAsync(KEYS.API_KEY, SECURE_OPTIONS);
+      let apiKey: string | null;
+      try {
+        apiKey = await SecureStore.getItemAsync(KEYS.API_KEY, getSecureOptions());
+      } catch (authError) {
+        log.warn('[SecureStorage] Lecture avec authentification indisponible, repli sans biométrie:', authError);
+        apiKey = await SecureStore.getItemAsync(KEYS.API_KEY, BASE_SECURE_OPTIONS);
+      }
 
       if (apiKey) {
         log.debug('[SecureStorage] Clé API récupérée (longueur:', apiKey.length, 'chars)');
@@ -107,7 +144,12 @@ class SecureStorageService {
     }
 
     try {
-      await SecureStore.deleteItemAsync(KEYS.API_KEY, SECURE_OPTIONS);
+      try {
+        await SecureStore.deleteItemAsync(KEYS.API_KEY, getSecureOptions());
+      } catch (authError) {
+        log.warn('[SecureStorage] Suppression avec authentification indisponible, repli sans biométrie:', authError);
+        await SecureStore.deleteItemAsync(KEYS.API_KEY, BASE_SECURE_OPTIONS);
+      }
       log.info('[SecureStorage] Clé API supprimée');
     } catch (error) {
       log.error('[SecureStorage] Erreur lors de la suppression:', error);

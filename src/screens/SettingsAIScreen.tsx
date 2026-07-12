@@ -52,8 +52,13 @@ export default function SettingsAIScreen() {
   } = useAISettings();
 
   const [provider, setProvider] = useState<Provider>(settings?.provider || 'openai');
-  const [apiKey, setApiKey] = useState(settings?.apiKey || '');
+  // Ne jamais préremplir avec la clé déchiffrée : ce champ ne reçoit que ce que
+  // l'utilisateur tape pour créer/remplacer sa clé. La clé existante n'est jamais
+  // dupliquée dans l'état de cet écran, seul son aperçu masqué est affiché.
+  const [apiKey, setApiKey] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+
+  const existingMaskedKey = settings?.apiKey ? secureStorage.maskAPIKey(settings.apiKey) : null;
 
   const isPlayful = identity.ui.mood === 'playful';
 
@@ -91,13 +96,16 @@ export default function SettingsAIScreen() {
   };
 
   const handleSave = async () => {
-    if (!apiKey.trim()) {
+    const trimmedKey = apiKey.trim();
+    const keepingExistingKey = !trimmedKey && !!settings?.isConfigured;
+
+    if (!trimmedKey && !keepingExistingKey) {
       Alert.alert('Erreur', 'La clé API est obligatoire');
       return;
     }
 
-    // Valider le format de la clé
-    if (!secureStorage.validateAPIKeyFormat(apiKey.trim(), provider)) {
+    // Valider le format uniquement si une nouvelle clé est saisie
+    if (trimmedKey && !secureStorage.validateAPIKeyFormat(trimmedKey, provider)) {
       Alert.alert(
         '⚠️ Format invalide',
         `Le format de la clé API ne correspond pas au provider ${PROVIDERS.find((p) => p.id === provider)?.name}.\n\nFormats attendus:\n- OpenAI: sk-...\n- Claude: sk-ant-...\n- Mistral: (variable)`,
@@ -110,9 +118,14 @@ export default function SettingsAIScreen() {
       setIsSaving(true);
       await updateSettings({
         provider,
-        apiKey: apiKey.trim(),
+        // Si le champ est vide et qu'une clé existe déjà, on ne la touche pas
+        // (apiKey: undefined => updateSettings ne réécrit pas le SecureStore)
+        ...(trimmedKey ? { apiKey: trimmedKey } : {}),
         isConfigured: true,
       });
+
+      // La clé tapée ne reste jamais en mémoire plus longtemps que nécessaire
+      setApiKey('');
 
       Alert.alert(
         '✅ Clé API sécurisée',
@@ -180,6 +193,7 @@ export default function SettingsAIScreen() {
           providerName={PROVIDERS.find((p) => p.id === provider)?.name || ''}
           apiKey={apiKey}
           onChangeApiKey={setApiKey}
+          existingMaskedKey={existingMaskedKey}
           styles={styles}
           identity={identity}
         />

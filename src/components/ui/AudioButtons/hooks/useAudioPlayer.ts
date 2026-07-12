@@ -101,7 +101,7 @@ export const useAudioPlayer = (
     }
   }, [onAudioPlayCallback]);
 
-  // ========== LECTURE SOURCE LOCALE (require) ==========
+  // ========== LECTURE SOURCE AUDIO (URI) ==========
   const playAudio = useCallback(async () => {
     if (!audioSource || isPlayingRef.current) return;
     try {
@@ -111,7 +111,7 @@ export const useAudioPlayer = (
       }
       setPlaying(true);
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      const { sound: newSound } = await Audio.Sound.createAsync(audioSource);
+      const { sound: newSound } = await Audio.Sound.createAsync({ uri: audioSource });
       soundRef.current = newSound;
       onAudioPlayCallback?.();
       newSound.setOnPlaybackStatusUpdate((status: AVPlaybackStatus) => {

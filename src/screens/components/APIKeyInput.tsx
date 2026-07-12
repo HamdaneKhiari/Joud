@@ -17,6 +17,7 @@ interface APIKeyInputProps {
   providerName: string;
   apiKey: string;
   onChangeApiKey: (key: string) => void;
+  existingMaskedKey?: string | null;
   styles: Record<string, object>;
   identity: Identity;
 }
@@ -26,6 +27,7 @@ export const APIKeyInput: React.FC<APIKeyInputProps> = ({
   providerName,
   apiKey,
   onChangeApiKey,
+  existingMaskedKey,
   styles,
   identity,
 }) => {
@@ -33,9 +35,14 @@ export const APIKeyInput: React.FC<APIKeyInputProps> = ({
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Clé API</Text>
       <Text style={styles.label}>Ta clé API {providerName}</Text>
+      {existingMaskedKey && (
+        <Text style={[styles.label, { fontWeight: '400', color: identity.text.secondary }]}>
+          Clé actuelle : {existingMaskedKey} — laisse le champ vide pour la conserver
+        </Text>
+      )}
       <TextInput
         style={[styles.input, styles.inputSecure]}
-        placeholder="sk-..."
+        placeholder={existingMaskedKey ? 'Nouvelle clé (optionnel)' : 'sk-...'}
         placeholderTextColor={identity.text.tertiary}
         value={apiKey}
         onChangeText={onChangeApiKey}

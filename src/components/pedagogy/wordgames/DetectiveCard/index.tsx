@@ -198,7 +198,7 @@ const DetectiveCard: React.FC<DetectiveCardProps> = ({
         {/* Titre */}
         <View style={baseStyles.titleSection}>
           <Text style={baseStyles.titleIcon}>🔍</Text>
-          <Text style={baseStyles.titleText}>Grammar Detective</Text>
+          <Text style={baseStyles.titleText}>Error Detective</Text>
         </View>
 
         {/* Instructions */}

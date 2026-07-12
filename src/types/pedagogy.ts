@@ -2,7 +2,7 @@
  * ============================================
  * PEDAGOGY - TYPES CENTRAUX
  * Types TypeScript partagés pour tous les modules pédagogiques
- * (Grammar, Vocabulary, Reading, etc.)
+ * (Vocabulary, Reading, etc.)
  * ============================================
  */
 
@@ -12,7 +12,7 @@
 
 /**
  * Structure d'un exercice (question + options + réponse)
- * Utilisé par Grammar, Vocabulary, Reading
+ * Utilisé par Vocabulary, Reading
  */
 export interface Exercise {
   question: string;
@@ -21,8 +21,8 @@ export interface Exercise {
 }
 
 /**
- * Données d'une leçon (règle/mot + exemples + exercice)
- * Générique pour Grammar (règle), Vocabulary (mot), Reading (texte)
+ * Données d'une leçon (mot + exemples + exercice)
+ * Générique pour Vocabulary (mot), Reading (texte)
  */
 export interface LessonData {
   title?: string;       // Titre de la règle (ex: "Present Simple")
@@ -41,33 +41,6 @@ export interface ExerciseState {
   isValidated: boolean;
   isCorrect: boolean;
   attemptCount: number;
-}
-
-// ============================================
-// TYPES SPÉCIFIQUES - MODULE GRAMMAR
-// ============================================
-
-/**
- * Structure d'une règle de grammaire
- */
-export interface GrammarRule {
-  id?: string;
-  content: string;
-  examples: string[];
-  exercise: {
-    question: string;
-    options: string[];
-    correctAnswer: string;
-  };
-}
-
-/**
- * Famille de règles de grammaire
- */
-export interface GrammarFamily {
-  title: string;
-  icon?: string;
-  rules: GrammarRule[];
 }
 
 // ============================================

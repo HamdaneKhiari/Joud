@@ -29,7 +29,13 @@
     "plugins": [
       "expo-router",
       "expo-sqlite",
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": "Autorise Face ID pour protéger l'accès à ta clé API IA."
+        }
+      ]
     ]
   }
 }
