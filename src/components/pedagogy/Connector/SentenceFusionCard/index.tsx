@@ -34,10 +34,8 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps & { hideValidation?: 
     !!userAnswer && userAnswer.trim().length > 0
   );
 
-  // Définition de la couleur de marque (priorité au module, sinon identité)
   const brandColor = color || identity.palette.primary;
 
-  // Convertit FeedbackMessage | null en FeedbackData | undefined
   const feedbackData = useMemo(() => {
     const feedback = generateFeedbackMessage(
       isValidated,
@@ -67,7 +65,6 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps & { hideValidation?: 
           <Text style={[styles.titleText, { color: identity.text.primary }]}>Combine two sentences into one</Text>
         </View>
 
-        {/* Phrase 1 : Utilisation de withOpacity pour un look premium */}
         <View style={[
           styles.phraseBox, 
           { 
@@ -79,7 +76,6 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps & { hideValidation?: 
           <Text style={[styles.phraseText, { color: identity.text.primary }]}>{question.phrase1}</Text>
         </View>
 
-        {/* Phrase 2 */}
         <View style={[
           styles.phraseBox, 
           { 
@@ -91,7 +87,6 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps & { hideValidation?: 
           <Text style={[styles.phraseText, { color: identity.text.primary }]}>{question.phrase2}</Text>
         </View>
 
-        {/* Hint */}
         {question.hint && (
           <View style={[styles.hintBox, { backgroundColor: withOpacity(baseColors.orange500, 0.1) }]}>
             <Text style={styles.hintIcon}>💡</Text>
@@ -99,7 +94,6 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps & { hideValidation?: 
           </View>
         )}
 
-        {/* Input pour la réponse */}
         <View style={styles.answerSection}>
           <Text style={[styles.answerLabel, { color: identity.text.primary }]}>Your answer:</Text>
           <TextInput
@@ -124,7 +118,6 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps & { hideValidation?: 
           />
         </View>
 
-        {/* Correction si validé et faux */}
         {isValidated && !isCorrect && canSkip && (
           <View style={[
             styles.correctAnswerBox, 
@@ -135,7 +128,6 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps & { hideValidation?: 
           </View>
         )}
 
-        {/* Traduction */}
         {question.translation && (
           <View style={[styles.translationBox, { borderTopColor: withOpacity(identity.text.tertiary, 0.1) }]}>
             <Text style={[styles.translationText, { color: identity.text.secondary }]}>{question.translation}</Text>

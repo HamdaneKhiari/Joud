@@ -34,7 +34,6 @@ export const useReadingHandlers = ({
   const handleValidate = useCallback(() => {
     if (!state.selectedOption || !question) return;
 
-    // On compare la lettre choisie (A, B, C...) avec la bonne réponse
     const isCorrect = state.selectedOption === question.correct_answer;
     const newAttemptCount = state.attemptCount + 1;
 
@@ -45,7 +44,7 @@ export const useReadingHandlers = ({
       attemptCount: newAttemptCount
     }));
 
-    // ✅ Enregistrer l'erreur si dernier essai échoué → Coach IA
+    // Dernier essai échoué : remonte l'erreur pour le Coach IA
     if (!isCorrect && maxAttempts && newAttemptCount >= maxAttempts && onError) {
       onError({
         question: question.question_text || '',
@@ -57,7 +56,7 @@ export const useReadingHandlers = ({
 
   const handleNext = useCallback(() => {
     if (isLastQuestion) {
-      onFinish(); // ✅ On appelle la fin de l'exercice
+      onFinish();
     } else {
       setCurrentQuestionIndex((prev) => prev + 1);
       resetState();

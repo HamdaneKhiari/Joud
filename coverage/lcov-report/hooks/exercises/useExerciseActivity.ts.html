@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -158,7 +158,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -168,35 +168,35 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -213,7 +213,7 @@
  * ============================================
  * HOOK: useExerciseActivity
  * Calcule la progression locale et enregistre l'activité.
- * ✅ Universel : Fonctionne pour Vocab, Sentences, Grammaire, etc.
+ * ✅ Universel : Fonctionne pour Vocab, Sentences, etc.
  * ============================================
  */
 &nbsp;
@@ -221,7 +221,7 @@ import { useEffect, useRef } from 'react';
 import { useLastActivity } from '@/hooks/useLastActivity';
 &nbsp;
 interface UseExerciseActivityProps {
-  moduleSlug: string;    // ex: 'vocab', 'sentences', 'grammar'
+  moduleSlug: string;   
   familyId: string;
   levelId: number;
   familyName: string;
@@ -231,36 +231,36 @@ interface UseExerciseActivityProps {
   enabled: boolean;      // Pour éviter d'enregistrer pendant le chargement
 }
 &nbsp;
-export const useExerciseActivity = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >({</span></span>
+export const useExerciseActivity = ({
   moduleSlug,
   familyId,
   levelId,
   familyName,
-  icon = <span class="branch-0 cbranch-no" title="branch not covered" >'book',</span>
+  icon = 'book',
   currentIndex,
   totalItems,
   enabled
 }: UseExerciseActivityProps) =&gt; {
-  const { recordActivity } = <span class="cstat-no" title="statement not covered" >useLastActivity();</span>
+  const { recordActivity } = useLastActivity();
   
   // Utilisation d'un ref pour éviter des appels en boucle si recordActivity change
-  const lastRecordedIndex = <span class="cstat-no" title="statement not covered" >useRef&lt;number&gt;(-1);</span>
+  const lastRecordedIndex = useRef&lt;number&gt;(-1);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+  useEffect(() =&gt; {
     // On n'enregistre que si :
     // 1. Le hook est activé
     // 2. On a des items à traiter
     // 3. L'index a réellement changé (évite les doublons au montage)
-<span class="cstat-no" title="statement not covered" >    if (enabled &amp;&amp; totalItems &gt; 0 &amp;&amp; currentIndex !== lastRecordedIndex.current) {</span>
+    if (enabled &amp;&amp; totalItems &gt; 0 &amp;&amp; currentIndex !== lastRecordedIndex.current) {
       
       // Calcul du pourcentage : (nb complétés / total) * 100
       // On utilise currentIndex + 1 car l'index 0 signifie qu'on a terminé le 1er item
-      const progressPercent = <span class="cstat-no" title="statement not covered" >Math.min(</span>
+      const progressPercent = Math.min(
         100, 
         Math.round(((currentIndex + 1) / totalItems) * 100)
       );
       
-<span class="cstat-no" title="statement not covered" >      recordActivity({</span>
+      recordActivity({
         moduleSlug,
         familyId,
         level: levelId,
@@ -269,7 +269,7 @@ export const useExerciseActivity = <span class="cstat-no" title="statement not c
         progress: progressPercent
       });
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      lastRecordedIndex.current = currentIndex;</span>
+      lastRecordedIndex.current = currentIndex;
     }
   }, [
     currentIndex, 
@@ -289,7 +289,7 @@ export const useExerciseActivity = <span class="cstat-no" title="statement not c
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-04T22:17:53.267Z
+                at 2026-07-21T00:47:51.424Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

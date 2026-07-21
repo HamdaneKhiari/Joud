@@ -1,7 +1,3 @@
-/**
- * Composant APIKeyInput - Input sécurisé pour clé API
- */
-
 import React from 'react';
 import { View, Text, TextInput } from 'react-native';
 import { withOpacity } from '@/themes/tokens';
@@ -51,7 +47,6 @@ export const APIKeyInput: React.FC<APIKeyInputProps> = ({
         autoCorrect={false}
       />
 
-      {/* Info Box - Sécurité */}
       <InfoBox
         icon={INFO_BOXES.security.icon}
         iconColor={INFO_BOXES.security.color}
@@ -62,7 +57,6 @@ export const APIKeyInput: React.FC<APIKeyInputProps> = ({
         textColor={identity.text.secondary}
       />
 
-      {/* Warning Box - Responsabilité */}
       <InfoBox
         icon={INFO_BOXES.responsibility.icon}
         iconColor={INFO_BOXES.responsibility.color}

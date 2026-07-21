@@ -4,18 +4,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MigrationRunner } from './migrations/runner';
 import { log } from '@/utils/logUtils';
 
-// ============================================
-// MIGRATIONS V2 — base consolidée
-// ============================================
-import migrationV2_001 from './migrations_v2/001_schema';
-import migrationV2_002 from './migrations_v2/002_seed_config';
-import migrationV2_003 from './migrations_v2/003_seed_subfamily_labels';
-import migrationV2_004 from './migrations_v2/004_remove_grammar_module';
+import migration001 from './migrations/001_schema';
+import migration002 from './migrations/002_seed_config';
+import migration003 from './migrations/003_seed_subfamily_labels';
+import migration004 from './migrations/004_remove_grammar_module';
+import migration005 from './migrations/005_remove_assessment_module';
 
-// ============================================
-// SINGLETON — une seule initialisation simultanée
-// Empêche la double-invocation de React 18 Strict Mode
-// ============================================
+// Une seule initialisation simultanée : évite la double-invocation de React 18 Strict Mode
 let _initPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 let _retryCount = 0;
 
@@ -27,9 +22,6 @@ export const initDatabase = (): Promise<SQLite.SQLiteDatabase> => {
   return _initPromise;
 };
 
-// ============================================
-// LOGIQUE D'INITIALISATION
-// ============================================
 const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
   let db: SQLite.SQLiteDatabase | undefined = undefined;
 
@@ -46,15 +38,16 @@ const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
     await runner.initialize();
 
     const migrations = [
-      migrationV2_001, // Schéma complet
-      migrationV2_002, // Config : branding, palettes, modules, levels, families, availability, feedback, daily_words
-      migrationV2_003, // Subfamily labels : vocab core, dialogues, reading
-      migrationV2_004, // Suppression du module grammar (données résiduelles)
+      migration001, // Schéma complet
+      migration002, // Config : branding, palettes, modules, levels, families, availability, feedback, daily_words
+      migration003, // Subfamily labels : vocab core, dialogues, reading
+      migration004, // Suppression du module grammar (données résiduelles)
+      migration005, // Suppression du module assessment (données résiduelles)
     ];
 
-    console.log('[JanaCore] 🚀 Running migrations V2...');
+    console.log('[JanaCore] 🚀 Running migrations...');
     await runner.runMigrations(migrations);
-    console.log('[JanaCore] ✅ Ready — V2 synchronized');
+    console.log('[JanaCore] ✅ Ready — synchronized');
 
     _retryCount = 0;
     return db;

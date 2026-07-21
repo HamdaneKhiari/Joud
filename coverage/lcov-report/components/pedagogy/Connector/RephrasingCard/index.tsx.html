@@ -340,31 +340,7 @@
 <a name='L275'></a><a href='#L275'>275</a>
 <a name='L276'></a><a href='#L276'>276</a>
 <a name='L277'></a><a href='#L277'>277</a>
-<a name='L278'></a><a href='#L278'>278</a>
-<a name='L279'></a><a href='#L279'>279</a>
-<a name='L280'></a><a href='#L280'>280</a>
-<a name='L281'></a><a href='#L281'>281</a>
-<a name='L282'></a><a href='#L282'>282</a>
-<a name='L283'></a><a href='#L283'>283</a>
-<a name='L284'></a><a href='#L284'>284</a>
-<a name='L285'></a><a href='#L285'>285</a>
-<a name='L286'></a><a href='#L286'>286</a>
-<a name='L287'></a><a href='#L287'>287</a>
-<a name='L288'></a><a href='#L288'>288</a>
-<a name='L289'></a><a href='#L289'>289</a>
-<a name='L290'></a><a href='#L290'>290</a>
-<a name='L291'></a><a href='#L291'>291</a>
-<a name='L292'></a><a href='#L292'>292</a>
-<a name='L293'></a><a href='#L293'>293</a>
-<a name='L294'></a><a href='#L294'>294</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L278'></a><a href='#L278'>278</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -391,12 +367,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -417,11 +390,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -659,14 +627,6 @@ import { tokens, withOpacity } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors'; 
 import { RephrasingCardProps } from '../types';
 &nbsp;
-/**
- * ============================================
- * RephrasingCard (Standardized Edition)
- * ✅ Zéro "Leaked Values" (Sonar S6439)
- * ✅ Thème 100% Dynamique
- * ============================================
- */
-&nbsp;
 const RephrasingCard: React.FC&lt;RephrasingCardProps &amp; { hideValidation?: boolean; scrollEnabled?: boolean }&gt; = <span class="fstat-no" title="function not covered" >({</span>
   question,
   userAnswer,
@@ -684,8 +644,6 @@ const RephrasingCard: React.FC&lt;RephrasingCardProps &amp; { hideValidation?: b
   scrollEnabled = <span class="branch-0 cbranch-no" title="branch not covered" >true,</span>
 }) =&gt; {
   const { identity } = <span class="cstat-no" title="statement not covered" >useTheme();</span>
-&nbsp;
-  // Détermination de la couleur de marque avec fallback safe
   const brandColor = <span class="cstat-no" title="statement not covered" >color || identity.palette.primary || '#F59E0B';</span>
 &nbsp;
   const { canSkip, validationState, buttonDisabled } = <span class="cstat-no" title="statement not covered" >useExerciseValidationState(</span>
@@ -693,10 +651,9 @@ const RephrasingCard: React.FC&lt;RephrasingCardProps &amp; { hideValidation?: b
     isCorrect,
     attemptCount,
     maxAttempts,
-    !!(userAnswer &amp;&amp; userAnswer.trim().length &gt; 0) // Cast boolean explicite
+    !!(userAnswer &amp;&amp; userAnswer.trim().length &gt; 0)
   );
 &nbsp;
-  // Transformation du feedback pour correspondre au type attendu par ExerciseValidation
   const feedbackData = <span class="cstat-no" title="statement not covered" >useMemo(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
     const feedback = <span class="cstat-no" title="statement not covered" >generateFeedbackMessage(</span>
       isValidated,
@@ -733,9 +690,8 @@ const RephrasingCard: React.FC&lt;RephrasingCardProps &amp; { hideValidation?: b
           &lt;/Text&gt;
         &lt;/View&gt;
 &nbsp;
-        {/* Phrase de base */}
         &lt;View style={[
-          styles.baseSentenceBox, 
+          styles.baseSentenceBox,
           { 
             borderColor: withOpacity(brandColor, 0.3),
             backgroundColor: withOpacity(brandColor, 0.05)
@@ -749,7 +705,6 @@ const RephrasingCard: React.FC&lt;RephrasingCardProps &amp; { hideValidation?: b
           &lt;/Text&gt;
         &lt;/View&gt;
 &nbsp;
-        {/* Instruction : Correction S6439 (!! force le boolean) */}
         {!!question.instruction &amp;&amp; (
           &lt;View style={[
             styles.instructionBox, 
@@ -765,7 +720,6 @@ const RephrasingCard: React.FC&lt;RephrasingCardProps &amp; { hideValidation?: b
           &lt;/View&gt;
         )}
 &nbsp;
-        {/* Section Réponse */}
         &lt;View style={styles.answerSection}&gt;
           &lt;Text style={[styles.answerLabel, { color: identity.text.primary }]}&gt;
             Your rephrased sentence:
@@ -796,7 +750,6 @@ const RephrasingCard: React.FC&lt;RephrasingCardProps &amp; { hideValidation?: b
           /&gt;
         &lt;/View&gt;
 &nbsp;
-        {/* Correction affichée si nécessaire */}
         {!!(isValidated &amp;&amp; !isCorrect &amp;&amp; canSkip) &amp;&amp; (
           &lt;View style={styles.correctAnswerBox}&gt;
             &lt;Text style={styles.correctAnswerLabel}&gt;✅ Correct answer:&lt;/Text&gt;
@@ -804,7 +757,6 @@ const RephrasingCard: React.FC&lt;RephrasingCardProps &amp; { hideValidation?: b
           &lt;/View&gt;
         )}
 &nbsp;
-        {/* Traduction : Correction S6439 */}
         {!!question.translation &amp;&amp; (
           &lt;View style={[styles.translationBox, { borderTopColor: withOpacity(identity.text.tertiary, 0.1) }]}&gt;
             &lt;Text style={[styles.translationText, { color: identity.text.secondary }]}&gt;
@@ -949,7 +901,7 @@ export default RephrasingCard;</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-04T22:17:53.267Z
+                at 2026-07-21T00:47:51.424Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

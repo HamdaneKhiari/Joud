@@ -1,7 +1,3 @@
-// ============================================
-// styles.ts - Styles 100% White Label
-// ============================================
-
 import { StyleSheet } from 'react-native';
 import { spacing, withOpacity, shadows, fontSize, fontWeight } from '@/themes/tokens';
 import type { Identity } from '@/themes/ThemeContext';
@@ -15,7 +11,6 @@ export const getStyles = (identity: Identity, brandColor: string) => {
       backgroundColor: identity.palette.surface || '#FFFFFF',
       borderColor: withOpacity(identity.text.tertiary, 0.1),
       marginBottom: spacing.xl,
-      // 🆕 Ombre depuis tokens au lieu de valeurs en dur
       ...shadows.sm,
     },
     questionText: {

@@ -1,16 +1,5 @@
 import { log } from '@/utils/logUtils';
 
-/**
- * ============================================
- * AI SERVICE
- * Service de communication avec l'IA (OpenAI/Mistral/Claude)
- * ============================================
- */
-
-// ============================================
-// TYPES
-// ============================================
-
 interface AIResponse {
   content: string;
   confidence?: number;
@@ -39,15 +28,7 @@ interface ChatOptions {
   temperature?: number;
 }
 
-// ============================================
-// SERVICE
-// ============================================
-
 class AIService {
-  /**
-   * Envoie un message simple à l'IA et récupère la réponse
-   * Utilise sendChatMessage en interne
-   */
   async sendMessage(request: AIRequest): Promise<AIResponse> {
     const messages: ChatMessage[] = [];
 
@@ -67,16 +48,10 @@ class AIService {
     return { content };
   }
 
-  /**
-   * Construit un objet message système pour le contexte chat
-   */
   buildSystemMessage(content: string): ChatMessage {
     return { role: 'system', content };
   }
 
-  /**
-   * Envoie une conversation multi-messages vers l'API IA
-   */
   async sendChatMessage(
     provider: Provider,
     apiKey: string,
@@ -104,9 +79,6 @@ class AIService {
     }
   }
 
-  /**
-   * Appel API OpenAI
-   */
   private async sendToOpenAI(
     apiKey: string,
     messages: ChatMessage[],
@@ -138,9 +110,6 @@ class AIService {
     return data.choices[0]?.message?.content || 'Pas de réponse reçue.';
   }
 
-  /**
-   * Appel API Mistral
-   */
   private async sendToMistral(
     apiKey: string,
     messages: ChatMessage[],
@@ -172,9 +141,6 @@ class AIService {
     return data.choices[0]?.message?.content || 'Pas de réponse reçue.';
   }
 
-  /**
-   * Appel API Claude (Anthropic)
-   */
   private async sendToClaude(
     apiKey: string,
     messages: ChatMessage[],
@@ -213,9 +179,6 @@ class AIService {
     return data.content[0]?.text || 'Pas de réponse reçue.';
   }
 
-  /**
-   * Formate une erreur AI en message lisible
-   */
   formatAIError(error: unknown): string {
     const message = error instanceof Error ? error.message : undefined;
     if (message) {
@@ -236,10 +199,6 @@ class AIService {
     return 'Erreur de communication avec l\'IA. Vérifie ta connexion.';
   }
 }
-
-// ============================================
-// EXPORT SINGLETON
-// ============================================
 
 const aiService = new AIService();
 export default aiService;

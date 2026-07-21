@@ -19,10 +19,8 @@ export const DynamicIcon: React.FC<DynamicIconProps> = ({
   style 
 }) => {
   const { identity } = useTheme();
-  
-  // 1. Priorité : Nom venant de la DB
-  // 2. Fallback 1 : Logo de l'identité (si configuré)
-  // 3. Fallback 2 : Icône par défaut ('help-circle' ou autre)
+
+  // Priorité : nom venant de la DB → logo de l'identité → icône par défaut
   const iconName = (name || identity.icons.logo || fallback) as React.ComponentProps<typeof MaterialCommunityIcons>['name'];
   const iconColor = color || identity.text.onPrimary;
 

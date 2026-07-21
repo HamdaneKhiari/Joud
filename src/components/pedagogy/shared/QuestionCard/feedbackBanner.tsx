@@ -10,8 +10,6 @@ interface FeedbackBannerProps {
 
 const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ isCorrect, message }) => {
   const { identity } = useTheme();
-  
-  // Utilisation des couleurs AI de l'identité ou fallback
   const statusColor = isCorrect ? '#22C55E' : identity.aiDiagnostic.error;
 
   return (

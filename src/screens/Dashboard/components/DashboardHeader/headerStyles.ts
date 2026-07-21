@@ -1,10 +1,3 @@
-/**
- * ============================================
- * DashboardHeader Styles - Version Dynamique
- * 100% White Label + Mood-Aware
- * ============================================
- */
-
 import { StyleSheet } from 'react-native';
 import type { Identity } from '@/themes/ThemeContext';
 import { tokens, withOpacity } from '@/themes/tokens';

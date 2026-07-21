@@ -1,14 +1,9 @@
-/**
- * ============================================
- * HOOK: useLastActivity
- * Gère l'enregistrement et la récupération de la dernière activité.
- * Partagé entre le Dashboard (Lecture) et les Exercices (Écriture).
- * ============================================
- */
+// Enregistrement + récupération de la dernière activité, partagé entre le Dashboard (lecture) et les exercices (écriture)
 
 import { log } from '@/utils/logUtils';
 import { useState, useCallback } from 'react';
 import { useUser } from '../contexts/UserContext';
+import { parseCompositeKey } from '../contexts/progressUtils';
 
 export interface ActivityData {
   moduleSlug: string;
@@ -25,27 +20,12 @@ export const useLastActivity = () => {
   const [lastActivity, setLastActivity] = useState<ActivityData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  /**
-   * Enregistre une activité (UPSERT).
-   * Optimisé pour ne pas bloquer l'UI.
-   */
   const recordActivity = useCallback(async (activity: ActivityData) => {
     if (!db || typeof db === 'number') return;
 
     try {
       const timestamp = Date.now();
-
-      // Décomposer le familyId composite "1-2" en family_id + subfamily_id
-      let familyIdNum = 0;
-      let subfamilyIdNum = 0;
-      const raw = String(activity.familyId);
-      if (raw.includes('-')) {
-        const [fam, sub] = raw.split('-');
-        familyIdNum = Number(fam) || 0;
-        subfamilyIdNum = Number(sub) || 0;
-      } else {
-        familyIdNum = Number(raw) || 0;
-      }
+      const { familyId: familyIdNum, subfamilyId: subfamilyIdNum } = parseCompositeKey(String(activity.familyId));
 
       await db.runAsync(`
         INSERT OR REPLACE INTO activity_log (
@@ -66,9 +46,6 @@ export const useLastActivity = () => {
     }
   }, [db]);
 
-  /**
-   * Récupère la dernière activité pour le Dashboard.
-   */
   const fetchLastActivity = useCallback(async () => {
     if (!db || typeof db === 'number') return;
 

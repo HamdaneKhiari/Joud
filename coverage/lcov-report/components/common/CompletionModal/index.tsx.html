@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">11.76% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>2/17</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/12</span>
+                <span class='fraction'>10/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">11.76% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>2/17</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -317,28 +317,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">42x</span>
+<span class="cline-any cline-yes">42x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">42x</span>
+<span class="cline-any cline-yes">42x</span>
+<span class="cline-any cline-yes">42x</span>
+<span class="cline-any cline-yes">42x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">42x</span>
+<span class="cline-any cline-yes">24x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -370,12 +367,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">42x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">42x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -521,33 +521,33 @@ export interface CompletionModalProps {
 // COMPOSANT
 // ============================================
 &nbsp;
-const CompletionModal: React.FC&lt;CompletionModalProps&gt; = <span class="fstat-no" title="function not covered" >({</span>
+const CompletionModal: React.FC&lt;CompletionModalProps&gt; = ({
   visible,
   title = <span class="branch-0 cbranch-no" title="branch not covered" >'Series complete!',</span>
   subtitle = <span class="branch-0 cbranch-no" title="branch not covered" >'Great work! Keep it up.',</span>
-  emoji = <span class="branch-0 cbranch-no" title="branch not covered" >'🎉',</span>
+  emoji = '🎉',
   onDone,
-  doneLabel = <span class="branch-0 cbranch-no" title="branch not covered" >'Continue',</span>
+  doneLabel = 'Continue',
 }) =&gt; {
-  const { identity } = <span class="cstat-no" title="statement not covered" >useTheme();</span>
-  const isPlayful = <span class="cstat-no" title="statement not covered" >identity.ui.mood === 'playful';</span>
+  const { identity } = useTheme();
+  const isPlayful = identity.ui.mood === 'playful';
 &nbsp;
   // Animations
-  const overlayAnim = <span class="cstat-no" title="statement not covered" >useRef(new Animated.Value(0)).current;</span>
-  const cardScaleAnim = <span class="cstat-no" title="statement not covered" >useRef(new Animated.Value(0.75)).current;</span>
-  const cardFadeAnim = <span class="cstat-no" title="statement not covered" >useRef(new Animated.Value(0)).current;</span>
-  const emojiScaleAnim = <span class="cstat-no" title="statement not covered" >useRef(new Animated.Value(0)).current;</span>
+  const overlayAnim = useRef(new Animated.Value(0)).current;
+  const cardScaleAnim = useRef(new Animated.Value(0.75)).current;
+  const cardFadeAnim = useRef(new Animated.Value(0)).current;
+  const emojiScaleAnim = useRef(new Animated.Value(0)).current;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    if (visible) {</span>
+  useEffect(() =&gt; {
+    if (visible) {
       // Reset
-<span class="cstat-no" title="statement not covered" >      overlayAnim.setValue(0);</span>
-<span class="cstat-no" title="statement not covered" >      cardScaleAnim.setValue(0.75);</span>
-<span class="cstat-no" title="statement not covered" >      cardFadeAnim.setValue(0);</span>
-<span class="cstat-no" title="statement not covered" >      emojiScaleAnim.setValue(0);</span>
+      overlayAnim.setValue(0);
+      cardScaleAnim.setValue(0.75);
+      cardFadeAnim.setValue(0);
+      emojiScaleAnim.setValue(0);
 &nbsp;
       // Séquence : overlay fade → card spring → emoji bounce
-<span class="cstat-no" title="statement not covered" >      Animated.sequence([</span>
+      Animated.sequence([
         // 1. Fond noir apparaît rapidement
         Animated.timing(overlayAnim, {
           toValue: 1,
@@ -582,12 +582,12 @@ const CompletionModal: React.FC&lt;CompletionModalProps&gt; = <span class="fstat
     }
   }, [visible, overlayAnim, cardScaleAnim, cardFadeAnim, emojiScaleAnim]);
 &nbsp;
-  const overlayBgColor = <span class="cstat-no" title="statement not covered" >overlayAnim.interpolate({</span>
+  const overlayBgColor = overlayAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.65)'],
   });
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;Modal
       visible={visible}
       transparent
@@ -706,7 +706,7 @@ export default CompletionModal;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-04T22:17:53.267Z
+                at 2026-07-21T00:47:51.424Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

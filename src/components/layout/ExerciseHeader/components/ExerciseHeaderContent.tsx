@@ -2,11 +2,7 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, type TextStyle } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import type { Identity } from '@/themes/ThemeContext';
-import { tokens } from '@/themes/tokens'; // ✅ withOpacity supprimé car inutilisé
-
-// ============================================
-// TYPES
-// ============================================
+import { tokens } from '@/themes/tokens';
 
 interface ExerciseHeaderContentProps {
   title?: string;
@@ -14,12 +10,7 @@ interface ExerciseHeaderContentProps {
   variant?: 'exercise' | 'selection' | 'category' | 'subcategory';
 }
 
-// On définit un type pour s'assurer que l'ID de l'identité existe dans notre config
 type IdentityId = Identity['id'];
-
-// ============================================
-// CONFIGURATION DES VARIANTS (DRY)
-// ============================================
 
 interface TypographyConfig {
   titleSize: number;
@@ -60,12 +51,7 @@ const TYPOGRAPHY_CONFIG: Record<IdentityId, TypographyConfig> = {
   },
 } as const;
 
-// ============================================
-// STYLES DYNAMIQUES
-// ============================================
-
 const createStyles = (identity: Identity) => {
-  // ✅ Correction TS : On force le type ou on utilise un fallback
   const config = TYPOGRAPHY_CONFIG[identity.id] || TYPOGRAPHY_CONFIG.adult;
 
   // Header est toujours sur fond primary (foncé) → texte onPrimary
@@ -119,10 +105,6 @@ const createStyles = (identity: Identity) => {
     },
   });
 };
-
-// ============================================
-// COMPOSANT
-// ============================================
 
 const ExerciseHeaderContent: React.FC<ExerciseHeaderContentProps> = ({
   title,

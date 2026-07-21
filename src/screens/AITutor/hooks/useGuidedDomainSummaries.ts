@@ -1,19 +1,8 @@
-/**
- * ============================================
- * HOOK: useGuidedDomainSummaries
- * Queries SQLite for each coaching domain and returns
- * structured summaries with display-ready French strings.
- * Only domains with student activity are returned.
- * ============================================
- */
-
+// Queries SQLite for each coaching domain and returns structured summaries with
+// display-ready French strings. Only domains with student activity are returned.
 import { log } from '@/utils/logUtils';
 import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
-
-// ============================================
-// TYPES
-// ============================================
 
 export type GuidedDomain = 'vocab' | 'dialogues' | 'reading' | 'phrase_types';
 
@@ -42,10 +31,6 @@ export interface DomainSummary {
   stats: DomainStats;
 }
 
-// ============================================
-// CONFIG
-// ============================================
-
 const DOMAIN_META: Record<GuidedDomain, { label: string; emoji: string }> = {
   vocab:        { label: 'Vocabulaire',  emoji: '📝' },
   dialogues:    { label: 'Dialogues',    emoji: '💬' },
@@ -55,10 +40,6 @@ const DOMAIN_META: Record<GuidedDomain, { label: string; emoji: string }> = {
 
 const ANALYSIS_PERIOD_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-
-// ============================================
-// HOOK
-// ============================================
 
 export const useGuidedDomainSummaries = () => {
   const { db } = useUser();
@@ -79,7 +60,7 @@ export const useGuidedDomainSummaries = () => {
         const weekStart = now - WEEK_MS;
         const results: DomainSummary[] = [];
 
-        // =================== VOCABULAIRE ===================
+        // Vocabulaire
         const vocabWords = await db.getAllAsync<{ word: string; translation: string; last_seen: number }>(
           `SELECT word, translation, MAX(seen_at) as last_seen
            FROM vocabulary_seen
@@ -123,7 +104,6 @@ export const useGuidedDomainSummaries = () => {
           });
         }
 
-        // =================== HELPER: module domain query ===================
         const loadModuleDomain = async (
           domain: GuidedDomain,
           moduleSlugs: string[],
@@ -203,15 +183,12 @@ export const useGuidedDomainSummaries = () => {
           };
         };
 
-        // =================== DIALOGUES ===================
         const dialogues = await loadModuleDomain('dialogues', ['dialogues']);
         if (dialogues) results.push(dialogues);
 
-        // =================== LECTURE ===================
         const reading = await loadModuleDomain('reading', ['reading']);
         if (reading) results.push(reading);
 
-        // =================== PHRASES ===================
         const phrases = await loadModuleDomain('phrase_types', ['phrase_types', 'phrases']);
         if (phrases) results.push(phrases);
 

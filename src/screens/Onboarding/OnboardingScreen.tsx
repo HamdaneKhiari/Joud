@@ -1,11 +1,4 @@
-/**
- * ============================================
- * ONBOARDING SCREEN
- * Premier lancement : prénom uniquement
- * L'audience par défaut est 'college', modifiable dans les paramètres
- * ============================================
- */
-
+// Premier lancement : prénom uniquement. L'audience par défaut est 'college', modifiable dans les paramètres.
 import { log } from '@/utils/logUtils';
 import React, { useState } from 'react';
 import {

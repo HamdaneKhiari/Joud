@@ -1,10 +1,3 @@
-/**
- * ============================================
- * ExerciseProgressBar - 100% White Label
- * Barre de progression élégante avec texte
- * ============================================
- */
-
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
@@ -23,17 +16,14 @@ const ExerciseProgressBar: React.FC<ExerciseProgressBarProps> = ({
   const { identity } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
 
-  // Sécurisation du pourcentage entre 0 et 100
   const clampedProgress = Math.min(100, Math.max(0, progressPercent));
 
   return (
     <View style={styles.container}>
-      {/* Texte de progression */}
       {progressText && (
         <Text style={styles.progressText}>{progressText}</Text>
       )}
 
-      {/* Barre de progression */}
       <View style={styles.track}>
         <View style={[styles.fill, { width: `${clampedProgress}%` }]} />
       </View>
@@ -57,7 +47,7 @@ const createStyles = (identity: Identity) => StyleSheet.create({
     letterSpacing: 0.3,
   },
   track: {
-    height: 6, // ✅ Hauteur augmentée pour meilleure visibilité
+    height: 6,
     backgroundColor: withOpacity(identity.text.primary, 0.08),
     borderRadius: tokens.borderRadius.sm,
     overflow: 'hidden',
@@ -66,7 +56,6 @@ const createStyles = (identity: Identity) => StyleSheet.create({
     height: '100%',
     backgroundColor: identity.palette.accent,
     borderRadius: tokens.borderRadius.sm,
-    // ✅ Effet de glow subtil
     shadowColor: identity.palette.accent,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.4,

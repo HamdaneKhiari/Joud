@@ -36,7 +36,6 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      {/* PASSAGE */}
       <View style={[
         styles.passageCard,
         {
@@ -69,7 +68,6 @@ const ReadingCard: React.FC<ReadingCardProps> = ({
         </ScrollView>
       </View>
 
-      {/* QUESTION + OPTIONS */}
       <View style={styles.questionSection}>
         <QuestionCard
           question={question.question_text}

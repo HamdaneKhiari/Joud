@@ -1,12 +1,6 @@
 /**
- * ExerciseDecorative - Élément décoratif du header
- * Version TypeScript avec styles dynamiques
- *
- * Support :
- * - Images locales (require) : number
- * - Images URI (http/file) : string avec URL
- * - Emojis/Texte : string sans URL
- * - Composants React : ReactElement
+ * Élément décoratif du header. `icon` accepte : image locale (require → number),
+ * image URI (string http/file), emoji/texte (string) ou composant React (ReactElement).
  */
 
 import React, { useMemo } from 'react';
@@ -15,18 +9,10 @@ import { useTheme } from '@/themes/ThemeContext';
 import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 
-// ============================================
-// TYPES
-// ============================================
-
 interface ExerciseDecorativeProps {
   icon?: string | number | React.ReactElement;
   position?: 'left' | 'center' | 'right';
 }
-
-// ============================================
-// STYLES DYNAMIQUES
-// ============================================
 
 const createStyles = (identity: Identity) => {
   const baseColors = {
@@ -71,10 +57,6 @@ const createStyles = (identity: Identity) => {
   });
 };
 
-// ============================================
-// COMPOSANT
-// ============================================
-
 const ExerciseDecorative: React.FC<ExerciseDecorativeProps> = ({
   icon = '📚',
   position = 'right'
@@ -82,7 +64,6 @@ const ExerciseDecorative: React.FC<ExerciseDecorativeProps> = ({
   const { identity } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
 
-  // Détermine le style de position
   const getPositionStyle = () => {
     switch (position) {
       case 'center':
@@ -95,9 +76,7 @@ const ExerciseDecorative: React.FC<ExerciseDecorativeProps> = ({
     }
   };
 
-  // Rendu de l'icône selon son type
   const renderIcon = () => {
-    // CAS 1 : Image locale (require) - typeof number
     if (typeof icon === 'number') {
       return (
         <Image
@@ -108,9 +87,7 @@ const ExerciseDecorative: React.FC<ExerciseDecorativeProps> = ({
       );
     }
 
-    // CAS 2 : String (emoji ou URI)
     if (typeof icon === 'string') {
-      // Si c'est une URI (http ou file)
       if (icon.startsWith('http') || icon.startsWith('file')) {
         return (
           <Image
@@ -121,11 +98,9 @@ const ExerciseDecorative: React.FC<ExerciseDecorativeProps> = ({
         );
       }
 
-      // Sinon c'est un emoji ou caractère
       return <Text style={styles.decorativeEmoji}>{icon}</Text>;
     }
 
-    // CAS 3 : Composant React
     return icon;
   };
 

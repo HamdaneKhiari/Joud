@@ -2,10 +2,6 @@ import aiService from '@/services/ai/aiService';
 import type { ChatMessage } from './hooks/useChatConversation';
 import type { DomainSummary } from './hooks/useGuidedDomainSummaries';
 
-// ============================================
-// FORMAT TEMPS RELATIF
-// ============================================
-
 export const formatRelativeTime = (timestamp: number): string => {
   const diff    = Date.now() - timestamp;
   const minutes = Math.floor(diff / (1000 * 60));
@@ -17,10 +13,6 @@ export const formatRelativeTime = (timestamp: number): string => {
   if (days === 1) return 'Hier';
   return `Il y a ${days} jours`;
 };
-
-// ============================================
-// TYPE PARTAGÉ MESSAGE UI
-// ============================================
 
 export interface ChatUIMessage {
   id: string;
@@ -40,10 +32,6 @@ export const toUIMessage = (msg: ChatMessage): ChatUIMessage => ({
   source: msg.source as ChatUIMessage['source'],
   provider: msg.provider,
 });
-
-// ============================================
-// FREE SCREEN — HELPERS NIVEAU
-// ============================================
 
 export const getLevelWelcomeMessage = (level: number): string => {
   switch (level) {
@@ -74,10 +62,6 @@ ${baseTone[level] || baseTone[2]}
 IMPORTANT: If you detect that the question is about vocabulary that exists in Joud's lesson data, mention it so the student knows it's certified content.`
   );
 };
-
-// ============================================
-// GUIDED SCREEN — HELPERS DOMAINE
-// ============================================
 
 export const buildOpeningMessage = (domain: DomainSummary): string => {
   const { stats } = domain;

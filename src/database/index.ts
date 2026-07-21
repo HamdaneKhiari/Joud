@@ -33,16 +33,3 @@ export type {
   ModuleAvailability,
   ActivityLog
 } from './schema';
-
-/**
- * NOTE ARCHITECTURE:
- * - L'ancien composant SentenceScreen a été déplacé vers 
- *   src/screens/exercises/Sentences/SentenceExerciseScreen.tsx
- *   pour respecter l'architecture MVC/Clean.
- * 
- * - Ce fichier exporte maintenant TOUS les types nécessaires
- *   pour manipuler la base de données (base + white label).
- * 
- * - Utilisation recommandée dans l'app :
- *   import { queries, Module, Branding } from '@/database';
- */

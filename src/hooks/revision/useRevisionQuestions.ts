@@ -1,10 +1,3 @@
-/**
- * ============================================
- * HOOK: useRevisionQuestions
- * Transforme les mots en questions QCM pour révisions
- * ============================================
- */
-
 import { useState, useCallback } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { useCurrentLevel } from '@/contexts/CurrentLevelContext';
@@ -59,9 +52,6 @@ interface UseRevisionQuestionsReturn {
   isSessionCompleted: boolean;
 }
 
-/**
- * Hook pour gérer une session de révision avec questions QCM
- */
 export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
   const { db, user } = useUser();
   const { currentLevel } = useCurrentLevel();
@@ -86,9 +76,6 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
   const incorrectCount = results.filter(r => r === false).length;
   const isSessionCompleted = currentIndex >= totalQuestions && totalQuestions > 0;
 
-  /**
-   * Génère des distractors aléatoires (mauvaises réponses)
-   */
   const generateDistractors = useCallback((words: Content[], correctAnswer: string, count: number = 3): string[] => {
     const distractors: string[] = [];
     const allTranslations = words
@@ -102,7 +89,6 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
       })
       .filter(t => t && t !== correctAnswer);
 
-    // Sélectionner 3 traductions aléatoires
     while (distractors.length < count && allTranslations.length > 0) {
       const randomIndex = Math.floor(Math.random() * allTranslations.length);
       const distractor = allTranslations.splice(randomIndex, 1)[0];
@@ -123,9 +109,7 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
     return distractors.slice(0, count);
   }, []);
 
-  /**
-   * Mélange un tableau (Fisher-Yates)
-   */
+  // Fisher-Yates
   const shuffle = <T,>(array: T[]): T[] => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -135,9 +119,6 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
     return shuffled;
   };
 
-  /**
-   * Transforme les mots en questions QCM
-   */
   const wordsToQuestions = useCallback((words: Content[]): RevisionQuestion[] => {
     return words.map(word => {
       try {
@@ -164,9 +145,6 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
     }).filter(q => q !== null) as RevisionQuestion[];
   }, [generateDistractors]);
 
-  /**
-   * Charge les mots et génère les questions
-   */
   const loadQuestions = useCallback(async (selectedMode: RevisionMode) => {
     if (!db || typeof db === 'number' || !user) return;
 
@@ -193,9 +171,6 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
   // eslint-disable-next-line react-hooks/exhaustive-deps -- resetQuestionState has stable empty deps, safe to omit
   }, [db, user, currentLevel, wordsToQuestions]);
 
-  /**
-   * Réinitialise l'état de la question actuelle
-   */
   const resetQuestionState = useCallback(() => {
     setSelectedAnswer(null);
     setIsValidated(false);
@@ -203,27 +178,18 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
     setAttemptCount(0);
   }, []);
 
-  /**
-   * Démarre une session
-   */
   const startSession = useCallback((selectedMode: RevisionMode) => {
     setMode(selectedMode);
     loadQuestions(selectedMode);
   }, [loadQuestions]);
 
-  /**
-   * Sélectionne une réponse
-   */
   const selectAnswer = useCallback((answer: string) => {
     if (!isValidated) {
       setSelectedAnswer(answer);
     }
   }, [isValidated]);
 
-  /**
-   * Valide la réponse sélectionnée
-   * Ne stocke le résultat qu'une seule fois par question (1er essai)
-   */
+  // Ne stocke le résultat qu'une seule fois par question (1er essai)
   const validateAnswer = useCallback(async () => {
     if (!selectedAnswer || !currentQuestion || !db || !user) return;
 
@@ -257,9 +223,6 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
     await updateSpacedRepetitionResult(db, user.id, currentQuestion.id, correct);
   }, [selectedAnswer, currentQuestion, db, user, mode, attemptCount, currentLevel]);
 
-  /**
-   * Passe à la question suivante
-   */
   const nextQuestion = useCallback(() => {
     if (currentIndex < totalQuestions) {
       setCurrentIndex(prev => prev + 1);
@@ -267,16 +230,10 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
     }
   }, [currentIndex, totalQuestions, resetQuestionState]);
 
-  /**
-   * Réessayer la question actuelle
-   */
   const retryQuestion = useCallback(() => {
     resetQuestionState();
   }, [resetQuestionState]);
 
-  /**
-   * Réinitialise la session
-   */
   const resetSession = useCallback(() => {
     setMode(null);
     setQuestions([]);

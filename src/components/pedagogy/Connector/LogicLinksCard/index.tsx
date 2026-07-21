@@ -4,7 +4,6 @@ import ExerciseValidation from '../../../common/ExerciseValidation';
 import { useExerciseValidationState } from '../../../../hooks/exercises/useExerciceValidationState';
 import { generateFeedbackMessage } from '../../../../utils/feedback';
 import { useTheme } from '@/themes/ThemeContext';
-// ✅ Imports corrigés pour correspondre à tes fichiers
 import { tokens, withOpacity } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors'; 
 import { LogicLinksCardProps } from '../types';
@@ -36,7 +35,6 @@ const LogicLinksCard: React.FC<LogicLinksCardProps & { hideValidation?: boolean;
     !!selectedOption
   );
 
-  // Convertit FeedbackMessage | null en FeedbackData | undefined
   const feedbackData = useMemo(() => {
     const feedback = generateFeedbackMessage(
       isValidated,
@@ -95,7 +93,6 @@ const LogicLinksCard: React.FC<LogicLinksCardProps & { hideValidation?: boolean;
             const isCorrectOption = option === question.correctAnswer;
             const showFeedback = isValidated && (isCorrect || canSkip);
 
-            // ✅ CORRECTION DES COULEURS (baseColors au lieu de tokens.colors)
             const getButtonStyle = () => {
               if (showFeedback && isCorrectOption)
                 return { backgroundColor: baseColors.green500, borderColor: baseColors.green500 };

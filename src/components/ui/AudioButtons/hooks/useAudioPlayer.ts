@@ -47,9 +47,6 @@ const preprocessTextForTTS = (text: string): string => {
   return lowered;
 };
 
-/**
- * Custom Hook TypeScript pour gérer la lecture audio et TTS
- */
 export const useAudioPlayer = (
   audioSource?: string | null,
   onAudioPlayCallback?: () => void
@@ -71,10 +68,8 @@ export const useAudioPlayer = (
     }
   };
 
-  // ========== LECTURE FICHIER AUDIO (expo-av) ==========
   const playAudioFile = useCallback(async (url: string) => {
     try {
-      // Décharger le son précédent si besoin
       if (soundRef.current) {
         await soundRef.current.unloadAsync();
         soundRef.current = null;
@@ -101,7 +96,6 @@ export const useAudioPlayer = (
     }
   }, [onAudioPlayCallback]);
 
-  // ========== LECTURE SOURCE AUDIO (URI) ==========
   const playAudio = useCallback(async () => {
     if (!audioSource || isPlayingRef.current) return;
     try {
@@ -127,7 +121,7 @@ export const useAudioPlayer = (
     }
   }, [audioSource, onAudioPlayCallback]);
 
-  // ========== TEXT-TO-SPEECH (fallback si pas d'URL audio) ==========
+  // Fallback TTS si pas d'URL audio
   const speakText = useCallback(
     async (text: string, options: SpeakOptions = {}) => {
       if (!text || isPlayingRef.current) return;
@@ -173,7 +167,6 @@ export const useAudioPlayer = (
     [playAudioFile, onAudioPlayCallback]
   );
 
-  // ========== STOP ==========
   const stopSpeech = useCallback(() => {
     clearSafetyTimer();
     Speech.stop();
@@ -183,7 +176,6 @@ export const useAudioPlayer = (
     setPlaying(false);
   }, []);
 
-  // ========== CLEANUP ==========
   useEffect(() => {
     return () => {
       clearSafetyTimer();

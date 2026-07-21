@@ -1,18 +1,7 @@
-/**
- * ============================================
- * COMPLETION MODAL — White Label + Animated
- * Spring entrance + celebration playful mode
- * ============================================
- */
-
 import React, { useRef, useEffect } from 'react';
 import { Modal, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
-
-// ============================================
-// TYPES
-// ============================================
 
 export interface CompletionModalProps {
   visible: boolean;
@@ -27,10 +16,6 @@ export interface CompletionModalProps {
   /** Libellé du bouton — défaut: "Continue" */
   doneLabel?: string;
 }
-
-// ============================================
-// COMPOSANT
-// ============================================
 
 const CompletionModal: React.FC<CompletionModalProps> = ({
   visible,
@@ -51,21 +36,18 @@ const CompletionModal: React.FC<CompletionModalProps> = ({
 
   useEffect(() => {
     if (visible) {
-      // Reset
       overlayAnim.setValue(0);
       cardScaleAnim.setValue(0.75);
       cardFadeAnim.setValue(0);
       emojiScaleAnim.setValue(0);
 
-      // Séquence : overlay fade → card spring → emoji bounce
+      // Séquence : overlay fade → card spring → emoji bounce (décalé de 100ms)
       Animated.sequence([
-        // 1. Fond noir apparaît rapidement
         Animated.timing(overlayAnim, {
           toValue: 1,
           duration: 200,
           useNativeDriver: true,
         }),
-        // 2. Card spring + emoji simultanés
         Animated.parallel([
           Animated.spring(cardScaleAnim, {
             toValue: 1,
@@ -78,7 +60,6 @@ const CompletionModal: React.FC<CompletionModalProps> = ({
             duration: 220,
             useNativeDriver: true,
           }),
-          // Emoji bounce décalé de 100ms
           Animated.sequence([
             Animated.delay(100),
             Animated.spring(emojiScaleAnim, {
@@ -119,7 +100,6 @@ const CompletionModal: React.FC<CompletionModalProps> = ({
             },
           ]}
         >
-          {/* Emoji avec bounce */}
           <Animated.Text
             style={[
               styles.emoji,
@@ -158,10 +138,6 @@ const CompletionModal: React.FC<CompletionModalProps> = ({
     </Modal>
   );
 };
-
-// ============================================
-// STYLES
-// ============================================
 
 const styles = StyleSheet.create({
   overlay: {

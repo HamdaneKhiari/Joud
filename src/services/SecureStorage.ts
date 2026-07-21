@@ -1,27 +1,15 @@
 /**
- * ============================================
- * SECURE STORAGE SERVICE
- * Gestion sécurisée des clés API avec expo-secure-store
- *
- * SÉCURITÉ :
- * - Stockage chiffré (AES-256)
- * - Protégé par le keychain iOS / Keystore Android
- * - Jamais exposé dans SQLite ou logs
- * - Isolation par utilisateur (iOS) / par app (Android)
- * ============================================
+ * Gestion sécurisée des clés API avec expo-secure-store : stockage chiffré (AES-256),
+ * protégé par le keychain iOS / Keystore Android, jamais exposé dans SQLite ou logs.
  */
 
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { log } from '@/utils/logUtils';
 
-// ============================================
-// CONSTANTES
-// ============================================
-
 const KEYS = {
-  API_KEY: 'ai_api_key',           // Clé API (chiffrée)
-  PROVIDER: 'ai_provider',         // Provider actuel (optionnel, backup)
+  API_KEY: 'ai_api_key',
+  PROVIDER: 'ai_provider',
 } as const;
 
 // Options de sécurité de base (sans authentification biométrique)
@@ -56,26 +44,12 @@ const getSecureOptions = (): SecureStore.SecureStoreOptions => {
   };
 };
 
-// ============================================
-// SERVICE
-// ============================================
-
 class SecureStorageService {
-  /**
-   * Vérifie si le SecureStore est disponible sur la plateforme
-   */
   isAvailable(): boolean {
-    // SecureStore fonctionne sur iOS et Android natif
-    // Pas disponible sur web
+    // SecureStore fonctionne sur iOS et Android natif uniquement, pas sur web
     return Platform.OS === 'ios' || Platform.OS === 'android';
   }
 
-  /**
-   * Stocke la clé API de manière sécurisée
-   *
-   * @param apiKey - Clé API à chiffrer et stocker
-   * @throws Error si le stockage échoue
-   */
   async saveAPIKey(apiKey: string): Promise<void> {
     if (!this.isAvailable()) {
       throw new Error('SecureStore non disponible sur cette plateforme');
@@ -101,11 +75,6 @@ class SecureStorageService {
     }
   }
 
-  /**
-   * Récupère la clé API stockée
-   *
-   * @returns Clé API déchiffrée ou null si non trouvée
-   */
   async getAPIKey(): Promise<string | null> {
     if (!this.isAvailable()) {
       log.warn('[SecureStorage] SecureStore non disponible');
@@ -134,10 +103,6 @@ class SecureStorageService {
     }
   }
 
-  /**
-   * Supprime la clé API stockée
-   * Utile lors de la déconnexion ou du changement de provider
-   */
   async deleteAPIKey(): Promise<void> {
     if (!this.isAvailable()) {
       return;
@@ -157,22 +122,11 @@ class SecureStorageService {
     }
   }
 
-  /**
-   * Vérifie si une clé API existe (sans la lire)
-   * Utile pour savoir si l'utilisateur a configuré l'IA
-   */
   async hasAPIKey(): Promise<boolean> {
     const key = await this.getAPIKey();
     return key !== null && key.length > 0;
   }
 
-  /**
-   * Valide le format d'une clé API selon le provider
-   *
-   * @param apiKey - Clé à valider
-   * @param provider - Provider ('openai' | 'mistral' | 'claude')
-   * @returns true si valide, false sinon
-   */
   validateAPIKeyFormat(apiKey: string, provider: string): boolean {
     if (!apiKey || apiKey.trim().length === 0) {
       return false;
@@ -199,10 +153,7 @@ class SecureStorageService {
     }
   }
 
-  /**
-   * Masque une clé API pour l'affichage
-   * Ex: "sk-abc123def456ghi789" → "sk-abc...i789"
-   */
+  // Ex: "sk-abc123def456ghi789" → "sk-abc...i789"
   maskAPIKey(apiKey: string): string {
     if (!apiKey || apiKey.length < 10) {
       return '***';
@@ -213,10 +164,7 @@ class SecureStorageService {
     return `${start}...${end}`;
   }
 
-  /**
-   * Efface TOUTES les données sécurisées
-   * ⚠️ À utiliser uniquement lors de la réinitialisation complète
-   */
+  // À utiliser uniquement lors de la réinitialisation complète
   async clearAll(): Promise<void> {
     if (!this.isAvailable()) {
       return;
@@ -230,10 +178,6 @@ class SecureStorageService {
     }
   }
 }
-
-// ============================================
-// EXPORT SINGLETON
-// ============================================
 
 export const secureStorage = new SecureStorageService();
 export default secureStorage;

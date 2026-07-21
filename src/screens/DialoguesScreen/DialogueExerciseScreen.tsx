@@ -1,49 +1,35 @@
-/**
- * DialogueExerciseScreen - Écran d'exercice dialogue WHITE LABEL
- * TypeScript complet avec ExerciseValidation + chargement DB
- */
-
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-
-// Composants
+import { useLocalSearchParams } from 'expo-router';
 import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
-import DialogueCard from '@/components/pedagogy/dialogues/DialogueCard';
+import DialogueReaderCard from '@/components/pedagogy/dialogues/DialogueReaderCard';
+import DialogueQuestionCard from '@/components/pedagogy/dialogues/DialogueQuestionCard';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
+import CompletionModal from '@/components/common/CompletionModal';
+import ExerciseLoadingState from '@/components/common/ExerciseLoadingState';
+import ExerciseEmptyState from '@/components/common/ExerciseEmptyState';
 import type { ValidationState } from '@/components/common/ExerciseValidation/types';
-
-// Hooks & Contexts
 import { useTheme } from '@/themes/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
 import { useProgress } from '@/contexts/ProgressContext';
 import useSafeNavigation from '@/hooks/useSafeNavigation';
+import useFirstIncompleteIndex from '@/hooks/exercises/useFirstIncompleteIndex';
+import useExerciseCompletion from '@/hooks/exercises/useExerciseCompletion';
 import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
 import { useRecordError } from '@/hooks/exercises/useRecordError';
 import { useDialogueContent } from './hooks/useDialogueContent';
-
-// Utils
 import { getModuleLabel, getLevelLabel } from '@/utils/labelMapper';
+import { makeCompositeFamilyId } from '@/contexts/progressUtils';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
-
-// ============================================
-// CONSTANTS & TYPES
-// ============================================
 
 const EXERCISE_TYPE = 'dialogues';
 const MAX_ATTEMPTS = 2;
 
-interface RouteParams {
+interface DialogueExerciseParams {
   familyId?: string;
-  moduleId?: string;
   levelId?: string;
   subfamilyId?: string;
-}
-
-interface DialogueExerciseScreenProps {
-  navigation?: { navigate?: (screen: string, params: Record<string, unknown>) => void; goBack?: () => void };
-  route?: { params?: RouteParams };
 }
 
 interface ExerciseState {
@@ -53,42 +39,23 @@ interface ExerciseState {
   attemptCount: number;
 }
 
-// ============================================
-// COMPOSANT
-// ============================================
-
-const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({ navigation, route }) => {
-  const router = useRouter();
-  const expoParams = useLocalSearchParams() as unknown as RouteParams;
+const DialogueExerciseScreen: React.FC = () => {
+  const params = useLocalSearchParams() as unknown as DialogueExerciseParams;
   const { identity } = useTheme();
   const { db } = useUser();
   const { recordError } = useRecordError();
 
-  // =================== PARAMS ===================
-  const rawFamilyId = route?.params?.familyId || expoParams.familyId || '';
-  const familyId = Array.isArray(rawFamilyId) ? rawFamilyId[0] : rawFamilyId;
-
-  const rawLevelId = route?.params?.levelId || expoParams.levelId || '1';
-  const levelId = Array.isArray(rawLevelId) ? rawLevelId[0] : rawLevelId;
-  const numLevelId = Number.parseInt(levelId.toString(), 10);
-
-  const rawSubfamilyId = route?.params?.subfamilyId || expoParams.subfamilyId || '1';
-  const subfamilyId = Array.isArray(rawSubfamilyId) ? rawSubfamilyId[0] : rawSubfamilyId;
-  const numSubfamilyId = Number.parseInt(subfamilyId.toString(), 10);
-  const compositeFamilyId = `${familyId}-${numSubfamilyId}`;
+  const familyId = params.familyId || '';
+  const numLevelId = Number.parseInt(params.levelId || '1', 10);
+  const numSubfamilyId = Number.parseInt(params.subfamilyId || '1', 10);
+  const compositeFamilyId = makeCompositeFamilyId(familyId, numSubfamilyId);
 
   const { trackItemCompletion, getFamilyProgress } = useProgress();
+  const { showCompletion, complete } = useExerciseCompletion();
 
-  const safeGoBack = useSafeNavigation(
-    useCallback(() => {
-      if (navigation?.goBack) navigation.goBack();
-      else if (router.canGoBack()) router.back();
-      else router.replace('/');
-    }, [navigation, router])
-  );
+  const safeGoBack = useSafeNavigation();
 
-  // =================== CHARGEMENT ===================
-  const { dialogue: dialogueFamily } = useDialogueContent(db, familyId, numSubfamilyId);
+  const { dialogue: dialogueFamily, isLoading: isDialogueLoading } = useDialogueContent(db, familyId, numSubfamilyId);
 
   const [levelLabel, setLevelLabel] = useState({ badge: '', title: '', description: '' });
   const [moduleLabel, setModuleLabel] = useState({ title: '', icon: '', description: '' });
@@ -103,7 +70,6 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({ navigat
     loadLabels();
   }, [db, numLevelId, identity.id]);
 
-  // =================== STATE ===================
   const [phase, setPhase] = useState<'dialogue' | 'questions'>('dialogue');
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -112,7 +78,6 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({ navigat
     selectedOption: null, isValidated: false, isCorrect: false, attemptCount: 0,
   });
 
-  // =================== LOGIQUE MÉTIER ===================
   const questions = dialogueFamily?.questions || [];
   const totalQuestions = questions.length;
   const currentQuestion = questions[currentQuestionIndex];
@@ -124,6 +89,18 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({ navigat
 
   const realProgress = getFamilyProgress(numLevelId, EXERCISE_TYPE, compositeFamilyId);
 
+  // Reprise : si des questions ont déjà été complétées, on saute directement en phase questions
+  const getInitialQuestionIndex = useFirstIncompleteIndex(numLevelId, EXERCISE_TYPE, compositeFamilyId, totalQuestions);
+  useEffect(() => {
+    if (totalQuestions > 0) {
+      const idx = getInitialQuestionIndex();
+      if (idx > 0) {
+        setCurrentQuestionIndex(idx);
+        setPhase('questions');
+      }
+    }
+  }, [totalQuestions, getInitialQuestionIndex]);
+
   const validationState: ValidationState = useMemo(() => {
     if (!exerciseState.isValidated) return 'initial';
     if (exerciseState.isCorrect) return 'correct';
@@ -131,7 +108,6 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({ navigat
     return 'incorrect';
   }, [exerciseState.isValidated, exerciseState.isCorrect, exerciseState.attemptCount]);
 
-  // =================== HOOKS UTILITAIRES ===================
   useExerciseActivity({
     moduleSlug: EXERCISE_TYPE,
     levelId: numLevelId,
@@ -145,7 +121,6 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({ navigat
 
   useExerciseSaveOnUnmount();
 
-  // =================== HANDLERS ===================
   const handleAnswer = (option: string) => {
     if (exerciseState.isValidated) return;
     setExerciseState(prev => ({ ...prev, selectedOption: option }));
@@ -180,14 +155,13 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({ navigat
   const handleNextQuestion = () => {
     trackItemCompletion(numLevelId, EXERCISE_TYPE, compositeFamilyId, currentQuestionIndex, totalQuestions);
     if (isLastQuestion) {
-      safeGoBack.navigate();
+      complete();
     } else {
       setCurrentQuestionIndex(prev => prev + 1);
       setExerciseState({ selectedOption: null, isValidated: false, isCorrect: false, attemptCount: 0 });
     }
   };
 
-  // =================== FEEDBACK ===================
   const feedbackMessage = useMemo(() => {
     if (!exerciseState.isValidated) return null;
     if (exerciseState.isCorrect) return { title: 'Correct', message: 'Ta réponse est juste.' };
@@ -198,9 +172,25 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({ navigat
     return { title: 'Incorrect', message: 'Relis le dialogue et réessaie.' };
   }, [exerciseState.isValidated, exerciseState.isCorrect, exerciseState.attemptCount, currentQuestion]);
 
-  // =================== RENDER ===================
+  if (isDialogueLoading) {
+    return <ExerciseLoadingState onBack={() => { safeGoBack.navigate(); }} />;
+  }
+
+  if (!dialogueFamily) {
+    return (
+      <ExerciseEmptyState onBack={() => { safeGoBack.navigate(); }} headerTitle="Dialogue" />
+    );
+  }
+
   return (
-    <ExerciseLayout
+    <>
+      <CompletionModal
+        visible={showCompletion}
+        title="Dialogue complete!"
+        subtitle="Bien joué, tu as terminé toutes les questions."
+        onDone={() => safeGoBack.navigate()}
+      />
+      <ExerciseLayout
       headerProps={{
         variant: 'exercise',
         onBack: () => { safeGoBack.navigate(); },
@@ -234,9 +224,9 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({ navigat
       }
     >
       {phase === 'dialogue' ? (
-        <DialogueCard
+        <DialogueReaderCard
           key="dialogue_mode"
-          dialogue={dialogueFamily || undefined}
+          dialogue={dialogueFamily}
           currentMessageIndex={currentMessageIndex}
           onPreviousMessage={() => currentMessageIndex > 0 && setCurrentMessageIndex(prev => prev - 1)}
           onNextMessage={() => isLastMessage ? setPhase('questions') : setCurrentMessageIndex(prev => prev + 1)}
@@ -254,7 +244,7 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({ navigat
               ↩ Relire le dialogue
             </Text>
           </TouchableOpacity>
-          <DialogueCard
+          <DialogueQuestionCard
             key="question_mode"
             question={currentQuestion}
             selectedOption={exerciseState.selectedOption || undefined}
@@ -265,7 +255,8 @@ const DialogueExerciseScreen: React.FC<DialogueExerciseScreenProps> = ({ navigat
           />
         </>
       )}
-    </ExerciseLayout>
+      </ExerciseLayout>
+    </>
   );
 };
 

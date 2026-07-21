@@ -1,19 +1,7 @@
-/**
- * ============================================
- * COMMON WORD GAMES STYLES (White Label)
- * Styles partagés entre tous les composants wordgames
- * 100% dynamique - aucune couleur hardcodée
- * ============================================
- */
-
 import { StyleSheet } from 'react-native';
 import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
-
-// ============================================
-// TYPES
-// ============================================
 
 export interface WordGameStyles {
   // Base Card
@@ -40,20 +28,10 @@ export interface WordGameStyles {
   contentTextBold: object;
 }
 
-// ============================================
-// FACTORY FUNCTION (White Label)
-// ============================================
-
-/**
- * Génère les styles dynamiques selon l'identité
- * @param identity - Identité white label (primary, college, lycee, adult)
- * @returns Styles dynamiques pour les jeux de mots
- */
 export const createWordGameStyles = (identity: Identity): ReturnType<typeof StyleSheet.create> => {
   const isPlayful = identity.ui.mood === 'playful';
 
   return StyleSheet.create({
-    // =================== BASE CARD ===================
     container: {
       flex: 1,
     },
@@ -63,10 +41,10 @@ export const createWordGameStyles = (identity: Identity): ReturnType<typeof Styl
     },
 
     card: {
-      backgroundColor: identity.palette.surface, // ✅ White label
-      borderRadius: identity.ui.cardRadius, // ✅ White label (playful = 24, clean = 12)
+      backgroundColor: identity.palette.surface,
+      borderRadius: identity.ui.cardRadius,
       borderTopWidth: 4,
-      borderTopColor: identity.palette.primary, // ✅ White label
+      borderTopColor: identity.palette.primary,
       overflow: 'hidden',
       ...tokens.shadows.md,
       marginBottom: tokens.spacing.xl,
@@ -74,31 +52,30 @@ export const createWordGameStyles = (identity: Identity): ReturnType<typeof Styl
 
     colorBar: {
       height: 4,
-      backgroundColor: identity.palette.primary, // ✅ White label
+      backgroundColor: identity.palette.primary,
       elevation: 2,
     },
 
     titleSection: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: isPlayful ? 'center' : 'flex-start', // ✅ Mood
+      justifyContent: isPlayful ? 'center' : 'flex-start',
       paddingVertical: tokens.spacing.lg,
       paddingHorizontal: tokens.spacing.xl,
     },
 
     titleIcon: {
-      fontSize: isPlayful ? tokens.fontSize.xxl : tokens.fontSize.xl, // ✅ Mood
+      fontSize: isPlayful ? tokens.fontSize.xxl : tokens.fontSize.xl,
       marginRight: tokens.spacing.md,
     },
 
     titleText: {
-      fontSize: isPlayful ? tokens.fontSize.xl : tokens.fontSize.lg, // ✅ Mood
+      fontSize: isPlayful ? tokens.fontSize.xl : tokens.fontSize.lg,
       fontWeight: tokens.fontWeight.black,
-      color: identity.text.primary, // ✅ White label
-      textAlign: isPlayful ? 'center' : 'left', // ✅ Mood
+      color: identity.text.primary,
+      textAlign: isPlayful ? 'center' : 'left',
     },
 
-    // =================== OPTIONS ===================
     optionsContainer: {
       marginHorizontal: tokens.spacing.xl,
       marginBottom: tokens.spacing.xl,
@@ -108,31 +85,31 @@ export const createWordGameStyles = (identity: Identity): ReturnType<typeof Styl
     optionButton: {
       paddingHorizontal: tokens.spacing.lg,
       paddingVertical: tokens.spacing.md,
-      borderRadius: isPlayful ? tokens.borderRadius.xl : tokens.borderRadius.md, // ✅ Mood
+      borderRadius: isPlayful ? tokens.borderRadius.xl : tokens.borderRadius.md,
       borderWidth: 2,
-      borderColor: identity.palette.primary, // ✅ White label
-      backgroundColor: identity.palette.surface, // ✅ White label
+      borderColor: identity.palette.primary,
+      backgroundColor: identity.palette.surface,
       justifyContent: 'center',
       minHeight: 50,
     },
 
-    // État: sélectionné (avant validation)
+    // Sélectionné, avant validation
     optionButtonSelected: {
-      backgroundColor: identity.palette.accent, // ✅ White label
+      backgroundColor: identity.palette.accent,
       borderColor: identity.palette.accent,
       borderWidth: 2,
     },
 
-    // État: correct (après validation)
+    // Correct, après validation
     optionButtonCorrect: {
-      backgroundColor: baseColors.green500, // ✅ Couleur système (succès)
+      backgroundColor: baseColors.green500,
       borderColor: baseColors.green600,
       borderWidth: 2,
     },
 
-    // État: incorrect (après validation)
+    // Incorrect, après validation
     optionButtonIncorrect: {
-      backgroundColor: baseColors.red500, // ✅ Couleur système (erreur)
+      backgroundColor: baseColors.red500,
       borderColor: baseColors.red600,
       borderWidth: 2,
     },
@@ -140,8 +117,8 @@ export const createWordGameStyles = (identity: Identity): ReturnType<typeof Styl
     optionText: {
       fontSize: tokens.fontSize.base,
       fontWeight: tokens.fontWeight.semibold,
-      color: identity.text.primary, // ✅ White label
-      textAlign: isPlayful ? 'center' : 'left', // ✅ Mood
+      color: identity.text.primary,
+      textAlign: isPlayful ? 'center' : 'left',
     },
 
     optionTextWhite: {
@@ -149,24 +126,23 @@ export const createWordGameStyles = (identity: Identity): ReturnType<typeof Styl
       fontWeight: tokens.fontWeight.bold,
     },
 
-    // =================== CONTENT BOX ===================
     contentBox: {
       marginHorizontal: tokens.spacing.xl,
       marginBottom: tokens.spacing.xl,
       paddingHorizontal: tokens.spacing.lg,
       paddingVertical: tokens.spacing.lg,
-      borderRadius: isPlayful ? tokens.borderRadius.lg : tokens.borderRadius.md, // ✅ Mood
+      borderRadius: isPlayful ? tokens.borderRadius.lg : tokens.borderRadius.md,
       borderWidth: 2,
-      borderColor: identity.palette.primary, // ✅ White label
-      backgroundColor: identity.palette.background, // ✅ White label (fond plus clair que surface)
+      borderColor: identity.palette.primary,
+      backgroundColor: identity.palette.background,
     },
 
     contentText: {
       fontSize: tokens.fontSize.base,
       fontWeight: tokens.fontWeight.medium,
-      color: identity.text.primary, // ✅ White label
+      color: identity.text.primary,
       lineHeight: 24,
-      textAlign: isPlayful ? 'center' : 'left', // ✅ Mood
+      textAlign: isPlayful ? 'center' : 'left',
     },
 
     contentTextBold: {
@@ -175,16 +151,6 @@ export const createWordGameStyles = (identity: Identity): ReturnType<typeof Styl
   });
 };
 
-// ============================================
-// HELPER FUNCTION
-// ============================================
-
-/**
- * Fusionne les styles de base avec des styles personnalisés
- * @param baseStyles - Styles de base
- * @param customStyles - Styles personnalisés
- * @returns Styles fusionnés
- */
 export const mergeStyles = (baseStyles: Record<string, object>, customStyles: Record<string, object> = {}) => {
   return { ...baseStyles, ...customStyles };
 };

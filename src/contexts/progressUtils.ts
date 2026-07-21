@@ -10,10 +10,6 @@ import type {
   ProgressAction, TrackItemPayload, RevisionFamily,
 } from './progressTypes';
 
-// ============================================
-// CONSTANTS
-// ============================================
-
 export const ALL_MODULE_SLUGS = [
   'vocab', 'phrase_types', 'reading', 'dialogues',
   'word_games', 'connector',
@@ -21,15 +17,7 @@ export const ALL_MODULE_SLUGS = [
 
 const MAX_LEVELS = 8;
 
-// ============================================
-// STORAGE KEY
-// ============================================
-
 export const getStorageKey = (userId: string) => `JOUD_PROGRESS_${userId}`;
-
-// ============================================
-// COMPOSITE KEY PARSING
-// ============================================
 
 export const parseCompositeKey = (key: string): { familyId: number; subfamilyId: number } => {
   if (key.includes('-')) {
@@ -39,9 +27,8 @@ export const parseCompositeKey = (key: string): { familyId: number; subfamilyId:
   return { familyId: Number(key), subfamilyId: 0 };
 };
 
-// ============================================
-// STATE INITIALISATION
-// ============================================
+export const makeCompositeFamilyId = (familyId: string | number, subfamilyId: string | number): string =>
+  `${familyId}-${subfamilyId}`;
 
 export const createEmptyLevelProgress = (): LevelProgress => {
   const lp: Record<string, ExerciseProgress> = {};
@@ -56,10 +43,6 @@ export const createInitialProgress = (): ProgressState => {
   }
   return base;
 };
-
-// ============================================
-// REDUCER
-// ============================================
 
 export const progressReducer = (state: ProgressState, action: ProgressAction): ProgressState => {
   switch (action.type) {
@@ -90,10 +73,6 @@ export const progressReducer = (state: ProgressState, action: ProgressAction): P
       return state;
   }
 };
-
-// ============================================
-// SQLITE LOADING
-// ============================================
 
 export const loadFromSQLite = async (
   db: SQLiteDatabase,
@@ -142,10 +121,6 @@ export const loadFromSQLite = async (
     return null;
   }
 };
-
-// ============================================
-// REVISION HELPER
-// ============================================
 
 export const filterRevisionFamilies = (progress: ProgressState | null, levelId: number): RevisionFamily[] => {
   if (!progress) return [];

@@ -1,10 +1,3 @@
-/**
- * ============================================
- * ContinueLearningCard - Version FlowCard
- * 100% White Label + Mood-Aware
- * ============================================
- */
-
 import React, { useMemo } from 'react';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import FlowCard from '@/components/flow/FlowCard';
@@ -25,9 +18,6 @@ const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
   const { identity } = useTheme();
   const isPlayful = identity.ui.mood === 'playful';
 
-  // ============================================
-  // CONFIGURATION SELON LE MOOD
-  // ============================================
   const content = useMemo(() => {
     if (isPlayful) {
       return {
@@ -49,12 +39,8 @@ const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
     };
   }, [isPlayful]);
 
-  // Icône par défaut si l'activité n'en a pas
   const fallbackIcon = isPlayful ? '🔥' : 'play-circle';
 
-  // ============================================
-  // BADGE MODULE (Type d'exercice)
-  // ============================================
   const moduleLabel = useMemo(() => {
     if (!activity) return '';
     const slug = activity.moduleSlug || '';
@@ -68,9 +54,6 @@ const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
     return moduleNames[slug] || 'Module';
   }, [activity]);
 
-  // ============================================
-  // ÉTAT VIDE : Première utilisation
-  // ============================================
   if (!activity) {
     return (
       <Animated.View entering={FadeInDown.delay(100).springify()}>
@@ -88,9 +71,6 @@ const ContinueLearningCard: React.FC<ContinueLearningCardProps> = ({
     );
   }
 
-  // ============================================
-  // ÉTAT ACTIF : Reprise d'activité
-  // ============================================
   const displaySubtitle = `${moduleLabel} • ${activity.familyName} • Niveau ${activity.level}`;
 
   return (

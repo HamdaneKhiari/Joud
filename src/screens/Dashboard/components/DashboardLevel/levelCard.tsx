@@ -1,9 +1,3 @@
-/**
- * LevelCard - Version White Label avec Timeline
- * Design : Badge timeline (gauche) + Card personnalisée (droite)
- * 100% Mood-Aware + White Label
- */
-
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
@@ -14,9 +8,9 @@ import { createStyles } from './levelCardStyle';
 
 interface LevelData {
   id: number;
-  level: number; // ✅ Utilisé pour le badge rond (1, 2, 3, 4)
+  level: number; // Utilisé pour le badge rond (1, 2, 3, 4)
   status?: 'completed' | 'in_progress' | 'locked';
-  title?: string; // ✅ Titre complet depuis la DB (ex: "Les Bases", "L'Essentiel")
+  title?: string; // Titre complet depuis la DB (ex: "Les Bases", "L'Essentiel")
   score?: number;
 }
 
@@ -40,11 +34,7 @@ const LevelCard: React.FC<LevelCardProps> = ({
   const isCompleted = data?.status === 'completed';
   const isLocked = data?.status === 'locked';
 
-  // ============================================
-  // CONFIG VISUELLE SELON L'ÉTAT (100% White Label)
-  // ============================================
   const config = useMemo(() => {
-    // ✅ Badge rond : JUSTE LE NUMÉRO (1, 2, 3, 4)
     const badgeNumber = data.level.toString();
 
     if (isCompleted) {
@@ -88,9 +78,7 @@ const LevelCard: React.FC<LevelCardProps> = ({
       entering={FadeInRight.delay(animationDelay).springify()}
       style={styles.container}
     >
-      {/* ============================================
-          TIMELINE BADGE (Gauche)
-          ============================================ */}
+      {/* Timeline badge, à gauche */}
       <View style={styles.timelineContainer}>
         <View style={[styles.badge, { borderColor: config.badgeColor }]}>
           <Text style={[
@@ -103,9 +91,7 @@ const LevelCard: React.FC<LevelCardProps> = ({
         {!isLast && <View style={styles.line} />}
       </View>
 
-      {/* ============================================
-          CARD PERSONNALISÉE (Droite)
-          ============================================ */}
+      {/* Card personnalisée, à droite */}
       <View style={styles.cardWrapper}>
         <TouchableOpacity
           activeOpacity={0.9}

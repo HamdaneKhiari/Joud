@@ -1,10 +1,3 @@
-/**
- * ============================================
- * SETTINGS AI SCREEN
- * Configuration des clés API et paramètres IA
- * ============================================
- */
-
 import { log } from '@/utils/logUtils';
 import React, { useState, useMemo } from 'react';
 import {
@@ -22,12 +15,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/themes/ThemeContext';
 import { withOpacity, tokens } from '@/themes/tokens';
 import { useAISettings, AISettings } from '@/hooks/useAISettings';
-
-// Config & Styles
 import { PROVIDERS, INFO_BOXES } from './SettingsAIScreen.config';
 import { createStyles } from './SettingsAIScreen.styles';
-
-// Components
 import {
   InfoBox,
   ProviderSelector,
@@ -35,10 +24,6 @@ import {
 } from './components';
 
 type Provider = AISettings['provider'];
-
-// ============================================
-// COMPOSANT
-// ============================================
 
 export default function SettingsAIScreen() {
   const router = useRouter();
@@ -63,8 +48,6 @@ export default function SettingsAIScreen() {
   const isPlayful = identity.ui.mood === 'playful';
 
   const styles = useMemo(() => createStyles(identity, isPlayful), [identity, isPlayful]);
-
-  // =================== HANDLERS ===================
 
   const handleProviderChange = (newProvider: Provider) => {
     setProvider(newProvider);
@@ -139,8 +122,6 @@ export default function SettingsAIScreen() {
     }
   };
 
-  // =================== LOADING ===================
-
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
@@ -151,11 +132,8 @@ export default function SettingsAIScreen() {
     );
   }
 
-  // =================== RENDER ===================
-
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTopRow}>
           <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}>
@@ -166,9 +144,7 @@ export default function SettingsAIScreen() {
         <Text style={styles.headerSubtitle}>Fonctionnalité optionnelle • Tu gardes le contrôle</Text>
       </View>
 
-      {/* Content */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Info Box - Optionnel */}
         <InfoBox
           icon={INFO_BOXES.optional.icon}
           iconColor={identity.palette.accent}
@@ -179,7 +155,6 @@ export default function SettingsAIScreen() {
           containerStyle={{ marginBottom: tokens.spacing.xl }}
         />
 
-        {/* Provider Selector */}
         <ProviderSelector
           providers={PROVIDERS}
           selectedProvider={provider}
@@ -187,7 +162,6 @@ export default function SettingsAIScreen() {
           styles={styles}
         />
 
-        {/* API Key Input */}
         <APIKeyInput
           provider={provider}
           providerName={PROVIDERS.find((p) => p.id === provider)?.name || ''}
@@ -198,7 +172,6 @@ export default function SettingsAIScreen() {
           identity={identity}
         />
 
-        {/* Save Button */}
         <TouchableOpacity
           style={[styles.saveButton, isSaving && styles.saveButtonDisabled]}
           onPress={handleSave}
@@ -215,7 +188,6 @@ export default function SettingsAIScreen() {
           )}
         </TouchableOpacity>
 
-        {/* Delete Button (si clé existante) */}
         {settings?.apiKey && (
           <TouchableOpacity
             style={[

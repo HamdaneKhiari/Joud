@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>20/20</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/20</span>
+                <span class='fraction'>20/20</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -150,38 +150,38 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * ============================================
@@ -210,38 +210,38 @@ interface UseRevisionsReturn {
  * return &lt;RevisionCard wordsToReview={wordsToReview} /&gt;;
  * ```
  */
-export const useRevisions = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span>: UseRevisionsReturn =&gt; {</span>
-  const { db, user } = <span class="cstat-no" title="statement not covered" >useUser();</span>
-  const [wordsToReview, setWordsToReview] = <span class="cstat-no" title="statement not covered" >useState(0);</span>
-  const [isLoading, setIsLoading] = <span class="cstat-no" title="statement not covered" >useState(true);</span>
+export const useRevisions = (): UseRevisionsReturn =&gt; {
+  const { db, user } = useUser();
+  const [wordsToReview, setWordsToReview] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 &nbsp;
-  const fetchWordsToReview = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    if (!db || typeof db === 'number' || !user) {</span>
-<span class="cstat-no" title="statement not covered" >      setIsLoading(false);</span>
-<span class="cstat-no" title="statement not covered" >      return;</span>
+  const fetchWordsToReview = useCallback(async () =&gt; {
+    if (!db || typeof db === 'number' || !user) {
+      setIsLoading(false);
+      return;
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    try {</span>
-<span class="cstat-no" title="statement not covered" >      setIsLoading(true);</span>
-      const count = <span class="cstat-no" title="statement not covered" >await getWordsToReview(db, user.id);</span>
-<span class="cstat-no" title="statement not covered" >      setWordsToReview(count);</span>
+    try {
+      setIsLoading(true);
+      const count = await getWordsToReview(db, user.id);
+      setWordsToReview(count);
     } catch (err) {
-<span class="cstat-no" title="statement not covered" >      log.error('[useRevisions] Error:', err);</span>
-<span class="cstat-no" title="statement not covered" >      setWordsToReview(0);</span>
+      log.error('[useRevisions] Error:', err);
+      setWordsToReview(0);
     } finally {
-<span class="cstat-no" title="statement not covered" >      setIsLoading(false);</span>
+      setIsLoading(false);
     }
   }, [db, user]);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    fetchWordsToReview();</span>
+  useEffect(() =&gt; {
+    fetchWordsToReview();
   }, [fetchWordsToReview]);
 &nbsp;
-  const refresh = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    fetchWordsToReview();</span>
+  const refresh = () =&gt; {
+    fetchWordsToReview();
   };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return { wordsToReview, isLoading, refresh };</span>
+  return { wordsToReview, isLoading, refresh };
 };
 &nbsp;</pre></td></tr></table></pre>
 
@@ -250,7 +250,7 @@ export const useRevisions = <span class="cstat-no" title="statement not covered"
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-04T22:17:53.267Z
+                at 2026-07-21T00:47:51.424Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

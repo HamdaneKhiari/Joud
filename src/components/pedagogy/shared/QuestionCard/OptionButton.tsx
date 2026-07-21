@@ -18,16 +18,14 @@ const OptionButton: React.FC<OptionButtonProps> = ({
 }) => {
   const { identity } = useTheme();
 
-  // Extraction des préférences UI de l'identité
   const uiPrefs = {
     borderRadius: identity.ui?.cardRadius || tokens.borderRadius.md,
     badgeRadius: tokens.borderRadius.sm,
-    borderWidth: 1, // Valeur standard
+    borderWidth: 1,
   };
 
   const getColors = () => {
-    // Couleurs système depuis l'identité
-    const successColor = '#22C55E'; // Vert standard
+    const successColor = '#22C55E';
     const errorColor = identity.aiDiagnostic.error || '#EF4444';
 
     if (!isAnswered) {

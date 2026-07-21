@@ -1,10 +1,3 @@
-/**
- * ============================================
- * HOOK: useUserMetrics
- * Récupère les métriques utilisateur (stats)
- * ============================================
- */
-
 import { log } from '@/utils/logUtils';
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@/contexts/UserContext';
@@ -20,15 +13,6 @@ interface UseUserMetricsReturn {
   refresh: () => void;
 }
 
-/**
- * Récupère les métriques utilisateur depuis la DB
- *
- * @example
- * ```tsx
- * const { wordsLearned, streak, badges } = useUserMetrics();
- * return <MetricsSection metrics={{ wordsLearned, badges, streak }} />;
- * ```
- */
 export const useUserMetrics = (): UseUserMetricsReturn => {
   const { db, user } = useUser();
   const [metrics, setMetrics] = useState<UserMetrics | null>(null);
@@ -44,11 +28,9 @@ export const useUserMetrics = (): UseUserMetricsReturn => {
     try {
       setIsLoading(true);
 
-      // Calculer les métriques depuis les données réelles
       const calculatedMetrics = await calculateUserMetrics(db, user.id);
       setMetrics(calculatedMetrics);
 
-      // Récupérer le nombre de badges
       const badgesResult = await db.getFirstAsync<{ count: number }>(
         `SELECT COUNT(*) as count FROM user_badges WHERE user_id = ?`,
         [user.id]

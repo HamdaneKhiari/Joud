@@ -1,9 +1,3 @@
-/**
- * DialogueCard - Composant de dialogue WHITE LABEL
- * Support : Mood (playful/clean), Deux phases (dialogue/questions)
- * Migration TypeScript depuis JS
- */
-
 import { log } from '@/utils/logUtils';
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
@@ -19,10 +13,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/themes/ThemeContext';
 import { createStyles } from './style';
 import QuestionCard from '../../shared/QuestionCard';
-
-// ============================================
-// TYPES
-// ============================================
 
 export interface Character {
   name: string;
@@ -54,7 +44,6 @@ export interface Question {
   hint?: string;
 }
 
-// Props du composant principal
 interface DialogueCardProps {
   // Mode Dialogue
   dialogue?: Dialogue;
@@ -73,7 +62,6 @@ interface DialogueCardProps {
   color?: string;
 }
 
-// Props DialoguePhase
 interface DialoguePhaseProps {
   dialogue: Dialogue;
   currentMessageIndex: number;
@@ -83,7 +71,6 @@ interface DialoguePhaseProps {
   totalMessages: number;
 }
 
-// Props QuestionPhase
 interface QuestionPhaseProps {
   question: Question;
   selectedOption?: string;
@@ -92,10 +79,6 @@ interface QuestionPhaseProps {
   onAnswer?: (option: string) => void;
   color?: string;
 }
-
-// ============================================
-// COMPOSANT PRINCIPAL
-// ============================================
 
 const DialogueCard: React.FC<DialogueCardProps> = (props) => {
   const isDialogueMode = !!props.dialogue && props.currentMessageIndex !== undefined;
@@ -130,8 +113,7 @@ const DialogueCard: React.FC<DialogueCardProps> = (props) => {
   return null;
 };
 
-// =================== PHASE 1: DIALOGUE ===================
-
+// Phase 1 : dialogue
 const DialoguePhase: React.FC<DialoguePhaseProps> = ({
   dialogue,
   currentMessageIndex,
@@ -305,8 +287,7 @@ const DialoguePhase: React.FC<DialoguePhaseProps> = ({
   );
 };
 
-// =================== PHASE 2: QUESTIONS ===================
-
+// Phase 2 : questions
 const QuestionPhase: React.FC<QuestionPhaseProps> = ({
   question,
   selectedOption,
@@ -321,7 +302,6 @@ const QuestionPhase: React.FC<QuestionPhaseProps> = ({
   const getLetterFromIndex = (index: number) => String.fromCodePoint(65 + index);
   const handleAnswer = (letter: string) => onAnswer?.(letter);
   const questionOptions = question?.options || [];
-  // correctAnswer est maintenant un index (number), pas une lettre
   const correctAnswerLetter = getLetterFromIndex(question?.correctAnswer ?? 0);
 
   const cardColor = color || identity.palette.primary;

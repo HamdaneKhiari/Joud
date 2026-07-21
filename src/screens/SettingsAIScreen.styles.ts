@@ -1,7 +1,3 @@
-/**
- * Styles pour SettingsAIScreen
- */
-
 import { StyleSheet } from 'react-native';
 import { tokens, withOpacity } from '@/themes/tokens';
 import type { ThemeIdentity } from '@/themes/types';

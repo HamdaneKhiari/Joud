@@ -12,10 +12,6 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 
 type DB = SQLiteDatabase | number | null | undefined;
 
-// ============================================
-// CACHE GLOBAL (Optimisation)
-// ============================================
-
 // Cache simple pour éviter les requêtes SQL répétitives sur les palettes
 const globalPaletteCache: Record<string, string[]> = {};
 
@@ -31,13 +27,6 @@ const getCachedPalette = async (db: DB, identityId: string): Promise<string[]> =
   return palette;
 };
 
-// ============================================
-// HOOKS POUR RÉCUPÉRER LES DONNÉES (DB)
-// ============================================
-
-/**
- * Hook pour récupérer la palette de couleurs d'une identité
- */
 export const useIdentityPalette = (): string[] => {
   const { db } = useUser();
   const { currentApp } = useTheme();
@@ -63,10 +52,7 @@ export const useIdentityPalette = (): string[] => {
   return palette;
 };
 
-/**
- * Récupère la couleur d'un module selon l'identité
- * Utilise la palette de couleurs de la DB basée sur l'ordre du module
- */
+// Couleur d'un module dérivée de son index dans availableModules, mappé sur la palette de l'identité
 export const getModuleColor = async (
   moduleSlug: string,
   identityId: string,
@@ -84,7 +70,6 @@ export const getModuleColor = async (
       return '#34495E'; // Fallback
     }
 
-    // Mapping des modules vers un index basé sur leur ordre dans availableModules
     const moduleIndex = availableModules.indexOf(moduleSlug);
     const colorIndex = moduleIndex >= 0 ? moduleIndex % palette.length : 0;
 
@@ -95,10 +80,6 @@ export const getModuleColor = async (
   }
 };
 
-/**
- * Récupère l'icône d'un module depuis la DB
- * Utilise module_labels ou fallback vers modules.icon_name
- */
 export const getModuleIcon = async (
   moduleSlug: string,
   identityId: string,
@@ -118,10 +99,6 @@ export const getModuleIcon = async (
   }
 };
 
-/**
- * Vérifie si un niveau existe pour une identité
- * Basé sur les niveaux dans la table levels avec target_audience
- */
 export const isValidLevel = async (
   levelNumber: number,
   identityId: string,
@@ -143,9 +120,6 @@ export const isValidLevel = async (
   }
 };
 
-/**
- * Récupère le nombre maximum de niveaux pour une identité
- */
 export const getMaxLevels = async (
   identityId: string,
   db: DB

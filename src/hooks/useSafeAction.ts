@@ -1,14 +1,7 @@
-/**
- * useSafeAction - Hook pour sécuriser les actions (debounce, prévention double-clic)
- * Version TypeScript
- */
+// Sécurise une action contre les double-clics et l'exécution concurrente (debounce)
 
 import { log } from '@/utils/logUtils';
 import { useCallback, useRef, useState } from 'react';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface UseSafeActionOptions {
   debounceMs?: number;
@@ -25,10 +18,6 @@ interface UseSafeActionReturn {
   lastExecuted: number;
   cleanup: () => void;
 }
-
-// ============================================
-// HOOK
-// ============================================
 
 export default function useSafeAction(
   initialAction?: (...args: unknown[]) => unknown,
@@ -50,21 +39,18 @@ export default function useSafeAction(
     async (dynamicAction?: (...args: unknown[]) => unknown, ...args: unknown[]) => {
       const now = Date.now();
 
-      // Vérifier si on est déjà en cours d'exécution
       if (loading && !allowConcurrent) {
         return;
       }
 
-      // Vérifier le debounce
       const timeSinceLastExecution = now - lastExecutedRef.current;
       if (timeSinceLastExecution < debounceMs) {
         return;
       }
 
-      // Logique de priorité : Action dynamique > Action initiale
+      // Priorité : action dynamique (passée à execute) > action initiale (passée au hook)
       const actionToRun = typeof dynamicAction === 'function' ? dynamicAction : initialAction;
 
-      // Erreur si aucune fonction n'est fournie
       if (typeof actionToRun !== 'function') {
         log.error('Erreur useSafeAction : Aucune fonction action fournie.');
         return;
@@ -78,7 +64,6 @@ export default function useSafeAction(
 
         if (onStart) onStart(...args);
 
-        // Exécuter l'action (dynamique ou initiale)
         const result = await actionToRun(...args);
 
         if (onEnd) onEnd(result, ...args);

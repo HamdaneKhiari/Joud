@@ -331,19 +331,7 @@
 <a name='L266'></a><a href='#L266'>266</a>
 <a name='L267'></a><a href='#L267'>267</a>
 <a name='L268'></a><a href='#L268'>268</a>
-<a name='L269'></a><a href='#L269'>269</a>
-<a name='L270'></a><a href='#L270'>270</a>
-<a name='L271'></a><a href='#L271'>271</a>
-<a name='L272'></a><a href='#L272'>272</a>
-<a name='L273'></a><a href='#L273'>273</a>
-<a name='L274'></a><a href='#L274'>274</a>
-<a name='L275'></a><a href='#L275'>275</a>
-<a name='L276'></a><a href='#L276'>276</a>
-<a name='L277'></a><a href='#L277'>277</a>
-<a name='L278'></a><a href='#L278'>278</a>
-<a name='L279'></a><a href='#L279'>279</a>
-<a name='L280'></a><a href='#L280'>280</a>
-<a name='L281'></a><a href='#L281'>281</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L269'></a><a href='#L269'>269</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -368,11 +356,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -394,7 +377,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -410,12 +392,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -437,7 +417,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -499,7 +478,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -538,10 +516,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -623,12 +599,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * AI TUTOR FREE SCREEN
- * Chat libre avec l'IA - Mode non guidé
- * Historique persistant (3 conversations max via useChatConversation)
- */
-&nbsp;
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// Chat libre avec l'IA (mode non guidé). Historique persistant (3 conversations max via useChatConversation).
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
@@ -677,7 +648,6 @@ const AITutorFreeScreen: React.FC = <span class="cstat-no" title="statement not 
     [identity, isPlayful]
   );
 &nbsp;
-  // =================== SYNC depuis la DB ===================
 <span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (isDBLoading || !currentConversationId) <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    if (persistedMessages.length &gt; 0) {</span>
@@ -690,12 +660,10 @@ const AITutorFreeScreen: React.FC = <span class="cstat-no" title="statement not 
     }
   }, [persistedMessages, currentConversationId, isDBLoading, currentLevel, saveMessage]);
 &nbsp;
-  // =================== SCROLL TO BOTTOM ===================
 <span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    setTimeout(<span class="fstat-no" title="function not covered" >()</span> =&gt; { <span class="cstat-no" title="statement not covered" >scrollViewRef.current?.scrollToEnd({ animated: true }); </span>}, 100);</span>
   }, [messages]);
 &nbsp;
-  // =================== CHECK CONFIGURATION ===================
   const checkAIConfiguration = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (!settings.isConfigured) {</span>
 <span class="cstat-no" title="statement not covered" >      Alert.alert(</span>
@@ -719,7 +687,6 @@ const AITutorFreeScreen: React.FC = <span class="cstat-no" title="statement not 
 <span class="cstat-no" title="statement not covered" >    return true;</span>
   }, [settings, canSendMessage, router]);
 &nbsp;
-  // =================== SEND MESSAGE ===================
   const handleSend = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (!inputText.trim() || isSending) <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    if (!checkAIConfiguration()) <span class="cstat-no" title="statement not covered" >return;</span></span>
@@ -779,7 +746,6 @@ const AITutorFreeScreen: React.FC = <span class="cstat-no" title="statement not 
     }
   }, [inputText, isSending, checkAIConfiguration, messages, currentLevel, settings, saveMessage, incrementUsage, router]);
 &nbsp;
-  // =================== RENDER MESSAGE ===================
   const renderMessage = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(m</span>essage: ChatUIMessage) =&gt; {</span>
     const isAI = <span class="cstat-no" title="statement not covered" >message.type === 'ai';</span>
     const isUser = <span class="cstat-no" title="statement not covered" >message.type === 'user';</span>
@@ -818,7 +784,6 @@ const AITutorFreeScreen: React.FC = <span class="cstat-no" title="statement not 
     );
   };
 &nbsp;
-  // =================== LOADING ===================
 <span class="cstat-no" title="statement not covered" >  if (isDBLoading) {</span>
 <span class="cstat-no" title="statement not covered" >    return (</span>
       &lt;SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}&gt;
@@ -829,7 +794,6 @@ const AITutorFreeScreen: React.FC = <span class="cstat-no" title="statement not 
     );
   }
 &nbsp;
-  // =================== RENDER ===================
 <span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}&gt;
       &lt;View style={styles.header}&gt;
@@ -910,7 +874,7 @@ export default AITutorFreeScreen;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-04T22:17:53.267Z
+                at 2026-07-21T00:47:51.424Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

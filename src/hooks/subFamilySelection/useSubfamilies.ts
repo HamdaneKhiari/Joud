@@ -13,7 +13,6 @@ export default function useSubfamilies(familyId: number) {
   const [isLoading, setIsLoading] = useState(true);
 
   const loadData = useCallback(async () => {
-    // SÉCURITÉ : Pas de SQL si les objets ne sont pas prêts
     if (!db || typeof db === 'number' || !familyId || !identity?.id) {
       setIsLoading(false);
       return;

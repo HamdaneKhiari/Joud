@@ -1,31 +1,13 @@
-/**
- * ============================================
- * DEFINITION CARD (White Label)
- * Jeu : Lire une définition et trouver le bon mot
- * ============================================
- */
-
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-
-// Composants
 import ExerciseValidation from '@/components/common/ExerciseValidation';
-
-// Hooks & Utils
 import { useTheme } from '@/themes/ThemeContext';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
 import { useFeedbackMessages, getFeedbackState } from '@/hooks/exercises/useFeedbackMessages';
 import type { FeedbackData } from '@/hooks/exercises/useFeedbackMessages';
 
-// Styles
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
-
-// Types
 import type { DefinitionQuestion } from '@/screens/WordGames/schema';
-
-// ============================================
-// TYPES
-// ============================================
 
 export interface DefinitionCardProps {
   question: DefinitionQuestion;
@@ -61,7 +43,6 @@ const DefinitionCard: React.FC<DefinitionCardProps> = ({
   const { identity } = useTheme();
   const styles = useMemo(() => createWordGameStyles(identity), [identity]);
 
-  // Hook de validation
   const { canSkip, validationState, buttonDisabled } = useExerciseValidationState(
     isValidated,
     isCorrect,
@@ -70,11 +51,9 @@ const DefinitionCard: React.FC<DefinitionCardProps> = ({
     !!selectedOption
   );
 
-  // Hook White Label Feedback
   const { getFeedback } = useFeedbackMessages();
   const [feedbackMessage, setFeedbackMessage] = useState<FeedbackData | null>(null);
 
-  // Charger le feedback depuis la DB selon l'état
   useEffect(() => {
     const loadFeedback = async () => {
       const feedbackState = getFeedbackState(isValidated, isCorrect, attemptCount, maxAttempts);
@@ -89,34 +68,28 @@ const DefinitionCard: React.FC<DefinitionCardProps> = ({
     loadFeedback();
   }, [isValidated, isCorrect, attemptCount, maxAttempts, getFeedback]);
 
-  // Afficher feedback SEULEMENT si correct OU dernière tentative
+  // Feedback affiché seulement si correct ou dernière tentative
   const showFeedback = isValidated && (isCorrect || canSkip);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Card principale */}
       <View style={styles.card}>
-        {/* Barre couleur (white label) */}
         <View style={styles.colorBar} />
 
-        {/* Titre */}
         <View style={styles.titleSection}>
           <Text style={styles.titleIcon}>{question.image || '📖'}</Text>
           <Text style={styles.titleText}>What is this?</Text>
         </View>
 
-        {/* Définition */}
         <View style={styles.contentBox}>
           <Text style={styles.contentText}>{question.definition}</Text>
         </View>
 
-        {/* Options */}
         <View style={styles.optionsContainer}>
           {question.options.map((option) => {
             const isSelected = selectedOption === option;
             const isCorrectOption = option === question.correctAnswer;
 
-            // Style dynamique selon l'état
             const buttonStyle = [
               styles.optionButton,
               showFeedback && isCorrectOption && styles.optionButtonCorrect,
@@ -145,7 +118,6 @@ const DefinitionCard: React.FC<DefinitionCardProps> = ({
         </View>
       </View>
 
-      {/* ExerciseValidation */}
       <ExerciseValidation
         state={validationState}
         attemptCount={attemptCount}

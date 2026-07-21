@@ -13,14 +13,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import ExerciseHeader from '@/components/layout/ExerciseHeader';
 import ExerciseProgressBar from '@/components/common/ExerciseProgressBar';
 
-// Theme
 import { useTheme } from '@/themes/ThemeContext';
 import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface HeaderProps {
   variant?: 'exercise' | 'selection' | 'category' | 'subcategory' | 'simple';
@@ -51,12 +46,7 @@ interface ExerciseLayoutProps {
   footer?: React.ReactNode;
 }
 
-// ============================================
-// STYLES DYNAMIQUES
-// ============================================
-
 const createStyles = (identity: Identity) => {
-  // Espacement du contenu selon l'identité
   const getContentPadding = () => {
     const isPlayful = identity.ui.mood === 'playful';
     const isBubbly = identity.ui.cardStyle === 'bubbly';
@@ -74,7 +64,7 @@ const createStyles = (identity: Identity) => {
   return StyleSheet.create({
     safeArea: {
       flex: 1,
-      backgroundColor: identity.palette.background // ✅ Fond général
+      backgroundColor: identity.palette.background
     },
 
     gradientContainer: {
@@ -96,10 +86,6 @@ const createStyles = (identity: Identity) => {
   });
 };
 
-// ============================================
-// COMPOSANT
-// ============================================
-
 const ExerciseLayout: React.FC<ExerciseLayoutProps> = ({
   children,
   headerProps,
@@ -109,13 +95,9 @@ const ExerciseLayout: React.FC<ExerciseLayoutProps> = ({
   const { identity } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
 
-  // StatusBar dynamique selon l'identité
-  // Header fond = primary (toujours foncé/saturé) → statusBar light
-  const getStatusBarStyle = (): 'light-content' | 'dark-content' => 'light-content';
+  // Header fond = primary (toujours foncé/saturé) → statusBar toujours light
+  const statusBarStyle: 'light-content' | 'dark-content' = 'light-content';
 
-  const statusBarStyle = getStatusBarStyle();
-
-  // Gradient subtil background → surface pour effet premium
   const gradientColors: [string, string] = [
     identity.palette.background,
     identity.palette.surface
@@ -129,13 +111,10 @@ const ExerciseLayout: React.FC<ExerciseLayoutProps> = ({
           backgroundColor={identity.palette.primary}
         />
 
-        {/* Header dynamique */}
         <ExerciseHeader {...headerProps} />
 
-        {/* Barre de progression (optionnelle) */}
         {progressProps && <ExerciseProgressBar {...progressProps} />}
 
-        {/* Gradient subtil background → surface pour effet premium */}
         <LinearGradient
           colors={gradientColors}
           start={{ x: 0, y: 0 }}
@@ -152,7 +131,6 @@ const ExerciseLayout: React.FC<ExerciseLayoutProps> = ({
             </View>
           </ScrollView>
 
-          {/* Footer optionnel (bouton validation, etc.) */}
           {footer}
         </LinearGradient>
       </SafeAreaView>

@@ -1,17 +1,5 @@
-/**
- * ============================================
- * AI CONTEXT
- * Gestion globale de l'état de l'IA Tuteur
- * Connecté aux vrais settings (useAISettings)
- * ============================================
- */
-
 import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
 import { useAISettings, type AISettings } from '@/hooks/useAISettings';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface Message {
   id: string;
@@ -37,10 +25,7 @@ interface AIContextType {
   refreshSettings: () => Promise<void>;
 }
 
-// ============================================
-// DEFAULT SETTINGS (quand pas encore configuré)
-// ============================================
-
+// Settings par défaut tant que useAISettings n'a pas fini de charger depuis SQLite/SecureStore
 const DEFAULT_SETTINGS: AISettings = {
   provider: 'openai',
   apiKey: null,
@@ -53,15 +38,7 @@ const DEFAULT_SETTINGS: AISettings = {
   isConfigured: false,
 };
 
-// ============================================
-// CONTEXT
-// ============================================
-
 const AIContext = createContext<AIContextType | undefined>(undefined);
-
-// ============================================
-// PROVIDER
-// ============================================
 
 export const AIProvider = ({ children }: { children: ReactNode }) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -136,10 +113,6 @@ export const AIProvider = ({ children }: { children: ReactNode }) => {
     </AIContext.Provider>
   );
 };
-
-// ============================================
-// HOOK
-// ============================================
 
 export const useAI = () => {
   const context = useContext(AIContext);

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">33.33% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>2/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/8</span>
+                <span class='fraction'>4/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">33.33% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>2/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -179,15 +179,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -274,17 +274,17 @@ import type { Identity } from '@/themes/ThemeContext';
  */
 const BUTTON_SIZE = 72;
 &nbsp;
-export const createStyles = <span class="fstat-no" title="function not covered" >(i</span>dentity: Identity) =&gt; {
+export const createStyles = (identity: Identity) =&gt; {
   // Dérivation dynamique des couleurs neutres (White Label Rigor)
-  const isDark = <span class="cstat-no" title="statement not covered" >identity.themeMode === 'dark';</span>
-  const neutralBorder = <span class="cstat-no" title="statement not covered" >isDark</span>
-    ? withOpacity('#FFFFFF', 0.2)
+  const isDark = identity.themeMode === 'dark';
+  const neutralBorder = isDark
+    ? <span class="branch-0 cbranch-no" title="branch not covered" >withOpacity('#FFFFFF', 0.2)</span>
     : withOpacity('#000000', 0.1);
-  const neutralBg = <span class="cstat-no" title="statement not covered" >isDark</span>
-    ? withOpacity('#FFFFFF', 0.1)
+  const neutralBg = isDark
+    ? <span class="branch-0 cbranch-no" title="branch not covered" >withOpacity('#FFFFFF', 0.1)</span>
     : withOpacity('#000000', 0.05);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return StyleSheet.create({</span>
+  return StyleSheet.create({
     navigationContainer: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -315,7 +315,7 @@ export const createStyles = <span class="fstat-no" title="function not covered" 
     navButtonPrev: {
       backgroundColor: identity.palette.primary,
       borderWidth: tokens.borderWidth.thin,
-      borderColor: isDark ? withOpacity('#FFFFFF', 0.3) : withOpacity('#000000', 0.15),
+      borderColor: isDark ? <span class="branch-0 cbranch-no" title="branch not covered" >withOpacity('#FFFFFF', 0.3) </span>: withOpacity('#000000', 0.15),
       shadowColor: identity.palette.accent,
       shadowOffset: { width: 0, height: 6 },
       shadowOpacity: 0.35,
@@ -327,7 +327,7 @@ export const createStyles = <span class="fstat-no" title="function not covered" 
       backgroundColor: identity.palette.primary,
       // ✅ Bordure neutre pour look premium
       borderWidth: tokens.borderWidth.thin,
-      borderColor: isDark ? withOpacity('#FFFFFF', 0.3) : withOpacity('#000000', 0.15),
+      borderColor: isDark ? <span class="branch-0 cbranch-no" title="branch not covered" >withOpacity('#FFFFFF', 0.3) </span>: withOpacity('#000000', 0.15),
       // ✅ Glow accent pour effet dynamique
       shadowColor: identity.palette.accent,
       shadowOffset: { width: 0, height: 6 },
@@ -361,7 +361,7 @@ export const createStyles = <span class="fstat-no" title="function not covered" 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-04T22:17:53.267Z
+                at 2026-07-21T00:47:51.424Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

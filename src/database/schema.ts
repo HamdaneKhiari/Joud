@@ -1,9 +1,3 @@
-// src/database/schema.ts
-
-// ============================================
-// TYPES DE BASE
-// ============================================
-
 export interface Module {
   id: number;
   name: string;
@@ -20,7 +14,7 @@ export interface Module {
 
 export interface Family {
   id?: number;
-  module_slug: string; // ✅ CORRIGÉ : Remplace module_id (INTEGER) par module_slug (TEXT)
+  module_slug: string;
   name: string;
   icon?: string;
   emoji?: string;
@@ -47,12 +41,7 @@ export interface Content {
     | 'idioms'           // Expressions idiomatiques
     | 'syntax'           // Syntax master
     | 'sentence_blanks'  // Phrases à trous (phrase_types)
-    | 'reading_passage'  // Passages de lecture
-    // Assessment types
-    | 'assessment_definition'  // Assessment choix multiples
-    | 'assessment_blanks'      // Assessment input texte
-    | 'assessment_sentence'    // Assessment avec passage
-    | 'assessment_question';   // Assessment question générale
+    | 'reading_passage'; // Passages de lecture
   data: string; // JSON stringifié
   difficulty?: 'easy' | 'medium' | 'hard';
   tags?: string;
@@ -84,10 +73,6 @@ export interface Level {
   display_description?: string;
   icon_name?: string;
 }
-
-// ============================================
-// TYPES WHITE LABEL (Centralisés depuis queries.ts)
-// ============================================
 
 export interface Branding {
   id: string;
@@ -164,23 +149,15 @@ export interface ActivityLog {
   timestamp: number;
 }
 
-// ============================================
-// FEEDBACK MESSAGES (White Label)
-// ============================================
-
 export interface FeedbackMessage {
   id?: number;
   identity_id: 'primary' | 'college' | 'lycee' | 'adult';
-  context: 'exercise' | 'wordgames' | 'vocabulary' | 'assessment';
+  context: 'exercise' | 'wordgames' | 'vocabulary';
   state: 'correct' | 'incorrect_attempt_1' | 'incorrect_attempt_2' | 'skip';
   icon?: string;
   title: string;
   message: string;
 }
-
-// ============================================
-// DASHBOARD DATA
-// ============================================
 
 export interface DailyWord {
   id?: number;

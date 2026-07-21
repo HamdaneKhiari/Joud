@@ -1,26 +1,24 @@
 import { log } from '@/utils/logUtils';
-import React, { useState, useEffect, useCallback } from 'react';
-import { ActivityIndicator, View, Text } from 'react-native';
-import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-
-// Composants
+import React, { useCallback } from 'react';
+import { useLocalSearchParams } from 'expo-router';
 import ExerciseLayout from '../../components/layout/ExerciceLayout/ExerciseLayout';
 import WordCard from '../../components/pedagogy/Vocabulary/WordCard/WordCard';
 import NavigationButtons from '../../components/common/NavigationButtons';
 import CompletionModal from '@/components/common/CompletionModal';
+import ExerciseLoadingState from '@/components/common/ExerciseLoadingState';
+import ExerciseEmptyState from '@/components/common/ExerciseEmptyState';
 import { DynamicIcon } from '../../components/ui/DynamicIcon';
-
-// Helpers & Hooks
 import { useTheme } from '../../themes/ThemeContext';
 import { useProgress } from '../../contexts/ProgressContext';
 import useSafeNavigation from '../../hooks/useSafeNavigation';
-import useFirstIncompleteIndex from '../../hooks/exercises/useFirstIncompleteIndex';
+import useResumeIndex from '../../hooks/exercises/useResumeIndex';
+import useExerciseCompletion from '../../hooks/exercises/useExerciseCompletion';
 import { useExerciseActivity } from '../../hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '../../hooks/exercises/useExerciseSaveOnUnmount';
 import { useExerciseContent } from '../../hooks/exercises/useExerciseContent';
 import { useLevelLabel } from '../../utils/labelMapper';
 import { useRecordWordSeen } from '../../hooks/exercises/useRecordWordSeen';
+import { makeCompositeFamilyId } from '../../contexts/progressUtils';
 
 interface VocabData {
   word: string;
@@ -30,75 +28,43 @@ interface VocabData {
   audio?: string;
 }
 
-type VocabularyStackParamList = {
-  VocabularyExercise: {
-    familyId: string | number;
-    levelId?: string | number;
-    level?: string | number;
-    exerciseType?: string;
-    subfamilyId?: string | number;
-  };
-};
+interface VocabularyExerciseParams {
+  familyId?: string;
+  levelId?: string;
+  subfamilyId?: string;
+}
 
-type Props = {
-  navigation: StackNavigationProp<VocabularyStackParamList, 'VocabularyExercise'>;
-  route: RouteProp<VocabularyStackParamList, 'VocabularyExercise'>;
-};
+const EXERCISE_TYPE = 'vocab';
 
-const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
+const VocabularyExerciseScreen: React.FC = () => {
   const { identity } = useTheme();
-  const { trackItemCompletion, getFamilyProgress, saveProgressNow } = useProgress();
+  const { trackItemCompletion, getFamilyProgress } = useProgress();
   const { recordWordSeen } = useRecordWordSeen();
 
-  // 1. 🛡️ Normalisation des entrées
-  const params = route.params || {};
+  const params = useLocalSearchParams() as unknown as VocabularyExerciseParams;
 
-  const EXERCISE_TYPE = params.exerciseType || 'vocab';
-
-  // On récupère les valeurs de base
-  const rawFamilyId = params.familyId ?? '';
-  const familyIdRaw = String(rawFamilyId);
+  const familyIdRaw = params.familyId ?? '';
   const familyIdNum = Number(familyIdRaw);
 
-  // ✅ Le VRAI levelId du Dashboard ("Les Bases", "L'Essentiel"...)
+  // Le levelId du Dashboard ("Les Bases", "L'Essentiel"...), distinct du subfamilyId ci-dessous
   const rawDashboardLevelId = Number(params.levelId || '1');
   const dashboardLevelId = Number.isNaN(rawDashboardLevelId) ? 1 : rawDashboardLevelId;
 
-  // ✅ Protection anti-NaN : Si la conversion échoue, on force à 1
-  // ⚠️ CLARIFICATION : params.subfamilyId contient l'ID de sous-famille (ex: 1 = Le Salé, 2 = Le Sucré)
-  const rawSubfamilyId = Number(params.subfamilyId || params.level || '1');
+  // params.subfamilyId = ID de sous-famille (ex: 1 = Le Salé, 2 = Le Sucré)
+  const rawSubfamilyId = Number(params.subfamilyId || '1');
   const subfamilyId = Number.isNaN(rawSubfamilyId) ? 1 : rawSubfamilyId;
 
-  // 🎯 CORRECTION : Les sous-familles sont stockées avec un familyId composite : "familyId-subfamilyId"
-  const compositeFamilyId = `${familyIdRaw}-${subfamilyId}`; // Ex: "1-1" = food_drinks + Le Salé
-
-  // =================== DATA LOADING ===================
+  // Les sous-familles sont stockées avec un familyId composite : "familyId-subfamilyId" (ex: "1-1" = food_drinks + Le Salé)
+  const compositeFamilyId = makeCompositeFamilyId(familyIdRaw, subfamilyId);
 
   const { module, family, contentItems, isLoading } = useExerciseContent<VocabData>(familyIdNum, subfamilyId);
   const levelLabel = useLevelLabel(subfamilyId);
-  const [currentWordIndex, setCurrentWordIndex] = useState<number>(0);
-  const [showCompletion, setShowCompletion] = useState(false);
 
   const totalWords = contentItems?.length || 0;
+  const [currentWordIndex, setCurrentWordIndex] = useResumeIndex(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, totalWords);
+  const { showCompletion, complete } = useExerciseCompletion();
 
-  // ✅ FIX TS2345 & Sonar S4325 :
-  // On utilise dashboardLevelId (le vrai level du Dashboard) et compositeFamilyId ("1-1")
-  const getInitialIndex = useFirstIncompleteIndex(
-    dashboardLevelId,
-    EXERCISE_TYPE,
-    compositeFamilyId,
-    totalWords
-  );
-
-  useEffect(() => {
-    if (totalWords > 0) {
-      setCurrentWordIndex(getInitialIndex());
-    }
-  }, [totalWords, getInitialIndex]);
-
-  // =================== NAVIGATION & ACTIVITY ===================
-
-  const safeGoBack = useSafeNavigation(useCallback(() => navigation.goBack(), [navigation]));
+  const safeGoBack = useSafeNavigation();
 
   useExerciseActivity({
     moduleSlug: module?.slug || 'vocabulary',
@@ -113,8 +79,6 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
 
   useExerciseSaveOnUnmount();
 
-  // =================== HANDLERS ===================
-
   const handleNext = useCallback(() => {
     trackItemCompletion(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, currentWordIndex, totalWords);
     if (contentItems?.[currentWordIndex]) {
@@ -128,7 +92,7 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
     if (currentWordIndex < totalWords - 1) {
       setCurrentWordIndex(prev => prev + 1);
     }
-  }, [dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen]);
+  }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen, setCurrentWordIndex]);
 
   const handleFinish = useCallback(() => {
     const executeFinish = async () => {
@@ -141,40 +105,23 @@ const VocabularyExerciseScreen = ({ navigation, route }: Props) => {
           contentId:   contentItems[currentWordIndex].id,
         });
       }
-      await saveProgressNow();
-      setShowCompletion(true);
+      await complete();
     };
     executeFinish().catch(err => log.error("Finish error:", err));
-  }, [dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen, saveProgressNow]);
+  }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen, complete]);
 
   const handleBack = useCallback(() => {
     safeGoBack.navigate();
   }, [safeGoBack]);
 
-  // =================== RENDU ===================
-
   if (isLoading) {
-    return (
-      <ExerciseLayout headerProps={{ variant: "exercise", onBack: handleBack, exerciseTitle: "Chargement..." }}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color={identity.palette.accent} />
-        </View>
-      </ExerciseLayout>
-    );
+    return <ExerciseLoadingState onBack={handleBack} />;
   }
 
   const currentContentItem = contentItems?.[currentWordIndex];
 
   if (!family || totalWords === 0 || !currentContentItem) {
-    return (
-      <ExerciseLayout headerProps={{ variant: "exercise", onBack: handleBack, exerciseTitle: family?.name || "Vocabulaire" }}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 }}>
-          <Text style={{ color: identity.text.primary, textAlign: 'center', fontSize: 16 }}>
-            Aucun contenu disponible pour ce niveau.
-          </Text>
-        </View>
-      </ExerciseLayout>
-    );
+    return <ExerciseEmptyState onBack={handleBack} headerTitle={family?.name || "Vocabulaire"} />;
   }
 
   const realProgress = getFamilyProgress(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId);

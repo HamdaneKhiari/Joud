@@ -1,49 +1,38 @@
-/**
- * ============================================
- * MetricsStyle - 100% White Label + Mood-Aware
- * Toutes les couleurs pilotées par Identity
- * ============================================
- */
-
 import { StyleSheet } from 'react-native';
 import type { Identity } from '@/themes/ThemeContext';
 import { tokens, withOpacity } from '@/themes/tokens';
 
 export const createStyles = (identity: Identity) => {
-  // ============================================
-  // CONFIGURATION MOOD-AWARE
-  // ============================================
   const isPlayful = identity.ui.mood === 'playful';
   const cardRadius = isPlayful ? 24 : 16;
 
   return StyleSheet.create({
     container: {
       flexDirection: 'row',
-      gap: tokens.spacing.sm, // ✅ Réduit
+      gap: tokens.spacing.sm,
       paddingHorizontal: tokens.spacing.lg,
-      marginVertical: tokens.spacing.md, // ✅ Réduit
+      marginVertical: tokens.spacing.md,
     },
 
-    // ========== CARD BASE ==========
     card: {
       flex: 1,
       backgroundColor: identity.palette.surface,
-      borderRadius: cardRadius, // ✅ Mood-aware
-      paddingVertical: tokens.spacing.md, // ✅ Réduit
-      paddingHorizontal: tokens.spacing.sm, // ✅ Réduit
+      borderRadius: cardRadius,
+      paddingVertical: tokens.spacing.md,
+      paddingHorizontal: tokens.spacing.sm,
       alignItems: 'center',
       justifyContent: 'center',
-      ...tokens.shadows.md, // ✅ Moins d'ombre
+      ...tokens.shadows.md,
       position: 'relative',
       overflow: 'hidden',
-      minHeight: isPlayful ? 100 : 90, // ✅ Réduit
+      minHeight: isPlayful ? 100 : 90,
     },
 
     cardDark: {
       backgroundColor: identity.palette.surface,
     },
 
-    // ========== CARD VARIANTS - AVEC COULEURS THÉMATIQUES ==========
+    // Variantes avec couleurs thématiques par métrique
     cardWordsLearned: {
       backgroundColor: identity.palette.accent,
       ...tokens.shadows.elevated,
@@ -59,9 +48,8 @@ export const createStyles = (identity: Identity) => {
       ...tokens.shadows.elevated,
     },
 
-    // ========== BADGE TYPOGRAPHIQUE (No-Media) ==========
     badgeLabel: {
-      fontSize: 9, // ✅ Réduit et unifié
+      fontSize: 9,
       fontWeight: tokens.fontWeight.extrabold,
       color: withOpacity(identity.text.onPrimary, 0.5),
       letterSpacing: 1.5,
@@ -70,9 +58,9 @@ export const createStyles = (identity: Identity) => {
       zIndex: 2,
     },
 
-    // ========== EMOJI ICON (Fallback) ==========
+    // Fallback si pas de badgeLabel
     emoji: {
-      fontSize: isPlayful ? 32 : 28, // ✅ Réduit
+      fontSize: isPlayful ? 32 : 28,
       marginBottom: tokens.spacing.xs,
       textShadowColor: 'rgba(0, 0, 0, 0.1)',
       textShadowOffset: { width: 0, height: 1 },
@@ -80,9 +68,8 @@ export const createStyles = (identity: Identity) => {
       zIndex: 2,
     },
 
-    // ========== VALUE (LE CHIFFRE) ==========
     value: {
-      fontSize: isPlayful ? tokens.fontSize.xxxl : tokens.fontSize.xxl, // ✅ Réduit de huge/36 à xxxl/xxl
+      fontSize: isPlayful ? tokens.fontSize.xxxl : tokens.fontSize.xxl,
       fontWeight: tokens.fontWeight.black,
       color: identity.text.primary,
       marginBottom: tokens.spacing.xs,
@@ -115,9 +102,8 @@ export const createStyles = (identity: Identity) => {
       color: identity.text.primary,
     },
 
-    // ========== LABEL (LE TEXTE DESCRIPTIF) ==========
     label: {
-      fontSize: 11, // ✅ Réduit et unifié
+      fontSize: 11,
       fontWeight: tokens.fontWeight.semibold,
       color: identity.text.secondary,
       textAlign: 'center',
@@ -142,23 +128,6 @@ export const createStyles = (identity: Identity) => {
 
     labelDark: {
       color: identity.text.tertiary,
-    },
-
-    // ========== ENCOURAGEMENT TEXT - NON UTILISÉ ==========
-    // ✅ Styles conservés pour compatibilité mais le texte n'est plus rendu
-    encouragement: {
-      fontSize: tokens.fontSize.xs,
-      color: identity.palette.accent,
-    },
-
-    encouragementLight: {
-      fontSize: tokens.fontSize.xs,
-      color: identity.palette.accent,
-    },
-
-    encouragementDark: {
-      fontSize: tokens.fontSize.xs,
-      color: identity.palette.accent,
     },
   });
 };

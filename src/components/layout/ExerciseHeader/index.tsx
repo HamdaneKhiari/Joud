@@ -1,10 +1,3 @@
-/**
- * ============================================
- * ExerciseHeader (Premium Edition)
- * Header optimisé : hauteur réduite, logique simplifiée, tokens premium
- * ============================================
- */
-
 import React, { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,14 +5,9 @@ import { useTheme } from '@/themes/ThemeContext';
 import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 
-// Sous-composants
 import ExerciceNavBar from './components/ExerciceNavBar';
 import ExerciseHeaderContent from './components/ExerciseHeaderContent';
 import ExerciseDecorative from './components/ExerciseDecorative';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface ExerciseHeaderProps {
   variant?: 'exercise' | 'selection' | 'category' | 'subcategory' | 'simple';
@@ -38,10 +26,6 @@ interface ExerciseHeaderProps {
   onRightIconPress?: () => void;
 }
 
-// ============================================
-// CONFIGURATION DES VARIANTS
-// ============================================
-
 const HEADER_HEIGHTS = {
   primary: 130,
   college: 115,
@@ -55,10 +39,6 @@ const HEADER_SPACING = {
   lycee: { top: tokens.spacing.xs, bottom: tokens.spacing.xs },
   adult: { top: tokens.spacing.xs, bottom: tokens.spacing.xs },
 } as const;
-
-// ============================================
-// STYLES DYNAMIQUES
-// ============================================
 
 const createStyles = (identity: Identity) => {
   const identityId = identity.id as keyof typeof HEADER_SPACING;
@@ -80,10 +60,6 @@ const createStyles = (identity: Identity) => {
   });
 };
 
-// ============================================
-// COMPOSANT
-// ============================================
-
 const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({
   variant = 'exercise',
   onBack,
@@ -103,10 +79,7 @@ const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({
   const { identity } = useTheme();
   const styles = useMemo(() => createStyles(identity), [identity]);
 
-  /**
-   * ✅ Correction TS2769 & Sonar S4325
-   * Le typage explicite du retour élimine le besoin d'assertions "as"
-   */
+  // Le typage explicite du retour élimine le besoin d'assertions "as"
   const gradientColors = useMemo((): [string, string, ...string[]] => {
     const primary = identity.palette.primary || '#4F46E5';
     const bg = identity.header.background;
@@ -119,7 +92,6 @@ const ExerciseHeader: React.FC<ExerciseHeaderProps> = ({
     return [primary, primary];
   }, [identity]);
 
-  // Contenu central mappé selon le variant
   const contentProps = useMemo(() => {
     switch (variant) {
       case 'exercise':

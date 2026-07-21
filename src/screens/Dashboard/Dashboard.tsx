@@ -6,20 +6,17 @@ import { useRouter, useFocusEffect, type Href } from 'expo-router';
 import { useTheme } from '@/themes/ThemeContext';
 import { withOpacity } from '@/themes/tokens';
 import { createStyles } from './styles/dashboardStyle';
-
-// Composants spécialisés
 import DashboardHeader from './components/DashboardHeader/DashboardHeader';
-import DailyWordCard from './components/DashboardDailyWordCard/DailyWordCard'; // ✅ Nouveau composant
+import DailyWordCard from './components/DashboardDailyWordCard/DailyWordCard';
 import AITutorCard from './components/DashboardAiTutorCard/AiTutorCard';
 import MetricsSection from './components/DashboardMetricsSession/metricsSession';
 import LevelCard from './components/DashboardLevel/levelCard';
 import ContinueLearningCard from './components/ContinueLearningCard';
 import RevisionCard from './components/RevisionCard';
-
-// Hooks et Logique
 import { getLevelsByAudience } from '@/database/queries';
 import { useUser } from '@/contexts/UserContext';
 import { useProgress } from '@/contexts/ProgressContext';
+import { parseCompositeKey } from '@/contexts/progressUtils';
 import { Level } from '@/database/schema';
 import { getLevelLabel } from '@/utils/labelMapper';
 import { navigateToExerciseSelection } from '@/utils/navigationHelper';
@@ -36,7 +33,6 @@ export default function Dashboard() {
   const styles = useMemo(() => createStyles(identity), [identity]);
   const { lastActivity, fetchLastActivity } = useLastActivity();
 
-  // ✅ Hooks Dashboard - Données réelles depuis DB
   const { dailyWord } = useDailyWord();
   const { wordsToReview } = useRevisions();
   const { wordsLearned, badges, streak } = useUserMetrics();
@@ -58,7 +54,6 @@ export default function Dashboard() {
 
         const labels: Record<number, { title: string; badge: string; description: string }> = {};
         for (const level of data) {
-          // ✅ CORRIGÉ : db en premier argument (db, levelNumber, identityId)
           const label = await getLevelLabel(db, level.level, identity.id);
           labels[level.level] = label;
         }
@@ -97,7 +92,7 @@ export default function Dashboard() {
         user={{ name: user.firstName }}
       />
 
-      {/* 1. DÉCOUVRIR : Mot du jour (RECODÉ EN FULL WHITE LABEL) */}
+      {/* 1. DÉCOUVRIR : Mot du jour */}
       {dailyWord && (
         <Animated.View entering={FadeInDown.delay(0).springify()} style={styles.section}>
           <DailyWordCard word={dailyWord} />
@@ -112,17 +107,14 @@ export default function Dashboard() {
             if (lastActivity.moduleSlug === 'revision') {
               router.push('/revision' as Href);
             } else {
-              // Décomposer le familyId composite "12-1" en familyId + subfamilyId
-              const parts = lastActivity.familyId.split('-');
-              const fId = parts[0];
-              const subId = parts.length > 1 ? parts[1] : undefined;
+              const { familyId: fId, subfamilyId: subId } = parseCompositeKey(lastActivity.familyId);
               router.push({
                 pathname: '/exercise/[exerciseId]',
                 params: {
                   exerciseId: lastActivity.moduleSlug,
-                  familyId: fId,
+                  familyId: String(fId),
                   levelId: lastActivity.level.toString(),
-                  ...(subId ? { subfamilyId: subId } : {}),
+                  ...(subId > 0 ? { subfamilyId: String(subId) } : {}),
                 },
               } as Href);
             }

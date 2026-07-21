@@ -1,14 +1,20 @@
-/**
- * useDialogueContent — charge et mappe un dialogue depuis SQLite
- * Extrait du DialogueExerciseScreen pour séparer data et UI
- */
-
 import { useState, useEffect } from 'react';
 import type { SQLiteDatabase } from 'expo-sqlite';
-import type { Dialogue, Question } from '@/components/pedagogy/dialogues/DialogueCard';
+import type { Character, Message } from '@/components/pedagogy/dialogues/DialogueReaderCard';
+import type { Question } from '@/components/pedagogy/dialogues/DialogueQuestionCard';
 import { log } from '@/utils/logUtils';
 
 const SPEAKER_COLORS = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0', '#E91E63'];
+
+export interface Dialogue {
+  name?: string;
+  title?: string;
+  icon?: string;
+  color?: string;
+  characters?: Character[];
+  messages?: Message[];
+  questions?: Question[];
+}
 
 interface RawQuestion {
   correctAnswer?: number | string;

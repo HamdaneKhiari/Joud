@@ -1,23 +1,8 @@
-/**
- * ModuleCard - Wrapper autour de FlowCard pour les modules
- * Composant léger qui délègue tout à FlowCard
- */
-
+// Wrapper léger autour de FlowCard : variant forcé à 'grid' pour les modules
 import React from 'react';
 import FlowCard, { FlowCardProps } from '@/components/flow/FlowCard';
 
-// ============================================
-// TYPES
-// ============================================
-
-export interface ModuleCardProps extends Omit<FlowCardProps, 'variant'> {
-  // Hérite de tous les props de FlowCard sauf variant
-  // variant est forcé à 'grid' pour les modules
-}
-
-// ============================================
-// COMPOSANT
-// ============================================
+export type ModuleCardProps = Omit<FlowCardProps, 'variant'>;
 
 const ModuleCard: React.FC<ModuleCardProps> = (props) => {
   return <FlowCard {...props} variant="grid" />;

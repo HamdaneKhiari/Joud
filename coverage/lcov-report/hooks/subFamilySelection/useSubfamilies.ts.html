@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/17</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/6</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -107,32 +107,32 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/hooks/subFamilySelection/useSubfamilies.ts
 import { log } from '@/utils/logUtils';
 import { useState, useCallback } from 'react';
@@ -141,33 +141,33 @@ import { useUser } from '@/contexts/UserContext';
 import { useTheme } from '@/themes/ThemeContext';
 import { getSubFamiliesByFamily, SubFamily } from '@/services/subfamilyService';
 &nbsp;
-export default function <span class="fstat-no" title="function not covered" >useSubfamilies(</span>familyId: number) {
-  const { db, user } = <span class="cstat-no" title="statement not covered" >useUser();</span>
-  const { identity } = <span class="cstat-no" title="statement not covered" >useTheme();</span>
-  const [subfamilies, setSubfamilies] = <span class="cstat-no" title="statement not covered" >useState&lt;SubFamily[]&gt;([]);</span>
-  const [isLoading, setIsLoading] = <span class="cstat-no" title="statement not covered" >useState(true);</span>
+export default function useSubfamilies(familyId: number) {
+  const { db, user } = useUser();
+  const { identity } = useTheme();
+  const [subfamilies, setSubfamilies] = useState&lt;SubFamily[]&gt;([]);
+  const [isLoading, setIsLoading] = useState(true);
 &nbsp;
-  const loadData = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >as</span>ync () =&gt; {</span>
+  const loadData = useCallback(async () =&gt; {
     // SÉCURITÉ : Pas de SQL si les objets ne sont pas prêts
-<span class="cstat-no" title="statement not covered" >    if (!db || typeof db === 'number' || !familyId || !identity?.id) {</span>
-<span class="cstat-no" title="statement not covered" >      setIsLoading(false);</span>
-<span class="cstat-no" title="statement not covered" >      return;</span>
+    if (!db || typeof db === 'number' || !familyId || !identity?.id) {
+      setIsLoading(false);
+      return;
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    try {</span>
-<span class="cstat-no" title="statement not covered" >      setIsLoading(true);</span>
-      const data = <span class="cstat-no" title="statement not covered" >await getSubFamiliesByFamily(db, familyId, identity.id, user?.id);</span>
-<span class="cstat-no" title="statement not covered" >      setSubfamilies(data);</span>
+    try {
+      setIsLoading(true);
+      const data = await getSubFamiliesByFamily(db, familyId, identity.id, user?.id);
+      setSubfamilies(data);
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      log.error('❌ Erreur Subfamilies:', error);</span>
+      log.error('❌ Erreur Subfamilies:', error);
     } finally {
-<span class="cstat-no" title="statement not covered" >      setIsLoading(false);</span>
+      setIsLoading(false);
     }
   }, [db, familyId, identity?.id, user?.id]);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  useFocusEffect(useCallback(<span class="fstat-no" title="function not covered" >()</span> =&gt; { <span class="cstat-no" title="statement not covered" >loadData(); </span>}, [loadData]));</span>
+  useFocusEffect(useCallback(() =&gt; { loadData(); }, [loadData]));
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return { subfamilies, isLoading };</span>
+  return { subfamilies, isLoading };
 }</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -175,7 +175,7 @@ export default function <span class="fstat-no" title="function not covered" >use
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-04T22:17:53.267Z
+                at 2026-07-21T00:47:51.424Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

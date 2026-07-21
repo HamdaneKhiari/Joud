@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">25% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>2/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>5/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">25% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>2/8</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -205,12 +205,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -218,12 +216,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -319,25 +319,25 @@ interface WordCardStyles {
  * Couleurs sémantiques pour le texte
  * ✅ 100% White Label : Liées à l'identité via withOpacity
  */
-const getSemanticColors = <span class="fstat-no" title="function not covered" >(i</span>dentity: Identity) =&gt; {
-  const isDark = <span class="cstat-no" title="statement not covered" >identity.themeMode === 'dark';</span>
+const getSemanticColors = (identity: Identity) =&gt; {
+  const isDark = identity.themeMode === 'dark';
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return {</span>
+  return {
     // Couleur de la traduction (liée à main avec opacité)
     translation: withOpacity(identity.palette.primary, 0.6),
     // Couleur du texte d'exemple (liée à main avec opacité plus légère)
     example: withOpacity(identity.palette.primary, 0.7),
     // Bordure subtile de la card
-    cardBorder: isDark ? withOpacity('#FFFFFF', 0.1) : withOpacity('#000000', 0.05),
+    cardBorder: isDark ? <span class="branch-0 cbranch-no" title="branch not covered" >withOpacity('#FFFFFF', 0.1) </span>: withOpacity('#000000', 0.05),
   };
 };
 &nbsp;
-export const getWordCardStyles = <span class="fstat-no" title="function not covered" >(i</span>dentity: Identity): WordCardStyles =&gt; {
-  const { palette } = <span class="cstat-no" title="statement not covered" >identity;</span>
-  const colors = <span class="cstat-no" title="statement not covered" >getSemanticColors(identity);</span>
-  const config = <span class="cstat-no" title="statement not covered" >getExerciseConfig(identity);</span>
+export const getWordCardStyles = (identity: Identity): WordCardStyles =&gt; {
+  const { palette } = identity;
+  const colors = getSemanticColors(identity);
+  const config = getExerciseConfig(identity);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return StyleSheet.create({</span>
+  return StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: palette.surface,
@@ -367,7 +367,7 @@ export const getWordCardStyles = <span class="fstat-no" title="function not cove
       fontSize: config.fontSize.title,
       fontWeight: tokens.fontWeight.extrabold,
       color: palette.primary,
-      textAlign: config.alignment === 'center' ? 'center' : 'left',
+      textAlign: config.alignment === 'center' ? 'center' : <span class="branch-1 cbranch-no" title="branch not covered" >'left',</span>
       letterSpacing: 0.5,
       flexShrink: 1,
     },
@@ -375,7 +375,7 @@ export const getWordCardStyles = <span class="fstat-no" title="function not cove
       fontSize: config.fontSize.subtitle,
       fontWeight: tokens.fontWeight.medium,
       color: colors.translation,
-      textAlign: config.alignment === 'center' ? 'center' : 'left',
+      textAlign: config.alignment === 'center' ? 'center' : <span class="branch-1 cbranch-no" title="branch not covered" >'left',</span>
       fontStyle: 'italic',
     },
     separator: {
@@ -393,13 +393,13 @@ export const getWordCardStyles = <span class="fstat-no" title="function not cove
     exampleText: {
       fontSize: config.fontSize.body,
       color: colors.example,
-      textAlign: config.alignment === 'center' ? 'center' : 'left',
+      textAlign: config.alignment === 'center' ? 'center' : <span class="branch-1 cbranch-no" title="branch not covered" >'left',</span>
       lineHeight: 26,
     },
     exampleTranslation: {
       fontSize: config.fontSize.body - 1,
       color: withOpacity(palette.primary, 0.45),
-      textAlign: config.alignment === 'center' ? 'center' : 'left',
+      textAlign: config.alignment === 'center' ? 'center' : <span class="branch-1 cbranch-no" title="branch not covered" >'left',</span>
       fontStyle: 'italic',
       marginTop: tokens.spacing.xs,
     },
@@ -412,7 +412,7 @@ export const getWordCardStyles = <span class="fstat-no" title="function not cove
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-04T22:17:53.267Z
+                at 2026-07-21T00:47:51.424Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

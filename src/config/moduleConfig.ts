@@ -7,7 +7,6 @@
 
 export interface ModuleConfig {
   hasSubfamilies: boolean;
-  requiresSubfamilyForAllFamilies?: boolean; // Si true, TOUTES les familles de ce module ont des subfamilies
 }
 
 /**
@@ -18,22 +17,18 @@ export const MODULE_CONFIG: Record<string, ModuleConfig> = {
   // ✅ AVEC SOUS-FAMILLES
   vocab: {
     hasSubfamilies: true,
-    requiresSubfamilyForAllFamilies: false // Certaines familles peuvent ne pas en avoir (ex: Colors)
   },
 
   phrase_types: {
     hasSubfamilies: true,
-    requiresSubfamilyForAllFamilies: true // Toutes les familles de phrases ont des subfamilies
   },
 
   dialogues: {
     hasSubfamilies: true,
-    requiresSubfamilyForAllFamilies: true // Toutes les conversations ont des subfamilies
   },
 
   reading: {
     hasSubfamilies: true,
-    requiresSubfamilyForAllFamilies: false // Peut-être pas toutes les familles (si < 10 textes)
   },
 
   // ❌ SANS SOUS-FAMILLES

@@ -1,16 +1,5 @@
-/**
- * ============================================
- * EXERCISE VALIDATION - HELPERS (TypeScript)
- * Version TypeScript avec types stricts - No-Media Edition
- * ============================================
- */
-
 import { ValidationState, FeedbackData, ButtonConfig } from './types';
 
-/**
- * Configure les propriétés visuelles et comportementales du bouton
- * en fonction de l'état actuel.
- */
 export const getButtonConfig = (
   state: ValidationState,
   isLastQuestion: boolean,
@@ -43,10 +32,6 @@ export const getButtonConfig = (
   return configs[state] || configs.initial;
 };
 
-/**
- * Fournit les messages de feedback par défaut en fonction de l'état.
- * ✅ NO-MEDIA: Pas d'emoji, typographie forte
- */
 export const getDefaultFeedback = (
   state: ValidationState,
   showFeedback: boolean,
@@ -62,7 +47,6 @@ export const getDefaultFeedback = (
 
   switch (state) {
     case 'correct': {
-      // ✅ NO-MEDIA: Pas d'emoji, typographie forte
       return {
         title: 'CORRECT',
         message: 'Bonne réponse, continue comme ça',
@@ -70,7 +54,6 @@ export const getDefaultFeedback = (
     }
 
     case 'skip': {
-      // État skip : afficher la bonne réponse
       return {
         title: 'RÉPONSE',
         message: correctAnswer
@@ -80,7 +63,6 @@ export const getDefaultFeedback = (
     }
 
     case 'incorrect': {
-      // Première erreur
       if (attemptCount === 0) {
         return {
           title: 'ESSAIE ENCORE',
@@ -88,7 +70,6 @@ export const getDefaultFeedback = (
         };
       }
 
-      // Deuxième erreur (dernière chance)
       return {
         title: 'DERNIÈRE CHANCE',
         message: 'Prends ton temps',
@@ -100,13 +81,8 @@ export const getDefaultFeedback = (
   }
 };
 
-/**
- * BONUS : Fonction pour randomiser les messages
- * (à utiliser si tu veux varier les feedbacks)
- */
 export const getRandomFeedback = (messages: FeedbackData[]): FeedbackData => {
-  // Non-cryptographic randomness - Safe for UI feedback variation
-  // NOSONAR: Math.random() is intentionally used for non-security purposes
+  // NOSONAR: Math.random() intentionnel, non-cryptographique — variation de feedback UI uniquement
   const randomIndex = Math.floor(Math.random() * messages.length);
   return messages[randomIndex];
 };

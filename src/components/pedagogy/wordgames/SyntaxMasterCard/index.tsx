@@ -1,32 +1,13 @@
-/**
- * ============================================
- * SYNTAX MASTER CARD (White Label)
- * Jeu : Remettre des mots dans le bon ordre pour former une phrase
- * ============================================
- */
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-
-// Composants
 import ExerciseValidation from '@/components/common/ExerciseValidation';
-
-// Hooks & Utils
 import { useTheme } from '@/themes/ThemeContext';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
 import { useFeedbackMessages, getFeedbackState } from '@/hooks/exercises/useFeedbackMessages';
 import type { FeedbackData } from '@/hooks/exercises/useFeedbackMessages';
 import { tokens } from '@/themes/tokens';
-
-// Styles
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
-
-// Types
 import type { SentenceQuestion } from '@/screens/WordGames/schema';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface WordItem {
   id: string;
@@ -47,10 +28,6 @@ export interface SyntaxMasterCardProps {
   isLastQuestion: boolean;
 }
 
-// ============================================
-// COMPOSANT
-// ============================================
-
 const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
   question,
   selectedOrder,
@@ -67,7 +44,7 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
   const { identity } = useTheme();
   const baseStyles = useMemo(() => createWordGameStyles(identity), [identity]);
 
-  // États locaux pour gérer le drag & drop des mots
+  // Tap-to-place : les mots passent du pool "words" à la liste ordonnée "ordered"
   const [words, setWords] = useState<WordItem[]>(() =>
     question.words.map((w, i) => ({ id: `w-${i}`, text: w }))
   );
@@ -75,7 +52,6 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
     (selectedOrder || []).map((w, i) => ({ id: `o-${i}`, text: w }))
   );
 
-  // Hook de validation
   const { canSkip: _canSkip, validationState, buttonDisabled } = useExerciseValidationState(
     isValidated,
     isCorrect,
@@ -84,11 +60,9 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
     ordered.length > 0
   );
 
-  // Hook White Label Feedback
   const { getFeedback } = useFeedbackMessages();
   const [feedbackMessage, setFeedbackMessage] = useState<FeedbackData | null>(null);
 
-  // Charger le feedback depuis la DB selon l'état
   useEffect(() => {
     const loadFeedback = async () => {
       const feedbackState = getFeedbackState(isValidated, isCorrect, attemptCount, maxAttempts);
@@ -102,8 +76,6 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
 
     loadFeedback();
   }, [isValidated, isCorrect, attemptCount, maxAttempts, getFeedback]);
-
-  // =================== HANDLERS ===================
 
   const handleWordPress = (index: number) => {
     if (!isValidated) {
@@ -131,8 +103,6 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
     onOrder([]);
   };
 
-  // =================== STYLES DYNAMIQUES ===================
-
   const isPlayful = identity.ui.mood === 'playful';
 
   const styles = StyleSheet.create({
@@ -155,13 +125,13 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
       paddingHorizontal: tokens.spacing.md,
       paddingVertical: tokens.spacing.sm,
       borderRadius: isPlayful ? tokens.borderRadius.xl : tokens.borderRadius.md,
-      backgroundColor: identity.palette.primary, // ✅ White label
+      backgroundColor: identity.palette.primary,
     },
 
     orderedWordText: {
       fontSize: tokens.fontSize.base,
       fontWeight: tokens.fontWeight.semibold,
-      color: identity.text.onPrimary, // ✅ White label
+      color: identity.text.onPrimary,
     },
 
     availableWordsContainer: {
@@ -188,7 +158,7 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
       paddingVertical: tokens.spacing.sm,
       borderRadius: isPlayful ? tokens.borderRadius.lg : tokens.borderRadius.md,
       borderWidth: 2,
-      borderColor: identity.palette.primary, // ✅ White label
+      borderColor: identity.palette.primary,
       backgroundColor: identity.palette.surface,
     },
 
@@ -204,7 +174,7 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
       paddingVertical: tokens.spacing.sm,
       borderRadius: tokens.borderRadius.md,
       borderWidth: 2,
-      borderColor: identity.palette.accent, // ✅ White label
+      borderColor: identity.palette.accent,
       backgroundColor: 'transparent',
       alignItems: 'center',
     },
@@ -212,24 +182,20 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
     resetButtonText: {
       fontSize: tokens.fontSize.base,
       fontWeight: tokens.fontWeight.semibold,
-      color: identity.palette.accent, // ✅ White label
+      color: identity.palette.accent,
     },
   });
 
   return (
     <ScrollView style={baseStyles.container} contentContainerStyle={baseStyles.content}>
-      {/* Card principale */}
       <View style={baseStyles.card}>
-        {/* Barre couleur (white label) */}
         <View style={baseStyles.colorBar} />
 
-        {/* Titre */}
         <View style={baseStyles.titleSection}>
           <Text style={baseStyles.titleIcon}>🔤</Text>
           <Text style={baseStyles.titleText}>Arrange the words</Text>
         </View>
 
-        {/* Phrase ordonnée */}
         <View style={baseStyles.contentBox}>
           <View style={styles.orderedWords}>
             {ordered.length === 0 ? (
@@ -250,7 +216,6 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
           </View>
         </View>
 
-        {/* Mots disponibles */}
         <View style={styles.availableWordsContainer}>
           <Text style={styles.availableLabel}>Available words:</Text>
           <View style={styles.availableWords}>
@@ -268,7 +233,6 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
           </View>
         </View>
 
-        {/* Bouton Reset */}
         {ordered.length > 0 && !isValidated && (
           <TouchableOpacity style={styles.resetButton} onPress={handleReset} activeOpacity={0.7}>
             <Text style={styles.resetButtonText}>↻ Reset</Text>
@@ -276,7 +240,6 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
         )}
       </View>
 
-      {/* ExerciseValidation */}
       <ExerciseValidation
         state={validationState}
         attemptCount={attemptCount}

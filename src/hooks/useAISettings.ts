@@ -1,22 +1,12 @@
 /**
- * ============================================
- * HOOK: useAISettings (SECURE)
- * Gestion des paramètres IA avec clé API chiffrée
- *
- * ARCHITECTURE HYBRIDE :
- * - Clé API → expo-secure-store (chiffrée AES-256)
- * - Autres settings → SQLite (provider, model, limites)
- * ============================================
+ * Gestion des paramètres IA — architecture hybride :
+ * clé API dans expo-secure-store (chiffrée AES-256), le reste (provider, model, limites) en SQLite.
  */
 
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import secureStorage from '@/services/SecureStorage';
 import { log } from '@/utils/logUtils';
-
-// ============================================
-// TYPES
-// ============================================
 
 export interface AISettings {
   provider: 'openai' | 'mistral' | 'claude';
@@ -30,26 +20,17 @@ export interface AISettings {
   isConfigured: boolean;
 }
 
-// ============================================
-// CONSTANTES
-// ============================================
-
 const MODELS_BY_PROVIDER = {
   openai: ['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo'],
   mistral: ['mistral-tiny', 'mistral-small', 'mistral-medium'],
   claude: ['claude-3-haiku', 'claude-3-sonnet', 'claude-3-opus'],
 };
 
-// ============================================
-// HOOK
-// ============================================
-
 export const useAISettings = () => {
   const { db } = useUser();
   const [settings, setSettings] = useState<AISettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // =================== CHARGER LES SETTINGS (SQLite + SecureStore) ===================
   const loadSettings = useCallback(async () => {
     if (!db || typeof db === 'number') {
       setIsLoading(false);
@@ -100,7 +81,6 @@ export const useAISettings = () => {
     loadSettings();
   }, [loadSettings]);
 
-  // =================== METTRE À JOUR LES SETTINGS ===================
   const updateSettings = useCallback(async (partial: Partial<AISettings>) => {
     if (!db || typeof db === 'number' || !settings) return;
 
@@ -151,7 +131,6 @@ export const useAISettings = () => {
     }
   }, [db, settings]);
 
-  // =================== INCRÉMENTER L'USAGE ===================
   const incrementUsage = useCallback(async () => {
     if (!db || typeof db === 'number' || !settings) return false;
 
@@ -186,7 +165,6 @@ export const useAISettings = () => {
     return true;
   }, [db, settings]);
 
-  // =================== VÉRIFIER SI ON PEUT ENVOYER UN MESSAGE ===================
   const canSendMessage = useCallback((): boolean => {
     if (!settings) return false;
     if (!settings.isConfigured || !settings.apiKey) return false;
@@ -202,13 +180,11 @@ export const useAISettings = () => {
     return settings.currentUsageCount < settings.maxMessagesPerDay;
   }, [settings]);
 
-  // =================== OBTENIR LES MODÈLES DISPONIBLES ===================
   const getAvailableModels = useCallback((): string[] => {
     if (!settings) return [];
     return MODELS_BY_PROVIDER[settings.provider];
   }, [settings]);
 
-  // =================== SUPPRIMER LA CLÉ API ===================
   const deleteAPIKey = useCallback(async () => {
     try {
       await secureStorage.deleteAPIKey();
@@ -229,7 +205,6 @@ export const useAISettings = () => {
     }
   }, [db, settings]);
 
-  // =================== RETOUR ===================
   return {
     settings,
     isLoading,
@@ -239,7 +214,6 @@ export const useAISettings = () => {
     getAvailableModels,
     deleteAPIKey,
     refreshSettings: loadSettings,
-    // Helpers de sécurité
-    secureStorage, // Expose le service pour usage avancé
+    secureStorage,
   };
 };

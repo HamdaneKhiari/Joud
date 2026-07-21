@@ -1,13 +1,5 @@
-/**
- * ============================================
- * GAME CARD RENDERER (TypeScript + Type Guards)
- * Composant de routage qui affiche la bonne card selon le type de question
- * ============================================
- */
-
 import React from 'react';
 
-// Cards
 import DefinitionCard from '../DefinitionCard';
 import BlanksCard from '../BlanksCard';
 import SyntaxMasterCard from '../SyntaxMasterCard';
@@ -17,7 +9,6 @@ import AudioMatchCard from '../AudioMatchCard';
 import ReplyCard from '../ReplyCard';
 import TransformerCard from '../TransformerCard';
 
-// Types & Type Guards
 import type { GameQuestion, GameType } from '@/screens/WordGames/schema';
 import {
   isDefinitionQuestion,
@@ -30,15 +21,10 @@ import {
   isTransformerQuestion,
 } from '@/screens/WordGames/schema';
 
-// Hooks
 import type { UseGameStateReturn } from '@/screens/WordGames/hooks/useGameState';
 import type { UseGameHandlersReturn } from '@/screens/WordGames/hooks/useGameHandlers';
 import type { Family } from '@/database/schema';
 import { log } from '@/utils/logUtils';
-
-// ============================================
-// TYPES
-// ============================================
 
 export interface GameCardRendererProps {
   gameType: GameType;
@@ -50,15 +36,7 @@ export interface GameCardRendererProps {
   handlers: UseGameHandlersReturn;
 }
 
-// ============================================
-// CONSTANTS
-// ============================================
-
 const MAX_ATTEMPTS = 2;
-
-// ============================================
-// COMPOSANT
-// ============================================
 
 const GameCardRenderer: React.FC<GameCardRendererProps> = ({
   gameType,
@@ -74,7 +52,7 @@ const GameCardRenderer: React.FC<GameCardRendererProps> = ({
     return null;
   }
 
-  // =================== DEFINITION CARD ===================
+  // Definition card
   if (gameType === 'definition' && isDefinitionQuestion(currentQuestion)) {
     return (
       <DefinitionCard
@@ -94,7 +72,7 @@ const GameCardRenderer: React.FC<GameCardRendererProps> = ({
     );
   }
 
-  // =================== BLANKS CARD ===================
+  // Blanks card
   if (gameType === 'blanks' && isBlanksQuestion(currentQuestion)) {
     return (
       <BlanksCard
@@ -114,7 +92,7 @@ const GameCardRenderer: React.FC<GameCardRendererProps> = ({
     );
   }
 
-  // =================== SENTENCE BUILDER CARD ===================
+  // Sentence builder card
   if (gameType === 'sentence' && isSentenceQuestion(currentQuestion)) {
     return (
       <SyntaxMasterCard
@@ -134,7 +112,7 @@ const GameCardRenderer: React.FC<GameCardRendererProps> = ({
     );
   }
 
-  // =================== SPEED MATCH CARD ===================
+  // Speed match card
   if (gameType === 'speed' && isSpeedMatchQuestion(currentQuestion)) {
     return (
       <SpeedMatchCard
@@ -145,7 +123,7 @@ const GameCardRenderer: React.FC<GameCardRendererProps> = ({
     );
   }
 
-  // =================== DETECTIVE CARD ===================
+  // Detective card
   if (gameType === 'detective' && isDetectiveQuestion(currentQuestion)) {
     return (
       <DetectiveCard
@@ -165,7 +143,7 @@ const GameCardRenderer: React.FC<GameCardRendererProps> = ({
     );
   }
 
-  // =================== AUDIO MATCH CARD ===================
+  // Audio match card
   if (gameType === 'audio_match' && isAudioMatchQuestion(currentQuestion)) {
     return (
       <AudioMatchCard
@@ -176,7 +154,7 @@ const GameCardRenderer: React.FC<GameCardRendererProps> = ({
     );
   }
 
-  // =================== REPLY CARD ===================
+  // Reply card
   if (gameType === 'reply' && isReplyQuestion(currentQuestion)) {
     return (
       <ReplyCard
@@ -196,7 +174,7 @@ const GameCardRenderer: React.FC<GameCardRendererProps> = ({
     );
   }
 
-  // =================== TRANSFORMER CARD ===================
+  // Transformer card
   if (gameType === 'transformer' && isTransformerQuestion(currentQuestion)) {
     return (
       <TransformerCard
@@ -216,7 +194,7 @@ const GameCardRenderer: React.FC<GameCardRendererProps> = ({
     );
   }
 
-  // =================== FALLBACK ===================
+  // Fallback
   log.warn('[GameCardRenderer] Unknown game type:', gameType);
   return null;
 };

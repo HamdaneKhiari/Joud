@@ -1,10 +1,4 @@
-/**
- * ============================================
- * HOOK: useRecordError
- * Enregistre les erreurs d'exercice dans SQLite
- * Utilisé par le Coach IA pour analyser les points faibles
- * ============================================
- */
+// Enregistre les erreurs d'exercice dans SQLite, utilisé par le Coach IA pour analyser les points faibles
 
 import { log } from '@/utils/logUtils';
 import { useCallback } from 'react';
@@ -12,10 +6,10 @@ import { useUser } from '@/contexts/UserContext';
 
 interface RecordErrorParams {
   familyId: string | number;
-  moduleSlug: string;   // | 'sentences' | 'reading'
+  moduleSlug: string;
   question: string;     // La question posée (ou la phrase à reproduire)
-  userAnswer: string;   // Ce que l'utilisateur a répondu
-  correctAnswer: string;// La bonne réponse
+  userAnswer: string;
+  correctAnswer: string;
   level: number;
 }
 

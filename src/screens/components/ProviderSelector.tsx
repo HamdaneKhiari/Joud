@@ -1,7 +1,3 @@
-/**
- * Composant ProviderSelector - Sélecteur de provider IA
- */
-
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import type { AISettings } from '@/hooks/useAISettings';

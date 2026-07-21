@@ -1,8 +1,3 @@
-/**
- * useConnectorContent — charge les exercices Connector depuis SQLite
- * Extrait de ConnectorExerciseScreen pour séparer data et UI
- */
-
 import { useState, useEffect } from 'react';
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { log } from '@/utils/logUtils';

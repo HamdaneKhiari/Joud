@@ -8,14 +8,6 @@ import { tokens, withOpacity } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors'; 
 import { RephrasingCardProps } from '../types';
 
-/**
- * ============================================
- * RephrasingCard (Standardized Edition)
- * ✅ Zéro "Leaked Values" (Sonar S6439)
- * ✅ Thème 100% Dynamique
- * ============================================
- */
-
 const RephrasingCard: React.FC<RephrasingCardProps & { hideValidation?: boolean; scrollEnabled?: boolean }> = ({
   question,
   userAnswer,
@@ -33,8 +25,6 @@ const RephrasingCard: React.FC<RephrasingCardProps & { hideValidation?: boolean;
   scrollEnabled = true,
 }) => {
   const { identity } = useTheme();
-
-  // Détermination de la couleur de marque avec fallback safe
   const brandColor = color || identity.palette.primary || '#F59E0B';
 
   const { canSkip, validationState, buttonDisabled } = useExerciseValidationState(
@@ -42,10 +32,9 @@ const RephrasingCard: React.FC<RephrasingCardProps & { hideValidation?: boolean;
     isCorrect,
     attemptCount,
     maxAttempts,
-    !!(userAnswer && userAnswer.trim().length > 0) // Cast boolean explicite
+    !!(userAnswer && userAnswer.trim().length > 0)
   );
 
-  // Transformation du feedback pour correspondre au type attendu par ExerciseValidation
   const feedbackData = useMemo(() => {
     const feedback = generateFeedbackMessage(
       isValidated,
@@ -82,9 +71,8 @@ const RephrasingCard: React.FC<RephrasingCardProps & { hideValidation?: boolean;
           </Text>
         </View>
 
-        {/* Phrase de base */}
         <View style={[
-          styles.baseSentenceBox, 
+          styles.baseSentenceBox,
           { 
             borderColor: withOpacity(brandColor, 0.3),
             backgroundColor: withOpacity(brandColor, 0.05)
@@ -98,7 +86,6 @@ const RephrasingCard: React.FC<RephrasingCardProps & { hideValidation?: boolean;
           </Text>
         </View>
 
-        {/* Instruction : Correction S6439 (!! force le boolean) */}
         {!!question.instruction && (
           <View style={[
             styles.instructionBox, 
@@ -114,7 +101,6 @@ const RephrasingCard: React.FC<RephrasingCardProps & { hideValidation?: boolean;
           </View>
         )}
 
-        {/* Section Réponse */}
         <View style={styles.answerSection}>
           <Text style={[styles.answerLabel, { color: identity.text.primary }]}>
             Your rephrased sentence:
@@ -145,7 +131,6 @@ const RephrasingCard: React.FC<RephrasingCardProps & { hideValidation?: boolean;
           />
         </View>
 
-        {/* Correction affichée si nécessaire */}
         {!!(isValidated && !isCorrect && canSkip) && (
           <View style={styles.correctAnswerBox}>
             <Text style={styles.correctAnswerLabel}>✅ Correct answer:</Text>
@@ -153,7 +138,6 @@ const RephrasingCard: React.FC<RephrasingCardProps & { hideValidation?: boolean;
           </View>
         )}
 
-        {/* Traduction : Correction S6439 */}
         {!!question.translation && (
           <View style={[styles.translationBox, { borderTopColor: withOpacity(identity.text.tertiary, 0.1) }]}>
             <Text style={[styles.translationText, { color: identity.text.secondary }]}>

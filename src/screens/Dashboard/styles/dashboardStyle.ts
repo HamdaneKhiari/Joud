@@ -3,9 +3,6 @@ import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 
 export const createStyles = (identity: Identity) => {
-  // ============================================
-  // CONFIGURATION MOOD-AWARE
-  // ============================================
   const isPlayful = identity.ui.mood === 'playful';
 
   const sectionSpacing = isPlayful ? tokens.spacing.xl : tokens.spacing.md;
@@ -14,7 +11,7 @@ export const createStyles = (identity: Identity) => {
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: identity.palette.background, // ✅ background au lieu de surface
+      backgroundColor: identity.palette.background,
     },
 
     scrollContent: {
@@ -22,33 +19,31 @@ export const createStyles = (identity: Identity) => {
     },
 
     section: {
-      marginTop: sectionSpacing, // ✅ Mood-aware
+      marginTop: sectionSpacing,
     },
 
     sectionHeader: {
       marginTop: tokens.spacing.xl,
-      paddingHorizontal: contentPadding, // ✅ Mood-aware
+      paddingHorizontal: contentPadding,
     },
 
     levelsGrid: {
       position: 'relative',
-      gap: isPlayful ? tokens.spacing.lg : tokens.spacing.md, // ✅ Mood-aware
+      gap: isPlayful ? tokens.spacing.lg : tokens.spacing.md,
     },
 
-    // ========== TIMELINE ==========
     timelineLine: {
       position: 'absolute',
-      left: isPlayful ? 24 : 16, // ✅ Adapté au mood
+      left: isPlayful ? 24 : 16,
       top: isPlayful ? 64 : 48,
       bottom: 0,
-      width: isPlayful ? 3 : 2, // ✅ Plus épaisse si playful
+      width: isPlayful ? 3 : 2,
       backgroundColor: identity.themeMode === 'dark'
         ? 'rgba(255, 255, 255, 0.1)'
         : 'rgba(0, 0, 0, 0.08)',
       zIndex: 0,
     },
 
-    // ========== DAILY WORD (Mot du jour) ==========
     dailyWordTitle: {
       fontSize: tokens.fontSize.xxl,
       fontWeight: tokens.fontWeight.extrabold,
@@ -63,7 +58,6 @@ export const createStyles = (identity: Identity) => {
       fontStyle: 'italic',
     },
 
-    // ========== REVISION ==========
     revisionTitle: {
       fontSize: tokens.fontSize.lg,
       fontWeight: tokens.fontWeight.bold,
@@ -77,17 +71,15 @@ export const createStyles = (identity: Identity) => {
       letterSpacing: 0.2,
     },
 
-    // ========== SECTION TITLES ==========
     sectionTitle: {
-      fontSize: isPlayful ? tokens.fontSize.xxl : tokens.fontSize.lg, // ✅ Plus grand si playful
-      fontWeight: tokens.fontWeight.black, // ✅ Plus bold
+      fontSize: isPlayful ? tokens.fontSize.xxl : tokens.fontSize.lg,
+      fontWeight: tokens.fontWeight.black,
       color: identity.text.primary,
       marginBottom: tokens.spacing.md,
-      letterSpacing: isPlayful ? -0.5 : 0, // ✅ Condensé si playful
-      ...(isPlayful && { textAlign: 'center' }), // ✅ Centré si playful
+      letterSpacing: isPlayful ? -0.5 : 0,
+      ...(isPlayful && { textAlign: 'center' }),
     },
 
-    // ========== RESUME LESSON ==========
     resumeFamilyName: {
       fontSize: tokens.fontSize.lg,
       fontWeight: tokens.fontWeight.bold,
@@ -100,7 +92,6 @@ export const createStyles = (identity: Identity) => {
       marginTop: tokens.spacing.xs,
     },
 
-    // ========== RESUME PROGRESS BAR ==========
     resumeContainer: {
       marginTop: tokens.spacing.md,
       marginBottom: tokens.spacing.md,

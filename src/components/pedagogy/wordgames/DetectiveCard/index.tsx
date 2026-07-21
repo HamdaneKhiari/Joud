@@ -1,33 +1,14 @@
-/**
- * ============================================
- * DETECTIVE CARD (White Label)
- * Jeu : Trouver l'erreur dans une phrase
- * ============================================
- */
-
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-
-// Composants
 import ExerciseValidation from '@/components/common/ExerciseValidation';
-
-// Hooks & Utils
 import { useTheme } from '@/themes/ThemeContext';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
 import { useFeedbackMessages, getFeedbackState } from '@/hooks/exercises/useFeedbackMessages';
 import type { FeedbackData } from '@/hooks/exercises/useFeedbackMessages';
 import { tokens } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
-
-// Styles
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
-
-// Types
 import type { DetectiveQuestion } from '@/screens/WordGames/schema';
-
-// ============================================
-// TYPES
-// ============================================
 
 export interface DetectiveCardProps {
   question: DetectiveQuestion;
@@ -42,10 +23,6 @@ export interface DetectiveCardProps {
   onNext: () => void;
   isLastQuestion: boolean;
 }
-
-// ============================================
-// COMPOSANT
-// ============================================
 
 const DetectiveCard: React.FC<DetectiveCardProps> = ({
   question,
@@ -63,7 +40,6 @@ const DetectiveCard: React.FC<DetectiveCardProps> = ({
   const { identity } = useTheme();
   const baseStyles = useMemo(() => createWordGameStyles(identity), [identity]);
 
-  // Hook de validation
   const { canSkip, validationState, buttonDisabled } = useExerciseValidationState(
     isValidated,
     isCorrect,
@@ -72,11 +48,9 @@ const DetectiveCard: React.FC<DetectiveCardProps> = ({
     selectedWord !== null && selectedWord !== undefined
   );
 
-  // Hook White Label Feedback
   const { getFeedback } = useFeedbackMessages();
   const [feedbackMessage, setFeedbackMessage] = useState<FeedbackData | null>(null);
 
-  // Charger le feedback depuis la DB selon l'état
   useEffect(() => {
     const loadFeedback = async () => {
       const feedbackState = getFeedbackState(isValidated, isCorrect, attemptCount, maxAttempts);
@@ -94,15 +68,11 @@ const DetectiveCard: React.FC<DetectiveCardProps> = ({
   const words = question.sentence.split(' ');
   const errorIndex = question.errorWordIndex;
 
-  // =================== HANDLERS ===================
-
   const handleWordPress = (wordIndex: number) => {
     if (!isValidated) {
       onAnswer(wordIndex);
     }
   };
-
-  // =================== STYLES DYNAMIQUES ===================
 
   const isPlayful = identity.ui.mood === 'playful';
   const showFeedback = isValidated && (isCorrect || canSkip);
@@ -186,33 +156,25 @@ const DetectiveCard: React.FC<DetectiveCardProps> = ({
     },
   });
 
-  // =================== RENDU ===================
-
   return (
     <ScrollView style={baseStyles.container} contentContainerStyle={baseStyles.content}>
-      {/* Card principale */}
       <View style={baseStyles.card}>
-        {/* Barre couleur (white label) */}
         <View style={baseStyles.colorBar} />
 
-        {/* Titre */}
         <View style={baseStyles.titleSection}>
           <Text style={baseStyles.titleIcon}>🔍</Text>
           <Text style={baseStyles.titleText}>Error Detective</Text>
         </View>
 
-        {/* Instructions */}
         <View style={styles.instructionBox}>
           <Text style={styles.instructionText}>Tap the word with an error:</Text>
         </View>
 
-        {/* Mots cliquables */}
         <View style={styles.wordsContainer}>
           {words.map((word, index) => {
             const isSelected = selectedWord === index;
             const isError = index === errorIndex;
 
-            // Style dynamique selon l'état
             const buttonStyle = [
               styles.wordButton,
               !showFeedback && isSelected && styles.wordButtonSelected,
@@ -242,7 +204,6 @@ const DetectiveCard: React.FC<DetectiveCardProps> = ({
           })}
         </View>
 
-        {/* Explication (après validation finale) */}
         {showFeedback && (
           <View
             style={[
@@ -267,7 +228,6 @@ const DetectiveCard: React.FC<DetectiveCardProps> = ({
         )}
       </View>
 
-      {/* ExerciseValidation */}
       <ExerciseValidation
         state={validationState}
         attemptCount={attemptCount}

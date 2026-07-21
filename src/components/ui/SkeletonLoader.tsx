@@ -15,10 +15,6 @@ import Animated, {
 import { useTheme } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 
-// ============================================
-// TYPES
-// ============================================
-
 interface SkeletonLoaderProps {
   variant?: 'card' | 'grid-item' | 'recent-activity';
   style?: ViewStyle;
@@ -30,10 +26,6 @@ interface SkeletonItemProps {
   borderRadius?: number;
   style?: ViewStyle;
 }
-
-// ============================================
-// SKELETON ITEM (Élément atomique)
-// ============================================
 
 const SkeletonItem: React.FC<SkeletonItemProps> = ({
   width,
@@ -50,8 +42,8 @@ const SkeletonItem: React.FC<SkeletonItemProps> = ({
         duration: 1200,
         easing: Easing.inOut(Easing.ease),
       }),
-      -1, // Infini
-      true // Reverse
+      -1,
+      true
     );
   }, [opacity]);
 
@@ -88,10 +80,6 @@ const SkeletonItem: React.FC<SkeletonItemProps> = ({
   );
 };
 
-// ============================================
-// SKELETON VARIANTS
-// ============================================
-
 const SkeletonCard: React.FC = () => {
   const { identity } = useTheme();
   const isPlayful = identity.ui.mood === 'playful';
@@ -99,24 +87,20 @@ const SkeletonCard: React.FC = () => {
 
   return (
     <View style={[styles.card, { borderRadius: cardRadius }]}>
-      {/* Barre latérale */}
       <SkeletonItem width={6} height="100%" borderRadius={0} style={styles.colorBar} />
 
       <View style={styles.cardContent}>
-        {/* Icône */}
         <SkeletonItem
           width={isPlayful ? 56 : 48}
           height={isPlayful ? 56 : 48}
           borderRadius={isPlayful ? 28 : 12}
         />
 
-        {/* Texte */}
         <View style={styles.textSkeleton}>
           <SkeletonItem width="70%" height={16} borderRadius={4} />
           <SkeletonItem width="50%" height={12} borderRadius={4} style={{ marginTop: 8 }} />
         </View>
 
-        {/* Badge */}
         <SkeletonItem width={60} height={24} borderRadius={12} />
       </View>
     </View>
@@ -130,7 +114,6 @@ const SkeletonGridItem: React.FC = () => {
 
   return (
     <View style={[styles.gridItem, { borderRadius: cardRadius }]}>
-      {/* Icône centrée */}
       <SkeletonItem
         width={isPlayful ? 56 : 48}
         height={isPlayful ? 56 : 48}
@@ -138,7 +121,6 @@ const SkeletonGridItem: React.FC = () => {
         style={{ alignSelf: isPlayful ? 'center' : 'flex-start' }}
       />
 
-      {/* Titre */}
       <SkeletonItem
         width="80%"
         height={14}
@@ -149,7 +131,6 @@ const SkeletonGridItem: React.FC = () => {
         }}
       />
 
-      {/* Subtitle */}
       <SkeletonItem
         width="60%"
         height={12}
@@ -160,7 +141,6 @@ const SkeletonGridItem: React.FC = () => {
         }}
       />
 
-      {/* Badge */}
       <SkeletonItem
         width={50}
         height={20}
@@ -181,14 +161,12 @@ const SkeletonRecentActivity: React.FC = () => {
 
   return (
     <View style={[styles.recentActivity, { borderRadius: cardRadius }]}>
-      {/* Icône grande */}
       <SkeletonItem
         width={72}
         height={72}
         borderRadius={isPlayful ? 36 : 16}
       />
 
-      {/* Texte */}
       <View style={styles.recentTextSkeleton}>
         <SkeletonItem width="40%" height={12} borderRadius={4} />
         <SkeletonItem width="80%" height={20} borderRadius={4} style={{ marginTop: 8 }} />
@@ -198,10 +176,6 @@ const SkeletonRecentActivity: React.FC = () => {
     </View>
   );
 };
-
-// ============================================
-// COMPOSANT PRINCIPAL
-// ============================================
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
   variant = 'card',
@@ -223,12 +197,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
   return <View style={style}>{renderVariant()}</View>;
 };
 
-// ============================================
-// STYLES
-// ============================================
-
 const styles = StyleSheet.create({
-  // Card horizontale
   card: {
     backgroundColor: '#FFFFFF',
     padding: tokens.spacing.md,
@@ -259,7 +228,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  // Grid item
   gridItem: {
     backgroundColor: '#FFFFFF',
     padding: tokens.spacing.lg,
@@ -267,7 +235,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  // Recent Activity
   recentActivity: {
     backgroundColor: '#FFFFFF',
     padding: tokens.spacing.lg,

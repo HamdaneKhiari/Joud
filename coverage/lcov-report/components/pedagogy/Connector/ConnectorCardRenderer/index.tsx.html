@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">15.38% </span>
+                <span class="strong">61.53% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>2/13</span>
+                <span class='fraction'>8/13</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>5/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">15.38% </span>
+                <span class="strong">61.53% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>2/13</span>
+                <span class='fraction'>8/13</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -159,8 +159,7 @@
 <a name='L94'></a><a href='#L94'>94</a>
 <a name='L95'></a><a href='#L95'>95</a>
 <a name='L96'></a><a href='#L96'>96</a>
-<a name='L97'></a><a href='#L97'>97</a>
-<a name='L98'></a><a href='#L98'>98</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L97'></a><a href='#L97'>97</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -186,21 +185,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -216,7 +212,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -262,7 +260,7 @@ import { log } from '../../../../utils/logUtils';
 import LogicLinksCard from '../LogicLinksCard';
 import SentenceFusionCard from '../SentenceFusionCard';
 import RephrasingCard from '../RephrasingCard';
-import { useTheme } from '@/themes/ThemeContext'; // ✅ Ajouté pour le fallback couleur
+import { useTheme } from '@/themes/ThemeContext';
 import { 
   ConnectorCardRendererProps, 
   LogicQuestion, 
@@ -272,7 +270,7 @@ import {
 &nbsp;
 const MAX_ATTEMPTS = 2;
 &nbsp;
-const ConnectorCardRenderer: React.FC&lt;ConnectorCardRendererProps &amp; { hideValidation?: boolean; scrollEnabled?: boolean }&gt; = <span class="fstat-no" title="function not covered" >({</span>
+const ConnectorCardRenderer: React.FC&lt;ConnectorCardRendererProps &amp; { hideValidation?: boolean; scrollEnabled?: boolean }&gt; = ({
   exerciseType,
   currentQuestion,
   currentQuestionIndex,
@@ -281,21 +279,20 @@ const ConnectorCardRenderer: React.FC&lt;ConnectorCardRendererProps &amp; { hide
   states,
   handlers,
   hideValidation = <span class="branch-0 cbranch-no" title="branch not covered" >false,</span>
-  scrollEnabled = <span class="branch-0 cbranch-no" title="branch not covered" >true,</span>
+  scrollEnabled = true,
 }) =&gt; {
-  const { identity } = <span class="cstat-no" title="statement not covered" >useTheme();</span> // ✅ Récupération du thème
+  const { identity } = useTheme();
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  if (!currentQuestion) {</span>
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!currentQuestion) {
 <span class="cstat-no" title="statement not covered" >    log.error('ConnectorCardRenderer: currentQuestion is null');</span>
 <span class="cstat-no" title="statement not covered" >    return null;</span>
   }
 &nbsp;
-  // ✅ Fallback : si la famille n'a pas de couleur, on prend la couleur principale de l'identité
-  const displayColor = <span class="cstat-no" title="statement not covered" >exerciseFamily?.color || identity.palette.primary;</span>
+  const displayColor = exerciseFamily?.color || <span class="branch-1 cbranch-no" title="branch not covered" >identity.palette.primary;</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  switch (exerciseType) {</span>
+  switch (exerciseType) {
     case 'logic':
-<span class="cstat-no" title="statement not covered" >      return (</span>
+      return (
         &lt;LogicLinksCard
           key={`logic-${currentQuestionIndex}`}
           question={currentQuestion as LogicQuestion}
@@ -313,7 +310,7 @@ const ConnectorCardRenderer: React.FC&lt;ConnectorCardRendererProps &amp; { hide
       );
 &nbsp;
     case 'fusion':
-<span class="cstat-no" title="statement not covered" >      return (</span>
+      return (
         &lt;SentenceFusionCard
           key={`fusion-${currentQuestionIndex}`}
           question={currentQuestion as FusionQuestion}
@@ -330,7 +327,7 @@ const ConnectorCardRenderer: React.FC&lt;ConnectorCardRendererProps &amp; { hide
         /&gt;
       );
 &nbsp;
-    case 'rephrasing':
+<span class="branch-2 cbranch-no" title="branch not covered" >    case 'rephrasing':</span>
 <span class="cstat-no" title="statement not covered" >      return (</span>
         &lt;RephrasingCard
           key={`rephrasing-${currentQuestionIndex}`}
@@ -348,7 +345,7 @@ const ConnectorCardRenderer: React.FC&lt;ConnectorCardRendererProps &amp; { hide
         /&gt;
       );
 &nbsp;
-    default:
+<span class="branch-3 cbranch-no" title="branch not covered" >    default:</span>
 <span class="cstat-no" title="statement not covered" >      log.warn('ConnectorCardRenderer: Unknown exercise type:', exerciseType);</span>
 <span class="cstat-no" title="statement not covered" >      return null;</span>
   }
@@ -361,7 +358,7 @@ export default ConnectorCardRenderer;</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-04T22:17:53.267Z
+                at 2026-07-21T00:47:51.424Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

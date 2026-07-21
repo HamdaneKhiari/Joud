@@ -20,10 +20,6 @@ import {
   filterRevisionFamilies,
 } from './progressUtils';
 
-// ============================================
-// CONTEXT
-// ============================================
-
 export const ProgressContext = createContext<ProgressContextValue | undefined>(undefined);
 
 export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -33,8 +29,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const saveChainRef = useRef<Promise<void>>(Promise.resolve());
 
-  // =================== CHARGEMENT ===================
-  // Priorité : SQLite (source de vérité) → AsyncStorage (cache) → migration ancienne clé
+  // Priorité de chargement : SQLite (source de vérité) → AsyncStorage (cache) → migration ancienne clé
   useEffect(() => {
     const load = async () => {
       if (!user?.id) { setIsLoading(false); return; }
@@ -82,7 +77,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     load();
   }, [db, user?.id]);
 
-  // =================== AUTO-SAVE (debounced 1500ms) ===================
+  // Auto-save débouncée (1500ms)
   useEffect(() => {
     if (isLoading || !progress || !user?.id) return;
 
@@ -103,7 +98,6 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progress, isLoading, user?.id]);
 
-  // =================== SYNC SQLITE ===================
   // Série les appels pour éviter "cannot start a transaction within a transaction"
   // (ex: auto-save + useExerciseSaveOnUnmount déclenchés en parallèle)
   const syncToSQLite = useCallback(async (state: ProgressState) => {
@@ -147,7 +141,6 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     await saveChainRef.current;
   }, [db, user]);
 
-  // =================== ACTIONS ===================
   const saveProgressNow = useCallback(async () => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     try {
@@ -182,7 +175,6 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     dispatch({ type: 'TRACK_ITEM', payload: { levelId, exerciseType, familyId, itemIndex, totalItems } });
   }, []);
 
-  // =================== CALCULS ===================
   const getFamilyProgress = useCallback((levelId: number, exerciseType: string, familyId: string): number => {
     const family = progress?.[`level${levelId}`]?.[exerciseType as keyof LevelProgress]?.[familyId];
     return family ? Math.round((family.completed / family.total) * 100) : 0;

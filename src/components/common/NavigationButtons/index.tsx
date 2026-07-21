@@ -26,7 +26,6 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
 
   return (
     <View style={styles.navigationContainer}>
-      {/* Bouton Précédent ou Placeholder */}
       {!isFirst && onPrevious ? (
         <TouchableOpacity
           style={[styles.navButton, styles.navButtonPrev]}
@@ -44,10 +43,8 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
         <View style={{ width: 72 }} />
       )}
 
-      {/* Espaceur flexible */}
       <View style={styles.spacer} />
 
-      {/* Bouton Suivant / Terminer */}
       {isLast ? (
         <TouchableOpacity
           style={[styles.navButton, styles.navButtonFinish]}

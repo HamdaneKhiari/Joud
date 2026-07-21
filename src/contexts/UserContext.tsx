@@ -5,10 +5,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initDatabase } from '@/database/init';
 import { log } from '@/utils/logUtils';
 
-// ============================================
-// TYPES
-// ============================================
-
 interface User {
   id: string;
   firstName: string;
@@ -26,10 +22,6 @@ interface UserContextType {
   updateUser: (partial: Partial<Omit<User, 'id'>>) => void;
 }
 
-// ============================================
-// CONSTANTS
-// ============================================
-
 const STORAGE_KEY_USER = 'JOUD_USER_PROFILE';
 
 const DEFAULT_USER: User = {
@@ -38,10 +30,6 @@ const DEFAULT_USER: User = {
   audience: 'college',
   isOnboarded: false,
 };
-
-// ============================================
-// CONTEXT
-// ============================================
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 

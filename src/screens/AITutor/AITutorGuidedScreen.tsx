@@ -1,10 +1,5 @@
-/**
- * AI TUTOR GUIDED SCREEN
- * Coach IA interactif par domaine
- * Phase 1 : Sélection du domaine (cartes SQLite)
- * Phase 2 : Chat coaching avec message d'ouverture personnalisé
- */
-
+// Coach IA interactif par domaine : phase 1 = sélection du domaine, phase 2 = chat coaching
+// avec message d'ouverture personnalisé.
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
@@ -60,19 +55,16 @@ const AITutorGuidedScreen: React.FC = () => {
     [identity, isPlayful]
   );
 
-  // =================== SYNC MESSAGES FROM DB ===================
   useEffect(() => {
     if (phase !== 'chat' || isDBLoading) return;
     if (persistedMessages.length > 0) setMessages(persistedMessages.map(toUIMessage));
   }, [persistedMessages, isDBLoading, phase]);
 
-  // =================== SCROLL TO BOTTOM ===================
   useEffect(() => {
     if (phase !== 'chat') return;
     setTimeout(() => { scrollViewRef.current?.scrollToEnd({ animated: true }); }, 100);
   }, [messages, phase]);
 
-  // =================== HANDLERS ===================
   const safeGoBack = useCallback(() => {
     if (navigation.canGoBack()) router.back();
     else router.replace('/');
@@ -166,7 +158,6 @@ const AITutorGuidedScreen: React.FC = () => {
     }
   }, [inputText, isSending, selectedDomain, checkAIConfiguration, messages, currentLevel, settings, saveMessage, incrementUsage]);
 
-  // =================== RENDER MESSAGE ===================
   const renderMessage = useCallback((message: ChatUIMessage) => {
     const isAI = message.type === 'ai';
     const isUser = message.type === 'user';
@@ -199,7 +190,6 @@ const AITutorGuidedScreen: React.FC = () => {
     );
   }, [styles]);
 
-  // =================== LOADING ===================
   if (isDomainsLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
@@ -211,7 +201,7 @@ const AITutorGuidedScreen: React.FC = () => {
     );
   }
 
-  // =================== PHASE CHAT ===================
+  // Phase chat
   if (phase === 'chat' && selectedDomain) {
     return (
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
@@ -252,7 +242,7 @@ const AITutorGuidedScreen: React.FC = () => {
     );
   }
 
-  // =================== PHASE SELECTION ===================
+  // Phase sélection
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
       <GuidedHeader onBack={safeGoBack} subtitle="Choisis un domaine" />

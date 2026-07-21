@@ -1,10 +1,3 @@
-/**
- * ============================================
- * EXERCISE VALIDATION - TYPES
- * Types TypeScript stricts pour ExerciseValidation
- * ============================================
- */
-
 export type ValidationState = 'initial' | 'correct' | 'incorrect' | 'skip';
 
 export interface FeedbackData {

@@ -1,10 +1,3 @@
-/**
- * ============================================
- * RevisionScreen - Écran de révision (QCM)
- * 3 Phases : Sélection → Session → Résumé
- * ============================================
- */
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/themes/ThemeContext';
@@ -64,7 +57,6 @@ const RevisionScreen = () => {
     !!selectedAnswer
   );
 
-  // Enregistrer l'activité de révision dans activity_log
   useExerciseActivity({
     moduleSlug: 'revision',
     familyId: mode === 'spaced' ? 'spaced' : 'daily',
@@ -90,14 +82,12 @@ const RevisionScreen = () => {
     refreshSpacedCount();
   }, [refreshSpacedCount]);
 
-  // Détection fin session
   useEffect(() => {
     if (isSessionCompleted && phase === 'session') {
       setPhase('summary');
     }
   }, [isSessionCompleted, phase]);
 
-  // Handlers
   const handleModeSelection = (selectedMode: 'daily' | 'spaced') => {
     startSession(selectedMode);
     setPhase('session');
@@ -112,7 +102,6 @@ const RevisionScreen = () => {
 
   const dailyCount = DAILY_WORDS_COUNT[user?.audience || 'primary'] ?? 10;
 
-  // Rendu selon phase
   if (phase === 'selection') {
     return (
       <SelectionPhase

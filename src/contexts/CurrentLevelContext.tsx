@@ -1,19 +1,7 @@
-/**
- * ============================================
- * CURRENT LEVEL CONTEXT
- * Gestion du niveau actuel de l'utilisateur
- * Persiste dans AsyncStorage + sync avec activity_log
- * ============================================
- */
-
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from './UserContext';
 import { log } from '@/utils/logUtils';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface CurrentLevelContextType {
   currentLevel: number;
@@ -21,21 +9,9 @@ interface CurrentLevelContextType {
   levelLabel: string;
 }
 
-// ============================================
-// CONSTANTS
-// ============================================
-
 const STORAGE_KEY = 'JOUD_CURRENT_LEVEL';
 
-// ============================================
-// CONTEXT
-// ============================================
-
 const CurrentLevelContext = createContext<CurrentLevelContextType | undefined>(undefined);
-
-// ============================================
-// PROVIDER
-// ============================================
 
 export const CurrentLevelProvider = ({ children }: { children: ReactNode }) => {
   const { db, user } = useUser();
@@ -99,10 +75,6 @@ export const CurrentLevelProvider = ({ children }: { children: ReactNode }) => {
     </CurrentLevelContext.Provider>
   );
 };
-
-// ============================================
-// HOOK
-// ============================================
 
 export const useCurrentLevel = () => {
   const context = useContext(CurrentLevelContext);

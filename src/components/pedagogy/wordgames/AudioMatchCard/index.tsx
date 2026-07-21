@@ -1,45 +1,21 @@
-/**
- * ============================================
- * AUDIO MATCH CARD (White Label)
- * Jeu : Associer le son (TTS) à l'image/mot contre la montre
- * Variante du Speed Match — colonne gauche = bouton Play, droite = images mélangées
- * ============================================
- */
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
-
-// Hooks & Utils
 import { useTheme } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
-
-// Styles
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
-
-// Types
 import type { AudioMatchQuestion } from '@/screens/WordGames/schema';
-
-// ============================================
-// TYPES
-// ============================================
 
 export interface AudioMatchCardProps {
   game: AudioMatchQuestion;
   onComplete: () => void;
 }
 
-// ============================================
-// COMPOSANT
-// ============================================
-
 const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => {
   const { identity } = useTheme();
   const baseStyles = useMemo(() => createWordGameStyles(identity), [identity]);
-
-  // =================== STATE ===================
 
   const [timeRemaining, setTimeRemaining] = useState(game.timeLimit);
   const [matchedIndices, setMatchedIndices] = useState<number[]>([]);
@@ -57,8 +33,6 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
   const totalPairs = game.pairs.length;
   const matchedCount = matchedIndices.length;
   const isSuccess = matchedCount === totalPairs && timeRemaining > 0;
-
-  // =================== TIMER ===================
 
   useEffect(() => {
     if (isGameFinished || timeRemaining <= 0) return;
@@ -90,8 +64,6 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
     };
   }, []);
 
-  // =================== HANDLERS ===================
-
   const handlePlayPress = (index: number) => {
     if (matchedIndices.includes(index)) return;
 
@@ -113,19 +85,15 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
     const originalIndex = shuffledImages[shuffledIndex].originalIndex;
 
     if (originalIndex === selectedPlayIndex) {
-      // Bonne association
       const newMatched = [...matchedIndices, selectedPlayIndex];
       setMatchedIndices(newMatched);
       setScore((prev) => prev + 10);
       setSelectedPlayIndex(null);
       Speech.stop();
     } else {
-      // Mauvaise association — désélectionner
       setSelectedPlayIndex(null);
     }
   };
-
-  // =================== STYLES DYNAMIQUES ===================
 
   const styles = StyleSheet.create({
     headerSection: {
@@ -242,7 +210,6 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
     imageEmoji: {
       fontSize: tokens.emojiSize.md,
     },
-    // Résultats
     resultSection: {
       alignItems: 'center',
       paddingVertical: tokens.spacing.xxxl,
@@ -286,8 +253,6 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
     },
   });
 
-  // =================== RENDU RÉSULTATS ===================
-
   if (isGameFinished) {
     const resultIcon = isSuccess ? '🎉' : '⏰';
     const resultTitle = isSuccess ? 'Perfect match!' : 'Time\'s up!';
@@ -314,20 +279,16 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
     );
   }
 
-  // =================== RENDU JEU ===================
-
   return (
     <ScrollView style={baseStyles.container} contentContainerStyle={baseStyles.content}>
       <View style={baseStyles.card}>
         <View style={baseStyles.colorBar} />
 
-        {/* Titre */}
         <View style={baseStyles.titleSection}>
           <Text style={baseStyles.titleIcon}>🎧</Text>
           <Text style={baseStyles.titleText}>Listen & Match</Text>
         </View>
 
-        {/* Timer & Score */}
         <View style={styles.headerSection}>
           <View style={styles.timerBox}>
             <Ionicons name="timer" size={24} color={identity.palette.primary} />
@@ -336,21 +297,17 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
           <Text style={styles.scoreText}>{score} pts</Text>
         </View>
 
-        {/* Barre de progression */}
         <View style={styles.progressBar}>
           <View style={[styles.progressFill, { width: `${(matchedCount / totalPairs) * 100}%` }]} />
         </View>
 
-        {/* Instructions */}
         <Text style={styles.instruction}>
           {selectedPlayIndex === null
             ? 'Tap 🔊 to hear, then match the image'
             : 'Now tap the matching image →'}
         </Text>
 
-        {/* Deux colonnes */}
         <View style={styles.columnsSection}>
-          {/* Colonne gauche : boutons Play */}
           <View style={styles.column}>
             <Text style={styles.columnLabel}>🔊 Listen</Text>
             {game.pairs.map((pair, index) => {
@@ -384,7 +341,6 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
             })}
           </View>
 
-          {/* Colonne droite : images mélangées */}
           <View style={styles.column}>
             <Text style={styles.columnLabel}>🖼 Match</Text>
             {shuffledImages.map((pair, shuffledIndex) => {

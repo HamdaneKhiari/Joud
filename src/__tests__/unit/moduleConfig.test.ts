@@ -27,28 +27,6 @@ describe('moduleHasSubfamilies', () => {
 });
 
 // ============================================
-// MODULE_CONFIG — propriété requiresSubfamilyForAllFamilies
-// ============================================
-
-describe('MODULE_CONFIG — requiresSubfamilyForAllFamilies', () => {
-  it('phrase_types nécessite des subfamilies pour toutes les familles', () => {
-    expect(MODULE_CONFIG['phrase_types'].requiresSubfamilyForAllFamilies).toBe(true);
-  });
-
-  it('dialogues nécessite des subfamilies pour toutes les familles', () => {
-    expect(MODULE_CONFIG['dialogues'].requiresSubfamilyForAllFamilies).toBe(true);
-  });
-
-  it('vocab ne nécessite pas obligatoirement des subfamilies (certaines familles n\'en ont pas)', () => {
-    expect(MODULE_CONFIG['vocab'].requiresSubfamilyForAllFamilies).toBe(false);
-  });
-
-  it('word_games n\'a pas de propriété requiresSubfamilyForAllFamilies', () => {
-    expect(MODULE_CONFIG['word_games'].requiresSubfamilyForAllFamilies).toBeUndefined();
-  });
-});
-
-// ============================================
 // MODULE_CONFIG — cohérence globale
 // ============================================
 

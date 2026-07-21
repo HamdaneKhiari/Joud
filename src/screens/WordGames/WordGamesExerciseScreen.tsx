@@ -1,31 +1,20 @@
-/**
- * ============================================
- * WORD GAMES EXERCISE SCREEN
- * Écran unifié pour tous les jeux de mots (White Label)
- * ============================================
- */
-
-import React, { useState, useEffect, useCallback } from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-
-// Composants
+import React, { useEffect, useCallback } from 'react';
+import { useLocalSearchParams } from 'expo-router';
 import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
 import GameCardRenderer from '@/components/pedagogy/wordgames/GameCardRendered';
+import CompletionModal from '@/components/common/CompletionModal';
+import ExerciseLoadingState from '@/components/common/ExerciseLoadingState';
+import ExerciseEmptyState from '@/components/common/ExerciseEmptyState';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
-
-// Helpers & Hooks
 import { useTheme } from '@/themes/ThemeContext';
 import { useProgress } from '@/contexts/ProgressContext';
 import useSafeNavigation from '@/hooks/useSafeNavigation';
-import { useFirstIncompleteIndex } from '@/hooks/exercises/useFirstIncompleteIndex';
+import useResumeIndex from '@/hooks/exercises/useResumeIndex';
+import useExerciseCompletion from '@/hooks/exercises/useExerciseCompletion';
 import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
 import { useExerciseContent } from '@/hooks/exercises/useExerciseContent';
 import { useLevelLabel } from '@/utils/labelMapper';
-
-// WordGames specific
 import type { GameQuestion } from './schema';
 import { useGameState } from './hooks/useGameState';
 import { useGameHandlers } from './hooks/useGameHandlers';
@@ -33,45 +22,20 @@ import { useGameHandlers } from './hooks/useGameHandlers';
 const EXERCISE_TYPE = 'word_games';
 const MAX_ATTEMPTS = 2;
 
-// ============================================
-// TYPES
-// ============================================
-
-type WordGamesStackParamList = {
-  WordGamesExercise: {
-    familyId: string;
-    levelId?: string;
-  };
-};
-
-type WordGamesExerciseRouteProp = RouteProp<WordGamesStackParamList, 'WordGamesExercise'>;
-type WordGamesExerciseNavigationProp = StackNavigationProp<
-  WordGamesStackParamList,
-  'WordGamesExercise'
->;
-
-interface Props {
-  navigation: WordGamesExerciseNavigationProp;
-  route: WordGamesExerciseRouteProp;
+interface WordGamesExerciseParams {
+  familyId: string;
+  levelId?: string;
 }
 
-// ============================================
-// COMPOSANT
-// ============================================
-
-const WordGamesExerciseScreen = ({ navigation, route }: Props) => {
-  // =================== PARAMS & THEME ===================
-  const { familyId, levelId = '1' } = route.params || {};
+const WordGamesExerciseScreen: React.FC = () => {
+  const { familyId, levelId = '1' } = useLocalSearchParams() as unknown as WordGamesExerciseParams;
   const numLevelId = Number.parseInt(levelId, 10);
   const { identity } = useTheme();
 
-  // =================== PROGRESSION & NAVIGATION ===================
   const { trackItemCompletion, getFamilyProgress } = useProgress();
-  const safeGoBack = useSafeNavigation(
-    useCallback(() => navigation.goBack(), [navigation])
-  );
+  const safeGoBack = useSafeNavigation();
+  const { showCompletion, complete } = useExerciseCompletion();
 
-  // =================== CHARGEMENT DONNÉES DB ===================
   // word_games n'a pas de sous-familles → subfamilyId = 0
   const familyIdNum = Number(familyId);
   const { module, family, contentItems, isLoading } = useExerciseContent<GameQuestion>(
@@ -80,33 +44,28 @@ const WordGamesExerciseScreen = ({ navigation, route }: Props) => {
   );
 
   const levelLabel = useLevelLabel(numLevelId);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
 
   const totalQuestions = contentItems.length;
-  const getFirstIncompleteIndex = useFirstIncompleteIndex(
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useResumeIndex(
     numLevelId,
     EXERCISE_TYPE,
     familyId,
     totalQuestions
   );
 
-  // Initialisation de l'index de départ
-  useEffect(() => {
-    if (totalQuestions > 0) {
-      setCurrentQuestionIndex(getFirstIncompleteIndex());
-    }
-  }, [totalQuestions, getFirstIncompleteIndex]);
-
   const currentQuestion = contentItems?.[currentQuestionIndex]?.data || null;
   const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
   const realProgress = getFamilyProgress(numLevelId, EXERCISE_TYPE, familyId);
 
-  // Détecter le type de jeu depuis la première question
   const gameType = currentQuestion?.type || 'definition';
 
-  // =================== GAME STATE & HANDLERS ===================
   const gameStates = useGameState(gameType);
   const { getCurrentState } = gameStates;
+
+  const handleComplete = useCallback(() => {
+    trackItemCompletion(numLevelId, EXERCISE_TYPE, familyId, currentQuestionIndex, totalQuestions);
+    complete();
+  }, [trackItemCompletion, numLevelId, familyId, currentQuestionIndex, totalQuestions, complete]);
 
   const handlers = useGameHandlers({
     question: currentQuestion as GameQuestion, // NOSONAR — generic inference limitation
@@ -121,9 +80,9 @@ const WordGamesExerciseScreen = ({ navigation, route }: Props) => {
       totalQuestions,
       currentQuestionIndex,
     },
+    onComplete: handleComplete,
   });
 
-  // =================== ACTIVITÉ & AUTO-SAVE ===================
   useExerciseActivity({
     levelId: numLevelId,
     familyId,
@@ -137,7 +96,6 @@ const WordGamesExerciseScreen = ({ navigation, route }: Props) => {
 
   useExerciseSaveOnUnmount();
 
-  // Suivi automatique de progression après validation
   useEffect(() => {
     if (!family || currentQuestionIndex < 0) return;
     const currentState = getCurrentState();
@@ -163,63 +121,58 @@ const WordGamesExerciseScreen = ({ navigation, route }: Props) => {
     getCurrentState,
   ]);
 
-  // =================== HANDLERS NAVIGATION ===================
-  // Note: Navigation gérée entièrement par ExerciseValidation dans les cards
-  // Plus besoin de handlers Précédent/Suivant manuels
+  if (isLoading) {
+    return <ExerciseLoadingState onBack={() => { safeGoBack.navigate(); }} />;
+  }
 
-  // =================== RENDU ===================
-  if (isLoading || !family || !currentQuestion) {
+  if (!family || !currentQuestion) {
     return (
+      <ExerciseEmptyState onBack={() => { safeGoBack.navigate(); }} headerTitle={family?.name || 'Word Games'} />
+    );
+  }
+
+  return (
+    <>
+      <CompletionModal
+        visible={showCompletion}
+        title="Series complete!"
+        subtitle="Bien joué, tu as terminé tous les jeux de cette série."
+        onDone={() => safeGoBack.navigate()}
+      />
       <ExerciseLayout
         headerProps={{
           variant: 'exercise',
           onBack: () => {
             safeGoBack.navigate();
           },
-          exerciseTitle: 'Chargement...',
+          rightIcon: (
+            <DynamicIcon
+              name={module?.icon || 'gamepad-variant'}
+              size={28}
+              color={identity.header.accent}
+              fallback="gamepad-variant"
+            />
+          ),
+          showLevelBadge: true,
+          levelTitle: levelLabel.badge,
+          exerciseTitle: family.name,
+        }}
+        progressProps={{
+          progressPercent: realProgress,
+          progressText: `${realProgress}% • Question ${currentQuestionIndex + 1}/${totalQuestions}`,
         }}
       >
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color={identity.palette.accent} />
-        </View>
+        <GameCardRenderer
+          gameType={gameType}
+          currentQuestion={currentQuestion}
+          currentQuestionIndex={currentQuestionIndex}
+          isLastQuestion={isLastQuestion}
+          gameFamily={family}
+          states={gameStates}
+          handlers={handlers}
+        />
       </ExerciseLayout>
-    );
-  }
-
-  return (
-    <ExerciseLayout
-      headerProps={{
-        variant: 'exercise',
-        onBack: () => {
-          safeGoBack.navigate();
-        },
-        rightIcon: (
-          <DynamicIcon
-            name={module?.icon || 'gamepad-variant'}
-            size={28}
-            color={identity.header.accent}
-            fallback="gamepad-variant"
-          />
-        ),
-        showLevelBadge: true,
-        levelTitle: levelLabel.badge,
-        exerciseTitle: family.name,
-      }}
-      progressProps={{
-        progressPercent: realProgress,
-        progressText: `${realProgress}% • Question ${currentQuestionIndex + 1}/${totalQuestions}`,
-      }}
-    >
-      <GameCardRenderer
-        gameType={gameType}
-        currentQuestion={currentQuestion}
-        currentQuestionIndex={currentQuestionIndex}
-        isLastQuestion={isLastQuestion}
-        gameFamily={family}
-        states={gameStates}
-        handlers={handlers}
-      />
-    </ExerciseLayout>
+    </>
   );
 };
 

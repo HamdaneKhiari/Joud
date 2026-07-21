@@ -333,17 +333,7 @@
 <a name='L268'></a><a href='#L268'>268</a>
 <a name='L269'></a><a href='#L269'>269</a>
 <a name='L270'></a><a href='#L270'>270</a>
-<a name='L271'></a><a href='#L271'>271</a>
-<a name='L272'></a><a href='#L272'>272</a>
-<a name='L273'></a><a href='#L273'>273</a>
-<a name='L274'></a><a href='#L274'>274</a>
-<a name='L275'></a><a href='#L275'>275</a>
-<a name='L276'></a><a href='#L276'>276</a>
-<a name='L277'></a><a href='#L277'>277</a>
-<a name='L278'></a><a href='#L278'>278</a>
-<a name='L279'></a><a href='#L279'>279</a>
-<a name='L280'></a><a href='#L280'>280</a>
-<a name='L281'></a><a href='#L281'>281</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L271'></a><a href='#L271'>271</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -373,11 +363,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -405,11 +390,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -417,7 +400,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -511,13 +493,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -623,13 +603,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * AI TUTOR GUIDED SCREEN
- * Coach IA interactif par domaine
- * Phase 1 : Sélection du domaine (cartes SQLite)
- * Phase 2 : Chat coaching avec message d'ouverture personnalisé
- */
-&nbsp;
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// Coach IA interactif par domaine : phase 1 = sélection du domaine, phase 2 = chat coaching
+// avec message d'ouverture personnalisé.
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
@@ -685,19 +660,16 @@ const AITutorGuidedScreen: React.FC = <span class="cstat-no" title="statement no
     [identity, isPlayful]
   );
 &nbsp;
-  // =================== SYNC MESSAGES FROM DB ===================
 <span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (phase !== 'chat' || isDBLoading) <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    if (persistedMessages.length &gt; 0) <span class="cstat-no" title="statement not covered" >setMessages(persistedMessages.map(toUIMessage));</span></span>
   }, [persistedMessages, isDBLoading, phase]);
 &nbsp;
-  // =================== SCROLL TO BOTTOM ===================
 <span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (phase !== 'chat') <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    setTimeout(<span class="fstat-no" title="function not covered" >()</span> =&gt; { <span class="cstat-no" title="statement not covered" >scrollViewRef.current?.scrollToEnd({ animated: true }); </span>}, 100);</span>
   }, [messages, phase]);
 &nbsp;
-  // =================== HANDLERS ===================
   const safeGoBack = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (navigation.canGoBack()) <span class="cstat-no" title="statement not covered" >router.back();</span></span>
     else <span class="cstat-no" title="statement not covered" >router.replace('/');</span>
@@ -791,7 +763,6 @@ const AITutorGuidedScreen: React.FC = <span class="cstat-no" title="statement no
     }
   }, [inputText, isSending, selectedDomain, checkAIConfiguration, messages, currentLevel, settings, saveMessage, incrementUsage]);
 &nbsp;
-  // =================== RENDER MESSAGE ===================
   const renderMessage = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >(m</span>essage: ChatUIMessage) =&gt; {</span>
     const isAI = <span class="cstat-no" title="statement not covered" >message.type === 'ai';</span>
     const isUser = <span class="cstat-no" title="statement not covered" >message.type === 'user';</span>
@@ -824,7 +795,6 @@ const AITutorGuidedScreen: React.FC = <span class="cstat-no" title="statement no
     );
   }, [styles]);
 &nbsp;
-  // =================== LOADING ===================
 <span class="cstat-no" title="statement not covered" >  if (isDomainsLoading) {</span>
 <span class="cstat-no" title="statement not covered" >    return (</span>
       &lt;SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}&gt;
@@ -836,7 +806,7 @@ const AITutorGuidedScreen: React.FC = <span class="cstat-no" title="statement no
     );
   }
 &nbsp;
-  // =================== PHASE CHAT ===================
+  // Phase chat
 <span class="cstat-no" title="statement not covered" >  if (phase === 'chat' &amp;&amp; selectedDomain) {</span>
 <span class="cstat-no" title="statement not covered" >    return (</span>
       &lt;SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}&gt;
@@ -877,7 +847,7 @@ const AITutorGuidedScreen: React.FC = <span class="cstat-no" title="statement no
     );
   }
 &nbsp;
-  // =================== PHASE SELECTION ===================
+  // Phase sélection
 <span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}&gt;
       &lt;GuidedHeader onBack={safeGoBack} subtitle="Choisis un domaine" /&gt;
@@ -910,7 +880,7 @@ export default AITutorGuidedScreen;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-04T22:17:53.267Z
+                at 2026-07-21T00:47:51.424Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

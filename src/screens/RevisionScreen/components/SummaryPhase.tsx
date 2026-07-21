@@ -1,9 +1,3 @@
-/**
- * ============================================
- * SummaryPhase - Résumé de la session de révision
- * ============================================
- */
-
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';

@@ -1,8 +1,3 @@
-/**
- * DialogueCard Styles - WHITE LABEL avec support Mood
- * Support : Playful (rounded) vs Clean (sharp)
- */
-
 import { StyleSheet } from 'react-native';
 import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
@@ -11,14 +6,12 @@ export const createStyles = (identity: Identity) => {
   const isPlayful = identity.ui.mood === 'playful';
   const isDark = identity.themeMode === 'dark';
 
-  // Configuration selon Mood
   const containerRadius = isPlayful ? 24 : 16;
   const bubbleRadius = isPlayful ? 18 : 14;
   const tagRadius = isPlayful ? 20 : 12;
   const buttonRadius = isPlayful ? 26 : 18;
 
   return StyleSheet.create({
-    // =================== CONTAINER DIALOGUE ===================
     dialogueContainer: {
       flex: 1,
       backgroundColor: identity.palette.surface,
@@ -33,7 +26,6 @@ export const createStyles = (identity: Identity) => {
       elevation: 4,
     },
 
-    // =================== BARRE PERSONNAGES ===================
     charactersBar: {
       backgroundColor: identity.palette.background,
       paddingVertical: tokens.spacing.md,
@@ -68,7 +60,6 @@ export const createStyles = (identity: Identity) => {
       color: identity.text.primary,
     },
 
-    // =================== MESSAGES ===================
     messagesContainer: {
       flex: 1,
       backgroundColor: identity.palette.background,
@@ -94,7 +85,6 @@ export const createStyles = (identity: Identity) => {
       alignItems: 'flex-end',
     },
 
-    // Nom du speaker
     bubbleName: {
       fontSize: tokens.fontSize.xs + 1,
       fontWeight: tokens.fontWeight.extrabold,
@@ -107,12 +97,10 @@ export const createStyles = (identity: Identity) => {
       textAlign: 'right',
     },
 
-    // Conteneur texte + audio
     bubbleTextContainer: {
       position: 'relative',
     },
 
-    // Bulle de texte
     bubbleText: {
       padding: tokens.spacing.md + 2,
       paddingHorizontal: tokens.spacing.lg,
@@ -143,7 +131,6 @@ export const createStyles = (identity: Identity) => {
       fontWeight: tokens.fontWeight.medium,
     },
 
-    // Bouton audio
     bubbleAudioBtn: {
       position: 'absolute',
       top: '50%',
@@ -171,7 +158,6 @@ export const createStyles = (identity: Identity) => {
       backgroundColor: '#10B981', // Green success
     },
 
-    // Traduction
     bubbleTranslation: {
       fontSize: tokens.fontSize.xs + 1,
       color: identity.text.secondary,
@@ -185,7 +171,6 @@ export const createStyles = (identity: Identity) => {
       textAlign: 'right',
     },
 
-    // =================== NAVIGATION DIALOGUE ===================
     navigationBar: {
       backgroundColor: identity.palette.surface,
       padding: tokens.spacing.lg,
@@ -230,7 +215,6 @@ export const createStyles = (identity: Identity) => {
       color: identity.text.primary,
     },
 
-    // =================== CONTAINER QUESTIONS ===================
     questionContainer: {
       backgroundColor: identity.palette.surface,
       borderRadius: containerRadius,
@@ -251,7 +235,6 @@ export const createStyles = (identity: Identity) => {
       shadowOpacity: 0.3,
     },
 
-    // =================== HEADER QUESTIONS ===================
     questionHeader: {
       paddingVertical: tokens.spacing.lg,
       paddingHorizontal: tokens.spacing.xl,
@@ -266,7 +249,6 @@ export const createStyles = (identity: Identity) => {
       letterSpacing: 0.5,
     },
 
-    // =================== CONTENU QUESTIONS ===================
     questionContent: {
       padding: tokens.spacing.xl,
     },

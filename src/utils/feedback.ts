@@ -1,8 +1,4 @@
-// ============================================
-// UTILS: exerciseFeedback.ts
-// Génère des messages de feedback standardisés pour les exercices
-// ⚠️ LEGACY: Prefer using useFeedbackMessages hook for White Label feedback
-// ============================================
+// LEGACY : préférer le hook useFeedbackMessages pour du feedback White Label
 
 export interface FeedbackMessage {
   icon?: string;
@@ -10,18 +6,6 @@ export interface FeedbackMessage {
   message: string;
 }
 
-/**
- * Génère un message de feedback standardisé pour les exercices
- *
- * @param isValidated - Si la réponse a été validée
- * @param isCorrect - Si la réponse est correcte
- * @param canSkip - Si l'utilisateur peut passer la question
- * @param correctAnswer - La réponse correcte (string ou array pour phrases)
- * @param attemptCount - Nombre de tentatives effectuées
- * @param maxAttempts - Nombre maximum de tentatives
- *
- * @returns Object | null - Message de feedback avec icon, title, message
- */
 export const generateFeedbackMessage = (
   isValidated: boolean,
   isCorrect: boolean,

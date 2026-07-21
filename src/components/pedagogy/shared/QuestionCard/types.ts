@@ -1,10 +1,5 @@
-// ============================================
-// types.ts - Types mis à jour
-// ============================================
-
 export type ModuleType = 'reading' | 'vocab' | 'phrase_types' | 'dialogue' | 'dialogues';
 
-// 🆕 Interface i18n pour les textes
 export interface QuestionCardI18n {
   hintShow: string;
   hintHide: string;
@@ -31,6 +26,6 @@ export interface QuestionCardProps {
   onToggleHint?: () => void;
   feedbackMessage?: string;
 
-  // 🆕 i18n optionnel (override de identity.i18n si besoin)
+  // i18n optionnel (override de identity.i18n si besoin)
   i18n?: QuestionCardI18n;
 }

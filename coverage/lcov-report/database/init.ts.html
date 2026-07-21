@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">9.3% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/43</span>
+                <span class='fraction'>4/43</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">10.25% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/39</span>
+                <span class='fraction'>4/39</span>
             </div>
         
             
@@ -142,14 +142,7 @@
 <a name='L77'></a><a href='#L77'>77</a>
 <a name='L78'></a><a href='#L78'>78</a>
 <a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a>
-<a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L80'></a><a href='#L80'>80</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -161,15 +154,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -177,10 +165,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -196,6 +181,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -241,21 +227,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MigrationRunner } from './migrations/runner';
 import { log } from '@/utils/logUtils';
 &nbsp;
-// ============================================
-// MIGRATIONS V2 — base consolidée
-// ============================================
-import migrationV2_001 from './migrations_v2/001_schema';
-import migrationV2_002 from './migrations_v2/002_seed_config';
-import migrationV2_003 from './migrations_v2/003_seed_subfamily_labels';
+import migration001 from './migrations/001_schema';
+import migration002 from './migrations/002_seed_config';
+import migration003 from './migrations/003_seed_subfamily_labels';
+import migration004 from './migrations/004_remove_grammar_module';
 &nbsp;
-// ============================================
-// SINGLETON — une seule initialisation simultanée
-// Empêche la double-invocation de React 18 Strict Mode
-// ============================================
-let _initPromise: Promise&lt;SQLite.SQLiteDatabase&gt; | null = <span class="cstat-no" title="statement not covered" >null;</span>
-let _retryCount = <span class="cstat-no" title="statement not covered" >0;</span>
+// Une seule initialisation simultanée : évite la double-invocation de React 18 Strict Mode
+let _initPromise: Promise&lt;SQLite.SQLiteDatabase&gt; | null = null;
+let _retryCount = 0;
 &nbsp;
-export const initDatabase = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span>: Promise&lt;SQLite.SQLiteDatabase&gt; =&gt; {</span>
+export const initDatabase = <span class="fstat-no" title="function not covered" >()</span>: Promise&lt;SQLite.SQLiteDatabase&gt; =&gt; {
 <span class="cstat-no" title="statement not covered" >  _initPromise ??= _doInit().catch(<span class="fstat-no" title="function not covered" >(e</span>rr) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    _initPromise = null; </span>// Permet une nouvelle tentative après échec
 <span class="cstat-no" title="statement not covered" >    throw err;</span>
@@ -263,10 +244,7 @@ export const initDatabase = <span class="cstat-no" title="statement not covered"
 <span class="cstat-no" title="statement not covered" >  return _initPromise;</span>
 };
 &nbsp;
-// ============================================
-// LOGIQUE D'INITIALISATION
-// ============================================
-const _doInit = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >as</span>ync (): Promise&lt;SQLite.SQLiteDatabase&gt; =&gt; {</span>
+const _doInit = <span class="fstat-no" title="function not covered" >as</span>ync (): Promise&lt;SQLite.SQLiteDatabase&gt; =&gt; {
   let db: SQLite.SQLiteDatabase | undefined = <span class="cstat-no" title="statement not covered" >undefined;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  try {</span>
@@ -282,14 +260,15 @@ const _doInit = <span class="cstat-no" title="statement not covered" ><span clas
 <span class="cstat-no" title="statement not covered" >    await runner.initialize();</span>
 &nbsp;
     const migrations = <span class="cstat-no" title="statement not covered" >[</span>
-      migrationV2_001, // Schéma complet
-      migrationV2_002, // Config : branding, palettes, modules, levels, families, availability, feedback, daily_words
-      migrationV2_003, // Subfamily labels : vocab core, dialogues, reading
+      migration001, // Schéma complet
+      migration002, // Config : branding, palettes, modules, levels, families, availability, feedback, daily_words
+      migration003, // Subfamily labels : vocab core, dialogues, reading
+      migration004, // Suppression du module grammar (données résiduelles)
     ];
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    console.log('[JanaCore] 🚀 Running migrations V2...');</span>
+<span class="cstat-no" title="statement not covered" >    console.log('[JanaCore] 🚀 Running migrations...');</span>
 <span class="cstat-no" title="statement not covered" >    await runner.runMigrations(migrations);</span>
-<span class="cstat-no" title="statement not covered" >    console.log('[JanaCore] ✅ Ready — V2 synchronized');</span>
+<span class="cstat-no" title="statement not covered" >    console.log('[JanaCore] ✅ Ready — synchronized');</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    _retryCount = 0;</span>
 <span class="cstat-no" title="statement not covered" >    return db;</span>
@@ -328,7 +307,7 @@ const _doInit = <span class="cstat-no" title="statement not covered" ><span clas
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-04T22:17:53.267Z
+                at 2026-07-21T00:47:51.424Z
             </div>
         <script src="../prettify.js"></script>
         <script>

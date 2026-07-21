@@ -1,10 +1,3 @@
-/**
- * ============================================
- * REVISION QUESTION CARD
- * Carte de question pour les révisions (QCM)
- * ============================================
- */
-
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
@@ -33,27 +26,22 @@ const RevisionQuestionCard: React.FC<RevisionQuestionCardProps> = ({
 
   return (
     <View style={styles.card}>
-      {/* Barre couleur (white label) */}
       <View style={styles.colorBar} />
 
-      {/* Titre */}
       <View style={styles.titleSection}>
         <Text style={styles.titleIcon}>{question.emoji || '❓'}</Text>
         <Text style={styles.titleText}>Révision</Text>
       </View>
 
-      {/* Question */}
       <View style={styles.contentBox}>
         <Text style={styles.contentText}>{question.questionText}</Text>
       </View>
 
-      {/* Options */}
       <View style={styles.optionsContainer}>
         {question.options.map((option) => {
           const isSelected = selectedAnswer === option;
           const isCorrectOption = option === question.correctAnswer;
 
-          // Style dynamique selon l'état
           const buttonStyle = [
             styles.optionButton,
             showFeedback && isCorrectOption && styles.optionButtonCorrect,

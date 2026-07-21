@@ -1,21 +1,8 @@
-/**
- * ============================================
- * EXERCISE MOOD HELPER
- * Gère les 3 variantes de style pour les exercices
- * ============================================
- */
-
 import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 
-/**
- * Type de mood pour les exercices (3 variantes)
- */
 export type ExerciseMood = 'very-playful' | 'moderate' | 'clean';
 
-/**
- * Configuration des styles par mood
- */
 export interface ExerciseMoodConfig {
   borderRadius: {
     card: number;
@@ -35,9 +22,6 @@ export interface ExerciseMoodConfig {
   spacing: number;
 }
 
-/**
- * Détermine le mood d'exercice selon l'identité
- */
 export const getExerciseMood = (identity: Identity): ExerciseMood => {
   switch (identity.id) {
     case 'primary':
@@ -52,9 +36,6 @@ export const getExerciseMood = (identity: Identity): ExerciseMood => {
   }
 };
 
-/**
- * Retourne la configuration de style pour un mood donné
- */
 export const getExerciseMoodConfig = (mood: ExerciseMood): ExerciseMoodConfig => {
   switch (mood) {
     case 'very-playful':
@@ -119,9 +100,6 @@ export const getExerciseMoodConfig = (mood: ExerciseMood): ExerciseMoodConfig =>
   }
 };
 
-/**
- * Shorthand : Récupère la config directement depuis l'identité
- */
 export const getExerciseConfig = (identity: Identity): ExerciseMoodConfig => {
   const mood = getExerciseMood(identity);
   return getExerciseMoodConfig(mood);

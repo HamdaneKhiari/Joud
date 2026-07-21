@@ -13,10 +13,6 @@ import {
 import { useState, useEffect } from 'react';
 import { SQLiteDatabase } from 'expo-sqlite';
 
-// ============================================
-// TYPES
-// ============================================
-
 export interface ModuleLabel {
   title: string;
   description: string;
@@ -29,13 +25,6 @@ export interface LevelLabel {
   description: string;
 }
 
-// ============================================
-// HOOKS POUR RÉCUPÉRER LES LABELS (DB)
-// ============================================
-
-/**
- * Hook pour récupérer le label d'un module depuis la DB
- */
 export const useModuleLabel = (moduleSlug: string): ModuleLabel => {
   const { db } = useUser();
   const { currentApp } = useTheme();
@@ -47,7 +36,6 @@ export const useModuleLabel = (moduleSlug: string): ModuleLabel => {
 
   useEffect(() => {
     const loadLabel = async () => {
-      // ✅ Sécurité : on vérifie que db est un objet valide (SharedObject)
       if (!db || typeof db === 'number' || !moduleSlug) return;
 
       try {
@@ -59,7 +47,7 @@ export const useModuleLabel = (moduleSlug: string): ModuleLabel => {
         });
       } catch (error) {
         const errorMsg = String(error);
-        // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
+        // Silence les erreurs de DB fermée (auto-reset en DEV)
         if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
           log.error('Error loading module label:', error);
         }
@@ -72,9 +60,6 @@ export const useModuleLabel = (moduleSlug: string): ModuleLabel => {
   return label;
 };
 
-/**
- * Hook pour récupérer le label d'un niveau depuis la DB
- */
 export const useLevelLabel = (levelNumber: number, familyId?: string): LevelLabel => {
   const { db } = useUser();
   const { currentApp } = useTheme();
@@ -86,16 +71,14 @@ export const useLevelLabel = (levelNumber: number, familyId?: string): LevelLabe
 
   useEffect(() => {
     const loadLabel = async () => {
-      // ✅ Sécurité : on vérifie que db est un objet valide (SharedObject)
       if (!db || typeof db === 'number' || !levelNumber) return;
 
       try {
-        // Utilise la fonction getLevelLabel mise à jour qui gère le familyId
         const levelLabel = await getLevelLabel(db, levelNumber, currentApp, familyId);
         setLabel(levelLabel);
       } catch (error) {
         const errorMsg = String(error);
-        // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
+        // Silence les erreurs de DB fermée (auto-reset en DEV)
         if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
           log.error('Error loading level label:', error);
         }
@@ -108,20 +91,11 @@ export const useLevelLabel = (levelNumber: number, familyId?: string): LevelLabe
   return label;
 };
 
-// ============================================
-// FONCTIONS ASYNCHRONES (CORRIGÉES : db en 1er)
-// ============================================
-
-/**
- * Récupère le label d'un module selon l'identité
- * ✅ CORRIGÉ : db est maintenant le premier argument
- */
 export const getModuleLabel = async (
   db: SQLiteDatabase | null,
   moduleSlug: string,
   identityId: string
 ): Promise<ModuleLabel> => {
-  // ✅ Protection renforcée contre les DB invalides
   if (!db || typeof db === 'number') {
     return { title: moduleSlug, description: 'Module', icon: 'book' };
   }
@@ -135,7 +109,7 @@ export const getModuleLabel = async (
     };
   } catch (error) {
     const errorMsg = String(error);
-    // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
+    // Silence les erreurs de DB fermée (auto-reset en DEV)
     if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
       log.error('Error in getModuleLabel:', error);
     }
@@ -143,25 +117,19 @@ export const getModuleLabel = async (
   }
 };
 
-/**
- * Récupère le label d'un niveau selon l'identité
- * ✅ CORRIGÉ : db est maintenant le premier argument
- */
 export const getLevelLabel = async (
   db: SQLiteDatabase | null,
   levelNumber: number,
   identityId: string,
   familyId?: string
 ): Promise<LevelLabel> => {
-  // ✅ Protection renforcée contre les DB invalides
   if (!db || typeof db === 'number') {
     return { title: `Niveau ${levelNumber}`, badge: `N${levelNumber}`, description: 'Niveau' };
   }
 
   try {
-    // 1. Construction de la requête pour level_labels
-    // Si familyId est présent, on cherche la sous-famille (family_id = ?)
-    // Sinon, on cherche le niveau global (family_id IS NULL) pour éviter les conflits
+    // Si familyId est présent, on cherche le label de la sous-famille (family_id = ?),
+    // sinon celui du niveau global (family_id IS NULL) pour éviter les conflits
     let query = `
       SELECT display_title, badge_text, display_description 
       FROM level_labels 
@@ -190,7 +158,7 @@ export const getLevelLabel = async (
       };
     }
 
-    // 2. Fallback vers la table levels (uniquement pour les niveaux globaux)
+    // Fallback vers la table levels (uniquement pour les niveaux globaux)
     if (!familyId) {
       const fallbackLabel = await db.getFirstAsync<{
         title: string;
@@ -213,7 +181,7 @@ export const getLevelLabel = async (
     return { title: `Niveau ${levelNumber}`, badge: `N${levelNumber}`, description: 'Niveau' };
   } catch (error) {
     const errorMsg = String(error);
-    // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
+    // Silence les erreurs de DB fermée (auto-reset en DEV)
     if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
       log.error('Error in getLevelLabel:', error);
     }
@@ -221,23 +189,18 @@ export const getLevelLabel = async (
   }
 };
 
-/**
- * Récupère la liste des modules disponibles
- * ✅ CORRIGÉ : db est maintenant le premier argument
- */
 export const getAvailableModules = async (
   db: SQLiteDatabase | null,
   identityId: string,
   levelNumber: number
 ): Promise<string[]> => {
-  // ✅ Protection renforcée contre les DB invalides
   if (!db || typeof db === 'number') return [];
 
   try {
     return await getAvailableModulesFromDB(db, identityId, levelNumber);
   } catch (error) {
     const errorMsg = String(error);
-    // ✅ Silence les erreurs de DB fermée (auto-reset en DEV)
+    // Silence les erreurs de DB fermée (auto-reset en DEV)
     if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
       log.error('Error in getAvailableModules:', error);
     }
@@ -245,10 +208,6 @@ export const getAvailableModules = async (
   }
 };
 
-/**
- * Vérifie si un module est disponible
- * ✅ CORRIGÉ : db est maintenant le premier argument
- */
 export const isModuleAvailable = async (
   db: SQLiteDatabase | null,
   moduleSlug: string,

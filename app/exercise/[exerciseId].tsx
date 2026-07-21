@@ -1,7 +1,7 @@
 // app/exercise/[exerciseId].tsx
 import React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/themes/ThemeContext';
 
 // Import des écrans de contenu
@@ -14,16 +14,15 @@ import WordGamesExerciseScreen from '@/screens/WordGames/WordGamesExerciseScreen
 
 export default function ExerciseDispatcher() {
   const params = useLocalSearchParams();
-  const navigation = useNavigation();
   const { identity } = useTheme();
 
-  // 1. Normalisation des paramètres
+  // Normalisation des paramètres (peuvent arriver en tableau si dupliqués dans l'URL)
   const exerciseId = Array.isArray(params.exerciseId) ? params.exerciseId[0] : params.exerciseId;
   const familyId = Array.isArray(params.familyId) ? params.familyId[0] : params.familyId;
   const levelId = Array.isArray(params.levelId) ? params.levelId[0] : params.levelId;
-  const subfamilyId = Array.isArray(params.subfamilyId) ? params.subfamilyId[0] : params.subfamilyId;
 
-  // 2. Sécurité : On attend d'avoir toutes les clés
+  // Sécurité : on attend d'avoir toutes les clés. Chaque écran lit ensuite ses propres
+  // params via useLocalSearchParams() — aucune prop à transmettre ici.
   if (!exerciseId || !levelId || !familyId) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: identity.palette.surface || '#FFFFFF' }}>
@@ -33,41 +32,25 @@ export default function ExerciseDispatcher() {
     );
   }
 
-  // 3. Préparation des Props (Transmission de familyId, levelId, subfamilyId et exerciseType)
-  // Each screen uses a different StackNavigationProp/RouteProp type — force-cast per screen below.
-  const routeParams = {
-    familyId: Number(familyId || 0),
-    levelId: Number(levelId),
-    subfamilyId: subfamilyId ? Number(subfamilyId) : 0,
-    exerciseType: exerciseId,
-  };
-  const routeKey = `exercise-${exerciseId}-${familyId || '0'}-${levelId}-${subfamilyId || '0'}`;
-
-  // Helper to build screen-specific props without any
-  function buildProps<T>(): T {
-    return { navigation, route: { key: routeKey, params: routeParams } } as unknown as T;
-  }
-
-  // 4. Switch Complet
   switch (exerciseId) {
     case 'vocab':
-      return <VocabularyExerciseScreen {...buildProps<React.ComponentProps<typeof VocabularyExerciseScreen>>()} />;
+      return <VocabularyExerciseScreen />;
 
     case 'phrases':
     case 'phrase_types':
-      return <SentenceScreen {...buildProps<React.ComponentProps<typeof SentenceScreen>>()} />;
+      return <SentenceScreen />;
 
     case 'reading':
-      return <ReadingExerciseScreen {...buildProps<React.ComponentProps<typeof ReadingExerciseScreen>>()} />;
+      return <ReadingExerciseScreen />;
 
     case 'dialogues':
-      return <DialogueExerciseScreen {...buildProps<React.ComponentProps<typeof DialogueExerciseScreen>>()} />;
+      return <DialogueExerciseScreen />;
 
     case 'connector':
-      return <ConnectorExerciseScreen {...buildProps<React.ComponentProps<typeof ConnectorExerciseScreen>>()} />;
+      return <ConnectorExerciseScreen />;
 
     case 'word_games':
-      return <WordGamesExerciseScreen {...buildProps<React.ComponentProps<typeof WordGamesExerciseScreen>>()} />;
+      return <WordGamesExerciseScreen />;
 
     default:
       return (

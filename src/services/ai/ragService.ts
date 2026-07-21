@@ -1,16 +1,9 @@
 /**
- * ============================================
- * RAG SERVICE (Retrieval-Augmented Generation)
- * Recherche de contenu pédagogique pertinent dans SQLite
- * Utilise LIKE pour la recherche par mots-clés
- * ============================================
+ * Retrieval-Augmented Generation : recherche de contenu pédagogique pertinent
+ * dans SQLite via LIKE sur mots-clés (pas d'embeddings/vecteurs).
  */
 
 import { SQLiteDatabase } from 'expo-sqlite';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface RAGDocument {
   id: string;
@@ -31,23 +24,12 @@ interface RAGResponse {
   context: string;
 }
 
-// ============================================
-// KEYWORDS pour le matching local
-// ============================================
-
 const VOCAB_KEYWORDS = [
   'mot', 'word', 'vocabulaire', 'vocabulary', 'traduction', 'translation',
   'signifie', 'means', 'dire', 'say', 'comment on dit',
 ];
 
-// ============================================
-// SERVICE
-// ============================================
-
 class RAGService {
-  /**
-   * Recherche du contenu pertinent dans la DB selon une requête
-   */
   async searchRelevantContent(
     db: SQLiteDatabase | null,
     query: RAGQuery
@@ -117,9 +99,6 @@ class RAGService {
     return { documents: topDocs, context };
   }
 
-  /**
-   * Récupère des exemples similaires depuis la DB
-   */
   async getSimilarExamples(
     db: SQLiteDatabase | null,
     topic: string
@@ -144,9 +123,6 @@ class RAGService {
     }).filter(Boolean);
   }
 
-  /**
-   * Génère un contexte enrichi pour l'IA
-   */
   async enrichContext(
     db: SQLiteDatabase | null,
     userQuery: string,
@@ -163,10 +139,7 @@ class RAGService {
     return result.context;
   }
 
-  /**
-   * Détermine si RAG doit être utilisé pour cette requête.
-   * Vérifie si la requête contient des mots-clés de vocabulaire connus.
-   */
+  // Utilise RAG uniquement si la requête contient un mot-clé de vocabulaire connu
   shouldUseRAG(query: string, _level: number): { useRAG: boolean; context?: string } {
     const lowerQuery = query.toLowerCase();
 
@@ -179,9 +152,6 @@ class RAGService {
     return { useRAG: false };
   }
 
-  /**
-   * Log l'utilisation du RAG pour analytics
-   */
   trackRAGUsage(used: boolean, confidence?: number): void {
     if (__DEV__) {
       // eslint-disable-next-line no-console
@@ -189,21 +159,11 @@ class RAGService {
     }
   }
 
-  /**
-   * Formate un contexte RAG en texte lisible
-   */
   formatRAGContext(context: string): string {
     if (!context) return '';
     return `Source Joud Academy :\n${context}`;
   }
 
-  // ============================================
-  // HELPERS PRIVÉS
-  // ============================================
-
-  /**
-   * Extrait les mots-clés significatifs d'une requête
-   */
   private extractKeywords(query: string): string[] {
     const stopWords = new Set([
       'le', 'la', 'les', 'un', 'une', 'des', 'de', 'du', 'et', 'ou', 'en',
@@ -221,9 +181,6 @@ class RAGService {
       .filter(w => w.length > 2 && !stopWords.has(w));
   }
 
-  /**
-   * Extrait du texte lisible depuis le JSON de contenu
-   */
   private extractReadableContent(parsed: Record<string, string | undefined>, contentType: string): string {
     switch (contentType) {
       case 'word':
@@ -237,18 +194,12 @@ class RAGService {
     }
   }
 
-  /**
-   * Map content_type vers RAGDocument.type
-   */
   private mapContentType(ct: string): RAGDocument['type'] {
     if (ct === 'word') return 'vocabulary';
     if (ct === 'sentence') return 'sentence';
     return 'vocabulary';
   }
 
-  /**
-   * Score de pertinence simple basé sur le nombre de mots-clés trouvés
-   */
   private calculateRelevance(text: string, keywords: string[]): number {
     const lower = text.toLowerCase();
     let score = 0;
@@ -258,10 +209,6 @@ class RAGService {
     return score / keywords.length;
   }
 }
-
-// ============================================
-// EXPORT SINGLETON
-// ============================================
 
 const ragService = new RAGService();
 export default ragService;

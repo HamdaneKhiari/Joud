@@ -1,10 +1,3 @@
-/**
- * ============================================
- * HOOK: useDailyWord
- * Récupère le mot du jour depuis la DB
- * ============================================
- */
-
 import { log } from '@/utils/logUtils';
 import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';

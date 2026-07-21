@@ -1,38 +1,21 @@
-/**
- * FamilySelectionScreen - Sélection des familles d'un module (Version Premium)
- * Nettoyage : Suppression des doublons de rafraîchissement
- */
-
 import { log } from '@/utils/logUtils';
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, StatusBar, Text, FlatList } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-
-// Composants
 import ExerciseHeader from '@/components/layout/ExerciseHeader';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
 import FamilyCard from '@/components/family/FamilyCard';
 import SkeletonLoader from '@/components/ui/SkeletonLoader';
-
-// Hooks & Contexts
 import { useTheme } from '@/themes/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
 import { useProgress } from '@/contexts/ProgressContext';
 import useSafeNavigation from '@/hooks/useSafeNavigation';
 import useFamiliesWithProgress, { FamilyWithProgress } from '@/hooks/familySelection/useFamiliesWithProgress';
-
-// Utils
 import { getModuleLabel, getLevelLabel, getAvailableModules } from '@/utils/labelMapper';
 import { getModuleColor } from '@/utils/moduleHelper';
 import { moduleHasSubfamilies } from '@/config/moduleConfig';
-
-// Styles
 import { createStyles } from './style';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface RouteParams {
   moduleId?: string;
@@ -53,10 +36,6 @@ interface FamilySelectionScreenProps {
   route?: LegacyRoute;
 }
 
-// ============================================
-// COMPOSANT
-// ============================================
-
 const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   navigation,
   route
@@ -67,14 +46,12 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   const { db } = useUser();
   const { getLastActivity } = useProgress();
 
-  // =================== PARAMÈTRES ===================
   const rawModuleId = route?.params?.moduleId || expoParams.moduleId || expoParams.familyId || '';
   const moduleId = Array.isArray(rawModuleId) ? rawModuleId[0] : rawModuleId.toString();
   const levelId = route?.params?.levelId || expoParams.levelId || '1';
   const numLevelId = Number.parseInt(levelId.toString(), 10);
 
-  // =================== HOOKS & DATA ===================
-  // ✅ Le hook useFamiliesWithProgress gère déjà son propre focusEffect pour le rafraîchissement
+  // useFamiliesWithProgress gère déjà son propre focusEffect pour le rafraîchissement
   const { families, isLoading } = useFamiliesWithProgress(moduleId, numLevelId);
   const styles = useMemo(() => createStyles(identity), [identity]);
 
@@ -97,7 +74,6 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
     const loadLabels = async () => {
       if (db && typeof db !== 'number' && moduleId) {
         try {
-          // Utilisation de db en premier argument comme défini dans labelMapper
           const lLabel = await getLevelLabel(db, numLevelId, identity.id);
           setLevelLabel(lLabel);
 
@@ -119,7 +95,6 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
     loadLabels();
   }, [db, moduleId, numLevelId, identity.id]);
 
-  // Dernière activité
   const recentActivity = useMemo(() => {
     if (!families || families.length === 0) return null;
     const lastActivity = getLastActivity(numLevelId, moduleId);
@@ -131,15 +106,13 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
     return { ...family, progress: lastActivity.progress || 0 };
   }, [families, numLevelId, moduleId, getLastActivity]);
 
-  // ✅ Trier les familles : recentActivity en premier
+  // Trier les familles : recentActivity en premier
   const sortedFamilies = useMemo(() => {
     if (!families) return [];
     if (!recentActivity) return families;
 
-    // Séparer recentActivity des autres
     const others = families.filter((f) => f.id !== recentActivity.id);
 
-    // Mettre recentActivity en premier avec son badge "EN COURS"
     return [
       { ...recentActivity, badge: 'EN COURS', isRecent: true },
       ...others
@@ -149,11 +122,9 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   if (!moduleId) return null;
 
  const handleFamilyPress = (familyId: string | number) => {
-  // ✅ Vérifier si ce module a des sous-familles
   const hasSubfamilies = moduleHasSubfamilies(moduleId);
 
   if (hasSubfamilies) {
-    // Route vers SubFamilySelectionScreen
     router.push({
       pathname: '/subfamily/[subfamilyId]',
       params: {
@@ -164,7 +135,6 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
       }
     });
   } else {
-    // Route directement vers l'exercice (pas de subfamilies)
     router.push({
       pathname: '/exercise/[exerciseId]',
       params: {
@@ -177,7 +147,6 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   }
 };
 
-  // =================== RENDER FUNCTIONS ===================
   const renderSkeleton = () => (
     <View style={styles.skeletonContainer}>
       <SkeletonLoader variant="recent-activity" />
@@ -195,7 +164,6 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
     </View>
   );
 
-  // ✅ Détecter si card unique pour layout adaptatif
   const isSingleCard = sortedFamilies.length === 1;
 
   const renderItem = ({ item, index }: { item: FamilyWithProgress & { badge?: string; isRecent?: boolean; locked?: boolean }; index: number }) => {
@@ -213,8 +181,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
       />
     );
 
-    // ✅ En mode grid, wrapper chaque card pour éviter l'étirement des cards orphelines
-    // (quand nombre impair, la dernière card seule prend 100% sinon)
+    // En mode grid, wrapper chaque card pour éviter l'étirement des cards orphelines (nombre impair)
     return <View style={isSingleCard ? styles.singleCardWrapper : styles.gridCardWrapper}>{card}</View>;
   };
 
@@ -234,15 +201,15 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
 
         {isLoading ? renderSkeleton() : (
           <FlatList
-            key={isSingleCard ? 'single' : 'grid'} // ✅ Force re-render selon layout
+            key={isSingleCard ? 'single' : 'grid'}
             data={sortedFamilies}
             renderItem={renderItem}
             keyExtractor={(item) => `family-${item.id}`}
-            numColumns={isSingleCard ? 1 : 2} // ✅ 1 colonne si card unique
+            numColumns={isSingleCard ? 1 : 2}
             ListEmptyComponent={renderEmptyState}
             contentContainerStyle={[
               styles.listContent,
-              isSingleCard && styles.singleCardContainer // ✅ Centre la card unique
+              isSingleCard && styles.singleCardContainer
             ]}
             columnWrapperStyle={!isSingleCard ? styles.columnWrapper : undefined}
             showsVerticalScrollIndicator={false}

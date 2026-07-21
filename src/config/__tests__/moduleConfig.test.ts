@@ -31,18 +31,6 @@ describe('MODULE_CONFIG', () => {
     });
   });
 
-  it('phrase_types requires subfamily for ALL families', () => {
-    expect(MODULE_CONFIG.phrase_types.requiresSubfamilyForAllFamilies).toBe(true);
-  });
-
-  it('dialogues requires subfamily for ALL families', () => {
-    expect(MODULE_CONFIG.dialogues.requiresSubfamilyForAllFamilies).toBe(true);
-  });
-
-  it('vocab does NOT require subfamily for all families (some families have no sub)', () => {
-    expect(MODULE_CONFIG.vocab.requiresSubfamilyForAllFamilies).toBe(false);
-  });
-
   it('modules without subfamilies have hasSubfamilies=false', () => {
     ['word_games', 'connector'].forEach(slug => {
       expect(MODULE_CONFIG[slug].hasSubfamilies).toBe(false);

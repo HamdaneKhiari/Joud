@@ -1,32 +1,13 @@
-/**
- * ============================================
- * REPLY CARD (White Label)
- * Jeu : Choisir la réponse la plus naturelle à une phrase contextuelle
- * ============================================
- */
-
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-
-// Composants
 import ExerciseValidation from '@/components/common/ExerciseValidation';
-
-// Hooks & Utils
 import { useTheme } from '@/themes/ThemeContext';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
 import { useFeedbackMessages, getFeedbackState } from '@/hooks/exercises/useFeedbackMessages';
 import type { FeedbackData } from '@/hooks/exercises/useFeedbackMessages';
 import { tokens } from '@/themes/tokens';
-
-// Styles
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
-
-// Types
 import type { ReplyQuestion } from '@/screens/WordGames/schema';
-
-// ============================================
-// TYPES
-// ============================================
 
 export interface ReplyCardProps {
   question: ReplyQuestion;
@@ -41,10 +22,6 @@ export interface ReplyCardProps {
   onNext: () => void;
   isLastQuestion: boolean;
 }
-
-// ============================================
-// COMPOSANT
-// ============================================
 
 const ReplyCard: React.FC<ReplyCardProps> = ({
   question,
@@ -88,8 +65,6 @@ const ReplyCard: React.FC<ReplyCardProps> = ({
 
   const showFeedback = isValidated && (isCorrect || canSkip);
   const isPlayful = identity.ui.mood === 'playful';
-
-  // =================== STYLES DYNAMIQUES ===================
 
   const styles = StyleSheet.create({
     situationBox: {
@@ -157,36 +132,29 @@ const ReplyCard: React.FC<ReplyCardProps> = ({
     },
   });
 
-  // =================== RENDU ===================
-
   return (
     <ScrollView style={baseStyles.container} contentContainerStyle={baseStyles.content}>
       <View style={baseStyles.card}>
         <View style={baseStyles.colorBar} />
 
-        {/* Titre */}
         <View style={baseStyles.titleSection}>
           <Text style={baseStyles.titleIcon}>💬</Text>
           <Text style={baseStyles.titleText}>Best Reply</Text>
         </View>
 
-        {/* Contexte optionnel */}
         {!!question.situation && (
           <View style={styles.situationBox}>
             <Text style={styles.situationText}>📍 {question.situation}</Text>
           </View>
         )}
 
-        {/* Phrase à laquelle répondre */}
         <View style={styles.promptBox}>
           <Text style={styles.promptQuote}>"</Text>
           <Text style={styles.promptText}>{question.prompt}</Text>
         </View>
 
-        {/* Instruction */}
         <Text style={styles.instructionText}>Choose the most natural reply:</Text>
 
-        {/* Options */}
         <View style={baseStyles.optionsContainer}>
           {question.options.map((option) => {
             const isSelected = selectedOption === option;
@@ -219,7 +187,6 @@ const ReplyCard: React.FC<ReplyCardProps> = ({
           })}
         </View>
 
-        {/* Explication après validation (si disponible) */}
         {showFeedback && !!question.explanation && (
           <View style={styles.explanationBox}>
             <Text style={styles.explanationText}>💡 {question.explanation}</Text>

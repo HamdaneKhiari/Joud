@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">78.57% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>11/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">66.66% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/9</span>
+                <span class='fraction'>6/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>2/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">78.57% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>11/14</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -175,41 +175,41 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -248,45 +248,45 @@ interface UseSafeNavigationReturn {
  * @param navigationAction - Optionnel. L'action à sécuriser. Par défaut: navigation.goBack()
  * @param options - Options de debounce et sécurité
  */
-export default function <span class="fstat-no" title="function not covered" >useSafeNavigation(</span>
+export default function useSafeNavigation(
   navigationAction?: (...args: unknown[]) =&gt; unknown,
-  options: UseSafeNavigationOptions = <span class="branch-0 cbranch-no" title="branch not covered" >{}</span>
+  options: UseSafeNavigationOptions = {}
 ): UseSafeNavigationReturn {
-  const navigation = <span class="cstat-no" title="statement not covered" >useNavigation();</span>
-  const { debounceMs = <span class="branch-0 cbranch-no" title="branch not covered" >250,</span> preventRapidClicks = <span class="branch-0 cbranch-no" title="branch not covered" >true </span>} = <span class="cstat-no" title="statement not covered" >options;</span>
+  const navigation = useNavigation();
+  const { debounceMs = 250, preventRapidClicks = true } = options;
 &nbsp;
   // Si aucune action n'est fournie, on définit le goBack par défaut
-  const defaultAction = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+  const defaultAction = useCallback(<span class="fstat-no" title="function not covered" >()</span> =&gt; {
 <span class="cstat-no" title="statement not covered" >    if (navigation.canGoBack()) {</span>
 <span class="cstat-no" title="statement not covered" >      navigation.goBack();</span>
     }
   }, [navigation]);
 &nbsp;
   // On utilise l'action fournie OU l'action par défaut
-  const actionToExecute = <span class="cstat-no" title="statement not covered" >navigationAction || defaultAction;</span>
+  const actionToExecute = navigationAction || defaultAction;
 &nbsp;
-  const safeAction = <span class="cstat-no" title="statement not covered" >useSafeAction(actionToExecute, {</span>
-    debounceMs: preventRapidClicks ? debounceMs : 0,
+  const safeAction = useSafeAction(actionToExecute, {
+    debounceMs: preventRapidClicks ? debounceMs : <span class="branch-1 cbranch-no" title="branch not covered" >0,</span>
     allowConcurrent: false,
     onError: <span class="fstat-no" title="function not covered" >(e</span>rror: Error) =&gt; {
 <span class="cstat-no" title="statement not covered" >      log.error('[SafeNavigation] Erreur:', error);</span>
     }
   });
 &nbsp;
-  const navigate = <span class="cstat-no" title="statement not covered" >useCallback(</span>
-<span class="fstat-no" title="function not covered" >    as</span>ync (...args: unknown[]) =&gt; {
-<span class="cstat-no" title="statement not covered" >      try {</span>
-        const result = <span class="cstat-no" title="statement not covered" >await safeAction.execute(...(args as Parameters&lt;typeof safeAction.execute&gt;));</span>
-<span class="cstat-no" title="statement not covered" >        return result;</span>
+  const navigate = useCallback(
+    async (...args: unknown[]) =&gt; {
+      try {
+        const result = await safeAction.execute(...(args as Parameters&lt;typeof safeAction.execute&gt;));
+        return result;
       } catch (error) {
         // Retourne un objet d'erreur structuré au lieu de faire crasher l'appelant
-<span class="cstat-no" title="statement not covered" >        return { error: true, message: (error as Error).message };</span>
+        return { error: true, message: (error as Error).message };
       }
     },
     [safeAction]
   );
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return {</span>
+  return {
     navigate,
     loading: safeAction.loading,
     disabled: safeAction.disabled,
@@ -301,7 +301,7 @@ export default function <span class="fstat-no" title="function not covered" >use
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-04T22:17:53.267Z
+                at 2026-07-21T00:47:51.424Z
             </div>
         <script src="../prettify.js"></script>
         <script>

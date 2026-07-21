@@ -1,9 +1,6 @@
 import { useMemo } from 'react';
 
-/**
- * Types pour le retour du hook
- * ✅ Aligné avec ExerciseValidation/types.ts
- */
+// Doit rester aligné avec ExerciseValidation/types.ts
 export type ValidationState = 'initial' | 'correct' | 'incorrect' | 'skip';
 
 interface ValidationResult {

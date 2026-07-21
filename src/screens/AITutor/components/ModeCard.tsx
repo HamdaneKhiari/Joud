@@ -1,7 +1,3 @@
-/**
- * Composant ModeCard - Carte de sélection de mode (Free/Guided)
- */
-
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,7 +26,6 @@ export const ModeCard: React.FC<ModeCardProps> = ({
 }) => {
   return (
     <View style={styles.modeCard}>
-      {/* En-tête */}
       <View style={styles.modeCardHeader}>
         <View style={styles.modeEmojiBg}>
           <Text style={styles.modeEmoji}>{emoji}</Text>
@@ -41,10 +36,8 @@ export const ModeCard: React.FC<ModeCardProps> = ({
         </View>
       </View>
 
-      {/* Description */}
       <Text style={styles.modeDescription}>{description}</Text>
 
-      {/* Features */}
       {features.map((feature, i) => (
         <View key={i} style={styles.featureRow}>
           <View style={styles.featureCheckSmall}>
@@ -54,7 +47,6 @@ export const ModeCard: React.FC<ModeCardProps> = ({
         </View>
       ))}
 
-      {/* Bouton démarrer */}
       <TouchableOpacity
         style={styles.modeButton}
         onPress={onPress}

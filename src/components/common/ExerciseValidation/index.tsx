@@ -1,9 +1,4 @@
-/**
- * ============================================
- * EXERCISE VALIDATION (TypeScript Premium Edition)
- * Version TypeScript avec types stricts - No-Media
- * ============================================
- */
+// No-media : icônes Ionicons sobres au lieu d'emoji, par choix produit
 
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { View, TouchableOpacity, Animated, Text } from 'react-native';
@@ -15,10 +10,6 @@ import useSafeAction from '../../../hooks/useSafeAction';
 import { getButtonConfig, getDefaultFeedback } from './helpers';
 import type { ExerciseValidationProps, FeedbackBannerProps } from './types';
 
-/**
- * Composant Feedback animé séparé
- * ✅ NO-MEDIA: Icône Ionicons sobre au lieu d'emoji
- */
 const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ feedback, state }) => {
   const { identity } = useTheme();
   const styles = useMemo(() => getStyles(identity), [identity]);
@@ -28,7 +19,6 @@ const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ feedback, state }) => {
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
   useEffect(() => {
-    // Animation d'entrée du feedback
     Animated.parallel([
       Animated.spring(slideAnim, {
         toValue: 0,
@@ -63,7 +53,6 @@ const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ feedback, state }) => {
         },
       ]}
     >
-      {/* ✅ NO-MEDIA: Icône Ionicons sobre au lieu d'emoji */}
       <View style={styles.feedbackIconContainer}>
         <Ionicons
           name={state === 'correct' ? 'checkmark-circle' : 'alert-circle'}
@@ -72,7 +61,6 @@ const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ feedback, state }) => {
         />
       </View>
 
-      {/* Texte du feedback */}
       <View style={styles.feedbackTextContainer}>
         <Text
           style={[
@@ -92,7 +80,6 @@ const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ feedback, state }) => {
         </Text>
       </View>
 
-      {/* Badge décoratif (optionnel, garde l'icône sobre) */}
       {state === 'correct' && (
         <View style={styles.successBadge}>
           <Ionicons name="sparkles" size={20} color={styles.feedbackMessageCorrect.color} />
@@ -102,9 +89,6 @@ const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ feedback, state }) => {
   );
 };
 
-/**
- * ExerciseValidation - Composant principal
- */
 const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
   state = 'initial',
   onValidate,
@@ -122,7 +106,7 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
   const { identity } = useTheme();
   const styles = useMemo(() => getStyles(identity), [identity]);
 
-  // Animation locale avec useNativeDriver: false pour correspondre à glowAnim
+  // useNativeDriver: false pour rester cohérent avec glowAnim (animé sur shadowOpacity, non-natif)
   const [scaleAnim] = useState(new Animated.Value(1));
   const glowAnim = useRef(new Animated.Value(0)).current;
 
@@ -145,7 +129,6 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
     });
   };
 
-  // Protection contre les doubles clics sur les actions de validation
   const safeValidate = useSafeAction(() => {
     if (onValidate) animate(onValidate);
   });
@@ -173,7 +156,6 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
     attemptCount
   );
 
-  // Animation de glow sur succès
   useEffect(() => {
     if (state === 'correct') {
       const anim = Animated.loop(
@@ -211,7 +193,6 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
     }
   };
 
-  // Couleur du glow animé (utilise la couleur du feedback correct)
   const glowColor = glowAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [withOpacity(styles.feedbackMessageCorrect.color, 0.2), withOpacity(styles.feedbackMessageCorrect.color, 0.6)],
@@ -221,7 +202,6 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* Feedback Banner */}
       <FeedbackBanner feedback={feedback} state={state} />
 
       {/* Compteur de tentatives — visible uniquement sur état incorrect avec tentatives restantes */}
@@ -239,7 +219,6 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
         </View>
       )}
 
-      {/* Bouton Principal avec glow effect sur succès */}
       <Animated.View
         style={[
           styles.buttonWrapper,
@@ -257,15 +236,12 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
             disabled={disabled}
             activeOpacity={1}
           >
-            {/* Icône */}
             <View style={styles.buttonIconContainer}>
               <Ionicons name={buttonConfig.icon as React.ComponentProps<typeof Ionicons>['name']} size={26} color={identity.text.onPrimary} />
             </View>
 
-            {/* Label */}
             <Text style={styles.buttonLabel}>{buttonConfig.label}</Text>
 
-            {/* Flèche décorative pour "Suivant" */}
             {state === 'correct' && !isLastQuestion && (
               <View style={styles.buttonArrow}>
                 <Ionicons name="chevron-forward" size={20} color={identity.text.onPrimary} />

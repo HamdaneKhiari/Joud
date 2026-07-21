@@ -1,40 +1,22 @@
-/**
- * ExerciceSelectionScreen - Sélection des exercices d'un niveau (Version Premium)
- * Harmonisation : Grille Uniforme avec badges (Option A)
- */
-
 import { log } from '@/utils/logUtils';
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { View, StatusBar, FlatList } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
-
-// Composants
 import ExerciseHeader from '@/components/layout/ExerciseHeader';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
 import ModuleCard from '@/components/modules/ModuleCard';
-// ✅ Import supprimé : RecentModuleCard n'est plus utilisé
 import SkeletonLoader from '@/components/ui/SkeletonLoader';
-
-// Hooks & Contexts
 import { useTheme } from '@/themes/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
 import { useProgress } from '@/contexts/ProgressContext';
 import useSafeAction from '@/hooks/useSafeAction';
 import useGetFamiliesByModule from '@/hooks/useGetFamiliesByModule';
-
-// Utils
 import { getModuleLabel, getLevelLabel, getAvailableModules } from '@/utils/labelMapper';
 import { getModuleColor } from '@/utils/moduleHelper';
 import { navigateToExercise } from '@/utils/navigationHelper';
-
-// Styles
 import { createStyles } from './style';
 import type { Identity } from '@/themes/ThemeContext';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface ExerciseItem {
   id: string;
@@ -45,10 +27,6 @@ interface ExerciseItem {
   badge?: string;
   progress?: number;
 }
-
-// ============================================
-// COMPOSANT HELPER : UNE CARTE DE MODULE (MISE À JOUR)
-// ============================================
 
 interface ModuleItemProps {
   exercise: ExerciseItem;
@@ -68,7 +46,6 @@ const ModuleItem: React.FC<ModuleItemProps> = ({
   const { getExerciseProgress } = useProgress();
   const { familyIds, isLoading: loadingFamilies } = useGetFamiliesByModule(exercise.id, levelId);
 
-  // ✅ Calcul de la progression pour l'affichage en badge
   const progress = useMemo(() => {
     if (loadingFamilies) return 0;
     // Si la progression est déjà fournie par le parent (pour le recommandé)
@@ -82,17 +59,13 @@ const ModuleItem: React.FC<ModuleItemProps> = ({
       title={exercise.title}
       subtitle=""
       color={exercise.color || identity.palette.primary}
-      badge={exercise.badge || null} // ✨ Affiche "EN COURS" si présent
-      progress={progress > 0 ? progress : null} // ✨ Affiche le % dans le badge
+      badge={exercise.badge || null}
+      progress={progress > 0 ? progress : null}
       onPress={onPress}
       animationDelay={index * 50}
     />
   );
 };
-
-// ============================================
-// COMPOSANT PRINCIPAL
-// ============================================
 
 const ExerciseSelectionScreen: React.FC = () => {
   const router = useRouter();
@@ -116,7 +89,7 @@ const ExerciseSelectionScreen: React.FC = () => {
   const [exercises, setExercises] = useState<ExerciseItem[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
-  // ✅ 1. TRI INTELLIGENT : Module en cours en premier
+  // Module en cours en premier
   const sortedExercises = useMemo(() => {
     const recommended = getRecommendedModule(numLevelId);
     if (!recommended || !exercises.length) return exercises;
@@ -125,9 +98,9 @@ const ExerciseSelectionScreen: React.FC = () => {
     if (!recommendedItem) return exercises;
 
     const others = exercises.filter(ex => ex.id !== recommended.exerciseType);
-    
+
     return [
-      { ...recommendedItem, progress: recommended.progress, badge: 'EN COURS' }, // ✨ Marqué comme récent
+      { ...recommendedItem, progress: recommended.progress, badge: 'EN COURS' },
       ...others
     ];
   }, [numLevelId, exercises, getRecommendedModule]);
@@ -137,9 +110,6 @@ const ExerciseSelectionScreen: React.FC = () => {
       if (!db || typeof db === 'number') return;
       try {
         setLoadingData(true);
-        // ✅ FIX: On passe undefined explicitement pour familyId afin de cibler le label GLOBAL du niveau
-        // et éviter de récupérer par erreur une sous-famille (ex: "Le Salé")
-        // ✅ FIX (SonarLint): L'argument `undefined` est redondant car `familyId` est optionnel.
         const labelData = await getLevelLabel(db, numLevelId, identity.id);
         setLevelLabel(labelData);
 
@@ -174,10 +144,8 @@ const ExerciseSelectionScreen: React.FC = () => {
     });
   };
 
-  // ✅ renderHeader vidé : Plus de section "Continuer" !
   const renderHeader = () => <View style={{ height: 20 }} />;
 
-  // ✅ Détecter si card unique pour layout adaptatif
   const isSingleCard = sortedExercises.length === 1;
 
   const renderItem = ({ item, index }: { item: ExerciseItem; index: number }) => {
@@ -191,7 +159,7 @@ const ExerciseSelectionScreen: React.FC = () => {
       />
     );
 
-    // ✅ En mode grid, wrapper chaque card pour éviter l'étirement des cards orphelines
+    // En mode grid, wrapper chaque card pour éviter l'étirement des cards orphelines
     return <View style={isSingleCard ? styles.singleCardWrapper : styles.gridCardWrapper}>{card}</View>;
   };
 
@@ -215,15 +183,15 @@ const ExerciseSelectionScreen: React.FC = () => {
           </View>
         ) : (
           <FlatList
-            key={isSingleCard ? 'single' : 'grid'} // ✅ Force re-render selon layout
+            key={isSingleCard ? 'single' : 'grid'}
             data={sortedExercises}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
-            numColumns={isSingleCard ? 1 : 2} // ✅ 1 colonne si card unique
+            numColumns={isSingleCard ? 1 : 2}
             ListHeaderComponent={renderHeader}
             contentContainerStyle={[
               styles.listContent,
-              isSingleCard && styles.singleCardContainer // ✅ Centre la card unique
+              isSingleCard && styles.singleCardContainer
             ]}
             columnWrapperStyle={isSingleCard ? undefined : styles.columnWrapper}
             showsVerticalScrollIndicator={false}

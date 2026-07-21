@@ -1,7 +1,3 @@
-/**
- * DailyWordCard Styles - 100% White Label + Mood-Aware
- */
-
 import { StyleSheet } from 'react-native';
 import { tokens } from '@/themes/tokens';
 import type { Identity } from '@/themes/ThemeContext';

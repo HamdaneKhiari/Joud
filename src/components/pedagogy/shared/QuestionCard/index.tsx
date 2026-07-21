@@ -5,7 +5,7 @@ import { useTheme } from '@/themes/ThemeContext';
 import { getStyles } from './styles';
 import type { QuestionCardProps } from './types';
 import OptionButton from './OptionButton';
-import FeedbackBanner from './feedbackBanner'; // ✅ Ajouté
+import FeedbackBanner from './feedbackBanner';
 
 const QuestionCard: React.FC<QuestionCardProps> = ({
   question,
@@ -14,7 +14,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   externalSelectedOption,
   externalIsAnswered,
   externalIsCorrect,
-  externalShowFeedback, // ✅ Récupéré des props
+  externalShowFeedback,
   onAnswer,
   hint,
   feedbackMessage,
@@ -36,7 +36,6 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
     hideHint: (identity.icons?.hideHint || "eye-off-outline") as React.ComponentProps<typeof Ionicons>['name'],
   };
 
-  // ✅ Transforme l'index en lettre (0 -> A, 1 -> B, etc.)
   const getLetter = (index: number) => String.fromCharCode(65 + index);
 
   return (
@@ -47,7 +46,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         {options.map((option, index) => (
           <OptionButton
             key={index}
-            letter={getLetter(index)} // ✅ Passé au nouveau OptionButton
+            letter={getLetter(index)}
             text={option}
             isSelected={externalSelectedOption === option}
             isAnswered={externalIsAnswered || false}
@@ -58,7 +57,6 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         ))}
       </View>
 
-      {/* ✅ Intégration du Feedback Banner comme dans l'ancienne version JS */}
       {externalShowFeedback && (
         <FeedbackBanner
           isCorrect={externalIsCorrect || false}

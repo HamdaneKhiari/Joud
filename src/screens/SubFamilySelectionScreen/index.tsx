@@ -22,16 +22,15 @@ const SubfamilySelectionScreen = () => {
   const { identity } = useTheme();
 
   const moduleId = params.moduleId as string;
-  // ✅ FIX: Récupère l'ID depuis 'familyId' (query) OU 'subfamilyId' (route param détecté dans les logs)
+  // L'ID peut venir de 'familyId' (query) ou 'subfamilyId' (route param)
   const familyId = Number(params.familyId || params.subfamilyId);
   const familyName = params.familyName as string;
-  // ✅ FIX: Récupère le vrai levelId du Dashboard (1="Les Bases", 2="L'Essentiel"...)
   const dashboardLevelId = Number(params.levelId || '1');
   const { db } = useUser();
   const [displayTitle, setDisplayTitle] = useState(familyName);
   const [resolvedModuleId, setResolvedModuleId] = useState(moduleId);
 
-  // ✅ Récupération du titre si manquant (ex: refresh ou navigation directe)
+  // Récupère le titre si manquant (ex: refresh ou navigation directe)
   useEffect(() => {
     if ((displayTitle && resolvedModuleId) || !db || !familyId || Number.isNaN(familyId)) return;
     
@@ -50,7 +49,6 @@ const SubfamilySelectionScreen = () => {
     loadData();
   }, [db, familyId, displayTitle, resolvedModuleId]);
 
-  // Utilisation du Hook dédié
   const { subfamilies, isLoading } = useSubfamilies(familyId);
   const styles = useMemo(() => createStyles(identity), [identity]);
 
@@ -58,7 +56,6 @@ const SubfamilySelectionScreen = () => {
     router.back();
   });
 
-  // ✅ Détecter si card unique pour layout adaptatif
   const isSingleCard = subfamilies.length === 1;
 
   const renderItem = ({ item, index }: { item: SubFamily; index: number }) => {
@@ -71,15 +68,15 @@ const SubfamilySelectionScreen = () => {
         progress={item.progress || null}
         onPress={() => {
           const targetExerciseId = resolvedModuleId || moduleId;
-          // ✅ Sécurité : On ne navigue que si on a l'ID du module (évite le chargement infini)
+          // On ne navigue que si on a l'ID du module (évite le chargement infini)
           if (targetExerciseId) {
             router.push({
               pathname: '/exercise/[exerciseId]',
               params: {
                 exerciseId: targetExerciseId,
                 familyId: familyId.toString(),
-                subfamilyId: item.subfamily_id.toString(),  // ✅ Nom clair : subfamilyId
-                levelId: dashboardLevelId.toString()  // ✅ FIX: Passe le vrai levelId du Dashboard
+                subfamilyId: item.subfamily_id.toString(),
+                levelId: dashboardLevelId.toString()
               }
             });
           }
@@ -88,7 +85,6 @@ const SubfamilySelectionScreen = () => {
       />
     );
 
-    // ✅ En mode grid, wrapper chaque card pour éviter l'étirement des cards orphelines
     return <View style={isSingleCard ? styles.singleCardWrapper : styles.gridCardWrapper}>{card}</View>;
   };
 
@@ -112,14 +108,14 @@ const SubfamilySelectionScreen = () => {
           </View>
         ) : (
           <FlatList
-            key={isSingleCard ? 'single' : 'grid'} // ✅ Force re-render selon layout
+            key={isSingleCard ? 'single' : 'grid'}
             data={subfamilies}
             renderItem={renderItem}
             keyExtractor={(item) => `subfam-${item.subfamily_id}`}
-            numColumns={isSingleCard ? 1 : 2} // ✅ 1 colonne si card unique
+            numColumns={isSingleCard ? 1 : 2}
             contentContainerStyle={[
               styles.listContent,
-              isSingleCard && styles.singleCardContainer // ✅ Centre la card unique
+              isSingleCard && styles.singleCardContainer
             ]}
             columnWrapperStyle={isSingleCard ? undefined : styles.columnWrapper}
             ListEmptyComponent={

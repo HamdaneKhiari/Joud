@@ -1,10 +1,3 @@
-/**
- * ============================================
- * RevisionCard - Version FlowCard
- * 100% White Label + Mood-Aware
- * ============================================
- */
-
 import React, { useMemo } from 'react';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import FlowCard from '@/components/flow/FlowCard';
@@ -22,9 +15,6 @@ const RevisionCard: React.FC<RevisionCardProps> = ({
   const { identity } = useTheme();
   const isPlayful = identity.ui.mood === 'playful';
 
-  // ============================================
-  // CONFIGURATION SELON LE MOOD
-  // ============================================
   const content = useMemo(() => {
     const hasWords = wordsToReview > 0;
 

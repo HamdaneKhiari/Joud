@@ -1,17 +1,3 @@
-/**
- * ============================================
- * WORD GAMES - SCHEMA TYPESCRIPT
- * Types pour tous les jeux de mots (White Label)
- * ============================================
- */
-
-// ============================================
-// TYPES DE BASE
-// ============================================
-
-/**
- * Types de jeux disponibles
- */
 export type GameType =
   | 'definition'    // Trouver la définition d'un mot
   | 'blanks'        // Compléter une phrase à trous
@@ -22,25 +8,14 @@ export type GameType =
   | 'reply'         // Choisir la réponse la plus naturelle à une phrase
   | 'transformer';  // Choisir la bonne déclinaison d'un mot racine
 
-/**
- * Niveaux de difficulté
- */
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
-/**
- * Question de base (propriétés communes)
- */
 interface BaseGameQuestion {
   type: GameType;
   difficulty: Difficulty;
 }
 
-// ============================================
-// TYPES SPÉCIFIQUES PAR JEU
-// ============================================
-
 /**
- * DEFINITION GAME
  * L'utilisateur doit choisir la bonne définition d'un mot
  */
 export interface DefinitionQuestion extends BaseGameQuestion {
@@ -54,7 +29,6 @@ export interface DefinitionQuestion extends BaseGameQuestion {
 }
 
 /**
- * BLANKS GAME
  * L'utilisateur doit compléter une phrase à trous
  */
 export interface BlanksQuestion extends BaseGameQuestion {
@@ -67,8 +41,7 @@ export interface BlanksQuestion extends BaseGameQuestion {
 }
 
 /**
- * SENTENCE BUILDER GAME (Syntax Master)
- * L'utilisateur doit remettre des mots dans le bon ordre
+ * Syntax Master : l'utilisateur doit remettre des mots dans le bon ordre
  */
 export interface SentenceQuestion extends BaseGameQuestion {
   type: 'sentence';
@@ -79,7 +52,6 @@ export interface SentenceQuestion extends BaseGameQuestion {
 }
 
 /**
- * SPEED MATCH GAME
  * L'utilisateur doit associer rapidement des mots anglais-français
  */
 export interface SpeedMatchQuestion extends BaseGameQuestion {
@@ -92,7 +64,6 @@ export interface SpeedMatchQuestion extends BaseGameQuestion {
 }
 
 /**
- * DETECTIVE GAME
  * L'utilisateur doit trouver l'erreur dans une phrase
  */
 export interface DetectiveQuestion extends BaseGameQuestion {
@@ -104,9 +75,8 @@ export interface DetectiveQuestion extends BaseGameQuestion {
 }
 
 /**
- * AUDIO MATCH GAME (Réflexe Écoute)
- * L'utilisateur entend un mot (TTS) et l'associe à son image/label
- * Variante du Speed Match : colonne gauche = boutons Play, colonne droite = images mélangées
+ * L'utilisateur entend un mot (TTS) et l'associe à son image/label.
+ * Variante du Speed Match : colonne gauche = boutons Play, colonne droite = images mélangées.
  */
 export interface AudioMatchQuestion extends BaseGameQuestion {
   type: 'audio_match';
@@ -118,8 +88,7 @@ export interface AudioMatchQuestion extends BaseGameQuestion {
 }
 
 /**
- * REPLY GAME (Situationnel)
- * Une phrase de contexte est donnée, l'utilisateur choisit la réponse la plus naturelle parmi 4
+ * Une phrase de contexte est donnée, l'utilisateur choisit la réponse la plus naturelle parmi 4.
  */
 export interface ReplyQuestion extends BaseGameQuestion {
   type: 'reply';
@@ -131,9 +100,8 @@ export interface ReplyQuestion extends BaseGameQuestion {
 }
 
 /**
- * TRANSFORMER GAME (Flexibilité)
- * Un mot racine est affiché, l'utilisateur choisit la bonne déclinaison pour compléter une phrase
- * Variante du Blanks : met l'accent sur la morphologie du mot
+ * Un mot racine est affiché, l'utilisateur choisit la bonne déclinaison pour compléter une phrase.
+ * Variante du Blanks : met l'accent sur la morphologie du mot.
  */
 export interface TransformerQuestion extends BaseGameQuestion {
   type: 'transformer';
@@ -145,14 +113,6 @@ export interface TransformerQuestion extends BaseGameQuestion {
   translation?: string;            // Traduction FR de la phrase complète
 }
 
-// ============================================
-// UNION TYPE
-// ============================================
-
-/**
- * Type union pour toutes les questions possibles
- * Utilisé par useExerciseContent<GameQuestion>
- */
 export type GameQuestion =
   | DefinitionQuestion
   | BlanksQuestion
@@ -162,10 +122,6 @@ export type GameQuestion =
   | AudioMatchQuestion
   | ReplyQuestion
   | TransformerQuestion;
-
-// ============================================
-// TYPE GUARDS (pour vérification de type)
-// ============================================
 
 export const isDefinitionQuestion = (q: GameQuestion): q is DefinitionQuestion =>
   q.type === 'definition';

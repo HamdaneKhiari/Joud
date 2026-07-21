@@ -1,6 +1,5 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useMemo } from 'react';
+import { useLocalSearchParams } from 'expo-router';
 import { useTheme } from '@/themes/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
 import { useProgress } from '@/contexts/ProgressContext';
@@ -9,24 +8,28 @@ import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnm
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
 import { useRecordError } from '@/hooks/exercises/useRecordError';
 import { generateFeedbackMessage } from '@/utils/feedback';
-import { tokens } from '@/themes/tokens';
 import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
 import CompletionModal from '@/components/common/CompletionModal';
+import ExerciseLoadingState from '@/components/common/ExerciseLoadingState';
+import ExerciseEmptyState from '@/components/common/ExerciseEmptyState';
 import ConnectorCardRenderer from '../../components/pedagogy/Connector/ConnectorCardRenderer';
 import type { LogicQuestion, FusionQuestion, RephrasingQuestion } from '../../components/pedagogy/Connector/types';
 import { useConnectorState } from './hooks/useConnectorState';
 import { useConnectorHandlers } from './hooks/useConnectorHandlers';
 import { useConnectorContent } from './hooks/useConnectorContent';
+import useSafeNavigation from '@/hooks/useSafeNavigation';
+import useResumeIndex from '@/hooks/exercises/useResumeIndex';
+import useExerciseCompletion from '@/hooks/exercises/useExerciseCompletion';
 import { useLevelLabel } from '@/utils/labelMapper';
 
 interface ConnectorExerciseParams {
-  familyId: number;
-  subfamilyId?: number;
+  familyId: string;
+  subfamilyId?: string;
   title?: string;
   moduleColor?: string;
-  levelId?: number;
+  levelId?: string;
 }
 
 const MAX_ATTEMPTS = 2;
@@ -34,26 +37,24 @@ const MAX_ATTEMPTS = 2;
 const ConnectorExerciseScreen: React.FC = () => {
   const { identity } = useTheme();
   const { db } = useUser();
-  const { trackItemCompletion, saveProgressNow, getFamilyProgress } = useProgress();
-  const navigation = useNavigation();
-  const route = useRoute();
+  const { trackItemCompletion, getFamilyProgress, saveProgressNow } = useProgress();
+  const safeGoBack = useSafeNavigation();
   const { recordError } = useRecordError();
 
-  const params = route.params as ConnectorExerciseParams;
-  const familyId = params?.familyId;
-  const subfamilyId = params?.subfamilyId ?? 0;
+  const params = useLocalSearchParams() as unknown as ConnectorExerciseParams;
+  const familyId = Number(params?.familyId);
+  const subfamilyId = Number(params?.subfamilyId ?? 0);
   const safeFamilyId = String(familyId || '');
   const moduleColor = params?.moduleColor || identity.palette.primary;
   const title = params?.title || 'Exercise';
-  const levelId = params?.levelId || 1;
+  const levelId = Number(params?.levelId || 1);
   const levelLabel = useLevelLabel(levelId);
   const realProgress = getFamilyProgress(levelId, 'connector', safeFamilyId);
 
-  // =================== CHARGEMENT ===================
   const { questions, loading } = useConnectorContent(db, familyId, subfamilyId);
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [showCompletion, setShowCompletion] = useState(false);
+  const [currentIndex, setCurrentIndex] = useResumeIndex(levelId, 'connector', safeFamilyId, questions.length);
+  const { showCompletion, complete } = useExerciseCompletion();
 
   const currentItem = questions[currentIndex];
   const exerciseType = (currentItem?.type || 'logic') as 'logic' | 'fusion' | 'rephrasing';
@@ -87,7 +88,7 @@ const ConnectorExerciseScreen: React.FC = () => {
   useExerciseActivity({
     moduleSlug: 'connector',
     familyId: safeFamilyId,
-    levelId: Number(levelId),
+    levelId,
     familyName: title,
     icon: 'puzzle',
     currentIndex,
@@ -98,16 +99,18 @@ const ConnectorExerciseScreen: React.FC = () => {
   useExerciseSaveOnUnmount();
 
   const handleBackPress = useCallback(async () => {
-    trackItemCompletion(Number(levelId), 'connector', safeFamilyId, Math.max(currentIndex - 1, 0), questions.length);
-    await saveProgressNow();
-    navigation.goBack();
-  }, [currentIndex, levelId, safeFamilyId, questions.length, trackItemCompletion, saveProgressNow, navigation]);
+    // Ne track que si l'utilisateur a réellement avancé (sinon ça marque à tort 1 item comme complété)
+    if (currentIndex > 0) {
+      trackItemCompletion(levelId, 'connector', safeFamilyId, currentIndex - 1, questions.length);
+      await saveProgressNow();
+    }
+    safeGoBack.navigate();
+  }, [currentIndex, levelId, safeFamilyId, questions.length, trackItemCompletion, saveProgressNow, safeGoBack]);
 
   const handleNavigateBack = useCallback(async () => {
-    trackItemCompletion(Number(levelId), 'connector', safeFamilyId, questions.length - 1, questions.length);
-    await saveProgressNow();
-    setShowCompletion(true);
-  }, [trackItemCompletion, levelId, safeFamilyId, questions.length, saveProgressNow]);
+    trackItemCompletion(levelId, 'connector', safeFamilyId, questions.length - 1, questions.length);
+    await complete();
+  }, [trackItemCompletion, levelId, safeFamilyId, questions.length, complete]);
 
   const handlers = useConnectorHandlers({
     question: currentItem?.data as LogicQuestion | FusionQuestion | RephrasingQuestion | undefined,
@@ -116,6 +119,7 @@ const ConnectorExerciseScreen: React.FC = () => {
     setCurrentQuestionIndex: setCurrentIndex,
     states: connectorStates,
     onValidationSuccess: () => {},
+    maxAttempts: MAX_ATTEMPTS,
     recordError: (userAnswer: string) => {
       if (!currentItem?.data) return;
       recordError({
@@ -124,7 +128,7 @@ const ConnectorExerciseScreen: React.FC = () => {
         question: currentItem.data.sentence || currentItem.data.phrase1 || currentItem.data.baseSentence || '',
         userAnswer,
         correctAnswer: currentItem.data.correctAnswer || '',
-        level: Number(levelId),
+        level: levelId,
       });
     },
   });
@@ -134,19 +138,16 @@ const ConnectorExerciseScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: identity.palette.background }]}>
-        <ActivityIndicator size="large" color={moduleColor} />
-        <Text style={[styles.loadingText, { color: identity.text.secondary }]}>Preparing your session...</Text>
-      </View>
+      <ExerciseLoadingState
+        onBack={() => { safeGoBack.navigate(); }}
+        headerTitle={title}
+        message="Preparing your session..."
+      />
     );
   }
 
   if (!currentItem) {
-    return (
-      <View style={[styles.errorContainer, { backgroundColor: identity.palette.background }]}>
-        <Text style={[styles.errorText, { color: identity.text.primary }]}>Question not found</Text>
-      </View>
-    );
+    return <ExerciseEmptyState onBack={() => { safeGoBack.navigate(); }} headerTitle={title} />;
   }
 
   return (
@@ -155,7 +156,7 @@ const ConnectorExerciseScreen: React.FC = () => {
         visible={showCompletion}
         title="Series complete!"
         subtitle="You've finished all exercises in this series."
-        onDone={() => navigation.goBack()}
+        onDone={() => safeGoBack.navigate()}
       />
       <ExerciseLayout
         headerProps={{
@@ -200,12 +201,5 @@ const ConnectorExerciseScreen: React.FC = () => {
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: tokens.spacing.md },
-  loadingText: { fontSize: tokens.fontSize.md, fontWeight: tokens.fontWeight.medium },
-  errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { fontSize: tokens.fontSize.lg, fontWeight: tokens.fontWeight.bold },
-});
 
 export default ConnectorExerciseScreen;

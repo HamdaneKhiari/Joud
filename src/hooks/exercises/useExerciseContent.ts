@@ -34,13 +34,8 @@ interface UseExerciseContentReturn<T> {
   error: Error | null;
 }
 
-/**
- * ✅ CLARIFICATION :
- * - familyId = ID de la famille (ex: food_drinks)
- * - subfamilyId = ID de la sous-famille (ex: 1 = Le Salé, 2 = Le Sucré)
- *
- * ⚠️ Ancien nom "levelId" était trompeur car on confondait avec les "vrais levels" (Primary/Collège)
- */
+// familyId = ID de la famille (ex: food_drinks), subfamilyId = ID de la sous-famille (ex: 1 = Le Salé, 2 = Le Sucré).
+// Volontairement pas nommé "levelId" : ça se confondait avec les "vrais" levels (Primary/Collège).
 export const useExerciseContent = <T = unknown>(
   familyId: number,
   subfamilyId: number
@@ -81,7 +76,6 @@ export const useExerciseContent = <T = unknown>(
         );
         setModule(moduleResult || null);
 
-        // ✅ FIX : Utilise subfamily_id au lieu de level
         // subfamilyId=0 means "no subfamily" → match both NULL and 0
         const contentResult = subfamilyId === 0
           ? await db.getAllAsync<{ id: number; data: string }>(
@@ -100,7 +94,6 @@ export const useExerciseContent = <T = unknown>(
               data: JSON.parse(item.data) as T 
             };
           } catch (e) {
-            // ✅ S2486 Fixed: Exception is now handled with a log
             log.error(`[useExerciseContent] JSON Parse Error (ID: ${item.id}):`, e);
             return null;
           }

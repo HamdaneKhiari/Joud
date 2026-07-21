@@ -1,8 +1,3 @@
-/**
- * useReadingContent — charge les questions de lecture depuis SQLite
- * Extrait de ReadingExerciseScreen pour séparer data et UI
- */
-
 import { useState, useEffect } from 'react';
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { log } from '@/utils/logUtils';

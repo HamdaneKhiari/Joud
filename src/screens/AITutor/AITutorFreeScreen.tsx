@@ -1,9 +1,4 @@
-/**
- * AI TUTOR FREE SCREEN
- * Chat libre avec l'IA - Mode non guidé
- * Historique persistant (3 conversations max via useChatConversation)
- */
-
+// Chat libre avec l'IA (mode non guidé). Historique persistant (3 conversations max via useChatConversation).
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
@@ -52,7 +47,6 @@ const AITutorFreeScreen: React.FC = () => {
     [identity, isPlayful]
   );
 
-  // =================== SYNC depuis la DB ===================
   useEffect(() => {
     if (isDBLoading || !currentConversationId) return;
     if (persistedMessages.length > 0) {
@@ -65,12 +59,10 @@ const AITutorFreeScreen: React.FC = () => {
     }
   }, [persistedMessages, currentConversationId, isDBLoading, currentLevel, saveMessage]);
 
-  // =================== SCROLL TO BOTTOM ===================
   useEffect(() => {
     setTimeout(() => { scrollViewRef.current?.scrollToEnd({ animated: true }); }, 100);
   }, [messages]);
 
-  // =================== CHECK CONFIGURATION ===================
   const checkAIConfiguration = useCallback(() => {
     if (!settings.isConfigured) {
       Alert.alert(
@@ -94,7 +86,6 @@ const AITutorFreeScreen: React.FC = () => {
     return true;
   }, [settings, canSendMessage, router]);
 
-  // =================== SEND MESSAGE ===================
   const handleSend = useCallback(async () => {
     if (!inputText.trim() || isSending) return;
     if (!checkAIConfiguration()) return;
@@ -154,7 +145,6 @@ const AITutorFreeScreen: React.FC = () => {
     }
   }, [inputText, isSending, checkAIConfiguration, messages, currentLevel, settings, saveMessage, incrementUsage, router]);
 
-  // =================== RENDER MESSAGE ===================
   const renderMessage = (message: ChatUIMessage) => {
     const isAI = message.type === 'ai';
     const isUser = message.type === 'user';
@@ -193,7 +183,6 @@ const AITutorFreeScreen: React.FC = () => {
     );
   };
 
-  // =================== LOADING ===================
   if (isDBLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
@@ -204,7 +193,6 @@ const AITutorFreeScreen: React.FC = () => {
     );
   }
 
-  // =================== RENDER ===================
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
       <View style={styles.header}>

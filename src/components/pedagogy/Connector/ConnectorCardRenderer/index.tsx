@@ -3,7 +3,7 @@ import { log } from '../../../../utils/logUtils';
 import LogicLinksCard from '../LogicLinksCard';
 import SentenceFusionCard from '../SentenceFusionCard';
 import RephrasingCard from '../RephrasingCard';
-import { useTheme } from '@/themes/ThemeContext'; // ✅ Ajouté pour le fallback couleur
+import { useTheme } from '@/themes/ThemeContext';
 import { 
   ConnectorCardRendererProps, 
   LogicQuestion, 
@@ -24,14 +24,13 @@ const ConnectorCardRenderer: React.FC<ConnectorCardRendererProps & { hideValidat
   hideValidation = false,
   scrollEnabled = true,
 }) => {
-  const { identity } = useTheme(); // ✅ Récupération du thème
+  const { identity } = useTheme();
 
   if (!currentQuestion) {
     log.error('ConnectorCardRenderer: currentQuestion is null');
     return null;
   }
 
-  // ✅ Fallback : si la famille n'a pas de couleur, on prend la couleur principale de l'identité
   const displayColor = exerciseFamily?.color || identity.palette.primary;
 
   switch (exerciseType) {

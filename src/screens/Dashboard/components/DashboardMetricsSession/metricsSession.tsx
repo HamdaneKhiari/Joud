@@ -5,25 +5,20 @@ import { useTheme } from '@/themes/ThemeContext';
 import { createStyles } from './metricsStyle';
 
 interface MetricCardProps {
-  emoji?: string; // ✅ Optionnel (No-Media)
-  badgeLabel?: string; // ✅ Label typographique premium
+  emoji?: string;
+  badgeLabel?: string;
   value: string | number;
   label: string;
-  encouragement?: string;
   isDark: boolean;
   variant?: 'wordsLearned' | 'badges' | 'streak';
   animationDelay?: number;
 }
 
-/**
- * MetricCard - Une carte metric individuelle (Animated)
- */
 const MetricCard: React.FC<MetricCardProps> = ({
   emoji,
   badgeLabel,
   value,
   label,
-  encouragement: _encouragement,
   isDark,
   variant,
   animationDelay = 0
@@ -37,7 +32,6 @@ const MetricCard: React.FC<MetricCardProps> = ({
   const valueStyleKey = `value${variantKey}` as keyof ReturnType<typeof createStyles>;
   const valueStyle = variantKey && valueStyleKey in styles ? styles[valueStyleKey] : null;
 
-  const _hasVariant = !!variant;
   const labelVariantKey = variant ? `label${variant.charAt(0).toUpperCase() + variant.slice(1)}` : null;
   const labelVariantStyle = labelVariantKey ? styles[labelVariantKey as keyof ReturnType<typeof createStyles>] : null;
 
@@ -50,7 +44,6 @@ const MetricCard: React.FC<MetricCardProps> = ({
         cardStyle as ViewStyle,
       ]}
     >
-      {/* ✅ Badge typographique au lieu d'emoji */}
       {badgeLabel && <Text style={styles.badgeLabel}>{badgeLabel}</Text>}
       {emoji && !badgeLabel && <Text style={styles.emoji}>{emoji}</Text>}
       <Text style={[
@@ -67,16 +60,6 @@ const MetricCard: React.FC<MetricCardProps> = ({
       ]}>
         {label}
       </Text>
-      {/* ✅ ENCOURAGEMENT DÉSACTIVÉ - Gagne de l'espace */}
-      {/* {encouragement && (
-        <Text style={[
-          styles.encouragement,
-          isDark && styles.encouragementDark,
-          hasVariant && styles.encouragementLight,
-        ]}>
-          {encouragement}
-        </Text>
-      )} */}
     </Animated.View>
   );
 };
@@ -104,37 +87,8 @@ const MetricsSection: React.FC<MetricsSectionProps> = ({
   const { identity } = useTheme();
   const isDark = theme === 'dark';
 
-  // Logique conditionnelle : badges uniquement pour Primary et College
+  // Badges uniquement pour Primary et College
   const isStudent = ['primary', 'college'].includes(identity.id);
-
-  const ENCOURAGEMENT_RULES = {
-    wordsLearned: [
-      { threshold: 500, text: 'Excellente maîtrise' },
-      { threshold: 200, text: 'Bon vocabulaire' },
-      { threshold: 50, text: 'Progression solide' },
-      { threshold: 0, text: 'Bon départ' }
-    ],
-    badges: [
-      { threshold: 5, text: 'Excellents résultats' },
-      { threshold: 3, text: 'Bonne progression' },
-      { threshold: 1, text: 'Premiers acquis' }
-    ],
-    streak: [
-      { threshold: 30, text: 'Régularité exemplaire' },
-      { threshold: 14, text: 'Excellent rythme' },
-      { threshold: 7, text: 'Bonne assiduité' },
-      { threshold: 3, text: 'Continue ainsi' },
-      { threshold: 0, text: 'Bon début' }
-    ]
-  };
-
-  const getEncouragement = (value: number, type: keyof typeof ENCOURAGEMENT_RULES) => {
-    const rules = ENCOURAGEMENT_RULES[type];
-    if (!rules) return undefined;
-
-    const match = rules.find(rule => value >= rule.threshold);
-    return match ? match.text : undefined;
-  };
 
   const styles = useMemo(() => createStyles(identity), [identity]);
 
@@ -144,19 +98,16 @@ const MetricsSection: React.FC<MetricsSectionProps> = ({
         badgeLabel="WORDS"
         value={metrics.wordsLearned}
         label="Mots appris"
-        encouragement={getEncouragement(metrics.wordsLearned, 'wordsLearned')}
         isDark={isDark}
         variant="wordsLearned"
         animationDelay={0}
       />
 
-      {/* Badges uniquement pour Primary et College */}
       {isStudent && (
         <MetricCard
           badgeLabel="AWARDS"
           value={metrics.badges}
           label="Badges"
-          encouragement={getEncouragement(metrics.badges, 'badges')}
           isDark={isDark}
           variant="badges"
           animationDelay={100}
@@ -167,7 +118,6 @@ const MetricsSection: React.FC<MetricsSectionProps> = ({
         badgeLabel="STREAK"
         value={metrics.streak}
         label="Jours"
-        encouragement={getEncouragement(metrics.streak, 'streak')}
         isDark={isDark}
         variant="streak"
         animationDelay={isStudent ? 200 : 100}

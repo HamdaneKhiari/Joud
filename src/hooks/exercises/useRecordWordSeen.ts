@@ -1,12 +1,5 @@
-/**
- * ============================================
- * HOOK: useRecordWordSeen
- * Logue chaque mot vu dans les exercices vocab
- * + ajoute automatiquement au SRS si contentId fourni
- * Utilisé par le Coach IA pour suggérer une pratique
- * sur les mots récents (derniers 10 distincts)
- * ============================================
- */
+// Logue chaque mot vu dans les exercices vocab (+ ajoute au SRS si contentId fourni).
+// Utilisé par le Coach IA pour suggérer une pratique sur les mots récents.
 
 import { log } from '@/utils/logUtils';
 import { useCallback } from 'react';

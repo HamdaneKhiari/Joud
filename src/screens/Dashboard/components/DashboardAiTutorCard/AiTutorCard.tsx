@@ -1,8 +1,3 @@
-/**
- * AITutorCard - Version FlowCard
- * 100% White Label + Mood-Aware
- */
-
 import React from 'react';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
@@ -14,9 +9,6 @@ const AITutorCard: React.FC = () => {
   const { identity } = useTheme();
   const isPlayful = identity.ui.mood === 'playful';
 
-  // ============================================
-  // CONFIG SELON LE MOOD (100% White Label)
-  // ============================================
   const config = {
     icon: isPlayful ? '🤖' : 'robot',
     title: identity.aiTutor.title || 'Tuteur IA',

@@ -1,7 +1,7 @@
 import React, { useRef, useMemo } from 'react';
 import { TouchableOpacity, Text, View, Animated, ViewStyle } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
-import { useAudioPlayer } from '../AudioButtons/hooks/useAudioPlayer'; // Vérifie bien ce chemin
+import { useAudioPlayer } from '../AudioButtons/hooks/useAudioPlayer';
 import { createStyles } from './AudioButtonStyle';
 
 interface AudioButtonProps {
@@ -10,10 +10,10 @@ interface AudioButtonProps {
   variant?: 'default' | 'onColor';
   size?: 'small' | 'medium' | 'large';
   icon?: string;
-  idleText?: string; 
+  idleText?: string;
   playingText?: string;
   audioUrl?: string;
-  style?: ViewStyle | ViewStyle[]; // ✅ Ajouté pour le positionnement externe
+  style?: ViewStyle | ViewStyle[];
 }
 
 const AudioButton: React.FC<AudioButtonProps> = ({
@@ -22,8 +22,8 @@ const AudioButton: React.FC<AudioButtonProps> = ({
   variant = 'default',
   size = 'medium',
   icon = '🔊',
-  idleText, // ✅ Rendu optionnel pour le mode icône seule
-  playingText = '...', 
+  idleText,
+  playingText = '...',
   audioUrl,
   style,
 }) => {
@@ -32,10 +32,9 @@ const AudioButton: React.FC<AudioButtonProps> = ({
   const { speakText, isPlayingAudio } = useAudioPlayer();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  // Mode "Icône Seule" si aucun texte n'est fourni
+  // Mode "icône seule" si aucun texte n'est fourni
   const isIconOnly = !idleText;
 
-  // Couleurs sémantiques basées sur le nouveau ThemeContext
   const dynamicColors = {
     bg: variant === 'onColor' ? 'rgba(255, 255, 255, 0.2)' : identity.palette.primary,
     text: variant === 'onColor' ? '#FFFFFF' : identity.text.onPrimary,

@@ -1,9 +1,3 @@
-/**
- * ============================================
- * SessionPhase - Session de révision QCM
- * ============================================
- */
-
 import React from 'react';
 import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';

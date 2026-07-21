@@ -9,15 +9,7 @@ import type { useConnectorState, UnifiedConnectorState } from './useConnectorSta
 type ConnectorStates = ReturnType<typeof useConnectorState>;
 type StateSetter = (updater: (prev: UnifiedConnectorState) => UnifiedConnectorState) => void;
 
-/**
- * Normalise les entrées utilisateur pour la comparaison textuelle.
- * CORRECTION SONAR: Utilisation d'une regex globale avec replace ou replaceAll
- */
 const normalizeAnswer = (text: string) => {
-  // .replace(/\s+/g, ' ') est déjà global grâce au flag 'g'
-  // Mais Sonar préfère souvent l'intention explicite de replaceAll pour les chaînes
-  // Ici, pour une regex de nettoyage, on garde le replace avec le flag global 
-  // ou on utilise la syntaxe moderne :
   return text.toLowerCase().trim().replaceAll(/\s+/g, ' ');
 };
 
@@ -29,7 +21,10 @@ interface UseConnectorHandlersProps {
   states: ConnectorStates;
   onValidationSuccess: () => void;
   recordError?: (userAnswer: string) => void;
+  maxAttempts?: number;
 }
+
+const DEFAULT_MAX_ATTEMPTS = 2;
 
 export const useConnectorHandlers = ({
   question: currentQuestion,
@@ -39,6 +34,7 @@ export const useConnectorHandlers = ({
   states,
   onValidationSuccess,
   recordError,
+  maxAttempts = DEFAULT_MAX_ATTEMPTS,
 }: UseConnectorHandlersProps) => {
   const {
     logicState, setLogicState,
@@ -56,11 +52,10 @@ export const useConnectorHandlers = ({
     }
   }, [isLastQuestion, onNavigateBack, setCurrentQuestionIndex, resetAllStates]);
 
-  // --- LOGIQUE DE VALIDATION (Extraite pour la clarté) ---
-  
   const validateInputExercise = useCallback((
     userAnswer: string | undefined,
     correctAnswer: string,
+    attemptCount: number,
     setState: StateSetter
   ) => {
     if (!userAnswer?.trim()) return;
@@ -76,12 +71,11 @@ export const useConnectorHandlers = ({
 
     if (isCorrect) {
       onValidationSuccess();
-    } else {
+    } else if (attemptCount + 1 >= maxAttempts) {
+      // Ne remonte au Coach IA qu'à la tentative finale (évite le bruit des retries)
       recordError?.(userAnswer);
     }
-  }, [onValidationSuccess, recordError]);
-
-  // --- HANDLERS PUBLICS ---
+  }, [onValidationSuccess, recordError, maxAttempts]);
 
   return {
     logic: {
@@ -93,7 +87,7 @@ export const useConnectorHandlers = ({
         setLogicState((prev) => ({ ...prev, isValidated: true, isCorrect, attemptCount: prev.attemptCount + 1 }));
         if (isCorrect) {
           onValidationSuccess();
-        } else {
+        } else if (logicState.attemptCount + 1 >= maxAttempts) {
           recordError?.(logicState.selectedOption);
         }
       },
@@ -102,13 +96,13 @@ export const useConnectorHandlers = ({
     },
     fusion: {
       onAnswer: (text: string) => setFusionState((prev) => ({ ...prev, userAnswer: text })),
-      onValidate: () => currentQuestion && validateInputExercise(fusionState.userAnswer, (currentQuestion as FusionQuestion).correctAnswer, setFusionState),
+      onValidate: () => currentQuestion && validateInputExercise(fusionState.userAnswer, (currentQuestion as FusionQuestion).correctAnswer, fusionState.attemptCount, setFusionState),
       onRetry: () => setFusionState((prev) => ({ ...prev, userAnswer: undefined, isValidated: false, isCorrect: false })),
       onNext: handleNavigationNext,
     },
     rephrasing: {
       onAnswer: (text: string) => setRephrasingState((prev) => ({ ...prev, userAnswer: text })),
-      onValidate: () => currentQuestion && validateInputExercise(rephrasingState.userAnswer, (currentQuestion as RephrasingQuestion).correctAnswer, setRephrasingState),
+      onValidate: () => currentQuestion && validateInputExercise(rephrasingState.userAnswer, (currentQuestion as RephrasingQuestion).correctAnswer, rephrasingState.attemptCount, setRephrasingState),
       onRetry: () => setRephrasingState((prev) => ({ ...prev, userAnswer: undefined, isValidated: false, isCorrect: false })),
       onNext: handleNavigationNext,
     },

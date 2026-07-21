@@ -17,10 +17,6 @@ import {
 } from './schema';
 import { log } from '@/utils/logUtils';
 
-// ============================================
-// QUERIES MODULES
-// ============================================
-
 export const getModulesByAudience = async (db: SQLiteDatabase, audience: string): Promise<Module[]> => {
   return await db.getAllAsync<Module>(
     `SELECT * FROM modules WHERE target_audience = ? OR target_audience = 'all' ORDER BY order_index`,
@@ -35,10 +31,6 @@ export const getModuleBySlug = async (db: SQLiteDatabase, slug: string): Promise
   );
 };
 
-// ============================================
-// QUERIES LEVELS
-// ============================================
-
 export const getLevelsByAudience = async (db: SQLiteDatabase, audience: string): Promise<Level[]> => {
   try {
     return await db.getAllAsync<Level>(
@@ -51,13 +43,6 @@ export const getLevelsByAudience = async (db: SQLiteDatabase, audience: string):
   }
 };
 
-// ============================================
-// QUERIES FAMILIES
-// ============================================
-
-/**
- * ✅ CORRIGÉ : Utilise moduleSlug (TEXT) au lieu de moduleId (INTEGER)
- */
 export const getFamiliesForModule = async (db: SQLiteDatabase, moduleSlug: string): Promise<Family[]> => {
   return await db.getAllAsync<Family>(
     `SELECT * FROM families WHERE module_slug = ? ORDER BY order_index`,
@@ -65,9 +50,6 @@ export const getFamiliesForModule = async (db: SQLiteDatabase, moduleSlug: strin
   );
 };
 
-/**
- * ✅ CORRIGÉ : Utilise moduleSlug (TEXT) au lieu de moduleId (INTEGER)
- */
 export const getFamiliesByModuleAndLevel = async (
   db: SQLiteDatabase,
   moduleSlug: string,
@@ -83,19 +65,12 @@ export const getFamiliesByModuleAndLevel = async (
   );
 };
 
-/**
- * ✅ CORRIGÉ : Utilise module_slug (TEXT) au lieu de module_id (INTEGER)
- */
 export const insertFamily = async (db: SQLiteDatabase, family: Omit<Family, 'id'>): Promise<void> => {
   await db.runAsync(
     `INSERT INTO families (module_slug, name, icon, emoji, description, order_index) VALUES (?, ?, ?, ?, ?, ?)`,
     [family.module_slug, family.name, family.icon || null, family.emoji || null, family.description || null, family.order_index]
   );
 };
-
-// ============================================
-// QUERIES CONTENT
-// ============================================
 
 export const getContentByFamilyAndLevel = async (
   db: SQLiteDatabase,
@@ -136,10 +111,6 @@ export const insertContent = async (db: SQLiteDatabase, content: Omit<Content, '
   );
 };
 
-// ============================================
-// QUERIES PROGRESS
-// ============================================
-
 export const upsertProgress = async (db: SQLiteDatabase, progress: Omit<Progress, 'id'>): Promise<void> => {
   await db.runAsync(
     `INSERT OR REPLACE INTO progress (user_id, family_id, subfamily_id, level, completed, total, score, last_accessed)
@@ -176,8 +147,7 @@ export const getProgressByFamily = async (
 };
 
 /**
- * Récupère la progression agrégée par famille (somme des sous-familles)
- * Utilisé par FamilySelectionScreen pour afficher le % par famille
+ * Progression agrégée par famille : somme des sous-familles.
  */
 export const getAggregatedFamilyProgress = async (
   db: SQLiteDatabase,
@@ -194,10 +164,6 @@ export const getAggregatedFamilyProgress = async (
   return result || { completed: 0, total: 0 };
 };
 
-// ============================================
-// QUERIES BRANDING (White Label)
-// ============================================
-
 export const getBrandingById = async (db: SQLiteDatabase, identityId: string): Promise<Branding | null> => {
   try {
     return await db.getFirstAsync<Branding>(
@@ -209,10 +175,6 @@ export const getBrandingById = async (db: SQLiteDatabase, identityId: string): P
     return null;
   }
 };
-
-// ============================================
-// QUERIES MODULE_LABELS (White Label)
-// ============================================
 
 export const getModuleLabel = async (
   db: SQLiteDatabase,
@@ -257,10 +219,6 @@ export const getModuleLabelWithFallback = async (
     icon_name: 'book'
   };
 };
-
-// ============================================
-// QUERIES LEVEL_LABELS (White Label)
-// ============================================
 
 export const getLevelLabel = async (
   db: SQLiteDatabase,
@@ -311,10 +269,6 @@ export const getLevelLabelWithFallback = async (
   };
 };
 
-// ============================================
-// QUERIES IDENTITY_PALETTES (White Label)
-// ============================================
-
 export const getIdentityPalette = async (db: SQLiteDatabase, identityId: string): Promise<string[]> => {
   const palette = await db.getAllAsync<IdentityPalette>(
     `SELECT * FROM identity_palettes WHERE identity_id = ? ORDER BY color_index`,
@@ -323,13 +277,6 @@ export const getIdentityPalette = async (db: SQLiteDatabase, identityId: string)
   return palette.map(p => p.color_value);
 };
 
-// ============================================
-// QUERIES MODULE_AVAILABILITY (White Label)
-// ============================================
-
-/**
- * Récupère les slugs des modules disponibles pour une identité et un niveau donnés
- */
 export const getAvailableModules = async (
   db: SQLiteDatabase,
   identityId: string,
@@ -342,16 +289,12 @@ export const getAvailableModules = async (
      WHERE ma.identity_id = ?
        AND ma.is_available = 1
        AND (ma.level_number = ? OR ma.level_number IS NULL)
-       AND m.slug != 'assessment'
      ORDER BY m.order_index`,
     [identityId, levelNumber]
   );
   return modules.map(m => m.slug);
 };
 
-/**
- * Vérifie si un module est disponible pour une identité et un niveau donnés
- */
 export const isModuleAvailable = async (
   db: SQLiteDatabase,
   moduleSlug: string,
@@ -370,10 +313,6 @@ export const isModuleAvailable = async (
   return (result?.count || 0) > 0;
 };
 
-// ============================================
-// QUERIES ACTIVITY_LOG (Dashboard)
-// ============================================
-
 export const getRecentActivity = async (db: SQLiteDatabase, limit: number = 10): Promise<Record<string, unknown>[]> => {
   return await db.getAllAsync(
     `SELECT * FROM activity_log ORDER BY timestamp DESC LIMIT ?`,
@@ -381,13 +320,6 @@ export const getRecentActivity = async (db: SQLiteDatabase, limit: number = 10):
   );
 };
 
-// ============================================
-// QUERIES FEEDBACK MESSAGES (White Label)
-// ============================================
-
-/**
- * Récupère un message de feedback selon l'identité, le contexte et l'état
- */
 export const getFeedbackMessage = async (
   db: SQLiteDatabase,
   identityId: string,
@@ -400,9 +332,6 @@ export const getFeedbackMessage = async (
   );
 };
 
-/**
- * Récupère tous les feedbacks pour une identité et un contexte
- */
 export const getFeedbackMessagesByContext = async (
   db: SQLiteDatabase,
   identityId: string,
@@ -414,14 +343,8 @@ export const getFeedbackMessagesByContext = async (
   );
 };
 
-// ============================================
-// QUERIES DASHBOARD DATA
-// ============================================
-
 /**
- * Récupère le mot du jour depuis la table content (type 'word').
- * Utilise un seed basé sur la date pour avoir le même mot toute la journée
- * mais un mot différent chaque jour.
+ * Seed basé sur la date : même mot toute la journée, différent chaque jour.
  */
 export const getDailyWord = async (
   db: SQLiteDatabase,
@@ -464,9 +387,6 @@ export const getDailyWord = async (
   }
 };
 
-/**
- * Récupère les badges d'un utilisateur
- */
 export const getUserBadges = async (
   db: SQLiteDatabase,
   userId: string
@@ -477,9 +397,6 @@ export const getUserBadges = async (
   );
 };
 
-/**
- * Récupère les mots à réviser pour aujourd'hui
- */
 export const getWordsToReview = async (
   db: SQLiteDatabase,
   userId: string
@@ -495,9 +412,6 @@ export const getWordsToReview = async (
   return result?.count || 0;
 };
 
-/**
- * Récupère ou crée les métriques utilisateur
- */
 export const getUserMetrics = async (
   db: SQLiteDatabase,
   userId: string
@@ -528,9 +442,6 @@ export const getUserMetrics = async (
   return metrics;
 };
 
-/**
- * Met à jour les métriques utilisateur
- */
 export const updateUserMetrics = async (
   db: SQLiteDatabase,
   userId: string,
@@ -549,9 +460,6 @@ export const updateUserMetrics = async (
   );
 };
 
-/**
- * Helper privé pour calculer le streak actuel
- */
 const _calculateCurrentStreak = (days: { day: string }[]): number => {
   if (days.length === 0) return 0;
 
@@ -580,9 +488,6 @@ const _calculateCurrentStreak = (days: { day: string }[]): number => {
   return tempStreak;
 };
 
-/**
- * Helper privé pour calculer le meilleur streak historique
- */
 const _calculateLongestStreak = (days: { day: string }[], currentStreak: number): number => {
   if (days.length === 0) return 0;
 
@@ -604,18 +509,12 @@ const _calculateLongestStreak = (days: { day: string }[], currentStreak: number)
   return Math.max(longestStreak, currentStreak);
 };
 
-/**
- * Helper principal pour les streaks (Complexité réduite)
- */
 const _calculateStreak = (days: { day: string }[]): { currentStreak: number; longestStreak: number } => {
   const currentStreak = _calculateCurrentStreak(days);
   const longestStreak = _calculateLongestStreak(days, currentStreak);
   return { currentStreak, longestStreak };
 };
 
-/**
- * Calcule les métriques utilisateur depuis les données réelles
- */
 export const calculateUserMetrics = async (
   db: SQLiteDatabase,
   userId: string
@@ -667,13 +566,6 @@ export const calculateUserMetrics = async (
   return metrics;
 };
 
-// ============================================
-// QUERIES RÉVISIONS (SPACED REPETITION)
-// ============================================
-
-/**
- * Configuration du nombre de mots quotidiens selon l'audience
- */
 export const DAILY_WORDS_COUNT: Record<string, number> = {
   primary: 5,
   college: 10,
@@ -682,9 +574,7 @@ export const DAILY_WORDS_COUNT: Record<string, number> = {
 };
 
 /**
- * Récupère les mots pour la révision quotidienne
- * Prend des mots aléatoires depuis le contenu jusqu'au niveau actuel
- * Priorise les mots pas encore dans le SRS
+ * Priorise les mots pas encore dans le SRS.
  */
 export const getDailyReviewWords = async (
   db: SQLiteDatabase,
@@ -712,9 +602,6 @@ export const getDailyReviewWords = async (
   return words;
 };
 
-/**
- * Récupère les mots à réviser selon le système SRS (spaced repetition)
- */
 export const getSpacedReviewWords = async (
   db: SQLiteDatabase,
   userId: string,
@@ -746,9 +633,6 @@ export const getSpacedReviewWords = async (
   return words;
 };
 
-/**
- * Ajoute un mot au système de révisions espacées
- */
 export const addWordToSRS = async (
   db: SQLiteDatabase,
   userId: string,
@@ -765,8 +649,7 @@ export const addWordToSRS = async (
 };
 
 /**
- * Met à jour le résultat d'une révision (algorithme SM-2)
- * @param wasCorrect - true si l'utilisateur a réussi, false sinon
+ * Algorithme SM-2 simplifié.
  */
 export const updateSpacedRepetitionResult = async (
   db: SQLiteDatabase,
@@ -786,7 +669,6 @@ export const updateSpacedRepetitionResult = async (
     return;
   }
 
-  // Algorithme SM-2 simplifié
   let newEaseFactor: number;
   let intervalDays: number;
 
@@ -835,9 +717,6 @@ export const updateSpacedRepetitionResult = async (
   );
 };
 
-/**
- * Compte le nombre de mots à réviser pour l'espacée
- */
 export const getSpacedReviewCount = async (
   db: SQLiteDatabase,
   userId: string

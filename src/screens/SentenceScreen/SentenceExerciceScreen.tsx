@@ -1,14 +1,6 @@
-/**
- * ============================================
- * FICHIER: src/screens/exercises/Sentences/SentenceExerciseScreen.tsx
- * Moteur de Traduction Active avec Auto-Correction Bienveillante
- * ✅ 100% White Label & TypeScript Compliant
- * ============================================
- */
-
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, ActivityIndicator, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import React, { useState, useCallback } from 'react';
+import { KeyboardAvoidingView, Platform } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 
 // Moteurs & Hooks
 import { useTheme } from '@/themes/ThemeContext';
@@ -17,67 +9,87 @@ import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
 import { useRecordError } from '@/hooks/exercises/useRecordError';
 import { useProgress } from '@/contexts/ProgressContext';
-import useFirstIncompleteIndex from '@/hooks/exercises/useFirstIncompleteIndex';
+import useResumeIndex from '@/hooks/exercises/useResumeIndex';
+import useExerciseCompletion from '@/hooks/exercises/useExerciseCompletion';
 import useSafeNavigation from '@/hooks/useSafeNavigation';
 import { useLevelLabel } from '@/utils/labelMapper';
+import { makeCompositeFamilyId } from '@/contexts/progressUtils';
 
 // UI Components
 import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
 import CompletionModal from '@/components/common/CompletionModal';
+import ExerciseLoadingState from '@/components/common/ExerciseLoadingState';
+import ExerciseEmptyState from '@/components/common/ExerciseEmptyState';
 import SentenceCard from '../../components/pedagogy/Sentence/SentenceCard';
 import SentenceBlanksCard from '../../components/pedagogy/Sentence/SentenceBlanksCard';
+import SentenceTilesCard from '../../components/pedagogy/Sentence/SentenceTilesCard';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
 import { ValidationState, FeedbackData } from '@/components/common/ExerciseValidation/types';
 
+// Mode dispatch & helpers
+import { getPhraseModeForAudience } from '@/config/phraseModesConfig';
+import { getExpectedPhraseEn, cleanPhrase, tokenizePhraseForTiles, TileToken } from '@/utils/phraseUtils';
+
 const EXERCISE_TYPE = 'phrase_types';
+const MAX_ATTEMPTS = 2;
+
+interface SentenceExerciseParams {
+  familyId: string;
+  subfamilyId?: string;
+  levelId?: string;
+}
 
 const SentenceExerciseScreen: React.FC = () => {
   const { identity } = useTheme();
-  const route = useRoute();
-  
+
   // 1. Navigation sécurisée (Utilise le goBack par défaut du hook)
   const safeGoBack = useSafeNavigation();
-  
+
   // Paramètres de route
-  const params            = route.params as { familyId: string | number; subfamilyId?: string | number; levelId?: string | number };
-  const familyIdNum       = Number(params.familyId    || '1');
-  const dashboardLevelId  = Number(params.levelId     || '1');
-  const levelLabel        = useLevelLabel(dashboardLevelId);
-  const subfamilyId       = Number(params.subfamilyId || '1');
-  const compositeFamilyId = `${params.familyId}-${subfamilyId}`;
+  const params             = useLocalSearchParams() as unknown as SentenceExerciseParams;
+  const familyIdNum        = Number(params.familyId    || '1');
+  const dashboardLevelId   = Number(params.levelId     || '1');
+  const levelLabel         = useLevelLabel(dashboardLevelId);
+  const subfamilyId        = Number(params.subfamilyId || '1');
+  const compositeFamilyId  = makeCompositeFamilyId(params.familyId, subfamilyId);
 
   // 2. Chargement du contenu
   const { module, family, contentItems, isLoading } = useExerciseContent<SentenceData>(familyIdNum, subfamilyId);
 
   // 2b. Progression
-  const { trackItemCompletion, getFamilyProgress, saveProgressNow } = useProgress();
+  const { trackItemCompletion, getFamilyProgress } = useProgress();
 
   // 3. États de l'exercice
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [showCompletion, setShowCompletion] = useState(false);
+  const [currentIndex, setCurrentIndex] = useResumeIndex(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, contentItems.length);
+  const { showCompletion, complete } = useExerciseCompletion();
   const [isRevealed, setIsRevealed] = useState(false);
   const [userDraft, setUserDraft] = useState('');
   const [selectedOption, setSelectedOption] = useState<string | null>(null); // Pour mode blanks
+  const [placedTiles, setPlacedTiles] = useState<TileToken[]>([]); // Pour mode tiles
   const [validationState, setValidationState] = useState<ValidationState>('initial');
   const [customFeedback, setCustomFeedback] = useState<FeedbackData | null>(null);
-
-  // 3b. Reprise à l'index non complété
-  const getInitialIndex = useFirstIncompleteIndex(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, contentItems.length);
-  useEffect(() => {
-    if (contentItems.length > 0) {
-      setCurrentIndex(getInitialIndex());
-    }
-  }, [contentItems.length, getInitialIndex]);
+  const [attemptCount, setAttemptCount] = useState(0);
 
   const currentItem = contentItems[currentIndex];
-  // Détection du mode selon l'audience :
-  // Primary + College → blanks (guidé avec options)
-  // Lycée + Adult → free (saisie libre, rappel actif)
-  const isBlanksAudience = identity.id === 'primary' || identity.id === 'college';
-  const hasBlanksData = currentItem?.data?.sentence && currentItem?.data?.options;
-  const mode = (isBlanksAudience && hasBlanksData) ? 'blanks' : 'free';
-  
+  // Détection du mode selon l'audience (config PHRASE_MODE_BY_AUDIENCE) :
+  // primary → blanks (QCM à trou) | college → tiles (reconstruction) | lycee/adult → free (saisie libre)
+  // Garde-fous data : si le mode demandé n'a pas les données nécessaires, on retombe sur un mode disponible.
+  const requestedMode = getPhraseModeForAudience(identity.id);
+  const hasBlanksData = !!(currentItem?.data?.sentence && currentItem?.data?.options);
+  const phraseEnForMode = currentItem ? getExpectedPhraseEn(currentItem.data) : '';
+  const tilesTotalCount = tokenizePhraseForTiles(phraseEnForMode).tokens.length;
+  const hasTilesData = tilesTotalCount >= 2;
+
+  let mode: 'blanks' | 'tiles' | 'free';
+  if (requestedMode === 'blanks') {
+    mode = hasBlanksData ? 'blanks' : 'free';
+  } else if (requestedMode === 'tiles') {
+    mode = hasTilesData ? 'tiles' : (hasBlanksData ? 'blanks' : 'free');
+  } else {
+    mode = 'free';
+  }
+
   // Correction erreur Module.color : on utilise l'identité branding main
   const moduleColor  = identity.palette.primary;
   const realProgress = getFamilyProgress(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId);
@@ -104,61 +116,72 @@ const SentenceExerciseScreen: React.FC = () => {
 
   const handleValidate = () => {
     setIsRevealed(true);
+    const isFinalAttempt = attemptCount + 1 >= MAX_ATTEMPTS;
+
+    // Applique le résultat de la validation, commun aux 3 modes : état, feedback,
+    // incrémentation des tentatives, et remontée au Coach IA seulement à la tentative finale ratée.
+    const applyResult = (
+      isCorrect: boolean,
+      correctFeedback: FeedbackData,
+      incorrectFeedback: FeedbackData,
+      finalFeedback: FeedbackData,
+      question: string,
+      userAnswer: string,
+      correctAnswer: string,
+    ) => {
+      setValidationState(isCorrect ? 'correct' : (isFinalAttempt ? 'skip' : 'incorrect'));
+      setCustomFeedback(isCorrect ? correctFeedback : (isFinalAttempt ? finalFeedback : incorrectFeedback));
+      setAttemptCount(prev => prev + 1);
+
+      if (!isCorrect && isFinalAttempt) {
+        recordError({
+          familyId: String(familyIdNum),
+          moduleSlug: EXERCISE_TYPE,
+          question,
+          userAnswer,
+          correctAnswer,
+          level: dashboardLevelId,
+        });
+      }
+    };
 
     if (mode === 'blanks') {
-      // Mode BLANKS : Vérification de l'option sélectionnée
-      const isCorrect = selectedOption === (currentItem.data.correctAnswer || currentItem.data.correct_answer);
-      setValidationState(isCorrect ? 'correct' : 'incorrect');
-      setCustomFeedback(
-        isCorrect
-          ? { title: "BRAVO !", message: "C'est la bonne réponse !" }
-          : { title: "PAS TOUT À FAIT", message: "Regarde bien la bonne réponse." }
+      const correctAnswer = currentItem.data.correctAnswer || currentItem.data.correct_answer || '';
+      const isCorrect = selectedOption === correctAnswer;
+      applyResult(
+        isCorrect,
+        { title: "BRAVO !", message: "C'est la bonne réponse !" },
+        { title: "PAS TOUT À FAIT", message: "Regarde bien la bonne réponse." },
+        { title: "PAS TOUT À FAIT", message: "Voici la bonne réponse, on continue." },
+        currentItem.data.sentence || '',
+        selectedOption || '',
+        correctAnswer,
       );
-
-      // ✅ Enregistrer l'erreur → Coach IA
-      if (!isCorrect) {
-        recordError({
-          familyId:      String(familyIdNum),
-          moduleSlug:    EXERCISE_TYPE,
-          question:      currentItem.data.sentence || '',
-          userAnswer:    selectedOption || '',
-          correctAnswer: currentItem.data.correctAnswer || currentItem.data.correct_answer || '',
-          level:         dashboardLevelId,
-        });
-      }
+    } else if (mode === 'tiles') {
+      const phraseEn = getExpectedPhraseEn(currentItem.data);
+      const userPhrase = placedTiles.map((t) => t.text).join(' ');
+      const isCorrect = cleanPhrase(userPhrase) === cleanPhrase(phraseEn);
+      applyResult(
+        isCorrect,
+        { title: "EXACT !", message: "Ta reconstruction est parfaitement fidèle à la structure." },
+        { title: "OBSERVE LA NUANCE", message: "Regarde bien l'ordre des mots dans la structure attendue." },
+        { title: "OBSERVE LA NUANCE", message: "Voici la structure attendue, on continue." },
+        currentItem.data.phrase_fr || currentItem.data.translation || currentItem.data.sentence || '',
+        userPhrase,
+        phraseEn,
+      );
     } else {
-      // Mode FREE : Vérification de la saisie libre
-      // Reconstituer phrase_en si absente (fallback depuis sentence + correct_answer)
-      const phraseEn = currentItem.data.phrase_en
-        || (currentItem.data.sentence && currentItem.data.correct_answer
-          ? currentItem.data.sentence.replaceAll('___', currentItem.data.correct_answer)
-          : '');
-      const cleanUser = userDraft.trim().toLowerCase().replaceAll(/[.,!?;]/g, "");
-      const cleanTarget = phraseEn.trim().toLowerCase().replaceAll(/[.,!?;]/g, "");
-
-      if (cleanUser === cleanTarget) {
-        setValidationState('correct');
-        setCustomFeedback({
-          title: "EXACT !",
-          message: "Ta traduction est parfaitement fidèle à la structure."
-        });
-      } else {
-        setValidationState('incorrect');
-        setCustomFeedback({
-          title: "OBSERVE LA NUANCE",
-          message: "Ton sens est peut-être bon, mais compare bien avec la structure attendue."
-        });
-
-        // ✅ Enregistrer l'erreur (phrase tapée vs correcte) → Coach IA analyse structure/vocab
-        recordError({
-          familyId:      String(familyIdNum),
-          moduleSlug:    EXERCISE_TYPE,
-          question:      currentItem.data.phrase_fr || currentItem.data.sentence || '',
-          userAnswer:    userDraft.trim(),
-          correctAnswer: phraseEn,
-          level:         dashboardLevelId,
-        });
-      }
+      const phraseEn = getExpectedPhraseEn(currentItem.data);
+      const isCorrect = cleanPhrase(userDraft) === cleanPhrase(phraseEn);
+      applyResult(
+        isCorrect,
+        { title: "EXACT !", message: "Ta traduction est parfaitement fidèle à la structure." },
+        { title: "OBSERVE LA NUANCE", message: "Ton sens est peut-être bon, mais compare bien avec la structure attendue." },
+        { title: "OBSERVE LA NUANCE", message: "Voici la traduction attendue, on continue." },
+        currentItem.data.phrase_fr || currentItem.data.sentence || '',
+        userDraft.trim(),
+        phraseEn,
+      );
     }
   };
 
@@ -168,13 +191,15 @@ const SentenceExerciseScreen: React.FC = () => {
       setIsRevealed(false);
       setUserDraft('');
       setSelectedOption(null); // Reset pour mode blanks
+      setPlacedTiles([]); // Reset pour mode tiles
       setValidationState('initial');
       setCustomFeedback(null);
+      setAttemptCount(0);
       setCurrentIndex(prev => prev + 1);
     } else {
-      saveProgressNow().then(() => setShowCompletion(true));
+      complete();
     }
-  }, [currentIndex, contentItems.length, trackItemCompletion, dashboardLevelId, compositeFamilyId, saveProgressNow]);
+  }, [currentIndex, contentItems.length, trackItemCompletion, dashboardLevelId, compositeFamilyId, complete, setCurrentIndex]);
 
   const handleRetry = () => {
     setIsRevealed(false);
@@ -183,11 +208,16 @@ const SentenceExerciseScreen: React.FC = () => {
     // On ne reset pas userDraft ni selectedOption pour permettre la correction
   };
 
-  if (isLoading || !currentItem || !family) {
+  if (isLoading) {
+    return <ExerciseLoadingState onBack={() => { safeGoBack.navigate(); }} />;
+  }
+
+  if (!currentItem || !family) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={identity.palette.primary} />
-      </View>
+      <ExerciseEmptyState
+        onBack={() => { safeGoBack.navigate(); }}
+        headerTitle={family?.name || "Phrases"}
+      />
     );
   }
 
@@ -218,13 +248,18 @@ const SentenceExerciseScreen: React.FC = () => {
           onValidate={handleValidate}
           onNext={handleNext}
           onRetry={handleRetry}
+          onSkip={handleNext}
+          attemptCount={attemptCount}
+          maxAttempts={MAX_ATTEMPTS}
           feedbackMessage={customFeedback || undefined}
           showFeedback={isRevealed}
           isLastQuestion={currentIndex === contentItems.length - 1}
           disabled={
             mode === 'blanks'
               ? !selectedOption || safeGoBack.disabled
-              : userDraft.trim().length < 2 || safeGoBack.disabled
+              : mode === 'tiles'
+                ? placedTiles.length < tilesTotalCount || safeGoBack.disabled
+                : userDraft.trim().length < 2 || safeGoBack.disabled
           }
         />
       }
@@ -238,6 +273,15 @@ const SentenceExerciseScreen: React.FC = () => {
             data={currentItem.data}
             selectedOption={selectedOption}
             onSelectOption={setSelectedOption}
+            isValidated={isRevealed}
+            isCorrect={validationState === 'correct'}
+            moduleColor={moduleColor}
+          />
+        ) : mode === 'tiles' ? (
+          <SentenceTilesCard
+            data={currentItem.data}
+            placedTokens={placedTiles}
+            onTokensChange={setPlacedTiles}
             isValidated={isRevealed}
             isCorrect={validationState === 'correct'}
             moduleColor={moduleColor}
@@ -256,9 +300,5 @@ const SentenceExerciseScreen: React.FC = () => {
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-});
 
 export default SentenceExerciseScreen;

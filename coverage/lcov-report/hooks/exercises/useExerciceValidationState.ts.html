@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">72.72% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>8/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -131,7 +131,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -139,36 +139,36 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { useMemo } from 'react';
@@ -185,7 +185,7 @@ interface ValidationResult {
   buttonDisabled: boolean;
 }
 &nbsp;
-export const useExerciseValidationState = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >(</span></span>
+export const useExerciseValidationState = (
   isValidated: boolean,
   isCorrect: boolean,
   attemptCount: number = <span class="branch-0 cbranch-no" title="branch not covered" >0,</span>
@@ -193,36 +193,36 @@ export const useExerciseValidationState = <span class="cstat-no" title="statemen
   hasAnswer: boolean = <span class="branch-0 cbranch-no" title="branch not covered" >false</span>
 ): ValidationResult =&gt; {
 &nbsp;
-  const validationData = <span class="cstat-no" title="statement not covered" >useMemo(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
+  const validationData = useMemo(() =&gt; {
     // On peut passer à la suite si c'est correct OU si on a épuisé les tentatives
-    const canSkip = <span class="cstat-no" title="statement not covered" >isCorrect || attemptCount &gt;= maxAttempts;</span>
+    const canSkip = isCorrect || attemptCount &gt;= maxAttempts;
 &nbsp;
-    let validationState: ValidationState = <span class="cstat-no" title="statement not covered" >'initial';</span>
-    let buttonDisabled = <span class="cstat-no" title="statement not covered" >!hasAnswer;</span>
+    let validationState: ValidationState = 'initial';
+    let buttonDisabled = !hasAnswer;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    if (isValidated) {</span>
-<span class="cstat-no" title="statement not covered" >      if (isCorrect) {</span>
-<span class="cstat-no" title="statement not covered" >        validationState = 'correct';</span>
-<span class="cstat-no" title="statement not covered" >        buttonDisabled = false;</span>
-      } else <span class="cstat-no" title="statement not covered" >if (canSkip) {</span>
+    if (isValidated) {
+      if (isCorrect) {
+        validationState = 'correct';
+        buttonDisabled = false;
+      } else if (canSkip) {
         // C'est faux mais on n'a plus d'essais : on affiche la solution/bouton skip
-<span class="cstat-no" title="statement not covered" >        validationState = 'skip';</span>
-<span class="cstat-no" title="statement not covered" >        buttonDisabled = false;</span>
+        validationState = 'skip';
+        buttonDisabled = false;
       } else {
         // C'est faux mais il reste des essais : on utilise 'incorrect' (= réessayer)
-<span class="cstat-no" title="statement not covered" >        validationState = 'incorrect';</span>
-<span class="cstat-no" title="statement not covered" >        buttonDisabled = false;</span>
+        validationState = 'incorrect';
+        buttonDisabled = false;
       }
     }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return {</span>
+    return {
       canSkip,
       validationState,
       buttonDisabled,
     };
   }, [isValidated, isCorrect, attemptCount, maxAttempts, hasAnswer]);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return validationData;</span>
+  return validationData;
 };
 &nbsp;
 export default useExerciseValidationState;</pre></td></tr></table></pre>
@@ -232,7 +232,7 @@ export default useExerciseValidationState;</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-04T22:17:53.267Z
+                at 2026-07-21T00:47:51.424Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

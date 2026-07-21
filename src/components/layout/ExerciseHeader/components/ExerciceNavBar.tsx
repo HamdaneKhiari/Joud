@@ -1,17 +1,8 @@
-/**
- * ExerciceNavBar - Barre de navigation du header
- * Version TypeScript avec styles dynamiques
- */
-
 import React, { useMemo } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface ExerciceNavBarProps {
   onBack?: () => void;
@@ -20,10 +11,6 @@ interface ExerciceNavBarProps {
   rightIcon?: string | React.ReactElement;
   onRightIconPress?: () => void;
 }
-
-// ============================================
-// STYLES DYNAMIQUES
-// ============================================
 
 const createStyles = (identity: Identity) => {
   const isClean = identity.ui.mood === 'clean';
@@ -112,10 +99,6 @@ const createStyles = (identity: Identity) => {
   });
 };
 
-// ============================================
-// COMPOSANT
-// ============================================
-
 const ExerciceNavBar: React.FC<ExerciceNavBarProps> = ({
   onBack,
   levelTitle,
@@ -128,7 +111,6 @@ const ExerciceNavBar: React.FC<ExerciceNavBarProps> = ({
 
   return (
     <View style={styles.navBar}>
-      {/* Bouton retour */}
       <View style={styles.navLeft}>
         {onBack ? (
           <Pressable
@@ -143,7 +125,6 @@ const ExerciceNavBar: React.FC<ExerciceNavBarProps> = ({
         )}
       </View>
 
-      {/* Badge niveau */}
       <View style={styles.navCenter}>
         {showBadge && levelTitle ? (
           <View
@@ -159,7 +140,6 @@ const ExerciceNavBar: React.FC<ExerciceNavBarProps> = ({
         )}
       </View>
 
-      {/* Icône droite */}
       <View style={styles.navRight}>
         {rightIcon ? (
           <Pressable

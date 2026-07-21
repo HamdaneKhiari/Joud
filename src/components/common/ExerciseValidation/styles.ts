@@ -1,24 +1,10 @@
-/**
- * ============================================
- * EXERCISE VALIDATION - STYLES (100% White Label)
- * Fonction dynamique basée sur Identity
- * ============================================
- */
-
 import { StyleSheet } from 'react-native';
 import { spacing, fontSize, fontWeight, borderRadius, borderWidth as borderWidths, shadows, withOpacity } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
 import type { Identity } from '@/themes/ThemeContext';
 
-/**
- * Génère les styles dynamiquement en fonction de l'Identity
- * ✅ WHITE LABEL: Utilise identity.branding pour les couleurs principales
- * ✅ TOKENS SÉMANTIQUES: Utilise baseColors uniquement pour success/error (couleurs système)
- */
+// baseColors utilisé uniquement pour success/error (couleurs système), le reste vient de l'identity (white label)
 export const getStyles = (identity: Identity) => StyleSheet.create({
-  // ============================================
-  // CONTAINER PLEINE LARGEUR AVEC COINS ARRONDIS
-  // ============================================
   container: {
     paddingHorizontal: 0,
     paddingTop: spacing.xl,
@@ -31,9 +17,6 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     ...shadows.lg,
   },
 
-  // ============================================
-  // FEEDBACK BANNER
-  // ============================================
   feedbackContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -55,7 +38,6 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     borderColor: baseColors.red500,
   },
 
-  // ✅ NO-MEDIA: Icône Ionicons sobre avec background circulaire
   feedbackIconContainer: {
     width: 48,
     height: 48,
@@ -101,7 +83,6 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     color: baseColors.red600,
   },
 
-  // Badge décoratif sur succès
   successBadge: {
     width: 36,
     height: 36,
@@ -113,9 +94,6 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     ...shadows.sm,
   },
 
-  // ============================================
-  // BOUTON PRINCIPAL
-  // ============================================
   buttonWrapper: {
     marginHorizontal: spacing.md,
   },
@@ -145,7 +123,7 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     fontSize: fontSize.lg,
     fontWeight: fontWeight.extrabold,
     fontFamily: identity.fontFamily.extrabold,
-    color: identity.text.onPrimary, // ✅ WHITE LABEL
+    color: identity.text.onPrimary,
     textTransform: 'uppercase',
     letterSpacing: 1,
     flex: 1,
@@ -162,32 +140,25 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     marginLeft: spacing.sm,
   },
 
-  // ============================================
-  // ÉTATS DU BOUTON (✅ WHITE LABEL)
-  // ============================================
-
-  // État INITIAL (Valider) - Utilise la couleur principale de l'identité
+  // buttonInitial : couleur principale de l'identity (white label)
   buttonInitial: {
-    backgroundColor: identity.palette.primary, // ✅ WHITE LABEL
+    backgroundColor: identity.palette.primary,
     borderWidth: borderWidths.thick,
     borderColor: withOpacity(baseColors.white, 0.3),
   },
 
-  // État CORRECT (Suivant) - Couleur système success
   buttonCorrect: {
     backgroundColor: baseColors.green500,
     borderWidth: borderWidths.thick,
     borderColor: baseColors.green600,
   },
 
-  // État INCORRECT (Réessayer) - Couleur système warning
   buttonIncorrect: {
     backgroundColor: baseColors.orange500,
     borderWidth: borderWidths.thick,
     borderColor: baseColors.orange600,
   },
 
-  // État SKIP (Continuer après 2 erreurs) - Gris neutre
   buttonSkip: {
     backgroundColor: baseColors.gray400,
     borderWidth: borderWidths.thick,
@@ -195,9 +166,6 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     ...shadows.xl,
   },
 
-  // ============================================
-  // État DÉSACTIVÉ - BIEN VISIBLE
-  // ============================================
   buttonDisabled: {
     backgroundColor: baseColors.gray300,
     borderWidth: borderWidths.thick,
@@ -207,9 +175,6 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     elevation: 3,
   },
 
-  // ============================================
-  // COMPTEUR DE TENTATIVES
-  // ============================================
   attemptRow: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -1,17 +1,9 @@
-/**
- * useGetFamiliesByModule - Hook pour récupérer les familles d'un module depuis SQLite
- * Utilise le slug du module et filtre par niveau via INNER JOIN avec content
- */
-
+// Filtre par niveau via INNER JOIN avec content
 import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { getModuleBySlug, getFamiliesByModuleAndLevel } from '@/database/queries';
 import type { Family } from '@/database/schema';
 import { log } from '@/utils/logUtils';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface UseGetFamiliesByModuleReturn {
   familyIds: string[];
@@ -20,15 +12,6 @@ interface UseGetFamiliesByModuleReturn {
   error: Error | null;
 }
 
-// ============================================
-// HOOK
-// ============================================
-
-/**
- * Récupère les familles d'un module pour un niveau depuis SQLite
- * @param moduleSlug - Slug du module (ex: 'vocab')
- * @param level - Numéro du niveau (ex: 1, 2, 3, 4)
- */
 export const useGetFamiliesByModule = (
   moduleSlug: string,
   level: number
@@ -50,9 +33,8 @@ export const useGetFamiliesByModule = (
         setIsLoading(true);
         setError(null);
 
-        // 1. Récupérer le module par son slug
         const module = await getModuleBySlug(db, moduleSlug);
-        
+
         if (!module) {
           log.warn(`Module avec slug "${moduleSlug}" non trouvé`);
           setFamilies([]);
@@ -60,7 +42,6 @@ export const useGetFamiliesByModule = (
           return;
         }
 
-        // 2. Récupérer les familles qui ont du contenu pour ce niveau
         const result = await getFamiliesByModuleAndLevel(db, module.slug, level);
 
         setFamilies(result || []);

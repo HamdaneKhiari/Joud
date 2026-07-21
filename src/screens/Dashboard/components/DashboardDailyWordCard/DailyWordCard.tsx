@@ -1,7 +1,3 @@
-/**
- * DailyWordCard - 100% White Label + Mood-Aware
- */
-
 import React, { useMemo } from 'react';
 import { View, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -23,7 +19,6 @@ const DailyWordCard: React.FC<DailyWordProps> = ({ word }) => {
 
   const isPlayful = identity.ui.mood === 'playful';
 
-  // Gestion du fond : Couleur unie ou Dégradé
   const isGradient = Array.isArray(identity.dailyWord.background);
   const Container = (isGradient ? LinearGradient : View) as React.ElementType;
 
@@ -33,7 +28,6 @@ const DailyWordCard: React.FC<DailyWordProps> = ({ word }) => {
 
   return (
     <Container {...containerProps} style={isGradient ? styles.container : containerProps.style}>
-      {/* Élément décoratif type Watermark */}
       <Text style={styles.watermark}>
         {identity.header.emoji}
       </Text>

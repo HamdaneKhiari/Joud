@@ -1,5 +1,3 @@
-// c:\Users\khi_h\Desktop\Projets\JanaArchitect\Joud\src\hooks\familySelection\useFamiliesWithProgress.ts
-
 import { log } from '@/utils/logUtils';
 import { useState, useCallback } from 'react';
 import { useFocusEffect } from 'expo-router';

@@ -1,28 +1,11 @@
-/**
- * ============================================
- * SPEED MATCH CARD (White Label)
- * Jeu : Associer rapidement des mots EN-FR contre la montre
- * ============================================
- */
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-// Hooks & Utils
 import { useTheme } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
-
-// Styles
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
-
-// Types
 import type { SpeedMatchQuestion } from '@/screens/WordGames/schema';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface Pair {
   english: string;
@@ -34,15 +17,9 @@ export interface SpeedMatchCardProps {
   onComplete: (score: number) => void;
 }
 
-// ============================================
-// COMPOSANT
-// ============================================
-
 const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => {
   const { identity } = useTheme();
   const baseStyles = useMemo(() => createWordGameStyles(identity), [identity]);
-
-  // =================== STATE ===================
 
   const [timeRemaining, setTimeRemaining] = useState(game.timeLimit);
   const [matched, setMatched] = useState<number[]>([]);
@@ -53,8 +30,6 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
   const [isGameFinished, setIsGameFinished] = useState(false);
 
   const isPlayful = identity.ui.mood === 'playful';
-
-  // =================== TIMER ===================
 
   useEffect(() => {
     if (isGameFinished || timeRemaining <= 0) return;
@@ -71,8 +46,6 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
 
     return () => clearInterval(timer);
   }, [isGameFinished, timeRemaining]);
-
-  // =================== HANDLERS ===================
 
   const handleEnWordPress = (index: number) => {
     if (matched.includes(index)) return;
@@ -93,24 +66,18 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
       setScore(newScore);
       setSelected(null);
 
-      // Vérifier si toutes les paires sont trouvées
       if (newMatched.length === game.pairs.length * 2) {
         setIsGameFinished(true);
       }
     } else {
-      // Mauvaise association - désélectionner
       setSelected(null);
     }
   };
-
-  // =================== CALCULS ===================
 
   const totalPairs = game.pairs.length;
   const matchedCount = matched.length / 2;
   const isSuccess = matchedCount === totalPairs && timeRemaining > 0;
   const isTimeout = timeRemaining <= 0 && matchedCount < totalPairs;
-
-  // =================== STYLES DYNAMIQUES ===================
 
   const styles = StyleSheet.create({
     headerSection: {
@@ -223,7 +190,6 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
       color: baseColors.white,
     },
 
-    // Résultats
     resultSection: {
       alignItems: 'center',
       paddingVertical: tokens.spacing.xxxl,
@@ -280,8 +246,6 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
     },
   });
 
-  // =================== RENDU RÉSULTATS ===================
-
   if (isGameFinished) {
     let resultMessage = '';
     let resultIcon = '';
@@ -334,14 +298,11 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
     );
   }
 
-  // =================== RENDU JEU ===================
-
   return (
     <ScrollView style={baseStyles.container} contentContainerStyle={baseStyles.content}>
       <View style={baseStyles.card}>
         <View style={baseStyles.colorBar} />
 
-        {/* Timer & Score */}
         <View style={styles.headerSection}>
           <View style={styles.timerBox}>
             <Ionicons name="timer" size={24} color={identity.palette.primary} />
@@ -350,7 +311,6 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
           <Text style={styles.scoreText}>{score} pts</Text>
         </View>
 
-        {/* Progress */}
         <View style={styles.progressSection}>
           <Text style={styles.progressLabel}>
             {matchedCount}/{totalPairs} matched
@@ -367,10 +327,8 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
           </View>
         </View>
 
-        {/* Instructions */}
         <Text style={styles.instruction}>Match EN ↔ FR quickly!</Text>
 
-        {/* Mots EN */}
         <View style={styles.wordsSection}>
           <Text style={styles.sectionLabel}>🇬🇧 English</Text>
           <View style={styles.wordsList}>
@@ -399,7 +357,6 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
           </View>
         </View>
 
-        {/* Mots FR */}
         <View style={styles.wordsSection}>
           <Text style={styles.sectionLabel}>🇫🇷 French</Text>
           <View style={styles.wordsList}>

@@ -4,7 +4,7 @@ import type { Identity } from '@/themes/ThemeContext';
 
 export const createStyles = (identity: Identity) => StyleSheet.create({
   audioButton: {
-    borderRadius: identity.ui.cardRadius, // ✅ Radius dynamique selon l'identité
+    borderRadius: identity.ui.cardRadius,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -29,11 +29,9 @@ export const createStyles = (identity: Identity) => StyleSheet.create({
     left: '-50%',
     width: '200%',
     height: '100%',
-    // ✅ Effet subtil adapté au mode sombre/clair
     backgroundColor: identity.themeMode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.3)',
     transform: [{ skewX: '-20deg' }],
   },
-  // On utilise tes shadows définis dans tokens.ts
   shadow: {
     ...shadows.card,
   }

@@ -1,10 +1,4 @@
-/**
- * ============================================
- * HOOK: useSafeNavigation
- * Version TypeScript Premium
- * Gère les transitions de navigation de manière sécurisée (anti-double clic)
- * ============================================
- */
+// Sécurise les transitions de navigation contre le double-clic (via useSafeAction)
 
 import { log } from '@/utils/logUtils';
 import { useCallback } from 'react';
@@ -25,10 +19,7 @@ interface UseSafeNavigationReturn {
   cleanup: () => void;
 }
 
-/**
- * @param navigationAction - Optionnel. L'action à sécuriser. Par défaut: navigation.goBack()
- * @param options - Options de debounce et sécurité
- */
+// Par défaut (sans navigationAction), sécurise navigation.goBack()
 export default function useSafeNavigation(
   navigationAction?: (...args: unknown[]) => unknown,
   options: UseSafeNavigationOptions = {}
@@ -36,14 +27,12 @@ export default function useSafeNavigation(
   const navigation = useNavigation();
   const { debounceMs = 250, preventRapidClicks = true } = options;
 
-  // Si aucune action n'est fournie, on définit le goBack par défaut
   const defaultAction = useCallback(() => {
     if (navigation.canGoBack()) {
       navigation.goBack();
     }
   }, [navigation]);
 
-  // On utilise l'action fournie OU l'action par défaut
   const actionToExecute = navigationAction || defaultAction;
 
   const safeAction = useSafeAction(actionToExecute, {

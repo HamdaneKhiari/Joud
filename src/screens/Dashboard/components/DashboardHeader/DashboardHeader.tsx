@@ -1,10 +1,3 @@
-/**
- * ============================================
- * DashboardHeader - Version Dynamique
- * 100% White Label + Mood-Aware + Animations
- * ============================================
- */
-
 import React from 'react';
 import { View, Text } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeInRight } from 'react-native-reanimated';
@@ -28,7 +21,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
 
   return (
     <ThemeContainer identity={identity} style={styles.header} rounded>
-      {/* Décorations (Playful uniquement) */}
       {isPlayful && (
         <>
           <Animated.View
@@ -43,9 +35,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
       )}
 
       <View style={styles.headerContent}>
-        {/* Gauche: Bonjour [Nom] */}
         <View style={styles.welcomeSection}>
-          {/* Emoji dynamique (Playful uniquement) */}
           {isPlayful && !!identity.header.emoji && (
             <Animated.View
               entering={FadeInDown.delay(100).springify()}
@@ -70,7 +60,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
           </Animated.Text>
         </View>
 
-        {/* Droite: Nom de l'organisation */}
         <Animated.View
           entering={FadeInRight.delay(400).springify()}
           style={styles.organizationSection}

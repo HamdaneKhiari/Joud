@@ -1,17 +1,6 @@
-/**
- * ============================================
- * HOOK: useChatConversation
- * Gestion de l'historique des conversations (max 3)
- * Persistance dans SQLite via chat_conversations + chat_messages
- * ============================================
- */
-
+// Historique des conversations (max 3), persisté dans SQLite via chat_conversations + chat_messages
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useUser } from '@/contexts/UserContext';
-
-// ============================================
-// TYPES
-// ============================================
 
 export interface ChatMessage {
   id: number;
@@ -29,15 +18,7 @@ export interface ChatConversation {
   updated_at: number;
 }
 
-// ============================================
-// CONSTANTES
-// ============================================
-
 const MAX_CONVERSATIONS = 3;
-
-// ============================================
-// HOOK
-// ============================================
 
 export const useChatConversation = (mode: 'free' | 'guided' = 'free') => {
   const { db } = useUser();
@@ -50,7 +31,6 @@ export const useChatConversation = (mode: 'free' | 'guided' = 'free') => {
   // Référence pour éviter les double-chargements en Strict Mode
   const loadedRef = useRef(false);
 
-  // =================== CHARGER LA LISTE ===================
   const loadConversations = useCallback(async () => {
     if (!db || typeof db === 'number') return;
 
@@ -67,7 +47,6 @@ export const useChatConversation = (mode: 'free' | 'guided' = 'free') => {
     return rows;
   }, [db, mode]);
 
-  // =================== CHARGER LES MESSAGES ===================
   const loadMessages = useCallback(async (conversationId: number) => {
     if (!db || typeof db === 'number') return;
 
@@ -82,7 +61,7 @@ export const useChatConversation = (mode: 'free' | 'guided' = 'free') => {
     setMessages(rows);
   }, [db]);
 
-  // =================== INIT : ouvre la dernière conversation ou en crée une ===================
+  // Ouvre la dernière conversation ou en crée une
   useEffect(() => {
     if (!db || typeof db === 'number' || loadedRef.current) return;
     loadedRef.current = true;
@@ -112,7 +91,6 @@ export const useChatConversation = (mode: 'free' | 'guided' = 'free') => {
   // eslint-disable-next-line react-hooks/exhaustive-deps -- createConversation is defined after this effect; adding it would cause re-init on every send
   }, [db, loadConversations, loadMessages]);
 
-  // =================== CRÉER une nouvelle conversation ===================
   const createConversation = useCallback(async (): Promise<number | null> => {
     if (!db || typeof db === 'number') return null;
 
@@ -137,7 +115,6 @@ export const useChatConversation = (mode: 'free' | 'guided' = 'free') => {
     return result.lastInsertRowId as number;
   }, [db, mode]);
 
-  // =================== Nouvelle conversation (publique) ===================
   const newConversation = useCallback(async (): Promise<number | null> => {
     const id = await createConversation();
     if (id) {
@@ -148,13 +125,11 @@ export const useChatConversation = (mode: 'free' | 'guided' = 'free') => {
     return id;
   }, [createConversation, loadConversations]);
 
-  // =================== Changer de conversation ===================
   const switchConversation = useCallback(async (id: number) => {
     setCurrentConversationId(id);
     await loadMessages(id);
   }, [loadMessages]);
 
-  // =================== Sauvegarder un message ===================
   const saveMessage = useCallback(async (
     role: 'user' | 'ai' | 'error',
     content: string,
@@ -197,7 +172,6 @@ export const useChatConversation = (mode: 'free' | 'guided' = 'free') => {
     await loadMessages(currentConversationId);
   }, [db, currentConversationId, loadMessages]);
 
-  // =================== RETOUR ===================
   return {
     conversations,
     currentConversationId,

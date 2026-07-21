@@ -1,20 +1,9 @@
-/**
- * ============================================
- * HOOK: useFeedbackMessages
- * Récupère les messages de feedback depuis la DB
- * selon l'identité et le contexte (White Label)
- * ============================================
- */
-
 import { useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { useTheme } from '@/themes/ThemeContext';
 import { getFeedbackMessage } from '@/database/queries';
 import { log } from '@/utils/logUtils';
 
-/**
- * Type pour le feedback adapté au composant ExerciseValidation
- */
 export interface FeedbackData {
   icon?: string;
   title: string;
@@ -29,15 +18,6 @@ interface UseFeedbackMessagesReturn {
   isLoading: boolean;
 }
 
-/**
- * Hook pour récupérer les messages de feedback depuis la DB
- *
- * @example
- * ```tsx
- * const { getFeedback } = useFeedbackMessages();
- * const feedback = await getFeedback('wordgames', 'correct');
- * ```
- */
 export const useFeedbackMessages = (): UseFeedbackMessagesReturn => {
   const { db } = useUser();
   const { identity } = useTheme();
@@ -54,7 +34,6 @@ export const useFeedbackMessages = (): UseFeedbackMessagesReturn => {
       const message = await getFeedbackMessage(db, identity.id, context, state);
 
       if (!message) {
-        // Fallback si aucun message trouvé
         log.warn(`No feedback found for ${identity.id}/${context}/${state}`);
         return null;
       }
@@ -75,9 +54,6 @@ export const useFeedbackMessages = (): UseFeedbackMessagesReturn => {
   return { getFeedback, isLoading };
 };
 
-/**
- * Helper : Génère le state du feedback selon le nombre de tentatives
- */
 export const getFeedbackState = (
   isValidated: boolean,
   isCorrect: boolean,
@@ -91,6 +67,5 @@ export const getFeedbackState = (
   const canSkip = attemptCount >= maxAttempts;
   if (canSkip) return 'skip';
 
-  // Première ou deuxième erreur
   return attemptCount === 0 ? 'incorrect_attempt_1' : 'incorrect_attempt_2';
 };

@@ -1,14 +1,14 @@
 export interface ReadingQuestionData {
-  text: string;           // Le texte à lire
-  audio?: string;         // URL ou path de l'audio (optionnel)
-  question: string;       // La question posée
-  options: string[];      // Les choix [A, B, C, D]
-  correctAnswer: number;  // Index de la bonne réponse (0-3)
-  hint?: string;          // Indice optionnel
+  text: string;
+  audio?: string;
+  question: string;
+  options: string[];
+  correctAnswer: number; // Index de la bonne réponse, pas la valeur
+  hint?: string;
 }
 
 export interface ReadingState {
-  selectedOption?: string; // Stocke la lettre (A, B, C...)
+  selectedOption?: string; // Stocke la lettre (A, B, C...), pas le texte de l'option
   isValidated: boolean;
   isCorrect: boolean;
   attemptCount: number;

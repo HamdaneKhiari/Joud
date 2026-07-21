@@ -1,17 +1,7 @@
-/**
- * ============================================
- * HOOK: useGameHandlers
- * Gestionnaires d'événements pour tous les types de jeux WordGames
- * ============================================
- */
-
 import { useCallback } from 'react';
+import { useRecordError } from '@/hooks/exercises/useRecordError';
 import type { GameQuestion } from '../schema';
 import type { UseGameStateReturn } from './useGameState';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface SafeNavigation {
   navigate: () => void;
@@ -38,6 +28,7 @@ export interface UseGameHandlersParams {
   setCurrentQuestionIndex: React.Dispatch<React.SetStateAction<number>>;
   states: UseGameStateReturn;
   progress: ProgressData;
+  onComplete?: () => void;
 }
 
 interface OptionGameHandlers {
@@ -77,10 +68,6 @@ export interface UseGameHandlersReturn {
   transformer: OptionGameHandlers;
 }
 
-// ============================================
-// TYPES INTERNES
-// ============================================
-
 type OptionState = {
   selectedOption: string | null;
   isValidated: boolean;
@@ -88,18 +75,23 @@ type OptionState = {
   attemptCount: number;
 };
 
-// ============================================
-// CONSTANTS
-// ============================================
-
 const MAX_ATTEMPTS = 2;
 const MODULE_ID = 'word_games';
 const identity = (s: string) => s;
 const lowerTrim = (s: string) => s.toLowerCase().trim();
 
-// ============================================
-// HOOK
-// ============================================
+// Texte de la question affiché au Coach IA quand la réponse est fausse
+const getQuestionText = (q: GameQuestion): string => {
+  switch (q.type) {
+    case 'definition': return q.definition;
+    case 'blanks': return q.sentence;
+    case 'reply': return q.prompt;
+    case 'transformer': return q.sentence;
+    case 'sentence': return q.words.join(' / ');
+    case 'detective': return q.sentence;
+    default: return '';
+  }
+};
 
 export const useGameHandlers = ({
   question: currentQuestion,
@@ -108,6 +100,7 @@ export const useGameHandlers = ({
   setCurrentQuestionIndex,
   states,
   progress,
+  onComplete,
 }: UseGameHandlersParams): UseGameHandlersReturn => {
   const {
     builderState, setBuilderState,
@@ -121,25 +114,23 @@ export const useGameHandlers = ({
   } = states;
 
   const { trackItemCompletion, numLevelId, familyId, totalQuestions, currentQuestionIndex } = progress;
-
-  // =========================================================
-  // NAVIGATION CENTRALISÉE
-  // =========================================================
+  const { recordError } = useRecordError();
 
   const handleNavigationNext = useCallback(() => {
     if (isLastQuestion) {
-      safeGoBack.navigate();
+      if (onComplete) {
+        onComplete();
+      } else {
+        safeGoBack.navigate();
+      }
     } else {
       setCurrentQuestionIndex(prev => prev + 1);
       resetAllStates();
     }
-  }, [isLastQuestion, safeGoBack, setCurrentQuestionIndex, resetAllStates]);
+  }, [isLastQuestion, safeGoBack, onComplete, setCurrentQuestionIndex, resetAllStates]);
 
-  // =========================================================
-  // FACTORY QCM (definition, blanks, reply, transformer, builder)
-  // Tous ces types partagent le même pattern : selectedOption + compare + track
-  // =========================================================
-
+  // Factory QCM : definition, blanks, reply, transformer, builder partagent
+  // le même pattern (selectedOption + compare + track)
   const makeOptionHandlers = (
     state: Pick<OptionState, 'selectedOption' | 'attemptCount'>,
     setState: React.Dispatch<React.SetStateAction<OptionState>>,
@@ -149,64 +140,87 @@ export const useGameHandlers = ({
     onAnswer: (option: string) => setState(prev => ({ ...prev, selectedOption: option })),
     onValidate: () => {
       if (!state.selectedOption || currentQuestion.type !== questionType) return;
-      const correct = normalize(state.selectedOption) === normalize((currentQuestion as { correctAnswer: string }).correctAnswer);
+      const correctAnswer = (currentQuestion as { correctAnswer: string }).correctAnswer;
+      const correct = normalize(state.selectedOption) === normalize(correctAnswer);
+      const isFinalAttempt = state.attemptCount + 1 >= MAX_ATTEMPTS;
       setState(prev => ({ ...prev, isValidated: true, isCorrect: correct, attemptCount: prev.attemptCount + 1 }));
-      if (correct || state.attemptCount + 1 >= MAX_ATTEMPTS) {
+      if (correct || isFinalAttempt) {
         trackItemCompletion(numLevelId, MODULE_ID, familyId, currentQuestionIndex, totalQuestions);
+      }
+      if (!correct && isFinalAttempt) {
+        recordError({
+          familyId,
+          moduleSlug: MODULE_ID,
+          question: getQuestionText(currentQuestion),
+          userAnswer: state.selectedOption,
+          correctAnswer,
+          level: numLevelId,
+        });
       }
     },
     onRetry: () => setState(prev => ({ ...prev, selectedOption: null, isValidated: false, isCorrect: false })),
     onNext: handleNavigationNext,
   });
 
-  // =========================================================
-  // HANDLERS: SENTENCE BUILDER (ordre de mots — logique spécifique)
-  // =========================================================
-
+  // Sentence builder : ordre de mots, logique spécifique (pas de factory)
   const sentence: SentenceGameHandlers = {
     onOrder: (orderedWords: string[]) => setSentenceState(prev => ({ ...prev, selectedOrder: orderedWords })),
     onValidate: () => {
       if (sentenceState.selectedOrder.length === 0 || currentQuestion.type !== 'sentence') return;
       const correct = JSON.stringify(sentenceState.selectedOrder) === JSON.stringify(currentQuestion.correctOrder);
+      const isFinalAttempt = sentenceState.attemptCount + 1 >= MAX_ATTEMPTS;
       setSentenceState(prev => ({ ...prev, isValidated: true, isCorrect: correct, attemptCount: prev.attemptCount + 1 }));
-      if (correct || sentenceState.attemptCount + 1 >= MAX_ATTEMPTS) {
+      if (correct || isFinalAttempt) {
         trackItemCompletion(numLevelId, MODULE_ID, familyId, currentQuestionIndex, totalQuestions);
+      }
+      if (!correct && isFinalAttempt) {
+        recordError({
+          familyId,
+          moduleSlug: MODULE_ID,
+          question: currentQuestion.words.join(' / '),
+          userAnswer: sentenceState.selectedOrder.join(' '),
+          correctAnswer: currentQuestion.correctOrder.join(' '),
+          level: numLevelId,
+        });
       }
     },
     onRetry: () => setSentenceState(prev => ({ ...prev, selectedOrder: [], isValidated: false, isCorrect: false })),
     onNext: handleNavigationNext,
   };
 
-  // =========================================================
-  // HANDLERS: DETECTIVE (wordIndex — logique spécifique)
-  // =========================================================
-
+  // Detective : sélection par wordIndex, logique spécifique (pas de factory)
   const detective: DetectiveGameHandlers = {
     onAnswer: (wordIndex: number) => setDetectiveState(prev => ({ ...prev, selectedWord: wordIndex })),
     onValidate: () => {
       if (detectiveState.selectedWord === null || detectiveState.selectedWord === undefined || currentQuestion.type !== 'detective') return;
       const correct = detectiveState.selectedWord === currentQuestion.errorWordIndex;
+      const isFinalAttempt = detectiveState.attemptCount + 1 >= MAX_ATTEMPTS;
+      const selectedWord = detectiveState.selectedWord;
       setDetectiveState(prev => ({ ...prev, isValidated: true, isCorrect: correct, attemptCount: prev.attemptCount + 1 }));
-      if (correct || detectiveState.attemptCount + 1 >= MAX_ATTEMPTS) {
+      if (correct || isFinalAttempt) {
         trackItemCompletion(numLevelId, MODULE_ID, familyId, currentQuestionIndex, totalQuestions);
+      }
+      if (!correct && isFinalAttempt) {
+        const words = currentQuestion.sentence.split(' ');
+        recordError({
+          familyId,
+          moduleSlug: MODULE_ID,
+          question: currentQuestion.sentence,
+          userAnswer: words[selectedWord] ?? '',
+          correctAnswer: currentQuestion.correctWord,
+          level: numLevelId,
+        });
       }
     },
     onRetry: () => setDetectiveState(prev => ({ ...prev, selectedWord: null, isValidated: false, isCorrect: false })),
     onNext: handleNavigationNext,
   };
 
-  // =========================================================
-  // HANDLERS: SPEED MATCH / AUDIO MATCH (timer interne)
-  // =========================================================
-
+  // Speed match / audio match gèrent leur propre timer, on ne fait que tracker + avancer
   const handleTimedComplete = () => {
     trackItemCompletion(numLevelId, MODULE_ID, familyId, currentQuestionIndex, totalQuestions);
     handleNavigationNext();
   };
-
-  // =========================================================
-  // RETURN
-  // =========================================================
 
   return {
     builder:     makeOptionHandlers(builderState, setBuilderState, 'definition', lowerTrim),

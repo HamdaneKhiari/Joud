@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">9.09% </span>
+                <span class="strong">90.9% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>1/11</span>
+                <span class='fraction'>10/11</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">77.27% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/22</span>
+                <span class='fraction'>17/22</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/3</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">10% </span>
+                <span class="strong">90% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>1/10</span>
+                <span class='fraction'>9/10</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -195,31 +195,31 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -313,31 +313,31 @@ interface SentenceCardProps {
   moduleColor: string;
 }
 &nbsp;
-const SentenceCard: React.FC&lt;SentenceCardProps&gt; = <span class="fstat-no" title="function not covered" >({</span>
+const SentenceCard: React.FC&lt;SentenceCardProps&gt; = ({
   data,
   isRevealed,
   userDraft,
   setUserDraft,
   moduleColor
 }) =&gt; {
-  const { identity } = <span class="cstat-no" title="statement not covered" >useTheme();</span>
+  const { identity } = useTheme();
 &nbsp;
   // Mémorisation des styles avec passage de l'identité sémantique
-  const styles = <span class="cstat-no" title="statement not covered" >useMemo(<span class="fstat-no" title="function not covered" >()</span> =&gt;</span>
-<span class="cstat-no" title="statement not covered" >    getSentenceCardStyles(identity, moduleColor),</span>
+  const styles = useMemo(() =&gt;
+    getSentenceCardStyles(identity, moduleColor),
     [identity, moduleColor]
   );
 &nbsp;
   // Phrase anglaise attendue : phrase_en direct, ou reconstituée depuis sentence + correct_answer
-  const expectedEnglish = <span class="cstat-no" title="statement not covered" >useMemo(<span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    if (data.phrase_en) <span class="cstat-no" title="statement not covered" >return data.phrase_en;</span></span>
-<span class="cstat-no" title="statement not covered" >    if (data.sentence &amp;&amp; (data.correct_answer || data.correctAnswer)) {</span>
-<span class="cstat-no" title="statement not covered" >      return data.sentence.replace(/___/g, data.correct_answer || data.correctAnswer || '');</span>
+  const expectedEnglish = useMemo(() =&gt; {
+    if (data.phrase_en) return data.phrase_en;
+    <span class="missing-if-branch" title="else path not taken" >E</span>if (data.sentence &amp;&amp; (data.correct_answer || <span class="branch-2 cbranch-no" title="branch not covered" >data.correctAnswer)</span>) {
+      return data.sentence.replace(/___/g, data.correct_answer || <span class="branch-1 cbranch-no" title="branch not covered" >data.correctAnswer </span>|| <span class="branch-2 cbranch-no" title="branch not covered" >'')</span>;
     }
 <span class="cstat-no" title="statement not covered" >    return '';</span>
   }, [data]);
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;View style={styles.container}&gt;
       {/* 1. ÉNONCÉ */}
       &lt;View style={styles.questionBox}&gt;
@@ -345,7 +345,7 @@ const SentenceCard: React.FC&lt;SentenceCardProps&gt; = <span class="fstat-no" t
           Traduis cette phrase :
         &lt;/Text&gt;
         &lt;Text style={[styles.phraseSource, { color: identity.text.primary }]}&gt;
-          {data.phrase_fr || data.translation}
+          {data.phrase_fr || <span class="branch-1 cbranch-no" title="branch not covered" >data.translation}</span>
         &lt;/Text&gt;
       &lt;/View&gt;
 &nbsp;
@@ -424,7 +424,7 @@ export default SentenceCard;</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-04T22:17:53.267Z
+                at 2026-07-21T00:47:51.424Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

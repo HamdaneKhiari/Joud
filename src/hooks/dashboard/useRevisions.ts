@@ -1,10 +1,3 @@
-/**
- * ============================================
- * HOOK: useRevisions
- * Gère le système de révisions espacées (SRS)
- * ============================================
- */
-
 import { log } from '@/utils/logUtils';
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@/contexts/UserContext';
@@ -16,15 +9,6 @@ interface UseRevisionsReturn {
   refresh: () => void;
 }
 
-/**
- * Récupère le nombre de mots à réviser aujourd'hui
- *
- * @example
- * ```tsx
- * const { wordsToReview, refresh } = useRevisions();
- * return <RevisionCard wordsToReview={wordsToReview} />;
- * ```
- */
 export const useRevisions = (): UseRevisionsReturn => {
   const { db, user } = useUser();
   const [wordsToReview, setWordsToReview] = useState(0);

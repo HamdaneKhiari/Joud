@@ -1,10 +1,4 @@
-/**
- * ============================================
- * HOOK: useFirstIncompleteIndex
- * Trouve le premier item non complété dans un exercice.
- * Permet de reprendre exactement là où l'utilisateur s'est arrêté.
- * ============================================
- */
+// Trouve le premier item non complété dans un exercice, pour reprendre où l'utilisateur s'est arrêté
 
 import { useCallback } from 'react';
 import { useProgress } from '../../contexts/ProgressContext';

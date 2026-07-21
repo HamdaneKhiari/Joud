@@ -1,32 +1,13 @@
-/**
- * ============================================
- * AI TUTOR SELECTION SCREEN (OPTIONNEL)
- * Choix entre Chat libre et Mode guidé
- * White Label + Moods
- * Toujours visible, bandeau si non configuré
- * ============================================
- */
-
 import React, { useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, type Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-
-// Hooks & Contexts
 import { useTheme } from '@/themes/ThemeContext';
 import { useAISettings } from '@/hooks/useAISettings';
-
-// Config & Styles
 import { MODES } from './AITutorSelectionScreen.config';
 import { createStyles } from './AITutorSelectionScreen.styles';
-
-// Components
 import { ModeCard } from './components';
-
-// ============================================
-// COMPOSANT
-// ============================================
 
 const AITutorSelectionScreen: React.FC = () => {
   const router = useRouter();
@@ -53,11 +34,8 @@ const AITutorSelectionScreen: React.FC = () => {
     }
   };
 
-  // =================== RENDER ===================
-
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTopRow}>
           <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}>
@@ -73,9 +51,7 @@ const AITutorSelectionScreen: React.FC = () => {
         </Text>
       </View>
 
-      {/* Content */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Bandeau si non configuré */}
         {!isConfigured && (
           <TouchableOpacity
             style={styles.configBanner}
@@ -90,7 +66,6 @@ const AITutorSelectionScreen: React.FC = () => {
           </TouchableOpacity>
         )}
 
-        {/* Cartes de mode (toujours visibles) */}
         {MODES.map((mode) => (
           <ModeCard
             key={mode.key}

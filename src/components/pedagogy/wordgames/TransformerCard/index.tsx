@@ -1,32 +1,13 @@
-/**
- * ============================================
- * TRANSFORMER CARD (White Label)
- * Jeu : Choisir la bonne déclinaison d'un mot racine pour compléter une phrase
- * ============================================
- */
-
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-
-// Composants
 import ExerciseValidation from '@/components/common/ExerciseValidation';
-
-// Hooks & Utils
 import { useTheme } from '@/themes/ThemeContext';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
 import { useFeedbackMessages, getFeedbackState } from '@/hooks/exercises/useFeedbackMessages';
 import type { FeedbackData } from '@/hooks/exercises/useFeedbackMessages';
 import { tokens } from '@/themes/tokens';
-
-// Styles
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
-
-// Types
 import type { TransformerQuestion } from '@/screens/WordGames/schema';
-
-// ============================================
-// TYPES
-// ============================================
 
 export interface TransformerCardProps {
   question: TransformerQuestion;
@@ -41,10 +22,6 @@ export interface TransformerCardProps {
   onNext: () => void;
   isLastQuestion: boolean;
 }
-
-// ============================================
-// COMPOSANT
-// ============================================
 
 const TransformerCard: React.FC<TransformerCardProps> = ({
   question,
@@ -102,8 +79,6 @@ const TransformerCard: React.FC<TransformerCardProps> = ({
 
   const { before, blank, after } = buildSentenceDisplay();
   const hasSelection = !!selectedOption;
-
-  // =================== STYLES DYNAMIQUES ===================
 
   const styles = StyleSheet.create({
     rootWordBox: {
@@ -188,45 +163,37 @@ const TransformerCard: React.FC<TransformerCardProps> = ({
     },
   });
 
-  // =================== RENDU ===================
-
   return (
     <ScrollView style={baseStyles.container} contentContainerStyle={baseStyles.content}>
       <View style={baseStyles.card}>
         <View style={baseStyles.colorBar} />
 
-        {/* Titre */}
         <View style={baseStyles.titleSection}>
           <Text style={baseStyles.titleIcon}>🔄</Text>
           <Text style={baseStyles.titleText}>Word Transformer</Text>
         </View>
 
-        {/* Mot racine en gros */}
         <View style={styles.rootWordBox}>
           <Text style={styles.rootWordLabel}>Root word</Text>
           <Text style={styles.rootWordText}>{question.rootWord.toUpperCase()}</Text>
         </View>
 
-        {/* Phrase avec le trou dynamique */}
         <View style={styles.sentenceBox}>
           {!!before && <Text style={styles.sentenceText}>{before}</Text>}
           <Text style={styles.blankText}>{blank}</Text>
           {!!after && <Text style={styles.sentenceText}>{after}</Text>}
         </View>
 
-        {/* Indice grammatical */}
         {!!question.hint && (
           <View style={styles.hintBox}>
             <Text style={styles.hintText}>💡 {question.hint}</Text>
           </View>
         )}
 
-        {/* Traduction */}
         {!!question.translation && showFeedback && (
           <Text style={styles.translationText}>🇫🇷 {question.translation}</Text>
         )}
 
-        {/* Options */}
         <View style={baseStyles.optionsContainer}>
           {question.options.map((option) => {
             const isSelected = selectedOption === option;

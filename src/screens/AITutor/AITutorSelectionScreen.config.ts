@@ -1,7 +1,3 @@
-/**
- * Configuration pour AITutorSelectionScreen
- */
-
 export const MODES = [
   {
     key:         'free',

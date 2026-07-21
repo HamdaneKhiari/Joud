@@ -1,7 +1,3 @@
-/**
- * Configuration pour SettingsAIScreen
- */
-
 import type { AISettings } from '@/hooks/useAISettings';
 
 type Provider = AISettings['provider'];
