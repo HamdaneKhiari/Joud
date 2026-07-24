@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, ViewStyle } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
 import { useTheme } from '@/themes/ThemeContext';
 import { createStyles } from './metricsStyle';
 
@@ -37,12 +37,14 @@ const MetricCard: React.FC<MetricCardProps> = ({
 
   return (
     <Animated.View
-      entering={FadeInDown.delay(animationDelay).springify()}
+      entering={FadeInDown.delay(animationDelay).springify().reduceMotion(ReduceMotion.System)}
       style={[
         styles.card,
         isDark && styles.cardDark,
         cardStyle as ViewStyle,
       ]}
+      accessible
+      accessibilityLabel={`${value} ${label}`}
     >
       {badgeLabel && <Text style={styles.badgeLabel}>{badgeLabel}</Text>}
       {emoji && !badgeLabel && <Text style={styles.emoji}>{emoji}</Text>}
@@ -95,7 +97,7 @@ const MetricsSection: React.FC<MetricsSectionProps> = ({
   return (
     <View style={styles.container}>
       <MetricCard
-        badgeLabel="WORDS"
+        badgeLabel="MOTS"
         value={metrics.wordsLearned}
         label="Mots appris"
         isDark={isDark}
@@ -105,7 +107,7 @@ const MetricsSection: React.FC<MetricsSectionProps> = ({
 
       {isStudent && (
         <MetricCard
-          badgeLabel="AWARDS"
+          badgeLabel="RÉCOMPENSES"
           value={metrics.badges}
           label="Badges"
           isDark={isDark}
@@ -115,7 +117,7 @@ const MetricsSection: React.FC<MetricsSectionProps> = ({
       )}
 
       <MetricCard
-        badgeLabel="STREAK"
+        badgeLabel="SÉRIE"
         value={metrics.streak}
         label="Jours"
         isDark={isDark}

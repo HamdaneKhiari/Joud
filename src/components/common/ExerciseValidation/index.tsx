@@ -7,18 +7,26 @@ import { getStyles } from './styles';
 import { withOpacity } from '@/themes/tokens';
 import { useTheme } from '@/themes/ThemeContext';
 import useSafeAction from '../../../hooks/useSafeAction';
+import useReducedMotion from '../../../hooks/useReducedMotion';
 import { getButtonConfig, getDefaultFeedback } from './helpers';
 import type { ExerciseValidationProps, FeedbackBannerProps } from './types';
 
 const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ feedback, state }) => {
   const { identity } = useTheme();
   const styles = useMemo(() => getStyles(identity), [identity]);
+  const reducedMotion = useReducedMotion();
 
   const slideAnim = useRef(new Animated.Value(-50)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
   useEffect(() => {
+    if (reducedMotion) {
+      slideAnim.setValue(0);
+      fadeAnim.setValue(1);
+      scaleAnim.setValue(1);
+      return;
+    }
     Animated.parallel([
       Animated.spring(slideAnim, {
         toValue: 0,
@@ -38,12 +46,13 @@ const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ feedback, state }) => {
         useNativeDriver: true,
       }),
     ]).start();
-  }, [feedback, slideAnim, fadeAnim, scaleAnim]);
+  }, [feedback, slideAnim, fadeAnim, scaleAnim, reducedMotion]);
 
   if (!feedback) return null;
 
   return (
     <Animated.View
+      accessibilityLiveRegion="polite"
       style={[
         styles.feedbackContainer,
         state === 'correct' ? styles.feedbackCorrect : styles.feedbackIncorrect,
@@ -80,7 +89,7 @@ const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ feedback, state }) => {
         </Text>
       </View>
 
-      {state === 'correct' && (
+      {state === 'correct' && identity.ui.mood === 'playful' && (
         <View style={styles.successBadge}>
           <Ionicons name="sparkles" size={20} color={styles.feedbackMessageCorrect.color} />
         </View>
@@ -105,12 +114,18 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
 }) => {
   const { identity } = useTheme();
   const styles = useMemo(() => getStyles(identity), [identity]);
+  const isPlayful = identity.ui.mood === 'playful';
+  const reducedMotion = useReducedMotion();
 
   // useNativeDriver: false pour rester cohérent avec glowAnim (animé sur shadowOpacity, non-natif)
   const [scaleAnim] = useState(new Animated.Value(1));
   const glowAnim = useRef(new Animated.Value(0)).current;
 
   const animate = (callback?: () => void) => {
+    if (reducedMotion) {
+      callback?.();
+      return;
+    }
     Animated.sequence([
       Animated.spring(scaleAnim, {
         toValue: 0.92,
@@ -157,7 +172,8 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
   );
 
   useEffect(() => {
-    if (state === 'correct') {
+    // Pulse de succès réservée aux identités playful — trop "gloss" pour clean (Lycée/Adulte)
+    if (state === 'correct' && isPlayful && !reducedMotion) {
       const anim = Animated.loop(
         Animated.sequence([
           Animated.timing(glowAnim, {
@@ -177,7 +193,7 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
     } else {
       glowAnim.setValue(0);
     }
-  }, [state, glowAnim]);
+  }, [state, glowAnim, isPlayful, reducedMotion]);
 
   const handlePress = () => {
     if (disabled) return;
@@ -222,7 +238,7 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
       <Animated.View
         style={[
           styles.buttonWrapper,
-          state === 'correct' && {
+          state === 'correct' && isPlayful && {
             shadowColor: glowColor,
             shadowOpacity: glowAnim,
             shadowRadius: 20,
@@ -235,6 +251,9 @@ const ExerciseValidation: React.FC<ExerciseValidationProps> = ({
             onPress={handlePress}
             disabled={disabled}
             activeOpacity={1}
+            accessibilityRole="button"
+            accessibilityLabel={buttonConfig.label}
+            accessibilityState={{ disabled }}
           >
             <View style={styles.buttonIconContainer}>
               <Ionicons name={buttonConfig.icon as React.ComponentProps<typeof Ionicons>['name']} size={26} color={identity.text.onPrimary} />

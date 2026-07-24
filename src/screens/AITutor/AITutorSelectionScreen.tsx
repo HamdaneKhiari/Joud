@@ -38,7 +38,12 @@ const AITutorSelectionScreen: React.FC = () => {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
       <View style={styles.header}>
         <View style={styles.headerTopRow}>
-          <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Retour"
+          >
             <Ionicons name="arrow-back" size={24} color={identity.text.onPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Tuteur IA</Text>
@@ -57,6 +62,8 @@ const AITutorSelectionScreen: React.FC = () => {
             style={styles.configBanner}
             onPress={() => router.push('/settings-ai' as Href)}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Configure ta clé API pour activer le coach IA"
           >
             <Ionicons name="key-outline" size={18} color={identity.palette.accent} />
             <Text style={styles.configBannerText}>

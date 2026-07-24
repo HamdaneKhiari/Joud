@@ -5,7 +5,7 @@
 
 import React, { useMemo } from 'react';
 import { TouchableOpacity, View, Text } from 'react-native';
-import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeInRight, ReduceMotion } from 'react-native-reanimated';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 
@@ -83,7 +83,10 @@ const FlowCard: React.FC<FlowCardProps> = ({
 
   return (
     <Animated.View
-      entering={isHorizontal ? FadeInRight.springify() : FadeInDown.delay(animationDelay).springify()}
+      entering={
+        (isHorizontal ? FadeInRight.springify() : FadeInDown.delay(animationDelay).springify())
+          .reduceMotion(ReduceMotion.System)
+      }
       style={[styles.wrapper, style]}
     >
       <TouchableOpacity
@@ -91,6 +94,9 @@ const FlowCard: React.FC<FlowCardProps> = ({
         onPress={handlePress}
         activeOpacity={0.8}
         disabled={locked || !onPress}
+        accessibilityRole="button"
+        accessibilityLabel={`${title}${subtitle ? `, ${subtitle}` : ''}${locked ? ', verrouillé' : ''}${progress ? `, ${progress}% complété` : ''}`}
+        accessibilityState={{ disabled: locked || !onPress }}
       >
         {badge === 'EN COURS' && (
           <View style={[styles.badge, { backgroundColor: statusBadgeColor }]}>

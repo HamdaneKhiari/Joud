@@ -62,6 +62,9 @@ const RevisionQuestionCard: React.FC<RevisionQuestionCardProps> = ({
               onPress={() => !isValidated && onSelectAnswer(option)}
               disabled={isValidated}
               activeOpacity={0.7}
+              accessibilityRole="radio"
+              accessibilityLabel={option}
+              accessibilityState={{ selected: isSelected, disabled: isValidated }}
             >
               <Text style={textStyle}>{option}</Text>
             </TouchableOpacity>

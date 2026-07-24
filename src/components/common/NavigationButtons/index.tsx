@@ -31,6 +31,8 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
           style={[styles.navButton, styles.navButtonPrev]}
           onPress={onPrevious}
           disabled={isLoading}
+          accessibilityRole="button"
+          accessibilityLabel="Précédent"
         >
           <MaterialCommunityIcons
             name="chevron-left"
@@ -50,6 +52,8 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
           style={[styles.navButton, styles.navButtonFinish]}
           onPress={onFinish}
           disabled={isLoading}
+          accessibilityRole="button"
+          accessibilityLabel="Terminer"
         >
           {isLoading ? (
             <ActivityIndicator color={identity.text.onPrimary} />
@@ -62,6 +66,8 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
           style={[styles.navButton, styles.navButtonNext]}
           onPress={onNext}
           disabled={isLoading}
+          accessibilityRole="button"
+          accessibilityLabel="Suivant"
         >
             <MaterialCommunityIcons
               name="chevron-right"

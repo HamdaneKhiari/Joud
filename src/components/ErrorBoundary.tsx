@@ -43,7 +43,12 @@ export class ErrorBoundary extends React.Component<Props, State> {
           <Text style={styles.message}>
             {this.state.error?.message || 'Erreur inattendue'}
           </Text>
-          <TouchableOpacity style={styles.button} onPress={this.handleReset}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={this.handleReset}
+            accessibilityRole="button"
+            accessibilityLabel="Réessayer"
+          >
             <Text style={styles.buttonText}>Réessayer</Text>
           </TouchableOpacity>
         </View>

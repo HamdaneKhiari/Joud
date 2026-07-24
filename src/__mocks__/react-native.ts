@@ -68,7 +68,10 @@ export const Alert = { alert: jest.fn() };
 export const Vibration = { vibrate: jest.fn() };
 export const Keyboard = { dismiss: jest.fn(), addListener: jest.fn() };
 
-export const AccessibilityInfo = { isReduceMotionEnabled: jest.fn().mockResolvedValue(false) };
+export const AccessibilityInfo = {
+  isReduceMotionEnabled: jest.fn().mockResolvedValue(false),
+  addEventListener: jest.fn().mockReturnValue({ remove: jest.fn() }),
+};
 
 export const useColorScheme = jest.fn().mockReturnValue('light');
 

@@ -30,6 +30,9 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
             ]}
             onPress={() => onSelectProvider(p.id)}
             activeOpacity={0.7}
+            accessibilityRole="radio"
+            accessibilityLabel={p.name}
+            accessibilityState={{ selected: selectedProvider === p.id }}
           >
             <Text style={styles.providerChipText}>{p.icon}</Text>
             <Text

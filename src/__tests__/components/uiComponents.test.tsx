@@ -6,6 +6,7 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { tokens } from '@/themes/tokens';
+import type { Identity } from '@/themes/ThemeContext';
 
 // ============================================
 // Mocks
@@ -28,10 +29,10 @@ import ExerciseDecorative from '@/components/layout/ExerciseHeader/components/Ex
 import ConnectorCardRenderer from '@/components/pedagogy/Connector/ConnectorCardRenderer';
 import SummaryPhase from '@/screens/RevisionScreen/components/SummaryPhase';
 import CompletionModal from '@/components/common/CompletionModal';
-import DashboardCard from '@/screens/Dashboard/components/DashboardCard';
 import { InfoBox } from '@/screens/components/InfoBox';
 import RephrasingCard from '@/components/pedagogy/Connector/RephrasingCard';
 import SentenceFusionCard from '@/components/pedagogy/Connector/SentenceFusionCard';
+import type { ConnectorCardRendererProps, LogicQuestion } from '@/components/pedagogy/Connector/types';
 
 // ============================================
 // Fixture
@@ -118,24 +119,28 @@ describe('ConnectorCardRenderer', () => {
     rephrasing: { onAnswer: noop, onValidate: noop, onRetry: noop, onNext: noop },
   };
 
+  const states = mockStates as unknown as ConnectorCardRendererProps['states'];
+  const handlers = mockHandlers as ConnectorCardRendererProps['handlers'];
+  const noFamily = null as unknown as ConnectorCardRendererProps['exerciseFamily'];
+
   it('retourne null si currentQuestion est null', () => {
     const { toJSON } = render(
-      <ConnectorCardRenderer exerciseType="logic" currentQuestion={null as any} currentQuestionIndex={0} isLastQuestion={false} exerciseFamily={null as any} states={mockStates as any} handlers={mockHandlers as any} />
+      <ConnectorCardRenderer exerciseType="logic" currentQuestion={null as unknown as LogicQuestion} currentQuestionIndex={0} isLastQuestion={false} exerciseFamily={noFamily} states={states} handlers={handlers} />
     );
     expect(toJSON()).toBeNull();
   });
 
   it('rend LogicLinksCard pour exerciseType=logic', () => {
-    const q = { sentence: 'I was tired ___ I slept.', options: ['so', 'but', 'because'], correctAnswer: 'so', translation: '' };
+    const q: LogicQuestion = { sentence: 'I was tired ___ I slept.', options: ['so', 'but', 'because'], correctAnswer: 'so', translation: '' };
     expect(() => render(
-      <ConnectorCardRenderer exerciseType="logic" currentQuestion={q as any} currentQuestionIndex={0} isLastQuestion={false} exerciseFamily={null as any} states={mockStates as any} handlers={mockHandlers as any} />
+      <ConnectorCardRenderer exerciseType="logic" currentQuestion={q} currentQuestionIndex={0} isLastQuestion={false} exerciseFamily={noFamily} states={states} handlers={handlers} />
     )).not.toThrow();
   });
 
   it('rend null pour exerciseType inconnu', () => {
     const q = { type: 'unknown' };
     const { toJSON } = render(
-      <ConnectorCardRenderer exerciseType={'unknown' as any} currentQuestion={q as any} currentQuestionIndex={0} isLastQuestion={false} exerciseFamily={null as any} states={mockStates as any} handlers={mockHandlers as any} />
+      <ConnectorCardRenderer exerciseType={'unknown' as unknown as ConnectorCardRendererProps['exerciseType']} currentQuestion={q as unknown as LogicQuestion} currentQuestionIndex={0} isLastQuestion={false} exerciseFamily={noFamily} states={states} handlers={handlers} />
     );
     expect(toJSON()).toBeNull();
   });
@@ -149,7 +154,7 @@ describe('SummaryPhase', () => {
   beforeEach(() => { jest.clearAllMocks(); setupMocks(); });
 
   const baseProps = {
-    identity: mockIdentity as any,
+    identity: mockIdentity as unknown as Identity,
     totalQuestions: 10,
     correctCount: 9,
     incorrectCount: 1,
@@ -214,47 +219,6 @@ describe('CompletionModal', () => {
 });
 
 // ============================================
-// DashboardCard
-// ============================================
-
-describe('DashboardCard', () => {
-  beforeEach(() => { jest.clearAllMocks(); setupMocks(); });
-
-  it('rend sans crash', () => {
-    expect(() => render(<DashboardCard icon="📚" title="Vocab" variantColor="primary" />)).not.toThrow();
-  });
-
-  it('affiche le titre', () => {
-    const { getByText } = render(<DashboardCard icon="📚" title="Mon module" variantColor="primary" />);
-    expect(getByText('Mon module')).toBeTruthy();
-  });
-
-  it('affiche le subtitle si fourni', () => {
-    const { getByText } = render(<DashboardCard icon="🎯" title="T" subtitle="Sous-titre" variantColor="accent" />);
-    expect(getByText('Sous-titre')).toBeTruthy();
-  });
-
-  it('affiche le buttonText si fourni', () => {
-    const { getByText } = render(<DashboardCard icon="⭐" title="T" buttonText="Commencer" variantColor="primary" onPress={jest.fn()} />);
-    expect(getByText('Commencer')).toBeTruthy();
-  });
-
-  it('showArrow=false → pas de flèche ➔', () => {
-    const { queryByText } = render(<DashboardCard icon="📚" title="T" variantColor="primary" onPress={jest.fn()} showArrow={false} />);
-    expect(queryByText('➔')).toBeNull();
-  });
-
-  it('rend les children', () => {
-    const { getByText } = render(
-      <DashboardCard icon="📚" title="T" variantColor="primary">
-        <></>
-      </DashboardCard>
-    );
-    expect(getByText('T')).toBeTruthy();
-  });
-});
-
-// ============================================
 // InfoBox
 // ============================================
 
@@ -295,14 +259,14 @@ describe('RephrasingCard', () => {
 
   it('rend sans crash', () => {
     expect(() => render(
-      <RephrasingCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+      <RephrasingCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     )).not.toThrow();
   });
 
   it('affiche la phrase originale', () => {
     const { getByText } = render(
-      <RephrasingCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+      <RephrasingCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     );
     expect(getByText('I am happy.')).toBeTruthy();
@@ -310,7 +274,7 @@ describe('RephrasingCard', () => {
 
   it('affiche l\'instruction', () => {
     const { getByText } = render(
-      <RephrasingCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+      <RephrasingCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     );
     expect(getByText('Rephrase using "feel"')).toBeTruthy();
@@ -318,7 +282,7 @@ describe('RephrasingCard', () => {
 
   it('hideValidation=true → pas de bouton Valider', () => {
     const { queryByText } = render(
-      <RephrasingCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+      <RephrasingCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} hideValidation />
     );
     expect(queryByText('Valider')).toBeNull();
@@ -326,7 +290,7 @@ describe('RephrasingCard', () => {
 
   it('isValidated=true, isCorrect=false, attemptCount>=maxAttempts → affiche correctAnswer', () => {
     const { getByText } = render(
-      <RephrasingCard question={baseQuestion as any} userAnswer="wrong" isValidated={true} isCorrect={false}
+      <RephrasingCard question={baseQuestion} userAnswer="wrong" isValidated={true} isCorrect={false}
         attemptCount={2} maxAttempts={2}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     );
@@ -349,14 +313,14 @@ describe('SentenceFusionCard', () => {
 
   it('rend sans crash', () => {
     expect(() => render(
-      <SentenceFusionCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+      <SentenceFusionCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     )).not.toThrow();
   });
 
   it('affiche phrase1 et phrase2', () => {
     const { getByText } = render(
-      <SentenceFusionCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+      <SentenceFusionCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     );
     expect(getByText('I was tired.')).toBeTruthy();
@@ -365,7 +329,7 @@ describe('SentenceFusionCard', () => {
 
   it('affiche le hint', () => {
     const { getByText } = render(
-      <SentenceFusionCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+      <SentenceFusionCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     );
     expect(getByText('Use "so"')).toBeTruthy();
@@ -373,7 +337,7 @@ describe('SentenceFusionCard', () => {
 
   it('hideValidation=true → pas de bouton', () => {
     const { queryByText } = render(
-      <SentenceFusionCard question={baseQuestion as any} userAnswer="" isValidated={false} isCorrect={false}
+      <SentenceFusionCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} hideValidation />
     );
     expect(queryByText('Valider')).toBeNull();
@@ -382,7 +346,7 @@ describe('SentenceFusionCard', () => {
   it('sans hint → rend sans crash', () => {
     const noHintQ = { ...baseQuestion, hint: undefined };
     expect(() => render(
-      <SentenceFusionCard question={noHintQ as any} userAnswer="" isValidated={false} isCorrect={false}
+      <SentenceFusionCard question={noHintQ} userAnswer="" isValidated={false} isCorrect={false}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     )).not.toThrow();
   });

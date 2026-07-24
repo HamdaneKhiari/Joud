@@ -283,6 +283,8 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
               style={styles.continueButton}
               onPress={() => onComplete(score)}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Continuer"
             >
               <Text style={styles.continueButtonText}>Continuer</Text>
               <Ionicons
@@ -347,6 +349,9 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
                   onPress={() => handleEnWordPress(index)}
                   disabled={isMatched}
                   activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={pair.english}
+                  accessibilityState={{ selected: isSelected, disabled: isMatched }}
                 >
                   <Text style={[styles.wordText, isMatched && styles.wordTextMatched]}>
                     {pair.english}
@@ -371,6 +376,9 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
                   onPress={() => handleFrWordPress(index)}
                   disabled={isMatched || selected === null}
                   activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={pair.french}
+                  accessibilityState={{ disabled: isMatched || selected === null }}
                 >
                   <Text style={[styles.wordText, isMatched && styles.wordTextMatched]}>
                     {pair.french}

@@ -79,7 +79,7 @@ const VocabularyExerciseScreen: React.FC = () => {
 
   useExerciseSaveOnUnmount();
 
-  const handleNext = useCallback(() => {
+  const recordCurrentWordSeen = useCallback(() => {
     trackItemCompletion(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, currentWordIndex, totalWords);
     if (contentItems?.[currentWordIndex]) {
       recordWordSeen({
@@ -89,26 +89,22 @@ const VocabularyExerciseScreen: React.FC = () => {
         contentId:   contentItems[currentWordIndex].id,
       });
     }
+  }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen]);
+
+  const handleNext = useCallback(() => {
+    recordCurrentWordSeen();
     if (currentWordIndex < totalWords - 1) {
       setCurrentWordIndex(prev => prev + 1);
     }
-  }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen, setCurrentWordIndex]);
+  }, [recordCurrentWordSeen, currentWordIndex, totalWords, setCurrentWordIndex]);
 
   const handleFinish = useCallback(() => {
     const executeFinish = async () => {
-      trackItemCompletion(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, currentWordIndex, totalWords);
-      if (contentItems?.[currentWordIndex]) {
-        recordWordSeen({
-          word:        contentItems[currentWordIndex].data.word,
-          translation: contentItems[currentWordIndex].data.translation,
-          familyId:    compositeFamilyId,
-          contentId:   contentItems[currentWordIndex].id,
-        });
-      }
+      recordCurrentWordSeen();
       await complete();
     };
     executeFinish().catch(err => log.error("Finish error:", err));
-  }, [dashboardLevelId, compositeFamilyId, currentWordIndex, totalWords, contentItems, trackItemCompletion, recordWordSeen, complete]);
+  }, [recordCurrentWordSeen, complete]);
 
   const handleBack = useCallback(() => {
     safeGoBack.navigate();

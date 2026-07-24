@@ -65,6 +65,7 @@ const OnboardingScreen: React.FC = () => {
               onSubmitEditing={handleSubmit}
               autoCapitalize="words"
               autoCorrect={false}
+              accessibilityLabel="Ton prénom"
             />
 
             <TouchableOpacity
@@ -72,6 +73,9 @@ const OnboardingScreen: React.FC = () => {
               onPress={handleSubmit}
               disabled={!firstName.trim() || isSubmitting}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={isSubmitting ? 'Chargement' : "C'est parti !"}
+              accessibilityState={{ disabled: !firstName.trim() || isSubmitting, busy: isSubmitting }}
             >
               <Text style={styles.primaryButtonText}>
                 {isSubmitting ? 'Chargement...' : "C'est parti !"}

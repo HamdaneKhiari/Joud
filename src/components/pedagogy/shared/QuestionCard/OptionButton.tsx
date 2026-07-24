@@ -56,14 +56,19 @@ const OptionButton: React.FC<OptionButtonProps> = ({
 
   const colors = getColors();
 
+  const resultSuffix = isAnswered && isSelected ? (isCorrect ? ', bonne réponse' : ', mauvaise réponse') : '';
+
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={isAnswered}
+      accessibilityRole="radio"
+      accessibilityLabel={`${letter}. ${text}${resultSuffix}`}
+      accessibilityState={{ selected: isSelected, disabled: isAnswered }}
       style={[
-        styles.button, 
-        { 
-          backgroundColor: colors.bg, 
+        styles.button,
+        {
+          backgroundColor: colors.bg,
           borderColor: colors.border,
           borderRadius: uiPrefs.borderRadius,
           borderWidth: uiPrefs.borderWidth

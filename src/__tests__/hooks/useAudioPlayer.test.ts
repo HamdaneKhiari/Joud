@@ -32,8 +32,6 @@ jest.mock('expo-haptics', () => ({
 
 import { useAudioPlayer } from '@/components/ui/AudioButtons/hooks/useAudioPlayer';
 
-const flushPromises = () => new Promise<void>(resolve => setTimeout(resolve, 0));
-
 beforeEach(() => {
   jest.clearAllMocks();
   // Réinjecter le mock sound après clearAllMocks

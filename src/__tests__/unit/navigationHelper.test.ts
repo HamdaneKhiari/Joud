@@ -1,14 +1,11 @@
 /**
  * Tests unitaires — navigationHelper.ts
- * Couvre : navigateToExercise, navigateToFamilySelection,
- *          navigateToExerciseSelection, goBack
+ * Couvre : navigateToExercise, navigateToExerciseSelection
  */
 
 import {
   navigateToExercise,
-  navigateToFamilySelection,
   navigateToExerciseSelection,
-  goBack,
 } from '@/utils/navigationHelper';
 import type { Router } from 'expo-router';
 
@@ -25,60 +22,40 @@ const makeRouter = (canGoBack = true): Router =>
   } as unknown as Router);
 
 // ============================================
-// navigateToExercise — avec familyId
+// navigateToExercise
 // ============================================
 
-describe('navigateToExercise — avec familyId', () => {
-  it('appelle router.push avec le bon pathname et params', () => {
+describe('navigateToExercise', () => {
+  it('navigue vers /family/[familyId] avec le bon pathname et params', () => {
     const router = makeRouter();
-    navigateToExercise(router, { type: 'vocab', levelId: 1, familyId: '5' });
+    navigateToExercise(router, { type: 'vocab', levelId: 1 });
 
     expect(router.push).toHaveBeenCalledWith({
-      pathname: '/exercise/[exerciseId]',
-      params: expect.objectContaining({
-        exerciseId: 'vocab_5',
+      pathname: '/family/[familyId]',
+      params: {
+        familyId: 'vocab',
         levelId: '1',
-        familyId: '5',
-        type: 'vocab',
-      }),
+        moduleId: 'vocab',
+      },
     });
   });
 
   it('utilise moduleId fourni comme moduleId dans les params', () => {
     const router = makeRouter();
-    navigateToExercise(router, { type: 'vocab', levelId: 2, familyId: '8', moduleId: 'vocab' });
+    navigateToExercise(router, { type: 'vocab', levelId: 2, moduleId: 'connector' });
 
     expect(router.push).toHaveBeenCalledWith(expect.objectContaining({
-      params: expect.objectContaining({ moduleId: 'vocab' }),
+      params: expect.objectContaining({ moduleId: 'connector' }),
     }));
   });
 
   it('utilise type comme moduleId si moduleId non fourni', () => {
     const router = makeRouter();
-    navigateToExercise(router, { type: 'reading', levelId: 1, familyId: '3' });
+    navigateToExercise(router, { type: 'reading', levelId: 1 });
 
     expect(router.push).toHaveBeenCalledWith(expect.objectContaining({
       params: expect.objectContaining({ moduleId: 'reading' }),
     }));
-  });
-});
-
-// ============================================
-// navigateToExercise — sans familyId
-// ============================================
-
-describe('navigateToExercise — sans familyId (sélection de famille)', () => {
-  it('navigue vers /family/[familyId]', () => {
-    const router = makeRouter();
-    navigateToExercise(router, { type: 'phrase_types', levelId: 3 });
-
-    expect(router.push).toHaveBeenCalledWith({
-      pathname: '/family/[familyId]',
-      params: expect.objectContaining({
-        familyId: 'phrase_types',
-        levelId: '3',
-      }),
-    });
   });
 
   it('levelId est converti en string', () => {
@@ -89,34 +66,18 @@ describe('navigateToExercise — sans familyId (sélection de famille)', () => {
       params: expect.objectContaining({ levelId: '2' }),
     }));
   });
-});
 
-// ============================================
-// navigateToFamilySelection
-// ============================================
-
-describe('navigateToFamilySelection', () => {
-  it('navigue vers /family/[familyId] avec le moduleId', () => {
+  it('familyId dans les params correspond au type', () => {
     const router = makeRouter();
-    navigateToFamilySelection(router, 'dialogues', 1);
+    navigateToExercise(router, { type: 'phrase_types', levelId: 3 });
 
     expect(router.push).toHaveBeenCalledWith({
       pathname: '/family/[familyId]',
-      params: {
-        familyId: 'dialogues',
-        levelId: '1',
-        moduleId: 'dialogues',
-      },
+      params: expect.objectContaining({
+        familyId: 'phrase_types',
+        levelId: '3',
+      }),
     });
-  });
-
-  it('levelId est converti en string', () => {
-    const router = makeRouter();
-    navigateToFamilySelection(router, 'connector', 4);
-
-    expect(router.push).toHaveBeenCalledWith(expect.objectContaining({
-      params: expect.objectContaining({ levelId: '4' }),
-    }));
   });
 });
 
@@ -142,25 +103,5 @@ describe('navigateToExerciseSelection', () => {
     expect(router.push).toHaveBeenCalledWith(
       expect.objectContaining({ params: { levelId: '1' } })
     );
-  });
-});
-
-// ============================================
-// goBack
-// ============================================
-
-describe('goBack', () => {
-  it('appelle router.back() si canGoBack est true', () => {
-    const router = makeRouter(true);
-    goBack(router);
-    expect(router.back).toHaveBeenCalled();
-    expect(router.replace).not.toHaveBeenCalled();
-  });
-
-  it('appelle router.replace("/") si canGoBack est false', () => {
-    const router = makeRouter(false);
-    goBack(router);
-    expect(router.replace).toHaveBeenCalledWith('/');
-    expect(router.back).not.toHaveBeenCalled();
   });
 });

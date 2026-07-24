@@ -233,7 +233,15 @@ const AITutorGuidedScreen: React.FC = () => {
               onSubmitEditing={handleSend}
               textAlignVertical="center"
             />
-            <TouchableOpacity style={[styles.sendButton, (!inputText.trim() || isSending) && styles.sendButtonDisabled]} onPress={handleSend} disabled={!inputText.trim() || isSending} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={[styles.sendButton, (!inputText.trim() || isSending) && styles.sendButtonDisabled]}
+              onPress={handleSend}
+              disabled={!inputText.trim() || isSending}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Envoyer"
+              accessibilityState={{ disabled: !inputText.trim() || isSending }}
+            >
               <Ionicons name="arrow-forward" size={20} color={identity.text.onPrimary} />
             </TouchableOpacity>
           </View>

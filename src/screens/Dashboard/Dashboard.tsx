@@ -1,7 +1,7 @@
 import { log } from '@/utils/logUtils';
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { ScrollView, View, ActivityIndicator, Text } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeInDown, ReduceMotion } from 'react-native-reanimated';
 import { useRouter, useFocusEffect, type Href } from 'expo-router';
 import { useTheme } from '@/themes/ThemeContext';
 import { withOpacity } from '@/themes/tokens';
@@ -94,7 +94,7 @@ export default function Dashboard() {
 
       {/* 1. DÉCOUVRIR : Mot du jour */}
       {dailyWord && (
-        <Animated.View entering={FadeInDown.delay(0).springify()} style={styles.section}>
+        <Animated.View entering={FadeInDown.delay(0).springify().reduceMotion(ReduceMotion.System)} style={styles.section}>
           <DailyWordCard word={dailyWord} />
         </Animated.View>
       )}
@@ -133,13 +133,13 @@ export default function Dashboard() {
 
       {/* 4. ANALYSER & AGIR : Tuteur IA */}
       {user.audience !== 'primary' && (
-        <Animated.View entering={FadeInDown.delay(300).springify()} style={styles.section}>
+        <Animated.View entering={FadeInDown.delay(300).springify().reduceMotion(ReduceMotion.System)} style={styles.section}>
           <AITutorCard />
         </Animated.View>
       )}
 
       {/* 5. BILAN : Metrics */}
-      <Animated.View entering={FadeInDown.delay(400).springify()} style={styles.section}>
+      <Animated.View entering={FadeInDown.delay(400).springify().reduceMotion(ReduceMotion.System)} style={styles.section}>
         <MetricsSection
           metrics={{
             wordsLearned,
@@ -151,7 +151,7 @@ export default function Dashboard() {
       </Animated.View>
 
       {/* 6. PARCOURS : La timeline */}
-      <Animated.View entering={FadeInDown.delay(500).springify()} style={styles.sectionHeader}>
+      <Animated.View entering={FadeInDown.delay(500).springify().reduceMotion(ReduceMotion.System)} style={styles.sectionHeader}>
         <Text style={[styles.sectionTitle, { color: identity.text.primary }]}>Parcours</Text>
         <View style={styles.levelsGrid}>
           {levels.length > 1 && <View style={[styles.timelineLine, { backgroundColor: withOpacity(identity.palette.primary, 0.25) }]} />}

@@ -54,7 +54,13 @@ const DomainCard: React.FC<DomainCardProps> = ({ domain, onPress }) => {
   }), [identity, isPlayful]);
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={onPress}
+      activeOpacity={0.85}
+      accessibilityRole="button"
+      accessibilityLabel={`${domain.label}, ${domain.subtitle}`}
+    >
       <View style={styles.emojiBg}>
         <Text style={styles.emoji}>{domain.emoji}</Text>
       </View>

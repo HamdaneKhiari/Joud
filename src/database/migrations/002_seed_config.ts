@@ -30,8 +30,8 @@ export default createMigration(
         ui_card_radius, ui_show_decorative_shapes, ui_card_mood
       ) VALUES
       ('primary', '#FF5722', '#FFCE00', '#FFFFFF', 'light',
-       '#FF5722', '#FFCE00', '#FFFFFF', NULL, NULL,
-       '🌈', 'Hello !',
+       '#FF5722', '#FFFFFF', '#FFFFFF', NULL, NULL,
+       '🌈', 'Salut,',
        NULL, '["#FFF3E0","#FFE0B2"]', 'circles',
        '#FF5722', 20, 1, 'bubbly'),
 
@@ -42,14 +42,14 @@ export default createMigration(
        '#34495E', 14, 1, 'playful'),
 
       ('lycee', '#5C35E8', '#FF6B35', '#FFFFFF', 'light',
-       '#5C35E8', '#FF6B35', '#FFFFFF', NULL, NULL,
+       '#5C35E8', '#FFFFFF', '#FFFFFF', NULL, NULL,
        '🎓', 'Bonjour,',
        '#E0F7FA', NULL, 'none',
        '#5C35E8', 12, 0, 'minimal'),
 
       ('adult', '#1E3A5F', '#D97706', '#FFFFFF', 'light',
        '#1E3A5F', '#D97706', '#FFFFFF', NULL, NULL,
-       '💼', 'Welcome back,',
+       '💼', 'Bon retour,',
        '#F8FAFC', NULL, 'none',
        '#1E3A5F', 10, 0, 'executive');
     `);
@@ -258,15 +258,15 @@ export default createMigration(
       ('lycee', 'exercise',   'skip',               'ℹ', 'Réponse correcte', 'Étudie cette solution.'),
       ('lycee', 'wordgames',  'skip',               'ℹ', 'Solution',         'Retiens bien pour la prochaine fois.'),
 
-      -- ADULT
-      ('adult', 'exercise',   'correct',            '✓', 'Correct',       'Exact, bien joué.'),
-      ('adult', 'wordgames',  'correct',            '✓', 'Right',         'Good answer.'),
-      ('adult', 'vocabulary', 'correct',            '✓', 'Perfect',       'Well done.'),
-      ('adult', 'exercise',   'incorrect_attempt_1','×', 'Incorrect',     'Try again.'),
-      ('adult', 'wordgames',  'incorrect_attempt_1','×', 'Wrong',         'Think it over.'),
-      ('adult', 'exercise',   'incorrect_attempt_2','!', 'Last attempt',  'Focus carefully.'),
-      ('adult', 'exercise',   'skip',               'ℹ', 'Answer',        'Here''s the correct answer.'),
-      ('adult', 'wordgames',  'skip',               'ℹ', 'Solution',      'Review this for next time.');
+      -- ADULT (vouvoiement — seul public professionnel, se distingue du tutoiement étudiant)
+      ('adult', 'exercise',   'correct',            '✓', 'Correct',            'Exact, bien joué.'),
+      ('adult', 'wordgames',  'correct',            '✓', 'Exact',              'Bonne réponse.'),
+      ('adult', 'vocabulary', 'correct',            '✓', 'Parfait',            'Bien joué.'),
+      ('adult', 'exercise',   'incorrect_attempt_1','×', 'Incorrect',          'Réessayez.'),
+      ('adult', 'wordgames',  'incorrect_attempt_1','×', 'Incorrect',          'Prenez le temps de réfléchir.'),
+      ('adult', 'exercise',   'incorrect_attempt_2','!', 'Dernière tentative', 'Concentrez-vous.'),
+      ('adult', 'exercise',   'skip',               'ℹ', 'Réponse',            'Voici la bonne réponse.'),
+      ('adult', 'wordgames',  'skip',               'ℹ', 'Solution',           'À retenir pour la prochaine fois.');
     `);
 
     // ============================================

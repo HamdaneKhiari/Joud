@@ -28,7 +28,7 @@ export const createStyles = (identity: Identity) => {
       overflow: 'hidden',
       borderLeftWidth: mood.borderLeftWidth,
       borderLeftColor: identity.palette.primary,
-      ...tokens.shadows.md,
+      ...(mood.isPlayful ? tokens.shadows.md : tokens.shadows.sm),
       ...(mood.isPlayful && { alignItems: 'center' }),
     },
     watermark: {

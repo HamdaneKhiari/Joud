@@ -181,9 +181,401 @@ Confirmé avec l'utilisateur : le module a été volontairement abandonné (form
 
 ---
 
+## 9. Phase design — audit + corrections (3 docs)
+
+Audit visuel en 3 temps : (1) les 4 identités côte à côte, (2) qualité des composants
+(premium vs flashy), (3) verdict global + vérification demandée sur la progression suite au
+retrait grammar/assessment.
+
+- [x] **Contraste header.accent** — Primaire et Lycée étaient sous le seuil WCAG (2.1:1 et
+  2.4:1, icône ET sous-titre de header). `header_accent_color` passé au blanc pour ces deux
+  identités dans `002_seed_config.ts` (garde `accent_color` inchangé, utilisé ailleurs).
+- [x] **Langue du feedback Adulte** — mélangeait français/anglais ligne à ligne ; repassé
+  entièrement en français, en vouvoiement (distinct du tutoiement des 3 autres identités).
+- [x] **Cibles tactiles Primaire** — déjà à 58px dans `ExerciceNavBar.tsx` (vs 48px partagé).
+- [x] **Étoile retirée** de `LevelCard` (badge niveau complété) — unifié sur `check-decagram`
+  pour toutes les identités, "Bravo !" conservé en mood playful.
+- [x] **`ExerciseValidation` et `CompletionModal` différenciés par mood** — glow en boucle,
+  bordure épaisse, majuscules, emoji de célébration : réservés au mood playful. En clean
+  (Lycée/Adulte), bouton plein avec ombre allégée et casse normale, badge check-circle sobre à
+  la place de l'emoji. Le rebond au clic et le spring d'entrée de la modale restent pour tous
+  (feedback tactile, pas de la déco).
+- [x] **Ombres allégées pour minimal/executive** — `FlowCard` avait déjà ce traitement pour
+  `executive` seul, étendu à `minimal`. Même principe ajouté à `MetricCard` et `DailyWordCard`
+  qui n'avaient aucune variation d'ombre selon le mood.
+- [x] **Traduction `WORDS`/`AWARDS`/`STREAK`** → `MOTS`/`RÉCOMPENSES`/`SÉRIE` dans
+  `metricsSession.tsx`.
+- [x] **Mode sombre Adulte activé puis annulé** — testé sur device, rendu "presque tout noir" :
+  la hiérarchie visuelle de l'app repose sur des ombres noires (invisibles sur fond déjà sombre),
+  jamais remplacées par bordures/fonds clairs pour l'élévation en dark mode. Un vrai mode sombre
+  demande de retravailler l'élévation composant par composant (`FlowCard` en mode `executive` le
+  fait déjà partiellement — bordure au lieu d'ombre — mais pas `MetricCard`/`DailyWordCard`/
+  `LevelCard`/boutons). Décision : revert (`theme_mode` → `'light'`, `surface_color` →
+  `'#FFFFFF'`, `daily_word_bg_color` → `'#F8FAFC'`, valeurs d'origine), chantier remis à plus
+  tard si vraiment voulu.
+- [x] **Bug de progression corrigé** — `getLevelProgress()` divisait toujours par
+  `ALL_MODULE_SLUGS.length` (6), y compris pour Primaire/Collège qui n'ont jamais `connector`
+  (réservé Lycée/Adulte) → plafond structurel à 83% même à 100% de complétion réelle. Nouveau
+  `getApplicableModules(audience)` dans `progressUtils.ts`, utilisé dans `getLevelProgress`.
+  Pas lié au retrait grammar/assessment (vérifié : aucune trace résiduelle des deux dans le
+  calcul de progression) — bug préexistant, distinct.
+- [x] **Passe accessibilité sur les composants partagés** (portée volontairement limitée aux
+  composants réutilisés partout plutôt qu'un audit écran par écran) :
+  - `useReducedMotion()` créé (`src/hooks/`) — respecte `AccessibilityInfo.isReduceMotionEnabled`
+    pour les animations pilotées par l'API `Animated` de React Native. Appliqué à
+    `ExerciseValidation` (glow, rebond au clic, entrée du banner de feedback) et `CompletionModal`
+    (overlay, card, emoji) : si activé, les animations sautent directement à leur état final.
+  - Pour les animations `react-native-reanimated` (`FadeIn*`), utilisé le modificateur natif
+    `.reduceMotion(ReduceMotion.System)` plutôt qu'un hook custom — `FlowCard`, `LevelCard`,
+    `DashboardHeader`, `MetricCard`, `Dashboard.tsx` (6 sections).
+  - `accessibilityRole`/`accessibilityLabel`/`accessibilityState` ajoutés sur les boutons
+    icône-seule (`ExerciceNavBar` : retour + icône droite — cette dernière masquée aux lecteurs
+    d'écran quand elle n'a pas de handler, ce qui est le cas partout actuellement),
+    `NavigationButtons` (Précédent/Suivant/Terminer), `ExerciseValidation`, `CompletionModal`,
+    `FlowCard`, `LevelCard`. `FeedbackBanner` (résultat validation) passé en
+    `accessibilityLiveRegion="polite"` pour une annonce automatique.
+- `tsc`/`eslint` propres après chaque étape, 134 problèmes constants, 0 nouveau.
+
+- [x] **Police Adulte différenciée** — ajout du package `@expo-google-fonts/inter` (`npm install
+  --legacy-peer-deps`, conflit peer-deps préexistant dans le projet, sans rapport). Adulte utilise
+  désormais Inter (`FONT_FAMILIES.adult` dans `ThemeContext.tsx`), Lycée garde DM Sans — 4 polices
+  réellement distinctes sur les 4 identités. Chargée via `useFonts` dans `app/_layout.tsx`.
+- [x] **`header_welcome_text` repassé en français** — Primaire "Hello !" → "Salut," ; Adulte
+  "Welcome back," → "Bon retour," (vouvoiement, cohérent avec le feedback Adulte). Collège/Lycée
+  déjà en français, inchangés.
+- [x] **Sécurité clé API IA — purge automatique sur réinstallation.** Analyse demandée par
+  l'utilisateur : architecture déjà solide (Keychain/Keystore AES-256, jamais en SQLite/logs, UI
+  ne réaffiche jamais la clé en clair, appel direct device→provider sans backend Joud dans le
+  chemin). Point faible identifié : le Keychain iOS peut survivre à une désinstallation d'app
+  (contrairement à AsyncStorage) — scénario concret : téléphone revendu sans reset usine, app
+  réinstallée par le nouveau propriétaire, ancienne clé encore récupérable. Fix implémenté :
+  `secureStorage.purgeIfStaleInstall()` (`src/services/SecureStorage.ts`) vérifie un marqueur
+  `JOUD_INSTALL_MARKER` dans AsyncStorage au démarrage ; absent (premier lancement ou
+  réinstallation) → purge toute clé résiduelle du Keychain avant qu'elle soit lisible. Câblé dans
+  `UserContext.tsx`, avant tout chargement (donc avant que `AIProvider`/`useAISettings` ne
+  puisse lire quoi que ce soit). Zéro impact sur l'usage normal — le marqueur persiste ensuite.
+  Alternative "effacer à chaque fermeture d'app" écartée après discussion : aucun hook de
+  fermeture garanti sur mobile (l'OS peut tuer une app en arrière-plan sans prévenir le JS), et
+  ça ne ciblait pas le vrai scénario à risque (désinstallation, pas mise en arrière-plan).
+- `tsc`/`eslint` propres, 134 problèmes constants, 0 nouveau.
+- [x] **Audit accessibilité écran par écran — terminé.** Tous les fichiers contenant
+  `TouchableOpacity`/`Pressable` (~35 fichiers, composants pédagogiques inclus) passés en revue.
+  Ajouté systématiquement `accessibilityRole`/`accessibilityLabel`/`accessibilityState` :
+  - Boutons icône-seule (retours, play audio, envoyer, config) — `SettingsAIScreen`,
+    `AITutorFreeScreen`, `AITutorGuidedScreen`, `AITutorSelectionScreen`, `GuidedHeader`,
+    `DialogueReaderCard` (nav + audio bulle), `AudioButton`.
+  - Groupes de sélection (`accessibilityRole="radio"` + `accessibilityState.selected`) —
+    `OptionButton` (partagé Reading/Dialogues/Connector via `QuestionCard`), `SentenceBlanksCard`,
+    `LogicLinksCard`, tous les jeux de mots (`DefinitionCard`, `BlanksCard`, `ReplyCard`,
+    `TransformerCard`, `DetectiveCard`), `RevisionQuestionCard`, `ProviderSelector`, chips
+    d'audience dans Réglages.
+  - Actions ajout/retrait (tuiles, mots) — `SentenceTilesCard`, `SyntaxMasterCard`.
+  - Switches et champs — `Sons`/`Vibrations` dans Réglages, prénom dans `OnboardingScreen`.
+  - `FeedbackBanner` (résultat de validation) déjà en `accessibilityLiveRegion="polite"` depuis la
+    passe précédente.
+  - Nettoyage en chemin : `src/components/pedagogy/dialogues/DialogueCard/` (l'ancien composant
+    pré-split, zéro import) était réapparu sur le disque après un commit externe — supprimé à
+    nouveau.
+  - Vérifié par script : zéro fichier contenant `TouchableOpacity`/`Pressable` sans au moins un
+    attribut d'accessibilité.
+- `tsc`/`eslint` propres, 134 problèmes constants, 0 nouveau, aucune régression.
+
+**Constats non traités, notés pour plus tard :**
+- Onboarding en bleu générique (`baseColors`, pas `useTheme()`) et audience jamais choisie à
+  l'accueil (défaut silencieux sur 'college') — **confirmé volontaire** par l'utilisateur : mode
+  dev pour basculer entre les 4 identités sans relancer `expo start` ; sera coupé au moment de
+  générer des builds séparés par public. Pas une action à mener maintenant.
+- Séparation en builds distincts par public (évoquée par l'utilisateur comme prochain chantier,
+  pas commencé).
+- Checklist de publication (stores) jamais abordée : pas de `bundleIdentifier` iOS explicite dans
+  `app.json` (seulement le package Android `com.hamdanek.Joud`), icônes/splash non vérifiés
+  visuellement, pas de politique de confidentialité évoquée (obligatoire App Store/Play Store).
+
+---
+
+## 10. État des lieux complet — duplication de code (mesurée)
+
+Audit demandé par l'utilisateur : duplication de code, propreté, UX/UI, bugs, "un truc classique".
+Propreté/UX déjà couvertes en détail (sections précédentes) — pas refaites, juste résumées dans
+ce document. Nouveauté : duplication mesurée avec `jscpd` plutôt qu'estimée à l'œil.
+
+- **Résultat global** : 5.28% de lignes dupliquées (1525/28857), 87 clones détectés
+  (`npx jscpd src app --min-lines 5 --min-tokens 50`, tests/mocks exclus). Chiffre sain pour la
+  taille du projet, mais concentré sur 3 familles plutôt que diffus :
+  1. **Jeux de mots** (`DefinitionCard`, `BlanksCard`, `ReplyCard`, `TransformerCard`,
+     `DetectiveCard`, `SyntaxMasterCard`) — le bloc `useEffect` de chargement du feedback
+     (`useFeedbackMessages`/`getFeedbackState`) copié-collé à l'identique dans 6 fichiers. Plus
+     gros poste de duplication du projet.
+  2. **Cards Connector** (`LogicLinksCard`, `SentenceFusionCard`, `RephrasingCard`) — structure de
+     card dupliquée entre les 3.
+  3. **AITutorFreeScreen / AITutorGuidedScreen** — header, saisie, bouton d'envoi clonés sur
+     plusieurs blocs de 15-45 lignes.
+  - Plus petit : `VocabularyExerciceScreen.tsx` duplique en interne le bloc
+    `trackItemCompletion` + `recordWordSeen` entre `handleNext` et `handleFinish` (confirmé,
+    lignes 82-95 vs 97-111).
+- [x] **`useWordGameFeedback` extrait et appliqué** aux 6 jeux de mots (`DefinitionCard`,
+  `BlanksCard`, `ReplyCard`, `TransformerCard`, `DetectiveCard`, `SyntaxMasterCard`) —
+  `src/screens/WordGames/hooks/useWordGameFeedback.ts`, même pattern que
+  `useResumeIndex`/`useExerciseCompletion`. `useState`/`useEffect` et les imports
+  `useFeedbackMessages`/`getFeedbackState`/`FeedbackData` retirés des 6 fichiers (gardé
+  `useState` dans `SyntaxMasterCard`, utilisé par ailleurs pour le tap-to-place).
+- [x] **`recordCurrentWordSeen()` extrait** dans `VocabularyExerciceScreen.tsx` —
+  `handleNext`/`handleFinish` ne dupliquent plus le bloc `trackItemCompletion` + `recordWordSeen`.
+- [x] **`useConnectorFeedback` extrait et appliqué** aux 3 cards Connector (`LogicLinksCard`,
+  `RephrasingCard`, `SentenceFusionCard`) — `src/components/pedagogy/Connector/hooks/`. Combine
+  `useExerciseValidationState` + `generateFeedbackMessage`, logique strictement identique dans
+  les 3 fichiers. Portée volontairement limitée à cette logique pure : les styles/JSX des 3 cards
+  n'ont **pas** été fusionnés malgré leur ressemblance (risque de régression visuelle non
+  vérifiable sans device sous la main).
+  - Exception traitée à part : `LogicLinksCard` n'avait pas `...tokens.shadows.md` dans son style
+    `card`, contrairement à `RephrasingCard`/`SentenceFusionCard`. Contrairement aux différences
+    entre publics (voulues), les 3 cards Connector apparaissent dans le **même flux d'exercice**
+    pour le même utilisateur au fil des questions — pas de raison produit qu'une carte soit plus
+    plate que les 2 autres. Confirmé avec l'utilisateur : oubli, pas un choix. Ombre ajoutée.
+- **Résultat mesuré** (re-passage `jscpd`, 2 étapes) : 5.28% → 4.96% (jeux de mots) → **4.78%**
+  (+ Connector) de lignes dupliquées ; 87 → 84 → **81** clones. `tsc`/`eslint` propres, 134
+  problèmes constants, 0 nouveau à chaque étape.
+- **Bugs** : balayage frais (TODO/FIXME, promesses non gérées) — rien de neuf trouvé au-delà de
+  ce qui a déjà été corrigé cette session (progression plafonnée, contraste, langue Adulte,
+  sécurité clé API, corruption Connector).
+
+---
+
+## 11. Séparation en builds par public + checklist de publication
+
+Objectif : 1 build = 1 public verrouillé (Primaire/Collège/Lycée/Adulte), sur les deux
+plateformes. Confirmé avec l'utilisateur : architecture white-label déjà adaptée pour ça (une
+seule base de code, un 5ème public futur = une ligne `branding` en base, pas de fork).
+
+- [x] **`app.json` → `app.config.js`** — nécessaire pour calculer nom/slug/bundle ID/icône
+  dynamiquement selon le public verrouillé. `app.json` supprimé (un seul fichier de config actif
+  à la fois, sinon Expo est ambigu sur lequel prime).
+- [x] **`ios.bundleIdentifier` ajouté** (`com.hamdanek.Joud`, manquant jusqu'ici — seul
+  `android.package` existait). En build mono-public, suffixé par public :
+  `com.hamdanek.Joud.primary` / `.college` / `.lycee` / `.adult` (même logique côté
+  `android.package`) — obligatoire, Apple/Google n'acceptent pas 4 fiches sous un identifiant
+  identique.
+- [x] **`eas.json` créé** — profils `development`, `preview` (tous publics, interne), et
+  `production-{primary,college,lycee,adult}` (chacun fixe `EXPO_PUBLIC_LOCKED_AUDIENCE` dans son
+  `env`). Section `submit` avec les 4 profils prête pour l'envoi aux stores.
+- [x] **Verrouillage de l'audience câblé dans `UserContext.tsx`** — `EXPO_PUBLIC_LOCKED_AUDIENCE`
+  (inliné dans le bundle par Metro au build, lu directement via `process.env`, pas besoin
+  d'`expo-constants`) force `user.audience` au chargement et rend `updateAudience()` no-op.
+  Nouveau `isAudienceLocked` exposé par le contexte. En dev/preview (variable absente),
+  comportement identique à avant — le switcher reste utilisable.
+- [x] **Sélecteur de public masqué en build verrouillé** — section "Version de l'app" dans
+  `app/(tabs)/settings.tsx` conditionnée à `!isAudienceLocked`.
+- [x] **Icône par public, avec repli propre** — `app.config.js` cherche
+  `assets/icon-<public>.png` et retombe sur `assets/icon.png` s'il n'existe pas encore (aucun des
+  4 n'est fourni pour l'instant, pas bloquant pour builder).
+- **Vérifié concrètement** (pas juste écrit) : `npx expo config --type public` sans variable
+  d'env → config par défaut inchangée, nom "Joud", bundle `com.hamdanek.Joud`. Avec
+  `EXPO_PUBLIC_LOCKED_AUDIENCE=primary` → nom "Joud Primaire", slug `joud-primaire`, bundle
+  iOS/package Android tous deux `com.hamdanek.Joud.primary`. Les deux résolutions fonctionnent.
+- `tsc`/`eslint` propres, 134 problèmes constants, 0 nouveau.
+
+**Reste (pas traité, hors code) :**
+- Politique de confidentialité — obligatoire sur les deux stores, particulièrement sensible ici
+  vu que le public Primaire concerne des enfants (COPPA/RGPD-enfants). Document légal, pas
+  rédigé sans validation explicite du contenu avec l'utilisateur (pratiques de données réelles :
+  AsyncStorage local, SQLite local, clé API IA en Keychore/Keystore, BYOK envoyé direct aux
+  providers, pas d'analytics/tracking actuellement).
+- Icônes/splash par public — la structure est prête (`assets/icon-<public>.png`), les fichiers
+  eux-mêmes restent à fournir.
+- Comptes développeur App Store Connect / Google Play Console, et configuration EAS côté serveur
+  (`eas login`, credentials) — hors du scope code, action à mener par l'utilisateur.
+
+---
+
+## 12. Suite de tests remise au vert (9 suites cassées → 0)
+
+Contexte : décision explicite de l'utilisateur de reprendre les tests maintenant (contenu réel à
+publier sous ~1 semaine), après une session entière où ils avaient été volontairement mis de
+côté ("zap les tests, on est en pleine refonte"). Les 9 suites cassées étaient toutes des
+conséquences de changements de code déjà corrects/décidés cette session, jamais répercutés dans
+les tests — aucune régression de prod découverte via ce travail, seulement 2 vrais bugs de test
+préexistants (copier-coller) mis au jour.
+
+- [x] `navigationHelper.test.ts` — testait `navigateToFamilySelection`/`goBack` (supprimés comme
+  morts) et l'ancienne branche `if (familyId)` de `navigateToExercise` (retirée, cassée). Tests
+  obsolètes supprimés, `navigateToExercise` re-testé sur son comportement actuel (toujours
+  `/family/[familyId]`).
+- [x] `queries.test.ts` — testait le filtre SQL `slug != 'assessment'`, supprimé avec le module
+  assessment. Assertion remplacée par une vérification qu'aucun filtre par slug ne subsiste.
+- [x] `moduleHelper.test.ts` — **2 vrais bugs de test préexistants**, sans rapport avec cette
+  session : mauvais nom de module passé à `getModuleColor` dans 2 tests (`'reading'` au lieu de
+  `'dialogues'` pour tester l'index 2 ; `'dialogues'` au lieu de `'phrase_types'` pour tester le
+  modulo sur le 4ᵉ module). Corrigés pour correspondre à l'intention déjà écrite dans les
+  commentaires/titres des tests.
+- [x] `useGameState.test.ts` — `useGameHandlers` appelle désormais `useRecordError()` (Coach IA,
+  ajouté au commit "Nettoyage") qui requiert `useUser()`. Le test ne mockait pas `UserContext`.
+  Mock ajouté (`db: null, user: { id: 'test_user' }`).
+- [x] `ProgressContext.test.tsx` — test hardcodait "1 module à 100% sur 7 = 14%", écrit avant la
+  suppression de grammar+assessment. `getApplicableModules('college')` exclut aussi `connector`
+  → 5 modules applicables, pas 7. Attendu corrigé à 20%.
+- [x] `pedagogyComponents.test.tsx` — **cause racine partagée avec 2 autres suites** : le mock
+  global `src/__mocks__/react-native.ts` n'implémentait pas `AccessibilityInfo.addEventListener`,
+  utilisé par `useReducedMotion` (hook créé cette session). `TypeError` faisait planter tout
+  rendu de composant animé. Ajouté au mock : `addEventListener: jest.fn().mockReturnValue({
+  remove: jest.fn() })`.
+- [x] `ExerciseScreens.test.tsx` — deux causes distinctes :
+  - Le mock `expo-router` renvoie `useLocalSearchParams() → {}` par défaut, donc `identity.id`
+    (mocké à `'college'`) pilote seul le mode phrase_types via `PHRASE_MODE_BY_AUDIENCE`
+    (`primary`→blanks, `college`→tiles, `lycee`/`adult`→free). 4 tests supposaient "college =
+    blanks" (faux depuis l'introduction de ce dispatch par public) → basculés sur une identité
+    `primary` dédiée pour tester réellement le mode blanks.
+  - Le bouton retour de `ReadingScreen` n'affiche plus le texte "Retour" mais une icône `‹` avec
+    `accessibilityLabel="Retour"` (passe accessibilité de cette session) → test basculé de
+    `getByText` à `getByLabelText`.
+- [x] `uiComponents.test.tsx` — importait le `DashboardCard` supprimé (mort, 0 import ailleurs).
+  Import + bloc de tests retirés.
+- [x] `wordGameCards.test.tsx` — importait l'ancien `DialogueCard` (scindé en
+  `DialogueReaderCard`/`DialogueQuestionCard` cette session). Import et tests séparés en 2
+  `describe` correspondant aux 2 nouveaux composants.
+- **Vérifié** : `npx jest --silent` → **49/49 suites, 919/919 tests, 0 échec**. `tsc`/`eslint`
+  re-confirmés après coup : 134 problèmes constants, tous dans `__tests__`/`__mocks__`, 0 dans le
+  code de prod (pas de régression introduite par ces corrections de tests).
+
+**Reste (hors scope de cette passe, à clarifier si besoin) :**
+- Le message de l'utilisateur mentionnait "tous les types de tests unitaire" — cette passe a
+  remis à zéro les suites *existantes*, pas ajouté de couverture nouvelle. À voir si l'objectif
+  est d'étendre la couverture au-delà du fait de faire repasser l'existant.
+- Erreurs `tsc` préexistantes dans des fichiers `__tests__` non liées à ce travail (props
+  manquantes sur des mocks de composants, `stateHooks.test.ts`, `testUtils.tsx`) — non corrigées,
+  n'empêchent pas Jest de tourner (Babel, pas tsc), hors scope de "faire passer les tests".
+
+---
+
 ## Vérifications post-nettoyage
 
 - `npx tsc --noEmit` : aucune nouvelle erreur (les seules erreurs restantes sont dans des fichiers de test, préexistantes avant cette passe).
 - `npx eslint src app --ext .ts,.tsx --max-warnings 0` : aucune nouvelle erreur (avertissements `any`/`unused` préexistants dans des fichiers de test uniquement).
 - Grep de confirmation : zéro référence restante à un des fichiers/dossiers supprimés ou déplacés (`migrations_v2`, `badgeHelper`, `RecentActivityCard`, `RecentModuleCard`, `useButtonPressAnimation`, `ErrorDetailView`, `ErrorModuleCard`, `VocabSection`, `useAdvancedErrorAnalysis`, `AiTutorCardStyles`, `familySelectionHelper`, `DatabaseContext`).
 - Rien n'a été committé — tout est dans le working tree, à toi de valider avant `git add`/commit.
+
+---
+
+## 13. Nettoyage ESLint complet — 134 → 0 problème
+
+Suite directe de la section 12 : l'utilisateur a demandé si les 134 problèmes ESLint restants
+(tous dans `__tests__`/`__mocks__`, 0 en prod) pouvaient être corrigés plutôt que laissés de côté.
+
+- [x] **5 erreurs `no-require-imports`** — 4 fichiers de mock Jest (`__mocks__/@expo/vector-icons.ts`,
+  `expo-linear-gradient.ts`, `react-native-reanimated.ts`, `react-native-safe-area-context.ts`)
+  utilisaient `const X = require(...)`. Convertis en `import` ES6 — le mapping `react-native` reste
+  correctement résolu via `moduleNameMapper` dans `jest.config.js`, aucun changement de comportement.
+- [x] **6 warnings unused-vars / eslint-disable inutiles** — imports/variables jamais utilisés
+  (`fireEvent`, `flushPromises`, `makeStates` — ce dernier remplacé par
+  `ReturnType<typeof useGameState>` directement, plus précis) et 2 commentaires `eslint-disable`
+  qui ne désactivaient plus rien.
+- [x] **123 warnings `no-explicit-any`** — traités fichier par fichier, en 2 catégories :
+  1. **Cast inutile** (la majorité) : l'objet passé correspondait déjà structurellement au type
+     attendu (souvent parce que le type de la prop est fait de champs optionnels, ex.
+     `SentenceData`, `LogicQuestion`, `RephrasingQuestion`) — `as any` supprimé sans remplacement.
+  2. **Cast réellement nécessaire** (mocks partiels type `db = { getAllAsync: jest.fn() }` ne
+     couvrant pas toute l'API `SQLiteDatabase`, ou état de test volontairement invalide comme
+     `currentQuestion: null`) — remplacé par `as unknown as <TypeRéel>`, qui documente précisément
+     ce qui est simulé au lieu de désactiver complètement la vérification de type.
+  - Au passage, `VocabularyScreen`/`WordGamesScreen` dans `ExerciseScreens.test.tsx` recevaient
+    encore des props `route`/`navigation` héritées de l'ancienne API react-navigation — ces écrans
+    n'acceptent plus aucune prop depuis la standardisation `useLocalSearchParams()` de la section 1.
+    Props (et les 2 constantes `mockRoute`/`mockNavigationProp` devenues mortes) supprimées ; ça a
+    aussi éliminé au passage des erreurs `tsc` préexistantes sur ces mêmes lignes.
+- **Vérifié** : `npx eslint src app --ext .ts,.tsx --max-warnings 0` → **0 problème** (contre 134
+  au départ). `npx jest --silent` → 49/49 suites, 919/919 tests toujours au vert (aucune régression
+  de comportement, uniquement des changements de type au niveau test). `npx tsc --noEmit` → les
+  seules erreurs restantes sont des erreurs préexistantes déjà documentées section 12 (props
+  `attemptCount`/`maxAttempts` manquantes sur des mocks `SyntaxMasterCard`/`RephrasingCard`/
+  `SentenceFusionCard`, non liées à `any` et hors scope de ce nettoyage).
+
+---
+
+## 14. Pyramide de tests complète : intégration réelle + E2E
+
+Demande explicite : après le nettoyage ESLint, l'utilisateur a demandé les "vrais" types de tests
+(unitaire fait, intégration, e2e) plutôt que de s'arrêter aux tests unitaires/composants déjà en
+place. Deux couches ajoutées.
+
+### 14.1 Intégration réelle (SQLite en mémoire, pas de mock)
+
+- **Constat de départ** : `src/__tests__/integration/queries.test.ts` (74 tests) mocke
+  `db.getAllAsync`/`runAsync` et vérifie seulement "la bonne chaîne SQL a été appelée" — aveugle à
+  une regression dans le SQL lui-même (seed cassé, migration invalide, colonne manquante). Utile et
+  rapide, mais ce n'est pas de l'intégration.
+- **`better-sqlite3` écarté** : nécessite une compilation native (node-gyp), pas de Visual Studio
+  Build Tools installé sur cette machine, échec de compilation. Remplacé par **`sql.js`** (SQLite
+  compilé en WASM, zéro dépendance native) — `npm install --save-dev sql.js @types/sql.js
+  --legacy-peer-deps` (le `--legacy-peer-deps` était nécessaire à cause d'un conflit non lié dans
+  l'arbre `@radix-ui`/`expo-router`, sans impact vérifié : `jest`/`tsc`/`eslint` inchangés après).
+  Au passage, `--legacy-peer-deps` a aussi formalisé `@expo-google-fonts/inter` dans
+  `package.json` (déjà utilisé dans `app/_layout.tsx`, mais jamais déclaré — dépendance fantôme
+  préexistante, corrigée sans effet de bord).
+- [x] **`src/__tests__/testUtils/realDb.ts`** — adaptateur qui expose l'API async d'`expo-sqlite`
+  (`execAsync`/`runAsync`/`getAllAsync`/`getFirstAsync`/`withTransactionAsync`/`closeAsync`)
+  par-dessus l'API synchrone de `sql.js`. `createMigratedRealDb()` fait tourner les 6 vraies
+  migrations du projet (`001` à `006`, via le vrai `MigrationRunner`) sur cette DB avant de la
+  retourner — donc le schéma + le seed testés sont exactement ceux de production, pas une
+  reconstruction manuelle.
+- [x] **`src/__tests__/integration/realDb.test.ts`** (13 tests) — DB réelle de bout en bout :
+  - les 6 migrations s'exécutent et s'enregistrent sans erreur ;
+  - `assessment`/`grammar` sont bien absents après leurs migrations de suppression respectives ;
+  - les 4 identités de branding + palettes sont seedées ;
+  - `connector` disponible uniquement lycée/adulte (1-4), absent primaire/collège — vérifié via
+    `getAvailableModules`/`isModuleAvailable` contre les vraies données `module_availability` ;
+  - flux complet famille → contenu → progression → agrégation multi-sous-familles, avec de vraies
+    contraintes SQL (NOT NULL, UNIQUE, INSERT OR REPLACE) qui s'appliquent pour de vrai.
+- 🐛 **Bug réel trouvé par cette couche, invisible aux mocks** : `insertFamily()` dans
+  `queries.ts` insérait dans `families` sans jamais fournir `slug`, colonne `NOT NULL UNIQUE` du
+  schéma (l'interface `Family` elle-même n'a pas de champ `slug`). Le test mocké de
+  `queries.test.ts` passait quand même, puisqu'il vérifiait juste "runAsync a été appelé avec la
+  bonne chaîne" sans jamais exécuter le SQL. Vérification : **zéro appelant** en prod
+  (`insertFamily` n'était appelée nulle part dans `src`/`app`). Code mort et cassé → supprimé de
+  `queries.ts`, son test mocké retiré de `queries.test.ts`, `realDb.test.ts` seed les familles de
+  test en SQL direct à la place (comme le fait la vraie migration 002).
+- **Vérifié** : `npx jest --silent` → 50 suites, 931 tests (919 + 13 nouveaux − 1 test
+  `insertFamily` supprimé). `tsc`/`eslint` inchangés (0 nouveau problème).
+
+### 14.2 End-to-end (Maestro, sur émulateur Android réel)
+
+- **Constat d'environnement** (à vérifier à nouveau si cette session est relancée sur une autre
+  machine — rien de tout ça n'est garanti ailleurs) : cette machine a, de façon inattendue, tout ce
+  qu'il faut pour de l'E2E réel sans compte développeur : Maestro CLI déjà installé
+  (`C:\Users\khi_h\.maestro\bin\maestro`, v1.41.0), Android SDK complet avec un AVD existant
+  (`Medium_Phone_API_36.0`), et un JDK 21 fourni par Android Studio
+  (`C:\Program Files\Android\Android Studio\jbr`). Le dossier `android/` (prebuild Expo) existait
+  déjà dans le repo.
+- [x] **Build local de l'APK debug** — `android/local.properties` créé avec `sdk.dir` (piège
+  Windows : les backslashes simples cassent le parsing du fichier `.properties`, utiliser des
+  slashes avant `C:/Users/...`). `cd android && ./gradlew.bat assembleDebug` avec
+  `JAVA_HOME` pointé vers le JBR — succès en ~8 min (cold build), APK dans
+  `android/app/build/outputs/apk/debug/app-debug.apk`.
+- [x] **Émulateur + Metro + install** — AVD démarré (`emulator -avd Medium_Phone_API_36.0`), APK
+  installé via `adb install -r`, bundler lancé (`npx expo start --android`), `adb reverse
+  tcp:8081 tcp:8081` pour le port forwarding. L'app tourne réellement, bundle JS servi par Metro.
+- [x] **`.maestro/smoke_onboarding.yaml`** — premier flow E2E : lancement avec état vidé →
+  onboarding → saisie prénom → dashboard. Deux vrais bugs de flow trouvés et corrigés en testant
+  contre l'émulateur réel (pas en écrivant le YAML à l'aveugle) :
+  1. `extendedWaitUntil` nécessaire après `launchApp: clearState: true` — un cold start après
+     effacement de l'état force un re-téléchargement complet du bundle Metro, largement plus long
+     que le timeout implicite par défaut.
+  2. Le sélecteur Maestro est un **regex qui doit matcher toute la chaîne** (pas une recherche de
+     sous-chaîne) — `visible: "Bienvenue sur Joud"` échouait car le texte réel est
+     `"Bienvenue sur Joud !"` (point d'exclamation inclus). Corrigé en `".*Bienvenue sur Joud.*"`.
+     Diagnostiqué via `maestro hierarchy` (dump de l'arbre d'accessibilité réel de l'écran), pas
+     en devinant.
+- **Flow validé de bout en bout sur l'émulateur, capture d'écran à l'appui** : nouveau profil
+  "Alex" créé, audience par défaut "Joud Collège" appliquée, dashboard vierge cohérent
+  ("Commencer l'aventure — Choisis ton premier exercice !", "Pas de révisions").
+- [x] **`npm run e2e`** ajouté (`maestro test .maestro`) — lance tous les flows du dossier.
+- **Reste (pas fait)** :
+  - Un seul flow existe (onboarding → dashboard). Pas encore de flow pour un exercice complet
+    (sélection module → niveau → famille → validation → progression sauvegardée), ni pour les
+    4 publics, ni pour l'IA (BYOK).
+  - Le flow n'a été exécuté que manuellement dans cette session, pas branché sur un pipeline CI —
+    il n'y a pas de CI/CD dans ce projet (constat déjà fait section précédente).
+  - Avertissements Metro à noter au passage (pas corrigés, hors scope) : plusieurs paquets
+    n'étaient pas à la version attendue pour Expo SDK 54 (`expo@54.0.34` vs `~54.0.36`,
+    `expo-router@6.0.22` vs `~6.0.24`, `expo-localization@17.0.8` vs `~17.0.9`,
+    `jest@30.2.0` vs `~29.7.0` attendu par `jest-expo`, `@types/jest@30.0.0` vs `29.5.14`).
+    `npx expo install --check` réglerait ça mais n'a pas été lancé pour ne pas mélanger ce
+    chantier avec une mise à jour de dépendances non demandée.

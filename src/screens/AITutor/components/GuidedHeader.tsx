@@ -79,7 +79,12 @@ const GuidedHeader: React.FC<GuidedHeaderProps> = ({ onBack, totalErrors = 0, mo
   return (
     <View style={styles.header}>
       <View style={styles.topRow}>
-        <TouchableOpacity onPress={onBack} activeOpacity={0.7}>
+        <TouchableOpacity
+          onPress={onBack}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Retour"
+        >
           <Ionicons name="chevron-back" size={24} color={identity.text.onPrimary} />
         </TouchableOpacity>
         <Text style={styles.title}>Coach IA</Text>

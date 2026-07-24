@@ -111,6 +111,9 @@ const SentenceBlanksCard: React.FC<SentenceBlanksCardProps> = ({
               ]}
               onPress={() => onSelectOption(option)}
               activeOpacity={0.7}
+              accessibilityRole="radio"
+              accessibilityLabel={option}
+              accessibilityState={{ selected: isSelected }}
             >
               <Text
                 style={[

@@ -67,7 +67,7 @@ describe('useSafeNavigation', () => {
     const { result } = renderHook(() => useSafeNavigation());
     let returnVal: unknown;
     await act(async () => { returnVal = await result.current.navigate(); });
-    expect((returnVal as any).error).toBe(true);
+    expect((returnVal as { error: boolean }).error).toBe(true);
   });
 
   it('utilise l\'action fournie plutôt que goBack par défaut', () => {

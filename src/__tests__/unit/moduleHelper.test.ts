@@ -6,6 +6,7 @@
  */
 
 import { renderHook, act } from '@testing-library/react-native';
+import type { SQLiteDatabase } from 'expo-sqlite';
 
 // ============================================
 // Mocks
@@ -44,7 +45,7 @@ const makeDb = (overrides: Partial<Record<string, jest.Mock>> = {}) => ({
   runAsync: jest.fn().mockResolvedValue({ changes: 1 }),
   execAsync: jest.fn().mockResolvedValue(undefined),
   ...overrides,
-});
+}) as unknown as SQLiteDatabase;
 
 const mockGetIdentityPalette = () =>
   require('@/database/queries').getIdentityPalette as jest.Mock;
@@ -70,8 +71,7 @@ describe('getModuleColor', () => {
   });
 
   it('db=number (invalide) → retourne "#34495E"', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await getModuleColor('vocab', nextId(), 42 as any, ['vocab']);
+    const result = await getModuleColor('vocab', nextId(), 42, ['vocab']);
     expect(result).toBe('#34495E');
   });
 
@@ -80,7 +80,7 @@ describe('getModuleColor', () => {
     const id = nextId();
     mockGetIdentityPalette().mockResolvedValue([]);
 
-    const result = await getModuleColor('vocab', id, db as any, ['vocab']);
+    const result = await getModuleColor('vocab', id, db, ['vocab']);
     expect(result).toBe('#34495E');
   });
 
@@ -89,7 +89,7 @@ describe('getModuleColor', () => {
     const id = nextId();
     mockGetIdentityPalette().mockResolvedValue(['#AA0000', '#BB0000', '#CC0000']);
 
-    const result = await getModuleColor('vocab', id, db as any, ['vocab', 'reading', 'dialogues']);
+    const result = await getModuleColor('vocab', id, db, ['vocab', 'reading', 'dialogues']);
     expect(result).toBe('#AA0000');
   });
 
@@ -98,7 +98,7 @@ describe('getModuleColor', () => {
     const id = nextId();
     mockGetIdentityPalette().mockResolvedValue(['#AA0000', '#BB0000', '#CC0000']);
 
-    const result = await getModuleColor('reading', id, db as any, ['vocab', 'reading', 'dialogues']);
+    const result = await getModuleColor('dialogues', id, db, ['vocab', 'reading', 'dialogues']);
     expect(result).toBe('#CC0000');
   });
 
@@ -109,7 +109,7 @@ describe('getModuleColor', () => {
 
     // 4e module, index=3 → 3 % 2 = 1 → palette[1]
     const modules = ['vocab', 'reading', 'dialogues', 'phrase_types'];
-    const result = await getModuleColor('dialogues', id, db as any, modules);
+    const result = await getModuleColor('phrase_types', id, db, modules);
     expect(result).toBe('#BB0000');
   });
 
@@ -118,7 +118,7 @@ describe('getModuleColor', () => {
     const id = nextId();
     mockGetIdentityPalette().mockResolvedValue(['#AA0000', '#BB0000', '#CC0000']);
 
-    const result = await getModuleColor('unknown_module', id, db as any, ['vocab', 'reading']);
+    const result = await getModuleColor('unknown_module', id, db, ['vocab', 'reading']);
     expect(result).toBe('#AA0000');
   });
 
@@ -127,8 +127,8 @@ describe('getModuleColor', () => {
     const id = nextId();
     mockGetIdentityPalette().mockResolvedValue(['#DD0000', '#EE0000']);
 
-    await getModuleColor('vocab', id, db as any, ['vocab']);
-    await getModuleColor('reading', id, db as any, ['vocab', 'reading']);
+    await getModuleColor('vocab', id, db, ['vocab']);
+    await getModuleColor('reading', id, db, ['vocab', 'reading']);
 
     // getIdentityPalette ne doit être appelé qu'une seule fois (cache hit au 2e appel)
     expect(mockGetIdentityPalette()).toHaveBeenCalledTimes(1);
@@ -139,7 +139,7 @@ describe('getModuleColor', () => {
     const id = nextId();
     mockGetIdentityPalette().mockRejectedValue(new Error('DB crash'));
 
-    const result = await getModuleColor('vocab', id, db as any, ['vocab']);
+    const result = await getModuleColor('vocab', id, db, ['vocab']);
     expect(result).toBe('#34495E');
   });
 });
@@ -157,8 +157,7 @@ describe('getModuleIcon', () => {
   });
 
   it('db=number → retourne "book"', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await getModuleIcon('vocab', 'college', 42 as any);
+    const result = await getModuleIcon('vocab', 'college', 42);
     expect(result).toBe('book');
   });
 
@@ -171,7 +170,7 @@ describe('getModuleIcon', () => {
     const db = makeDb();
     mockGetModuleLabelWithFallback().mockRejectedValue(new Error('import failed'));
 
-    const result = await getModuleIcon('vocab', 'college', db as any);
+    const result = await getModuleIcon('vocab', 'college', db);
     expect(result).toBe('book');
   });
 });
@@ -203,7 +202,7 @@ describe('isValidLevel', () => {
       getAllAsync: jest.fn().mockResolvedValue([{ level: 2 }]),
     });
 
-    const result = await isValidLevel(2, 'college', db as any);
+    const result = await isValidLevel(2, 'college', db);
     expect(result).toBe(true);
     expect((db.getAllAsync as jest.Mock)).toHaveBeenCalledWith(
       expect.stringContaining('levels WHERE level = ?'),
@@ -216,7 +215,7 @@ describe('isValidLevel', () => {
       getAllAsync: jest.fn().mockResolvedValue([]),
     });
 
-    const result = await isValidLevel(10, 'college', db as any);
+    const result = await isValidLevel(10, 'college', db);
     expect(result).toBe(false);
   });
 
@@ -225,8 +224,8 @@ describe('isValidLevel', () => {
       getAllAsync: jest.fn().mockRejectedValue(new Error('SQL error')),
     });
 
-    expect(await isValidLevel(3, 'college', db as any)).toBe(true);
-    expect(await isValidLevel(5, 'college', db as any)).toBe(false);
+    expect(await isValidLevel(3, 'college', db)).toBe(true);
+    expect(await isValidLevel(5, 'college', db)).toBe(false);
   });
 });
 
@@ -247,7 +246,7 @@ describe('getMaxLevels', () => {
       getAllAsync: jest.fn().mockResolvedValue([{ level: 6 }]),
     });
 
-    const result = await getMaxLevels('adult', db as any);
+    const result = await getMaxLevels('adult', db);
     expect(result).toBe(6);
   });
 
@@ -256,7 +255,7 @@ describe('getMaxLevels', () => {
       getAllAsync: jest.fn().mockResolvedValue([]),
     });
 
-    const result = await getMaxLevels('college', db as any);
+    const result = await getMaxLevels('college', db);
     expect(result).toBe(4);
   });
 
@@ -265,7 +264,7 @@ describe('getMaxLevels', () => {
       getAllAsync: jest.fn().mockRejectedValue(new Error('DB error')),
     });
 
-    const result = await getMaxLevels('college', db as any);
+    const result = await getMaxLevels('college', db);
     expect(result).toBe(4);
   });
 
@@ -274,7 +273,7 @@ describe('getMaxLevels', () => {
       getAllAsync: jest.fn().mockResolvedValue([{ level: 3 }]),
     });
 
-    await getMaxLevels('primary', db as any);
+    await getMaxLevels('primary', db);
 
     const call = (db.getAllAsync as jest.Mock).mock.calls[0];
     expect(call[0]).toContain('ORDER BY level DESC LIMIT 1');

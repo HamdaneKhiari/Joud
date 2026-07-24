@@ -150,6 +150,9 @@ const DialogueReaderCard: React.FC<DialogueReaderCardProps> = ({
               style={[styles.bubbleAudioBtn, position === 'right' && styles.bubbleAudioBtnRight, isPlaying && styles.bubbleAudioBtnPlaying]}
               onPress={() => playBubbleAudio(index)}
               disabled={isPlaying}
+              accessibilityRole="button"
+              accessibilityLabel={isPlaying ? 'Lecture audio en cours' : `Écouter "${message.text}"`}
+              accessibilityState={{ disabled: isPlaying }}
             >
               <Ionicons name={isPlaying ? 'volume-high' : 'volume-medium'} size={18} color="white" />
             </TouchableOpacity>
@@ -187,6 +190,9 @@ const DialogueReaderCard: React.FC<DialogueReaderCardProps> = ({
           style={[styles.navButton, currentMessageIndex === 0 && styles.navButtonDisabled]}
           onPress={onPreviousMessage}
           disabled={currentMessageIndex === 0}
+          accessibilityRole="button"
+          accessibilityLabel="Message précédent"
+          accessibilityState={{ disabled: currentMessageIndex === 0 }}
         >
           <Ionicons name="chevron-back" size={24} color="white" />
         </TouchableOpacity>
@@ -196,6 +202,8 @@ const DialogueReaderCard: React.FC<DialogueReaderCardProps> = ({
         <TouchableOpacity
           style={[styles.navButton, isLastMessage ? styles.navButtonFinish : styles.navButtonNext]}
           onPress={onNextMessage}
+          accessibilityRole="button"
+          accessibilityLabel={isLastMessage ? 'Passer aux questions' : 'Message suivant'}
         >
           <Ionicons name={isLastMessage ? 'checkmark' : 'chevron-forward'} size={24} color="white" />
         </TouchableOpacity>

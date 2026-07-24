@@ -3,10 +3,12 @@
  */
 
 import { getSubFamiliesByFamily } from '@/services/subfamilyService';
+import type { SQLiteDatabase } from 'expo-sqlite';
 
 const mockDb = {
   getAllAsync: jest.fn(),
 };
+const db = mockDb as unknown as SQLiteDatabase;
 
 describe('getSubFamiliesByFamily', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -17,7 +19,7 @@ describe('getSubFamiliesByFamily', () => {
     ];
     mockDb.getAllAsync.mockResolvedValueOnce(mockData);
 
-    const result = await getSubFamiliesByFamily(mockDb as any, 1, 'college', 'user1');
+    const result = await getSubFamiliesByFamily(db, 1, 'college', 'user1');
     expect(result).toEqual(mockData);
     expect(mockDb.getAllAsync).toHaveBeenCalledWith(
       expect.stringContaining('SELECT'),
@@ -27,7 +29,7 @@ describe('getSubFamiliesByFamily', () => {
 
   it('fonctionne sans userId (params sans user_id)', async () => {
     mockDb.getAllAsync.mockResolvedValueOnce([]);
-    const result = await getSubFamiliesByFamily(mockDb as any, 2, 'lycee');
+    const result = await getSubFamiliesByFamily(db, 2, 'lycee');
     expect(result).toEqual([]);
     expect(mockDb.getAllAsync).toHaveBeenCalledWith(
       expect.stringContaining('SELECT'),
@@ -37,6 +39,6 @@ describe('getSubFamiliesByFamily', () => {
 
   it('propage les erreurs DB', async () => {
     mockDb.getAllAsync.mockRejectedValueOnce(new Error('DB error'));
-    await expect(getSubFamiliesByFamily(mockDb as any, 1, 'college')).rejects.toThrow('DB error');
+    await expect(getSubFamiliesByFamily(db, 1, 'college')).rejects.toThrow('DB error');
   });
 });

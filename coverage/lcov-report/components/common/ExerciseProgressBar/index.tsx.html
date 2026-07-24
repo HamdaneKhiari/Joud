@@ -129,18 +129,7 @@
 <a name='L64'></a><a href='#L64'>64</a>
 <a name='L65'></a><a href='#L65'>65</a>
 <a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a>
-<a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L67'></a><a href='#L67'>67</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -151,26 +140,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">53x</span>
+<span class="cline-any cline-yes">53x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">53x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">48x</span>
-<span class="cline-any cline-yes">48x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">48x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">48x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">53x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -216,15 +195,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * ============================================
- * ExerciseProgressBar - 100% White Label
- * Barre de progression élégante avec texte
- * ============================================
- */
-&nbsp;
-import React, { useMemo } from 'react';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/themes/ThemeContext';
 import { tokens, withOpacity } from '@/themes/tokens';
@@ -242,17 +213,14 @@ const ExerciseProgressBar: React.FC&lt;ExerciseProgressBarProps&gt; = ({
   const { identity } = useTheme();
   const styles = useMemo(() =&gt; createStyles(identity), [identity]);
 &nbsp;
-  // Sécurisation du pourcentage entre 0 et 100
   const clampedProgress = Math.min(100, Math.max(0, progressPercent));
 &nbsp;
   return (
     &lt;View style={styles.container}&gt;
-      {/* Texte de progression */}
       {progressText &amp;&amp; (
         &lt;Text style={styles.progressText}&gt;{progressText}&lt;/Text&gt;
       )}
 &nbsp;
-      {/* Barre de progression */}
       &lt;View style={styles.track}&gt;
         &lt;View style={[styles.fill, { width: `${clampedProgress}%` }]} /&gt;
       &lt;/View&gt;
@@ -276,7 +244,7 @@ const createStyles = (identity: Identity) =&gt; StyleSheet.create({
     letterSpacing: 0.3,
   },
   track: {
-    height: 6, // ✅ Hauteur augmentée pour meilleure visibilité
+    height: 6,
     backgroundColor: withOpacity(identity.text.primary, 0.08),
     borderRadius: tokens.borderRadius.sm,
     overflow: 'hidden',
@@ -285,7 +253,6 @@ const createStyles = (identity: Identity) =&gt; StyleSheet.create({
     height: '100%',
     backgroundColor: identity.palette.accent,
     borderRadius: tokens.borderRadius.sm,
-    // ✅ Effet de glow subtil
     shadowColor: identity.palette.accent,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.4,
@@ -301,7 +268,7 @@ export default ExerciseProgressBar;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-21T00:47:51.424Z
+                at 2026-07-24T20:20:01.390Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

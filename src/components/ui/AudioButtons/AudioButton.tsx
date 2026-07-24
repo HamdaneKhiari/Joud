@@ -62,6 +62,9 @@ const AudioButton: React.FC<AudioButtonProps> = ({
         onPress={() => speakText(text, { language, audioUrl })}
         disabled={isPlayingAudio}
         activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={isPlayingAudio ? 'Lecture audio en cours' : `Écouter "${text}"`}
+        accessibilityState={{ disabled: isPlayingAudio }}
       >
         <View style={styles.buttonContent}>
           <Text style={[styles.icon, { 

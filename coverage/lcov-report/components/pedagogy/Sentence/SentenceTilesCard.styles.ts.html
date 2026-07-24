@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">20% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>1/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>4/8</span>
+                <span class='fraction'>0/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>0/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">20% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>1/5</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -262,11 +262,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -442,12 +442,12 @@ import { getExerciseConfig } from '@/utils/exerciseMoodHelper';
  * @param identity - Identité visuelle de l'app (white label)
  * @param moduleColor - Couleur du module sentences
  */
-export const getSentenceTilesCardStyles = (identity: Identity, moduleColor: string) =&gt; {
-  const { text, ui } = identity;
-  const config = getExerciseConfig(identity);
-  const isPlayful = ui.mood === 'playful';
+export const getSentenceTilesCardStyles = <span class="fstat-no" title="function not covered" >(i</span>dentity: Identity, moduleColor: string) =&gt; {
+  const { text, ui } = <span class="cstat-no" title="statement not covered" >identity;</span>
+  const config = <span class="cstat-no" title="statement not covered" >getExerciseConfig(identity);</span>
+  const isPlayful = <span class="cstat-no" title="statement not covered" >ui.mood === 'playful';</span>
 &nbsp;
-  return StyleSheet.create({
+<span class="cstat-no" title="statement not covered" >  return StyleSheet.create({</span>
     container: {
       padding: config.padding.container,
     },
@@ -501,7 +501,7 @@ export const getSentenceTilesCardStyles = (identity: Identity, moduleColor: stri
       minWidth: 44,
       paddingHorizontal: tokens.spacing.md,
       paddingVertical: tokens.spacing.sm,
-      borderRadius: isPlayful ? tokens.borderRadius.xl : <span class="branch-1 cbranch-no" title="branch not covered" >tokens.borderRadius.md,</span>
+      borderRadius: isPlayful ? tokens.borderRadius.xl : tokens.borderRadius.md,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: moduleColor,
@@ -523,14 +523,14 @@ export const getSentenceTilesCardStyles = (identity: Identity, moduleColor: stri
       flexWrap: 'wrap',
       gap: tokens.spacing.sm,
       marginBottom: tokens.spacing.xl,
-      justifyContent: isPlayful ? 'center' : <span class="branch-1 cbranch-no" title="branch not covered" >'flex-start',</span>
+      justifyContent: isPlayful ? 'center' : 'flex-start',
     },
     poolTile: {
       minHeight: 44,
       minWidth: 44,
       paddingHorizontal: tokens.spacing.md,
       paddingVertical: tokens.spacing.sm,
-      borderRadius: isPlayful ? tokens.borderRadius.lg : <span class="branch-1 cbranch-no" title="branch not covered" >tokens.borderRadius.md,</span>
+      borderRadius: isPlayful ? tokens.borderRadius.lg : tokens.borderRadius.md,
       borderWidth: 2,
       borderColor: moduleColor,
       alignItems: 'center',
@@ -590,7 +590,7 @@ export const getSentenceTilesCardStyles = (identity: Identity, moduleColor: stri
     },
     explanationBlock: {
       padding: tokens.spacing.lg,
-      borderRadius: ui.cardRadius || <span class="branch-1 cbranch-no" title="branch not covered" >tokens.borderRadius.md,</span>
+      borderRadius: ui.cardRadius || tokens.borderRadius.md,
       borderWidth: 1,
     },
     explanationTitle: {
@@ -613,7 +613,7 @@ export const getSentenceTilesCardStyles = (identity: Identity, moduleColor: stri
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-21T00:47:51.424Z
+                at 2026-07-24T20:20:01.390Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

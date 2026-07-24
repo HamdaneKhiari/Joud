@@ -6,6 +6,7 @@
  */
 
 import { renderHook, act } from '@testing-library/react-native';
+import type { SQLiteDatabase } from 'expo-sqlite';
 
 // ============================================
 // Mocks
@@ -45,7 +46,7 @@ const makeDb = (overrides: Partial<Record<string, jest.Mock>> = {}) => ({
   runAsync: jest.fn().mockResolvedValue({ changes: 1 }),
   execAsync: jest.fn().mockResolvedValue(undefined),
   ...overrides,
-});
+}) as unknown as SQLiteDatabase;
 
 // ============================================
 // getModuleLabel
@@ -64,8 +65,7 @@ describe('getModuleLabel', () => {
   });
 
   it('db=number (invalide) → retourne le fallback', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await getModuleLabel(42 as any, 'reading', 'college');
+    const result = await getModuleLabel(42 as unknown as SQLiteDatabase, 'reading', 'college');
     expect(result).toEqual({ title: 'reading', description: 'Module', icon: 'book' });
   });
 
@@ -77,7 +77,7 @@ describe('getModuleLabel', () => {
       icon_name: 'book-open',
     });
 
-    const result = await getModuleLabel(db as any, 'vocab', 'college');
+    const result = await getModuleLabel(db, 'vocab', 'college');
 
     expect(mockGetModuleLabelWithFallback()).toHaveBeenCalledWith(db, 'vocab', 'college');
     expect(result).toEqual({
@@ -91,7 +91,7 @@ describe('getModuleLabel', () => {
     const db = makeDb();
     mockGetModuleLabelWithFallback().mockRejectedValue(new Error('DB error'));
 
-    const result = await getModuleLabel(db as any, 'vocab', 'college');
+    const result = await getModuleLabel(db, 'vocab', 'college');
 
     expect(result).toEqual({ title: 'vocab', description: 'Module', icon: 'book' });
   });
@@ -100,7 +100,7 @@ describe('getModuleLabel', () => {
     const db = makeDb();
     mockGetModuleLabelWithFallback().mockRejectedValue(new Error('shared object closed'));
 
-    await getModuleLabel(db as any, 'vocab', 'college');
+    await getModuleLabel(db, 'vocab', 'college');
 
     const { log } = require('@/utils/logUtils');
     expect(log.error).not.toHaveBeenCalled();
@@ -110,7 +110,7 @@ describe('getModuleLabel', () => {
     const db = makeDb();
     mockGetModuleLabelWithFallback().mockRejectedValue(new Error('table not found'));
 
-    await getModuleLabel(db as any, 'vocab', 'college');
+    await getModuleLabel(db, 'vocab', 'college');
 
     const { log } = require('@/utils/logUtils');
     expect(log.error).toHaveBeenCalled();
@@ -138,7 +138,7 @@ describe('getLevelLabel', () => {
       }),
     });
 
-    const result = await getLevelLabel(db as any, 2, 'college');
+    const result = await getLevelLabel(db, 2, 'college');
 
     expect(result).toEqual({
       title: 'Intermédiaire',
@@ -156,7 +156,7 @@ describe('getLevelLabel', () => {
       }),
     });
 
-    await getLevelLabel(db as any, 1, 'college', 'fam_101');
+    await getLevelLabel(db, 1, 'college', 'fam_101');
 
     const call = (db.getFirstAsync as jest.Mock).mock.calls[0];
     expect(call[0]).toContain('AND family_id = ?');
@@ -169,7 +169,7 @@ describe('getLevelLabel', () => {
       getAllAsync: jest.fn().mockResolvedValue([]),
     });
 
-    await getLevelLabel(db as any, 1, 'college');
+    await getLevelLabel(db, 1, 'college');
 
     const call = (db.getFirstAsync as jest.Mock).mock.calls[0];
     expect(call[0]).toContain('AND family_id IS NULL');
@@ -186,7 +186,7 @@ describe('getLevelLabel', () => {
         }),
     });
 
-    const result = await getLevelLabel(db as any, 1, 'college');
+    const result = await getLevelLabel(db, 1, 'college');
 
     expect(result).toEqual({ title: 'Niveau Un', badge: 'L1', description: 'Premier niveau' });
   });
@@ -196,7 +196,7 @@ describe('getLevelLabel', () => {
       getFirstAsync: jest.fn().mockResolvedValue(null),
     });
 
-    const result = await getLevelLabel(db as any, 5, 'college');
+    const result = await getLevelLabel(db, 5, 'college');
 
     expect(result).toEqual({ title: 'Niveau 5', badge: 'N5', description: 'Niveau' });
   });
@@ -206,7 +206,7 @@ describe('getLevelLabel', () => {
       getFirstAsync: jest.fn().mockResolvedValue(null),
     });
 
-    const result = await getLevelLabel(db as any, 2, 'college', 'fam_101');
+    const result = await getLevelLabel(db, 2, 'college', 'fam_101');
 
     // familyId présent → pas de fallback levels, retour hardcodé
     expect(result).toEqual({ title: 'Niveau 2', badge: 'N2', description: 'Niveau' });
@@ -219,7 +219,7 @@ describe('getLevelLabel', () => {
       getFirstAsync: jest.fn().mockRejectedValue(new Error('SQL error')),
     });
 
-    const result = await getLevelLabel(db as any, 2, 'college');
+    const result = await getLevelLabel(db, 2, 'college');
 
     expect(result).toEqual({ title: 'Niveau 2', badge: 'N2', description: 'Niveau' });
   });
@@ -245,7 +245,7 @@ describe('getAvailableModules', () => {
     const db = makeDb();
     mockGetAvailableModulesFromDB().mockResolvedValue(['vocab', 'reading', 'phrase_types']);
 
-    const result = await getAvailableModules(db as any, 'college', 1);
+    const result = await getAvailableModules(db, 'college', 1);
 
     expect(mockGetAvailableModulesFromDB()).toHaveBeenCalledWith(db, 'college', 1);
     expect(result).toEqual(['vocab', 'reading', 'phrase_types']);
@@ -255,7 +255,7 @@ describe('getAvailableModules', () => {
     const db = makeDb();
     mockGetAvailableModulesFromDB().mockRejectedValue(new Error('DB error'));
 
-    const result = await getAvailableModules(db as any, 'college', 1);
+    const result = await getAvailableModules(db, 'college', 1);
 
     expect(result).toEqual([]);
   });
@@ -275,7 +275,7 @@ describe('isModuleAvailable', () => {
     const db = makeDb();
     mockGetAvailableModulesFromDB().mockResolvedValue(['vocab', 'reading']);
 
-    const result = await isModuleAvailable(db as any, 'vocab', 'college', 1);
+    const result = await isModuleAvailable(db, 'vocab', 'college', 1);
     expect(result).toBe(true);
   });
 
@@ -283,7 +283,7 @@ describe('isModuleAvailable', () => {
     const db = makeDb();
     mockGetAvailableModulesFromDB().mockResolvedValue(['vocab', 'reading']);
 
-    const result = await isModuleAvailable(db as any, 'word_games', 'college', 1);
+    const result = await isModuleAvailable(db, 'word_games', 'college', 1);
     expect(result).toBe(false);
   });
 

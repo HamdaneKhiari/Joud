@@ -4,6 +4,7 @@
  */
 
 import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import { log } from '@/utils/logUtils';
 
@@ -11,6 +12,12 @@ const KEYS = {
   API_KEY: 'ai_api_key',
   PROVIDER: 'ai_provider',
 } as const;
+
+// AsyncStorage est effacé à la désinstallation, contrairement au Keychain iOS qui peut
+// survivre (ex: téléphone revendu sans reset usine, app réinstallée dessus). L'absence de
+// ce marqueur signale soit un tout premier lancement, soit une réinstallation — dans les
+// deux cas on purge une éventuelle clé résiduelle du Keychain avant qu'elle soit utilisable.
+const INSTALL_MARKER_KEY = 'JOUD_INSTALL_MARKER';
 
 // Options de sécurité de base (sans authentification biométrique)
 const BASE_SECURE_OPTIONS: SecureStore.SecureStoreOptions = {
@@ -162,6 +169,24 @@ class SecureStorageService {
     const start = apiKey.substring(0, 6);
     const end = apiKey.substring(apiKey.length - 4);
     return `${start}...${end}`;
+  }
+
+  /**
+   * Purge la clé API si l'app vient d'être (ré)installée — à appeler une fois au
+   * démarrage, avant toute lecture de clé. Sans effet sur un lancement normal
+   * (marqueur déjà présent) : ne touche jamais un utilisateur en usage courant.
+   */
+  async purgeIfStaleInstall(): Promise<void> {
+    try {
+      const hasMarker = await AsyncStorage.getItem(INSTALL_MARKER_KEY);
+      if (hasMarker) return;
+
+      await this.deleteAPIKey();
+      await AsyncStorage.setItem(INSTALL_MARKER_KEY, '1');
+      log.info('[SecureStorage] Nouvelle installation détectée — clé API résiduelle purgée');
+    } catch (error) {
+      log.warn('[SecureStorage] purgeIfStaleInstall error:', error);
+    }
   }
 
   // À utiliser uniquement lors de la réinitialisation complète

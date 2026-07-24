@@ -5,7 +5,7 @@ import { ProgressProvider } from '../src/contexts/ProgressContext';
 import { AIProvider } from '../src/contexts/AIContext';
 import { CurrentLevelProvider } from '../src/contexts/CurrentLevelContext';
 
-// Fonts — Nunito (primary), Poppins (college), DM Sans (lycee + adult)
+// Fonts — Nunito (primary), Poppins (college), DM Sans (lycee), Inter (adult)
 // Import each variant directly from its subdirectory to avoid Metro resolving all font files
 import { useFonts } from 'expo-font';
 import { Nunito_400Regular } from '@expo-google-fonts/nunito/400Regular';
@@ -21,6 +21,11 @@ import { Poppins_800ExtraBold } from '@expo-google-fonts/poppins/800ExtraBold';
 import { DMSans_400Regular } from '@expo-google-fonts/dm-sans/400Regular';
 import { DMSans_500Medium } from '@expo-google-fonts/dm-sans/500Medium';
 import { DMSans_700Bold } from '@expo-google-fonts/dm-sans/700Bold';
+import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
+import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
+import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
+import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
+import { Inter_800ExtraBold } from '@expo-google-fonts/inter/800ExtraBold';
 
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
 
@@ -39,6 +44,11 @@ export default function RootLayout() {
     DMSans_400Regular,
     DMSans_500Medium,
     DMSans_700Bold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    Inter_800ExtraBold,
   });
 
   if (!fontsLoaded) return null;

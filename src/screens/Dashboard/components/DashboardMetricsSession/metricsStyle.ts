@@ -22,7 +22,7 @@ export const createStyles = (identity: Identity) => {
       paddingHorizontal: tokens.spacing.sm,
       alignItems: 'center',
       justifyContent: 'center',
-      ...tokens.shadows.md,
+      ...(isPlayful ? tokens.shadows.md : tokens.shadows.sm),
       position: 'relative',
       overflow: 'hidden',
       minHeight: isPlayful ? 100 : 90,
@@ -35,17 +35,17 @@ export const createStyles = (identity: Identity) => {
     // Variantes avec couleurs thématiques par métrique
     cardWordsLearned: {
       backgroundColor: identity.palette.accent,
-      ...tokens.shadows.elevated,
+      ...(isPlayful ? tokens.shadows.elevated : tokens.shadows.md),
     },
 
     cardBadges: {
       backgroundColor: identity.palette.primary,
-      ...tokens.shadows.elevated,
+      ...(isPlayful ? tokens.shadows.elevated : tokens.shadows.md),
     },
 
     cardStreak: {
       backgroundColor: identity.aiDiagnostic.accent,
-      ...tokens.shadows.elevated,
+      ...(isPlayful ? tokens.shadows.elevated : tokens.shadows.md),
     },
 
     badgeLabel: {

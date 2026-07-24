@@ -269,7 +269,13 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
             <Text style={styles.resultTitle}>{resultTitle}</Text>
             <Text style={styles.resultScore}>{score} points</Text>
             <Text style={styles.resultSubtext}>{resultSubtext}</Text>
-            <TouchableOpacity style={styles.continueButton} onPress={onComplete} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={styles.continueButton}
+              onPress={onComplete}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Continuer"
+            >
               <Text style={styles.continueButtonText}>Continue</Text>
               <Ionicons name="arrow-forward" size={20} color={identity.text.onPrimary} />
             </TouchableOpacity>
@@ -327,6 +333,9 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
                   onPress={() => handlePlayPress(index)}
                   disabled={isMatched}
                   activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={isSpeaking ? 'Lecture en cours' : `Écouter "${pair.word}"`}
+                  accessibilityState={{ disabled: isMatched, selected: isSelected }}
                 >
                   <Ionicons
                     name={isSpeaking ? 'volume-high' : 'play-circle'}
@@ -353,6 +362,9 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
                   onPress={() => handleImagePress(shuffledIndex)}
                   disabled={isMatched || selectedPlayIndex === null}
                   activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Image ${shuffledIndex + 1}`}
+                  accessibilityState={{ disabled: isMatched || selectedPlayIndex === null }}
                 >
                   <Text style={styles.imageEmoji}>{pair.image}</Text>
                 </TouchableOpacity>

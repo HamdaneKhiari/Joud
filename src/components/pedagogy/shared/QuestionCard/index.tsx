@@ -66,9 +66,12 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
 
       {hint && (
         <View style={styles.hintSection}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.hintToggleButton}
             onPress={() => setShowHint(!showHint)}
+            accessibilityRole="button"
+            accessibilityLabel={showHint ? texts.hintHide : texts.hintShow}
+            accessibilityState={{ expanded: showHint }}
           >
             <Ionicons
               name={showHint ? icons.hideHint : icons.hint}

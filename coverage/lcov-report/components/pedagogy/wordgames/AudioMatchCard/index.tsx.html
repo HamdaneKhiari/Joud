@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">51.56% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>30/60</span>
+                <span class='fraction'>33/64</span>
             </div>
         
             
@@ -431,7 +431,19 @@
 <a name='L366'></a><a href='#L366'>366</a>
 <a name='L367'></a><a href='#L367'>367</a>
 <a name='L368'></a><a href='#L368'>368</a>
-<a name='L369'></a><a href='#L369'>369</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L369'></a><a href='#L369'>369</a>
+<a name='L370'></a><a href='#L370'>370</a>
+<a name='L371'></a><a href='#L371'>371</a>
+<a name='L372'></a><a href='#L372'>372</a>
+<a name='L373'></a><a href='#L373'>373</a>
+<a name='L374'></a><a href='#L374'>374</a>
+<a name='L375'></a><a href='#L375'>375</a>
+<a name='L376'></a><a href='#L376'>376</a>
+<a name='L377'></a><a href='#L377'>377</a>
+<a name='L378'></a><a href='#L378'>378</a>
+<a name='L379'></a><a href='#L379'>379</a>
+<a name='L380'></a><a href='#L380'>380</a>
+<a name='L381'></a><a href='#L381'>381</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -712,6 +724,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -777,6 +795,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">12x</span>
@@ -784,6 +805,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1070,7 +1094,13 @@ const AudioMatchCard: React.FC&lt;AudioMatchCardProps&gt; = ({ game, onComplete 
             &lt;Text style={styles.resultTitle}&gt;{resultTitle}&lt;/Text&gt;
             &lt;Text style={styles.resultScore}&gt;{score} points&lt;/Text&gt;
             &lt;Text style={styles.resultSubtext}&gt;{resultSubtext}&lt;/Text&gt;
-            &lt;TouchableOpacity style={styles.continueButton} onPress={onComplete} activeOpacity={0.8}&gt;
+            &lt;TouchableOpacity
+              style={styles.continueButton}
+              onPress={onComplete}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Continuer"
+            &gt;
               &lt;Text style={styles.continueButtonText}&gt;Continue&lt;/Text&gt;
               &lt;Ionicons name="arrow-forward" size={20} color={identity.text.onPrimary} /&gt;
             &lt;/TouchableOpacity&gt;
@@ -1128,6 +1158,9 @@ const AudioMatchCard: React.FC&lt;AudioMatchCardProps&gt; = ({ game, onComplete 
                   onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >handlePlayPress(index)}</span>
                   disabled={isMatched}
                   activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={isSpeaking ? <span class="branch-0 cbranch-no" title="branch not covered" >'Lecture en cours' </span>: `Écouter "${pair.word}"`}
+                  accessibilityState={{ disabled: isMatched, selected: isSelected }}
                 &gt;
                   &lt;Ionicons
                     name={isSpeaking ? <span class="branch-0 cbranch-no" title="branch not covered" >'volume-high' </span>: 'play-circle'}
@@ -1154,6 +1187,9 @@ const AudioMatchCard: React.FC&lt;AudioMatchCardProps&gt; = ({ game, onComplete 
                   onPress={<span class="fstat-no" title="function not covered" >()</span> =&gt; <span class="cstat-no" title="statement not covered" >handleImagePress(shuffledIndex)}</span>
                   disabled={isMatched || selectedPlayIndex === null}
                   activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Image ${shuffledIndex + 1}`}
+                  accessibilityState={{ disabled: isMatched || selectedPlayIndex === null }}
                 &gt;
                   &lt;Text style={styles.imageEmoji}&gt;{pair.image}&lt;/Text&gt;
                 &lt;/TouchableOpacity&gt;
@@ -1174,7 +1210,7 @@ export default AudioMatchCard;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-21T00:47:51.424Z
+                at 2026-07-24T20:20:01.390Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

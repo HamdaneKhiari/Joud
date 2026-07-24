@@ -65,13 +65,6 @@ export const getFamiliesByModuleAndLevel = async (
   );
 };
 
-export const insertFamily = async (db: SQLiteDatabase, family: Omit<Family, 'id'>): Promise<void> => {
-  await db.runAsync(
-    `INSERT INTO families (module_slug, name, icon, emoji, description, order_index) VALUES (?, ?, ?, ?, ?, ?)`,
-    [family.module_slug, family.name, family.icon || null, family.emoji || null, family.description || null, family.order_index]
-  );
-};
-
 export const getContentByFamilyAndLevel = async (
   db: SQLiteDatabase,
   familyId: number,

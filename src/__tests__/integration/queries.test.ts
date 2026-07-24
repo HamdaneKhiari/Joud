@@ -39,7 +39,6 @@ import {
   updateSpacedRepetitionResult,
   getSpacedReviewCount,
   calculateUserMetrics,
-  insertFamily,
   insertContent,
 } from '@/database/queries';
 
@@ -436,12 +435,12 @@ describe('getAvailableModules', () => {
     );
   });
 
-  it('exclut le module "assessment"', async () => {
+  it("ne filtre plus par slug (le module assessment n'existe plus en base)", async () => {
     (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
     await getAvailableModules(db, 'adult', 1);
 
     const sql = (db.getAllAsync as jest.Mock).mock.calls[0][0] as string;
-    expect(sql).toContain("slug != 'assessment'");
+    expect(sql).not.toContain('slug !=');
   });
 
   it('retourne [] si aucun module disponible', async () => {
@@ -821,19 +820,8 @@ describe('updateSpacedRepetitionResult', () => {
 });
 
 // ============================================
-// insertFamily / insertContent
+// insertContent
 // ============================================
-
-describe('insertFamily', () => {
-  it('insère une famille dans la table families', async () => {
-    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
-    await insertFamily(db, { module_slug: 'vocab', name: 'Animals', icon: 'paw', emoji: '🐾', description: 'Animals vocabulary', order_index: 1 });
-    expect(db.runAsync).toHaveBeenCalledWith(
-      expect.stringContaining('INSERT INTO families'),
-      expect.arrayContaining(['vocab', 'Animals'])
-    );
-  });
-});
 
 describe('insertContent', () => {
   it('insère du contenu dans la table content', async () => {

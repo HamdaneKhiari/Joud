@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">86.27% </span>
+                <span class="strong">88.09% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>44/51</span>
+                <span class='fraction'>37/42</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">61.9% </span>
+                <span class="strong">63.15% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>13/21</span>
+                <span class='fraction'>12/19</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">85% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>17/20</span>
+                <span class='fraction'>15/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">88.37% </span>
+                <span class="strong">91.17% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>38/43</span>
+                <span class='fraction'>31/34</span>
             </div>
         
             
@@ -317,14 +317,7 @@
 <a name='L252'></a><a href='#L252'>252</a>
 <a name='L253'></a><a href='#L253'>253</a>
 <a name='L254'></a><a href='#L254'>254</a>
-<a name='L255'></a><a href='#L255'>255</a>
-<a name='L256'></a><a href='#L256'>256</a>
-<a name='L257'></a><a href='#L257'>257</a>
-<a name='L258'></a><a href='#L258'>258</a>
-<a name='L259'></a><a href='#L259'>259</a>
-<a name='L260'></a><a href='#L260'>260</a>
-<a name='L261'></a><a href='#L261'>261</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L255'></a><a href='#L255'>255</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -386,21 +379,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -531,6 +509,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -583,13 +563,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState, useMemo, useEffect } from 'react';
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
 import { useTheme } from '@/themes/ThemeContext';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
-import { useFeedbackMessages, getFeedbackState } from '@/hooks/exercises/useFeedbackMessages';
-import type { FeedbackData } from '@/hooks/exercises/useFeedbackMessages';
+import useWordGameFeedback from '@/screens/WordGames/hooks/useWordGameFeedback';
 import { tokens } from '@/themes/tokens';
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
 import type { SentenceQuestion } from '@/screens/WordGames/schema';
@@ -645,22 +632,7 @@ const SyntaxMasterCard: React.FC&lt;SyntaxMasterCardProps&gt; = ({
     ordered.length &gt; 0
   );
 &nbsp;
-  const { getFeedback } = useFeedbackMessages();
-  const [feedbackMessage, setFeedbackMessage] = useState&lt;FeedbackData | null&gt;(null);
-&nbsp;
-  useEffect(() =&gt; {
-    const loadFeedback = async () =&gt; {
-      const feedbackState = getFeedbackState(isValidated, isCorrect, attemptCount, maxAttempts);
-      <span class="missing-if-branch" title="if path not taken" >I</span>if (feedbackState) {
-        const feedback = <span class="cstat-no" title="statement not covered" >await getFeedback('wordgames', feedbackState);</span>
-<span class="cstat-no" title="statement not covered" >        setFeedbackMessage(feedback);</span>
-      } else {
-        setFeedbackMessage(null);
-      }
-    };
-&nbsp;
-    loadFeedback();
-  }, [isValidated, isCorrect, attemptCount, maxAttempts, getFeedback]);
+  const feedbackMessage = useWordGameFeedback(isValidated, isCorrect, attemptCount, maxAttempts);
 &nbsp;
   const handleWordPress = (index: number) =&gt; {
     <span class="missing-if-branch" title="else path not taken" >E</span>if (!isValidated) {
@@ -793,6 +765,8 @@ const SyntaxMasterCard: React.FC&lt;SyntaxMasterCardProps&gt; = ({
                   onPress={() =&gt; handleRemoveWord(index)}
                   disabled={isValidated}
                   activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Retirer "${item.text}"`}
                 &gt;
                   &lt;Text style={styles.orderedWordText}&gt;{item.text}&lt;/Text&gt;
                 &lt;/TouchableOpacity&gt;
@@ -811,6 +785,8 @@ const SyntaxMasterCard: React.FC&lt;SyntaxMasterCardProps&gt; = ({
                 onPress={() =&gt; handleWordPress(index)}
                 disabled={isValidated}
                 activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={`Ajouter "${item.text}"`}
               &gt;
                 &lt;Text style={styles.availableWordText}&gt;{item.text}&lt;/Text&gt;
               &lt;/TouchableOpacity&gt;
@@ -819,7 +795,13 @@ const SyntaxMasterCard: React.FC&lt;SyntaxMasterCardProps&gt; = ({
         &lt;/View&gt;
 &nbsp;
         {ordered.length &gt; 0 &amp;&amp; !isValidated &amp;&amp; (
-          &lt;TouchableOpacity style={styles.resetButton} onPress={handleReset} activeOpacity={0.7}&gt;
+          &lt;TouchableOpacity
+            style={styles.resetButton}
+            onPress={handleReset}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Recommencer"
+          &gt;
             &lt;Text style={styles.resetButtonText}&gt;↻ Reset&lt;/Text&gt;
           &lt;/TouchableOpacity&gt;
         )}
@@ -850,7 +832,7 @@ export default SyntaxMasterCard;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-21T00:47:51.424Z
+                at 2026-07-24T20:20:01.390Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

@@ -513,7 +513,7 @@ describe('SentenceCard', () => {
   it('reconstruit phrase_en depuis sentence + correct_answer si phrase_en absent', () => {
     const dataWithoutPhraseEn = { ...mockSentenceData, phrase_en: undefined };
     const { getByText } = render(
-      <SentenceCard data={dataWithoutPhraseEn as any} isRevealed={true} userDraft="" setUserDraft={jest.fn()} moduleColor="#3498DB" />
+      <SentenceCard data={dataWithoutPhraseEn} isRevealed={true} userDraft="" setUserDraft={jest.fn()} moduleColor="#3498DB" />
     );
     expect(getByText('She runs every day.')).toBeTruthy();
   });
@@ -539,20 +539,20 @@ describe('SentenceBlanksCard', () => {
 
   it('rend sans crash', () => {
     expect(() => render(
-      <SentenceBlanksCard data={mockBlanksData as any} selectedOption={null} onSelectOption={jest.fn()} isValidated={false} isCorrect={false} moduleColor="#3498DB" />
+      <SentenceBlanksCard data={mockBlanksData} selectedOption={null} onSelectOption={jest.fn()} isValidated={false} isCorrect={false} moduleColor="#3498DB" />
     )).not.toThrow();
   });
 
   it('affiche l\'instruction "Complète la phrase"', () => {
     const { getByText } = render(
-      <SentenceBlanksCard data={mockBlanksData as any} selectedOption={null} onSelectOption={jest.fn()} isValidated={false} isCorrect={false} moduleColor="#3498DB" />
+      <SentenceBlanksCard data={mockBlanksData} selectedOption={null} onSelectOption={jest.fn()} isValidated={false} isCorrect={false} moduleColor="#3498DB" />
     );
     expect(getByText('Complète la phrase :')).toBeTruthy();
   });
 
   it('affiche les options de réponse quand pas validé', () => {
     const { getByText } = render(
-      <SentenceBlanksCard data={mockBlanksData as any} selectedOption={null} onSelectOption={jest.fn()} isValidated={false} isCorrect={false} moduleColor="#3498DB" />
+      <SentenceBlanksCard data={mockBlanksData} selectedOption={null} onSelectOption={jest.fn()} isValidated={false} isCorrect={false} moduleColor="#3498DB" />
     );
     expect(getByText('goes')).toBeTruthy();
     expect(getByText('go')).toBeTruthy();
@@ -562,7 +562,7 @@ describe('SentenceBlanksCard', () => {
   it('appelle onSelectOption au clic d\'une option', () => {
     const onSelectOption = jest.fn();
     const { getByText } = render(
-      <SentenceBlanksCard data={mockBlanksData as any} selectedOption={null} onSelectOption={onSelectOption} isValidated={false} isCorrect={false} moduleColor="#3498DB" />
+      <SentenceBlanksCard data={mockBlanksData} selectedOption={null} onSelectOption={onSelectOption} isValidated={false} isCorrect={false} moduleColor="#3498DB" />
     );
     fireEvent.press(getByText('goes'));
     expect(onSelectOption).toHaveBeenCalledWith('goes');
@@ -570,14 +570,14 @@ describe('SentenceBlanksCard', () => {
 
   it('n\'affiche pas les options quand isValidated=true', () => {
     const { queryByText } = render(
-      <SentenceBlanksCard data={mockBlanksData as any} selectedOption="goes" onSelectOption={jest.fn()} isValidated={true} isCorrect={true} moduleColor="#3498DB" />
+      <SentenceBlanksCard data={mockBlanksData} selectedOption="goes" onSelectOption={jest.fn()} isValidated={true} isCorrect={true} moduleColor="#3498DB" />
     );
     expect(queryByText('go')).toBeNull();
   });
 
   it('affiche le feedback (bonne réponse + traduction) quand validé', () => {
     const { getAllByText, getByText } = render(
-      <SentenceBlanksCard data={mockBlanksData as any} selectedOption="goes" onSelectOption={jest.fn()} isValidated={true} isCorrect={true} moduleColor="#3498DB" />
+      <SentenceBlanksCard data={mockBlanksData} selectedOption="goes" onSelectOption={jest.fn()} isValidated={true} isCorrect={true} moduleColor="#3498DB" />
     );
     expect(getAllByText('goes').length).toBeGreaterThanOrEqual(1);
     expect(getByText('Elle va à l\'école chaque jour.')).toBeTruthy();
@@ -586,14 +586,14 @@ describe('SentenceBlanksCard', () => {
 
   it('affiche le tip quand présent', () => {
     const { getByText } = render(
-      <SentenceBlanksCard data={mockBlanksData as any} selectedOption={null} onSelectOption={jest.fn()} isValidated={false} isCorrect={false} moduleColor="#3498DB" />
+      <SentenceBlanksCard data={mockBlanksData} selectedOption={null} onSelectOption={jest.fn()} isValidated={false} isCorrect={false} moduleColor="#3498DB" />
     );
     expect(getByText('Habitual actions use simple present.')).toBeTruthy();
   });
 
   it('affiche ___ quand aucune option sélectionnée', () => {
     const { getAllByText } = render(
-      <SentenceBlanksCard data={mockBlanksData as any} selectedOption={null} onSelectOption={jest.fn()} isValidated={false} isCorrect={false} moduleColor="#3498DB" />
+      <SentenceBlanksCard data={mockBlanksData} selectedOption={null} onSelectOption={jest.fn()} isValidated={false} isCorrect={false} moduleColor="#3498DB" />
     );
     expect(getAllByText('___').length).toBeGreaterThanOrEqual(1);
   });
@@ -615,27 +615,27 @@ describe('LogicLinksCard', () => {
 
   it('rend sans crash', () => {
     expect(() => render(
-      <LogicLinksCard question={mockLogicQuestion as any} selectedOption={null} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
+      <LogicLinksCard question={mockLogicQuestion} selectedOption={null} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
     )).not.toThrow();
   });
 
   it('affiche la phrase avec le trou', () => {
     const { getByText } = render(
-      <LogicLinksCard question={mockLogicQuestion as any} selectedOption={null} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
+      <LogicLinksCard question={mockLogicQuestion} selectedOption={null} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
     );
     expect(getByText('I was tired ___ I went to bed early.')).toBeTruthy();
   });
 
   it('affiche la traduction quand présente', () => {
     const { getByText } = render(
-      <LogicLinksCard question={mockLogicQuestion as any} selectedOption={null} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
+      <LogicLinksCard question={mockLogicQuestion} selectedOption={null} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
     );
     expect(getByText('J\'étais fatigué donc je suis allé me coucher tôt.')).toBeTruthy();
   });
 
   it('affiche les 4 options', () => {
     const { getByText } = render(
-      <LogicLinksCard question={mockLogicQuestion as any} selectedOption={null} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
+      <LogicLinksCard question={mockLogicQuestion} selectedOption={null} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
     );
     expect(getByText('so')).toBeTruthy();
     expect(getByText('but')).toBeTruthy();
@@ -645,7 +645,7 @@ describe('LogicLinksCard', () => {
   it('appelle onAnswer au clic d\'une option', () => {
     const onAnswer = jest.fn();
     const { getByText } = render(
-      <LogicLinksCard question={mockLogicQuestion as any} selectedOption={null} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={onAnswer} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
+      <LogicLinksCard question={mockLogicQuestion} selectedOption={null} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={onAnswer} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
     );
     fireEvent.press(getByText('so'));
     expect(onAnswer).toHaveBeenCalledWith('so');
@@ -654,7 +654,7 @@ describe('LogicLinksCard', () => {
   it('n\'appelle pas onAnswer si déjà validé', () => {
     const onAnswer = jest.fn();
     const { getByText } = render(
-      <LogicLinksCard question={mockLogicQuestion as any} selectedOption="so" isValidated={true} isCorrect={true} attemptCount={1} maxAttempts={2} onAnswer={onAnswer} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
+      <LogicLinksCard question={mockLogicQuestion} selectedOption="so" isValidated={true} isCorrect={true} attemptCount={1} maxAttempts={2} onAnswer={onAnswer} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
     );
     fireEvent.press(getByText('so'));
     expect(onAnswer).not.toHaveBeenCalled();

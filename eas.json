@@ -1,0 +1,37 @@
+{
+  "cli": {
+    "version": ">= 13.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production-primary": {
+      "autoIncrement": true,
+      "env": { "EXPO_PUBLIC_LOCKED_AUDIENCE": "primary" }
+    },
+    "production-college": {
+      "autoIncrement": true,
+      "env": { "EXPO_PUBLIC_LOCKED_AUDIENCE": "college" }
+    },
+    "production-lycee": {
+      "autoIncrement": true,
+      "env": { "EXPO_PUBLIC_LOCKED_AUDIENCE": "lycee" }
+    },
+    "production-adult": {
+      "autoIncrement": true,
+      "env": { "EXPO_PUBLIC_LOCKED_AUDIENCE": "adult" }
+    }
+  },
+  "submit": {
+    "production-primary": {},
+    "production-college": {},
+    "production-lycee": {},
+    "production-adult": {}
+  }
+}

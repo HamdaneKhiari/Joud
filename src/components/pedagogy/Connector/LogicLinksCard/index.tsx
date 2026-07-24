@@ -1,8 +1,7 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import ExerciseValidation from '../../../common/ExerciseValidation';
-import { useExerciseValidationState } from '../../../../hooks/exercises/useExerciceValidationState';
-import { generateFeedbackMessage } from '../../../../utils/feedback';
+import useConnectorFeedback from '../hooks/useConnectorFeedback';
 import { useTheme } from '@/themes/ThemeContext';
 import { tokens, withOpacity } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors'; 
@@ -27,25 +26,14 @@ const LogicLinksCard: React.FC<LogicLinksCardProps & { hideValidation?: boolean;
   const { identity } = useTheme();
   const brandColor = color || identity.palette.primary;
 
-  const { canSkip, validationState, buttonDisabled } = useExerciseValidationState(
+  const { canSkip, validationState, buttonDisabled, feedbackData } = useConnectorFeedback(
     isValidated,
     isCorrect,
     attemptCount,
     maxAttempts,
-    !!selectedOption
+    !!selectedOption,
+    question.correctAnswer
   );
-
-  const feedbackData = useMemo(() => {
-    const feedback = generateFeedbackMessage(
-      isValidated,
-      isCorrect,
-      canSkip,
-      question.correctAnswer,
-      attemptCount,
-      maxAttempts
-    );
-    return feedback ? { title: feedback.title, message: feedback.message } : undefined;
-  }, [isValidated, isCorrect, canSkip, question.correctAnswer, attemptCount, maxAttempts]);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} scrollEnabled={scrollEnabled}>
@@ -115,6 +103,9 @@ const LogicLinksCard: React.FC<LogicLinksCardProps & { hideValidation?: boolean;
                 style={[styles.optionButton, getButtonStyle()]}
                 onPress={() => !isValidated && onAnswer(option)}
                 disabled={isValidated}
+                accessibilityRole="radio"
+                accessibilityLabel={option}
+                accessibilityState={{ selected: isSelected, disabled: isValidated }}
               >
                 <Text style={[
                   styles.optionText,
@@ -157,10 +148,11 @@ const styles = StyleSheet.create({
     padding: tokens.layout.screenPadding, 
     paddingBottom: 100 
   },
-  card: { 
-    padding: tokens.layout.cardPadding, 
-    borderTopWidth: tokens.borderWidth.thick, 
-    marginBottom: tokens.layout.sectionGap 
+  card: {
+    padding: tokens.layout.cardPadding,
+    ...tokens.shadows.md,
+    borderTopWidth: tokens.borderWidth.thick,
+    marginBottom: tokens.layout.sectionGap
   },
   colorBar: { 
     height: 4, 

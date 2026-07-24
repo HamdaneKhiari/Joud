@@ -1,7 +1,7 @@
 /**
  * Mock react-native-safe-area-context for Jest tests
  */
-const React = require('react');
+import React from 'react';
 
 export const SafeAreaView = ({ children, ...props }: { children?: React.ReactNode; [k: string]: unknown }) =>
   React.createElement('SafeAreaView', props, children);

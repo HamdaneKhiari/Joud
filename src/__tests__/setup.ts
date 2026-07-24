@@ -9,6 +9,5 @@ jest.spyOn(console, 'error').mockImplementation((msg, ...args) => {
     msg.includes('react-test-renderer is deprecated') ||
     msg.includes('not wrapped in act')
   )) return;
-  // eslint-disable-next-line no-console
   console.warn(msg, ...args);
 });

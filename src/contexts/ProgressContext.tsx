@@ -11,7 +11,7 @@ import { log } from '@/utils/logUtils';
 
 import type { ProgressState, LevelProgress, ProgressContextValue, ExerciseProgress, RevisionFamily } from './progressTypes';
 import {
-  ALL_MODULE_SLUGS,
+  getApplicableModules,
   getStorageKey,
   parseCompositeKey,
   createInitialProgress,
@@ -192,13 +192,14 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const getLevelProgress = useCallback((levelId: number): number => {
     const levelData = progress?.[`level${levelId}`];
     if (!levelData) return 0;
+    const applicableModules = getApplicableModules(user?.audience);
     let total = 0;
-    for (const slug of ALL_MODULE_SLUGS) {
+    for (const slug of applicableModules) {
       const ids = Object.keys(levelData[slug] || {});
       if (ids.length > 0) total += getExerciseProgress(levelId, slug, ids);
     }
-    return Math.round(total / ALL_MODULE_SLUGS.length);
-  }, [progress, getExerciseProgress]);
+    return applicableModules.length > 0 ? Math.round(total / applicableModules.length) : 0;
+  }, [progress, getExerciseProgress, user?.audience]);
 
   const getRevisionFamilies = useCallback((levelId: number): RevisionFamily[] => {
     return filterRevisionFamilies(progress, levelId);

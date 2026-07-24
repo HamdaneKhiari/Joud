@@ -239,6 +239,8 @@ const DialogueExerciseScreen: React.FC = () => {
             onPress={() => { setPhase('dialogue'); setCurrentMessageIndex(0); }}
             style={styles.relireButton}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Relire le dialogue"
           >
             <Text style={[styles.relireText, { color: identity.palette.primary }]}>
               ↩ Relire le dialogue

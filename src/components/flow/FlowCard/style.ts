@@ -69,8 +69,9 @@ const getMoodLayout = (cardStyle: CardStyle, isHorizontal: boolean) => {
 };
 
 // ── Shadow/border per mood ──
+// minimal/executive (Lycée/Adulte) : ombre allégée + fine bordure plutôt que l'ombre lourde par défaut
 const getCardElevation = (cardStyle: CardStyle, isDark: boolean, isHorizontal: boolean): ViewStyle => {
-  if (cardStyle === 'executive' && !isHorizontal) {
+  if ((cardStyle === 'executive' || cardStyle === 'minimal') && !isHorizontal) {
     return {
       borderWidth: 1,
       borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',

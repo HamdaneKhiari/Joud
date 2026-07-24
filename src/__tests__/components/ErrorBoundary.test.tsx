@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 // Composant qui crash intentionnellement
@@ -19,7 +19,7 @@ afterEach(() => { (console.error as jest.Mock).mockRestore(); });
 
 describe('ErrorBoundary', () => {
   it('affiche les enfants normalement sans erreur', () => {
-    const { getByText } = render(
+    render(
       <ErrorBoundary>
         <CrashingComponent shouldCrash={false} />
         {/* @ts-ignore */}
@@ -43,7 +43,7 @@ describe('ErrorBoundary', () => {
 
   it('Réessayer appelle handleReset et le bouton disparaît', () => {
     // On teste que handleReset est bien câblé au bouton
-    const boundary = new (ErrorBoundary as any)({ children: null });
+    const boundary = new ErrorBoundary({ children: null });
     boundary.state = { hasError: true, error: new Error('test') };
     boundary.setState = jest.fn();
     boundary.handleReset();

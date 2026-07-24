@@ -1,8 +1,7 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { View, Text, TextInput, ScrollView, StyleSheet } from 'react-native';
 import ExerciseValidation from '../../../common/ExerciseValidation';
-import { useExerciseValidationState } from '../../../../hooks/exercises/useExerciceValidationState';
-import { generateFeedbackMessage } from '../../../../utils/feedback';
+import useConnectorFeedback from '../hooks/useConnectorFeedback';
 import { useTheme } from '@/themes/ThemeContext';
 import { tokens, withOpacity } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
@@ -26,27 +25,16 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps & { hideValidation?: 
 }) => {
   const { identity } = useTheme();
 
-  const { canSkip, validationState, buttonDisabled } = useExerciseValidationState(
+  const { canSkip, validationState, buttonDisabled, feedbackData } = useConnectorFeedback(
     isValidated,
     isCorrect,
     attemptCount,
     maxAttempts,
-    !!userAnswer && userAnswer.trim().length > 0
+    !!userAnswer && userAnswer.trim().length > 0,
+    question.correctAnswer
   );
 
   const brandColor = color || identity.palette.primary;
-
-  const feedbackData = useMemo(() => {
-    const feedback = generateFeedbackMessage(
-      isValidated,
-      isCorrect,
-      canSkip,
-      question.correctAnswer,
-      attemptCount,
-      maxAttempts
-    );
-    return feedback ? { title: feedback.title, message: feedback.message } : undefined;
-  }, [isValidated, isCorrect, canSkip, question.correctAnswer, attemptCount, maxAttempts]);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} scrollEnabled={scrollEnabled}>

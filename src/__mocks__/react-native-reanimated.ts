@@ -6,8 +6,8 @@
  * Ce stub couvre tout ce qui est utilisé dans le projet.
  */
 
-const React = require('react');
-const { View, Text, ScrollView, Image, FlatList } = require('react-native');
+import React from 'react';
+import { View, Text, ScrollView, Image, FlatList } from 'react-native';
 
 // ─── Stub helpers ────────────────────────────────────────────────────────────
 const NOOP = () => {};

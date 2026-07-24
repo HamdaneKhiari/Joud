@@ -92,7 +92,7 @@ const createStyles = (identity: Identity) => {
       fontSize: tokens.fontSize.sm,
       fontWeight: config.subtitleWeight,
       fontFamily: identity.fontFamily.semibold,
-      color: identity.header.accent,
+      color: textColor,
       textAlign: 'center',
       letterSpacing: 0.3,
       lineHeight: 20,

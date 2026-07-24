@@ -18,6 +18,8 @@ const createStyles = (identity: Identity) => {
   const onHeader = identity.text.onPrimary;
   const overlayLight = 'rgba(255, 255, 255, 0.25)';
   const overlayLightPressed = 'rgba(255, 255, 255, 0.35)';
+  // Cibles tactiles agrandies pour le public primaire (enfants)
+  const touchTarget = identity.id === 'primary' ? 58 : tokens.layout.touchTarget;
 
   return StyleSheet.create({
     navBar: {
@@ -33,9 +35,9 @@ const createStyles = (identity: Identity) => {
     navRight: { width: tokens.layout.navColumnWidth, alignItems: 'flex-end', paddingRight: 4 },
 
     backButton: {
-      width: tokens.layout.touchTarget, height: tokens.layout.touchTarget,
+      width: touchTarget, height: touchTarget,
       justifyContent: 'center', alignItems: 'center',
-      borderRadius: tokens.layout.touchTarget / 2,
+      borderRadius: touchTarget / 2,
       backgroundColor: overlayLight,
       borderWidth: isClean ? 1 : 2,
       borderColor: 'rgba(255, 255, 255, 0.4)',
@@ -55,7 +57,7 @@ const createStyles = (identity: Identity) => {
       marginLeft: -2
     },
 
-    backButtonPlaceholder: { width: tokens.layout.touchTarget, height: tokens.layout.touchTarget },
+    backButtonPlaceholder: { width: touchTarget, height: touchTarget },
 
     levelBadge: {
       paddingHorizontal: tokens.spacing.lg,
@@ -81,7 +83,7 @@ const createStyles = (identity: Identity) => {
     badgePlaceholder: { width: 70, height: 36 },
 
     rightIconButton: {
-      width: tokens.layout.touchTarget, height: tokens.layout.touchTarget,
+      width: touchTarget, height: touchTarget,
       justifyContent: 'center', alignItems: 'center',
       borderRadius: identity.ui.cardRadius,
       backgroundColor: overlayLight,
@@ -95,7 +97,7 @@ const createStyles = (identity: Identity) => {
       opacity: 0.9
     },
 
-    rightIconPlaceholder: { width: tokens.layout.touchTarget, height: tokens.layout.touchTarget }
+    rightIconPlaceholder: { width: touchTarget, height: touchTarget }
   });
 };
 
@@ -117,6 +119,8 @@ const ExerciceNavBar: React.FC<ExerciceNavBarProps> = ({
             onPress={onBack}
             style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityRole="button"
+            accessibilityLabel="Retour"
           >
             <Text style={styles.backIcon}>‹</Text>
           </Pressable>
@@ -147,6 +151,9 @@ const ExerciceNavBar: React.FC<ExerciceNavBarProps> = ({
             style={styles.rightIconButton}
             disabled={!onRightIconPress}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityRole={onRightIconPress ? 'button' : undefined}
+            accessibilityElementsHidden={!onRightIconPress}
+            importantForAccessibility={onRightIconPress ? 'yes' : 'no-hide-descendants'}
           >
             {typeof rightIcon === 'string' ? (
               <Text style={styles.rightIconText}>{rightIcon}</Text>

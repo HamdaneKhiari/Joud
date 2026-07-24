@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">88.57% </span>
+                <span class="strong">92.3% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>31/35</span>
+                <span class='fraction'>24/26</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">48.93% </span>
+                <span class="strong">48.88% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>23/47</span>
+                <span class='fraction'>22/45</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">93.75% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>30/32</span>
+                <span class='fraction'>23/23</span>
             </div>
         
             
@@ -298,20 +298,7 @@
 <a name='L233'></a><a href='#L233'>233</a>
 <a name='L234'></a><a href='#L234'>234</a>
 <a name='L235'></a><a href='#L235'>235</a>
-<a name='L236'></a><a href='#L236'>236</a>
-<a name='L237'></a><a href='#L237'>237</a>
-<a name='L238'></a><a href='#L238'>238</a>
-<a name='L239'></a><a href='#L239'>239</a>
-<a name='L240'></a><a href='#L240'>240</a>
-<a name='L241'></a><a href='#L241'>241</a>
-<a name='L242'></a><a href='#L242'>242</a>
-<a name='L243'></a><a href='#L243'>243</a>
-<a name='L244'></a><a href='#L244'>244</a>
-<a name='L245'></a><a href='#L245'>245</a>
-<a name='L246'></a><a href='#L246'>246</a>
-<a name='L247'></a><a href='#L247'>247</a>
-<a name='L248'></a><a href='#L248'>248</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L236'></a><a href='#L236'>236</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -360,20 +347,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
@@ -557,13 +530,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useMemo, useState, useEffect } from 'react';
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
 import { useTheme } from '@/themes/ThemeContext';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
-import { useFeedbackMessages, getFeedbackState } from '@/hooks/exercises/useFeedbackMessages';
-import type { FeedbackData } from '@/hooks/exercises/useFeedbackMessages';
+import useWordGameFeedback from '@/screens/WordGames/hooks/useWordGameFeedback';
 import { tokens } from '@/themes/tokens';
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
 import type { TransformerQuestion } from '@/screens/WordGames/schema';
@@ -606,21 +581,7 @@ const TransformerCard: React.FC&lt;TransformerCardProps&gt; = ({
     !!selectedOption
   );
 &nbsp;
-  const { getFeedback } = useFeedbackMessages();
-  const [feedbackMessage, setFeedbackMessage] = useState&lt;FeedbackData | null&gt;(null);
-&nbsp;
-  useEffect(() =&gt; {
-    const loadFeedback = async () =&gt; {
-      const feedbackState = getFeedbackState(isValidated, isCorrect, attemptCount, maxAttempts);
-      <span class="missing-if-branch" title="if path not taken" >I</span>if (feedbackState) {
-        const feedback = <span class="cstat-no" title="statement not covered" >await getFeedback('wordgames', feedbackState);</span>
-<span class="cstat-no" title="statement not covered" >        setFeedbackMessage(feedback);</span>
-      } else {
-        setFeedbackMessage(null);
-      }
-    };
-    loadFeedback();
-  }, [isValidated, isCorrect, attemptCount, maxAttempts, getFeedback]);
+  const feedbackMessage = useWordGameFeedback(isValidated, isCorrect, attemptCount, maxAttempts);
 &nbsp;
   const showFeedback = isValidated &amp;&amp; (<span class="branch-1 cbranch-no" title="branch not covered" >isCorrect </span>|| <span class="branch-2 cbranch-no" title="branch not covered" >canSkip)</span>;
   const isPlayful = identity.ui.mood === 'playful';
@@ -778,6 +739,9 @@ const TransformerCard: React.FC&lt;TransformerCardProps&gt; = ({
                 onPress={() =&gt; !isValidated &amp;&amp; onAnswer(option)}
                 disabled={isValidated}
                 activeOpacity={0.7}
+                accessibilityRole="radio"
+                accessibilityLabel={option}
+                accessibilityState={{ selected: isSelected, disabled: isValidated }}
               &gt;
                 &lt;Text style={textStyle}&gt;{option}&lt;/Text&gt;
               &lt;/TouchableOpacity&gt;
@@ -811,7 +775,7 @@ export default TransformerCard;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-21T00:47:51.424Z
+                at 2026-07-24T20:20:01.390Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

@@ -1,0 +1,13 @@
+appId: com.hamdanek.Joud
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: ".*Bienvenue sur Joud.*"
+    timeout: 30000
+- tapOn: "Ton prénom"
+- inputText: "Alex"
+- tapOn: "C'est parti !"
+- extendedWaitUntil:
+    visible: "Tuteur IA"
+    timeout: 15000

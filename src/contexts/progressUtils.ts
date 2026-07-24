@@ -17,6 +17,11 @@ export const ALL_MODULE_SLUGS = [
 
 const MAX_LEVELS = 8;
 
+// connector n'est disponible que pour lycee/adult (cf. seed module_availability,
+// migration 002) — à garder synchronisé si la disponibilité par audience change en base.
+export const getApplicableModules = (audience?: string): string[] =>
+  ALL_MODULE_SLUGS.filter(slug => slug !== 'connector' || audience === 'lycee' || audience === 'adult');
+
 export const getStorageKey = (userId: string) => `JOUD_PROGRESS_${userId}`;
 
 export const parseCompositeKey = (key: string): { familyId: number; subfamilyId: number } => {

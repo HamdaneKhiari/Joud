@@ -168,11 +168,11 @@ const FONT_FAMILIES: Record<string, Identity['fontFamily']> = {
     extrabold: 'DMSans_700Bold',
   },
   adult: {
-    regular: 'DMSans_400Regular',
-    medium: 'DMSans_500Medium',
-    semibold: 'DMSans_500Medium',
-    bold: 'DMSans_700Bold',
-    extrabold: 'DMSans_700Bold',
+    regular: 'Inter_400Regular',
+    medium: 'Inter_500Medium',
+    semibold: 'Inter_600SemiBold',
+    bold: 'Inter_700Bold',
+    extrabold: 'Inter_800ExtraBold',
   },
 };
 

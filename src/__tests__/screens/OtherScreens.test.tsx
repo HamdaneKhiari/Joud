@@ -239,7 +239,7 @@ describe('Smoke tests — Navigation et autres screens', () => {
       isLoading: false, refresh: jest.fn(),
     });
     expect(() => render(
-      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } } as any} />
+      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } }} />
     )).not.toThrow();
   });
 
@@ -261,7 +261,7 @@ describe('Smoke tests — Navigation et autres screens', () => {
       isLoading: false,
     });
     expect(() => render(
-      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } } as any} />
+      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } }} />
     )).not.toThrow();
   });
 
@@ -374,7 +374,7 @@ describe('Smoke tests — Navigation et autres screens', () => {
       isLoading: false,
     });
     expect(() => render(
-      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } } as any} />
+      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } }} />
     )).not.toThrow();
   });
 
@@ -521,7 +521,7 @@ describe('Smoke tests — Navigation et autres screens', () => {
       families: [], isLoading: true, refresh: jest.fn(),
     });
     expect(() => render(
-      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } } as any} />
+      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } }} />
     )).not.toThrow();
   });
 
@@ -530,7 +530,7 @@ describe('Smoke tests — Navigation et autres screens', () => {
     require('@/utils/labelMapper').getLevelLabel.mockResolvedValueOnce({ badge: 'N1', title: 'Les Bases', description: '' });
     require('@/utils/labelMapper').getModuleLabel.mockResolvedValueOnce({ title: 'Vocabulaire', icon: 'book', description: '' });
     require('@/utils/moduleHelper').getModuleColor.mockResolvedValueOnce('#E74C3C');
-    render(<FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } } as any} />);
+    render(<FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } }} />);
     await act(async () => { await new Promise(r => setTimeout(r, 0)); });
     expect(require('@/utils/labelMapper').getAvailableModules).toHaveBeenCalled();
   });
@@ -538,7 +538,7 @@ describe('Smoke tests — Navigation et autres screens', () => {
   it('FamilySelectionScreen — catch bloc: getLevelLabel rejette', async () => {
     require('@/utils/labelMapper').getLevelLabel.mockRejectedValueOnce(new Error('DB fail'));
     expect(() => render(
-      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } } as any} />
+      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } }} />
     )).not.toThrow();
     await act(async () => { await new Promise(r => setTimeout(r, 0)); });
     // log.error should have been called (catch block covered)
@@ -622,12 +622,12 @@ describe('SessionPhase', () => {
   });
 
   it('isLastQuestion=true → Terminer button', () => {
-    const { getByText } = render(<SessionPhase {...baseProps} isLastQuestion={true} validationState={'correct' as any} />);
+    const { getByText } = render(<SessionPhase {...baseProps} isLastQuestion={true} validationState="correct" />);
     expect(getByText('Terminer')).toBeTruthy();
   });
 
   it('validationState=correct → Continuer button', () => {
-    const { getByText } = render(<SessionPhase {...baseProps} validationState={'correct' as any} />);
+    const { getByText } = render(<SessionPhase {...baseProps} validationState="correct" />);
     expect(getByText('Continuer')).toBeTruthy();
   });
 

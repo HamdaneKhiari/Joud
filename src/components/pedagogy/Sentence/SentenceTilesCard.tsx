@@ -93,6 +93,8 @@ const SentenceTilesCard: React.FC<SentenceTilesCardProps> = ({
               onPress={() => handleRemove(tile)}
               disabled={isValidated}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={`Retirer "${tile.text}"`}
             >
               <Text style={styles.placedTileText}>{tile.text}</Text>
             </TouchableOpacity>
@@ -118,6 +120,8 @@ const SentenceTilesCard: React.FC<SentenceTilesCardProps> = ({
               style={styles.poolTile}
               onPress={() => handlePlace(tile)}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={`Ajouter "${tile.text}"`}
             >
               <Text style={styles.poolTileText}>{tile.text}</Text>
             </TouchableOpacity>

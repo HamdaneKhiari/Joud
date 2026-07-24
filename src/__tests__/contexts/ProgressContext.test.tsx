@@ -342,7 +342,7 @@ describe('ProgressContext', () => {
       expect(result.current.getLevelProgress(1)).toBe(0);
     });
 
-    it('calcule correctement : 1 module à 100% sur 7 = 14%', async () => {
+    it('calcule correctement : 1 module à 100% sur 5 (audience college, sans connector) = 20%', async () => {
       const db = makeDb({
         getAllAsync: jest.fn().mockResolvedValue([
           { family_id: 101, subfamily_id: 0, level: 1, completed: 10, total: 10, last_accessed: null, module_slug: 'vocab' },
@@ -353,8 +353,8 @@ describe('ProgressContext', () => {
       const { result } = renderHook(() => useProgress(), { wrapper });
       await act(flushPromises);
 
-      // round(100 / 7) = 14
-      expect(result.current.getLevelProgress(1)).toBe(14);
+      // college n'a pas connector → 5 modules applicables. round(100 / 5) = 20
+      expect(result.current.getLevelProgress(1)).toBe(20);
     });
 
     it('calcule correctement : tous les modules à 100% = 100%', async () => {

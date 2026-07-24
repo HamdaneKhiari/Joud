@@ -1,10 +1,9 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
 import { useTheme } from '@/themes/ThemeContext';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
-import { useFeedbackMessages, getFeedbackState } from '@/hooks/exercises/useFeedbackMessages';
-import type { FeedbackData } from '@/hooks/exercises/useFeedbackMessages';
+import useWordGameFeedback from '@/screens/WordGames/hooks/useWordGameFeedback';
 import { tokens } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
@@ -48,22 +47,7 @@ const DetectiveCard: React.FC<DetectiveCardProps> = ({
     selectedWord !== null && selectedWord !== undefined
   );
 
-  const { getFeedback } = useFeedbackMessages();
-  const [feedbackMessage, setFeedbackMessage] = useState<FeedbackData | null>(null);
-
-  useEffect(() => {
-    const loadFeedback = async () => {
-      const feedbackState = getFeedbackState(isValidated, isCorrect, attemptCount, maxAttempts);
-      if (feedbackState) {
-        const feedback = await getFeedback('wordgames', feedbackState);
-        setFeedbackMessage(feedback);
-      } else {
-        setFeedbackMessage(null);
-      }
-    };
-
-    loadFeedback();
-  }, [isValidated, isCorrect, attemptCount, maxAttempts, getFeedback]);
+  const feedbackMessage = useWordGameFeedback(isValidated, isCorrect, attemptCount, maxAttempts);
 
   const words = question.sentence.split(' ');
   const errorIndex = question.errorWordIndex;
@@ -194,6 +178,9 @@ const DetectiveCard: React.FC<DetectiveCardProps> = ({
                 style={buttonStyle}
                 disabled={isValidated}
                 activeOpacity={0.7}
+                accessibilityRole="radio"
+                accessibilityLabel={word}
+                accessibilityState={{ selected: isSelected, disabled: isValidated }}
               >
                 <Text style={textStyle}>{word}</Text>
                 {showFeedback && isError && !!question.correctWord && (

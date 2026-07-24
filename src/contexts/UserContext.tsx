@@ -3,6 +3,7 @@ import { View, ActivityIndicator } from 'react-native';
 import { SQLiteDatabase } from 'expo-sqlite';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initDatabase } from '@/database/init';
+import secureStorage from '@/services/SecureStorage';
 import { log } from '@/utils/logUtils';
 
 interface User {
@@ -18,16 +19,26 @@ interface UserContextType {
   user: User | null;
   loading: boolean;
   isOnboarded: boolean;
+  isAudienceLocked: boolean;
   updateAudience: (newAudience: User['audience']) => void;
   updateUser: (partial: Partial<Omit<User, 'id'>>) => void;
 }
 
 const STORAGE_KEY_USER = 'JOUD_USER_PROFILE';
 
+const VALID_AUDIENCES: User['audience'][] = ['primary', 'college', 'lycee', 'adult'];
+
+// Verrouille l'audience pour les builds mono-public (défini par profil dans eas.json,
+// EXPO_PUBLIC_* est inliné dans le bundle par Metro au build). Absent en dev/preview
+// interne : l'audience reste sélectionnable comme aujourd'hui.
+const LOCKED_AUDIENCE = VALID_AUDIENCES.includes(process.env.EXPO_PUBLIC_LOCKED_AUDIENCE as User['audience'])
+  ? (process.env.EXPO_PUBLIC_LOCKED_AUDIENCE as User['audience'])
+  : null;
+
 const DEFAULT_USER: User = {
   id: 'user_01',
   firstName: '',
-  audience: 'college',
+  audience: LOCKED_AUDIENCE || 'college',
   isOnboarded: false,
 };
 
@@ -42,12 +53,20 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const loadUserAndDB = async () => {
       try {
+        // Purge une éventuelle clé API résiduelle du Keychain avant toute lecture,
+        // au cas où l'app vient d'être réinstallée sur un appareil ayant déjà servi.
+        await secureStorage.purgeIfStaleInstall();
+
         const storedUser = await AsyncStorage.getItem(STORAGE_KEY_USER);
         if (storedUser) {
           const parsed = JSON.parse(storedUser) as User;
           // Migration: anciens profils sans isOnboarded
           if (parsed.isOnboarded === undefined) {
             parsed.isOnboarded = !!parsed.firstName && parsed.firstName !== '';
+          }
+          // Build mono-public : l'audience stockée ne fait pas foi, ce build ne sert qu'un public
+          if (LOCKED_AUDIENCE) {
+            parsed.audience = LOCKED_AUDIENCE;
           }
           setUser(parsed);
         } else {
@@ -68,9 +87,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     loadUserAndDB();
   }, []);
 
-  // Changer l'audience (et persister)
+  // Changer l'audience (et persister) — no-op sur un build mono-public verrouillé
   const updateAudience = useCallback(async (newAudience: User['audience']) => {
-    if (!user) return;
+    if (!user || LOCKED_AUDIENCE) return;
     const updated = { ...user, audience: newAudience };
     setUser(updated);
     try {
@@ -93,10 +112,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }, [user]);
 
   const isOnboarded = user?.isOnboarded ?? false;
+  const isAudienceLocked = !!LOCKED_AUDIENCE;
 
   const contextValue = useMemo(
-    () => ({ db, user, loading, isOnboarded, updateAudience, updateUser }),
-    [db, user, loading, isOnboarded, updateAudience, updateUser]
+    () => ({ db, user, loading, isOnboarded, isAudienceLocked, updateAudience, updateUser }),
+    [db, user, loading, isOnboarded, isAudienceLocked, updateAudience, updateUser]
   );
 
   if (loading) {

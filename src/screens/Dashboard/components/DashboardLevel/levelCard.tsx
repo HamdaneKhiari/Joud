@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import Animated, { FadeInRight } from 'react-native-reanimated';
+import Animated, { FadeInRight, ReduceMotion } from 'react-native-reanimated';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/themes/ThemeContext';
@@ -40,7 +40,7 @@ const LevelCard: React.FC<LevelCardProps> = ({
     if (isCompleted) {
       return {
         badgeColor: identity.palette.primary,
-        icon: isPlayful ? 'star' : 'check-decagram',
+        icon: 'check-decagram',
         label: isPlayful ? 'Bravo !' : 'Terminé',
         content: badgeNumber
       };
@@ -75,7 +75,7 @@ const LevelCard: React.FC<LevelCardProps> = ({
 
   return (
     <Animated.View
-      entering={FadeInRight.delay(animationDelay).springify()}
+      entering={FadeInRight.delay(animationDelay).springify().reduceMotion(ReduceMotion.System)}
       style={styles.container}
     >
       {/* Timeline badge, à gauche */}
@@ -102,6 +102,9 @@ const LevelCard: React.FC<LevelCardProps> = ({
             isLocked && { opacity: 0.5 },
             !isPlayful && { borderLeftColor: config.badgeColor }
           ]}
+          accessibilityRole="button"
+          accessibilityLabel={`${data.title}, ${config.label}`}
+          accessibilityState={{ disabled: isLocked }}
         >
           <View style={styles.textContainer}>
             <Text style={styles.title}>

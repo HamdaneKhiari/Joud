@@ -1,10 +1,9 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
 import { useTheme } from '@/themes/ThemeContext';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
-import { useFeedbackMessages, getFeedbackState } from '@/hooks/exercises/useFeedbackMessages';
-import type { FeedbackData } from '@/hooks/exercises/useFeedbackMessages';
+import useWordGameFeedback from '@/screens/WordGames/hooks/useWordGameFeedback';
 import { tokens } from '@/themes/tokens';
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
 import type { TransformerQuestion } from '@/screens/WordGames/schema';
@@ -47,21 +46,7 @@ const TransformerCard: React.FC<TransformerCardProps> = ({
     !!selectedOption
   );
 
-  const { getFeedback } = useFeedbackMessages();
-  const [feedbackMessage, setFeedbackMessage] = useState<FeedbackData | null>(null);
-
-  useEffect(() => {
-    const loadFeedback = async () => {
-      const feedbackState = getFeedbackState(isValidated, isCorrect, attemptCount, maxAttempts);
-      if (feedbackState) {
-        const feedback = await getFeedback('wordgames', feedbackState);
-        setFeedbackMessage(feedback);
-      } else {
-        setFeedbackMessage(null);
-      }
-    };
-    loadFeedback();
-  }, [isValidated, isCorrect, attemptCount, maxAttempts, getFeedback]);
+  const feedbackMessage = useWordGameFeedback(isValidated, isCorrect, attemptCount, maxAttempts);
 
   const showFeedback = isValidated && (isCorrect || canSkip);
   const isPlayful = identity.ui.mood === 'playful';
@@ -219,6 +204,9 @@ const TransformerCard: React.FC<TransformerCardProps> = ({
                 onPress={() => !isValidated && onAnswer(option)}
                 disabled={isValidated}
                 activeOpacity={0.7}
+                accessibilityRole="radio"
+                accessibilityLabel={option}
+                accessibilityState={{ selected: isSelected, disabled: isValidated }}
               >
                 <Text style={textStyle}>{option}</Text>
               </TouchableOpacity>

@@ -136,7 +136,12 @@ export default function SettingsAIScreen() {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
       <View style={styles.header}>
         <View style={styles.headerTopRow}>
-          <TouchableOpacity onPress={() => router.back()} activeOpacity={0.7}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Retour"
+          >
             <Ionicons name="arrow-back" size={24} color={identity.text.onPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Configuration IA</Text>
@@ -177,6 +182,9 @@ export default function SettingsAIScreen() {
           onPress={handleSave}
           disabled={isSaving}
           activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Enregistrer, chiffré"
+          accessibilityState={{ disabled: isSaving, busy: isSaving }}
         >
           {isSaving ? (
             <ActivityIndicator size="small" color={identity.text.onPrimary} />
@@ -201,6 +209,8 @@ export default function SettingsAIScreen() {
             ]}
             onPress={handleDeleteKey}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Supprimer la clé API"
           >
             <Ionicons name="trash" size={20} color="#EF4444" />
             <Text style={[styles.saveButtonText, { color: '#EF4444' }]}>Supprimer la clé API</Text>

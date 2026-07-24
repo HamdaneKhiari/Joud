@@ -3,7 +3,7 @@
  *
  * Couvre : DefinitionCard, BlanksCard, DetectiveCard, ReplyCard,
  *          TransformerCard, SyntaxMasterCard, SpeedMatchCard, AudioMatchCard,
- *          DialogueCard.
+ *          DialogueReaderCard, DialogueQuestionCard.
  *
  * Objectif : chaque composant rend sans crash + assertions de contenu basiques.
  */
@@ -48,7 +48,8 @@ import TransformerCard from '@/components/pedagogy/wordgames/TransformerCard';
 import SyntaxMasterCard from '@/components/pedagogy/wordgames/SyntaxMasterCard';
 import SpeedMatchCard from '@/components/pedagogy/wordgames/SpeedMatchCard';
 import AudioMatchCard from '@/components/pedagogy/wordgames/AudioMatchCard';
-import DialogueCard from '@/components/pedagogy/dialogues/DialogueCard';
+import DialogueReaderCard from '@/components/pedagogy/dialogues/DialogueReaderCard';
+import DialogueQuestionCard from '@/components/pedagogy/dialogues/DialogueQuestionCard';
 
 // ============================================
 // Fixtures
@@ -607,12 +608,12 @@ const mockDialogue = {
   ],
 };
 
-describe('DialogueCard', () => {
+describe('DialogueReaderCard', () => {
   beforeEach(() => { jest.clearAllMocks(); setupMocks(); });
 
-  it('rend sans crash en mode dialogue', () => {
+  it('rend sans crash', () => {
     expect(() => render(
-      <DialogueCard
+      <DialogueReaderCard
         dialogue={mockDialogue}
         currentMessageIndex={0}
         onPreviousMessage={jest.fn()}
@@ -625,7 +626,7 @@ describe('DialogueCard', () => {
 
   it('affiche le premier message du dialogue', () => {
     const { getByText } = render(
-      <DialogueCard
+      <DialogueReaderCard
         dialogue={mockDialogue}
         currentMessageIndex={0}
         onPreviousMessage={jest.fn()}
@@ -636,17 +637,21 @@ describe('DialogueCard', () => {
     );
     expect(getByText('Hello, can I have a coffee please?')).toBeTruthy();
   });
+});
 
-  it('rend sans crash en mode question', () => {
+describe('DialogueQuestionCard', () => {
+  beforeEach(() => { jest.clearAllMocks(); setupMocks(); });
+
+  it('rend sans crash', () => {
     const mockQuestion = {
       question: 'What does Alice order?',
       options: ['Coffee', 'Tea', 'Water', 'Juice'],
       correctAnswer: 0,
     };
     expect(() => render(
-      <DialogueCard
+      <DialogueQuestionCard
         question={mockQuestion}
-        selectedOption={null}
+        selectedOption={undefined}
         isValidated={false}
         isCorrect={false}
         onAnswer={jest.fn()}
@@ -660,6 +665,9 @@ describe('DialogueCard', () => {
 // ============================================
 
 import GameCardRenderer from '@/components/pedagogy/wordgames/GameCardRendered';
+import type { GameQuestion, GameType } from '@/screens/WordGames/schema';
+import type { UseGameStateReturn } from '@/screens/WordGames/hooks/useGameState';
+import type { UseGameHandlersReturn } from '@/screens/WordGames/hooks/useGameHandlers';
 
 const mockStates = {
   definitionState: { selectedOption: null, isValidated: false, isCorrect: false, attemptCount: 0 },
@@ -687,36 +695,39 @@ const mockGameFamily = { id: 1, name: 'Animals', icon: 'paw', module_slug: 'word
 describe('GameCardRenderer', () => {
   beforeEach(() => { jest.clearAllMocks(); setupMocks(); });
 
+  const states = mockStates as unknown as UseGameStateReturn;
+  const handlers = mockHandlers as unknown as UseGameHandlersReturn;
+
   it('retourne null si currentQuestion est null', () => {
     const { toJSON } = render(
       <GameCardRenderer
-        gameType="definition" currentQuestion={null as any}
+        gameType="definition" currentQuestion={null as unknown as GameQuestion}
         currentQuestionIndex={0} isLastQuestion={false}
-        gameFamily={mockGameFamily as any} states={mockStates as any} handlers={mockHandlers as any}
+        gameFamily={mockGameFamily} states={states} handlers={handlers}
       />
     );
     expect(toJSON()).toBeNull();
   });
 
   it('rend DefinitionCard pour type definition', () => {
-    const q = { type: 'definition', word: 'Cat', definition: 'A furry pet', options: ['Dog', 'Cat', 'Bird', 'Fish'], correctAnswer: 'Cat' };
+    const q: GameQuestion = { type: 'definition', difficulty: 'easy', word: 'Cat', definition: 'A furry pet', options: ['Dog', 'Cat', 'Bird', 'Fish'], correctAnswer: 'Cat' };
     const { getByText } = render(
       <GameCardRenderer
-        gameType="definition" currentQuestion={q as any}
+        gameType="definition" currentQuestion={q}
         currentQuestionIndex={0} isLastQuestion={false}
-        gameFamily={mockGameFamily as any} states={mockStates as any} handlers={mockHandlers as any}
+        gameFamily={mockGameFamily} states={states} handlers={handlers}
       />
     );
     expect(getByText('Cat')).toBeTruthy();
   });
 
   it('rend BlanksCard pour type blanks', () => {
-    const q = { type: 'blanks', sentence: 'The ___ is fat.', options: ['cat', 'dog'], correctAnswer: 'cat' };
+    const q: GameQuestion = { type: 'blanks', difficulty: 'easy', sentence: 'The ___ is fat.', options: ['cat', 'dog'], correctAnswer: 'cat' };
     expect(() => render(
       <GameCardRenderer
-        gameType="blanks" currentQuestion={q as any}
+        gameType="blanks" currentQuestion={q}
         currentQuestionIndex={0} isLastQuestion={false}
-        gameFamily={mockGameFamily as any} states={mockStates as any} handlers={mockHandlers as any}
+        gameFamily={mockGameFamily} states={states} handlers={handlers}
       />
     )).not.toThrow();
   });
@@ -725,9 +736,9 @@ describe('GameCardRenderer', () => {
     const q = { type: 'unknown_type' };
     const { toJSON } = render(
       <GameCardRenderer
-        gameType={'unknown_type' as any} currentQuestion={q as any}
+        gameType={'unknown_type' as unknown as GameType} currentQuestion={q as unknown as GameQuestion}
         currentQuestionIndex={0} isLastQuestion={false}
-        gameFamily={mockGameFamily as any} states={mockStates as any} handlers={mockHandlers as any}
+        gameFamily={mockGameFamily} states={states} handlers={handlers}
       />
     );
     expect(toJSON()).toBeNull();

@@ -79,6 +79,8 @@ const Row: React.FC<RowProps> = ({
     onPress={onPress}
     disabled={!onPress}
     style={({ pressed }) => [rowStyles.row, pressed && onPress && rowStyles.rowPressed]}
+    accessibilityRole={onPress ? 'button' : undefined}
+    accessibilityLabel={sublabel ? `${label}, ${sublabel}` : label}
   >
     <View style={[rowStyles.iconBg, { backgroundColor: withOpacity(identity.palette.primary, 0.1) }]}>
       <Text style={rowStyles.icon}>{icon}</Text>
@@ -133,7 +135,7 @@ const rowStyles = StyleSheet.create({
 
 export default function SettingsScreen() {
   const { identity } = useTheme();
-  const { user, updateAudience, updateUser } = useUser();
+  const { user, isAudienceLocked, updateAudience, updateUser } = useUser();
   const { resetProgress } = useProgress();
   const { prefs, updatePref } = usePreferences();
   const router = useRouter();
@@ -187,6 +189,8 @@ export default function SettingsScreen() {
               setEditingName(true);
               setTimeout(() => nameInputRef.current?.focus(), 100);
             }}
+            accessibilityRole="button"
+            accessibilityLabel="Modifier le prénom"
           >
             <Text style={[styles.avatarText, { color: identity.text.onPrimary }]}>{initials}</Text>
           </Pressable>
@@ -204,7 +208,11 @@ export default function SettingsScreen() {
                 maxLength={24}
               />
             ) : (
-              <Pressable onPress={() => { setEditingName(true); setTimeout(() => nameInputRef.current?.focus(), 100); }}>
+              <Pressable
+                onPress={() => { setEditingName(true); setTimeout(() => nameInputRef.current?.focus(), 100); }}
+                accessibilityRole="button"
+                accessibilityLabel="Modifier le prénom"
+              >
                 <Text style={[styles.profileName, { color: identity.text.primary }]}>
                   {user?.firstName || 'Mon profil'}
                 </Text>
@@ -214,32 +222,37 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Section Audience */}
-        <Section title="Version de l'app" identity={identity}>
-          <View style={styles.audienceRow}>
-            {AUDIENCES.map((aud) => {
-              const isActive = user?.audience === aud.key;
-              return (
-                <Pressable
-                  key={aud.key}
-                  onPress={() => updateAudience(aud.key)}
-                  style={[
-                    styles.audienceChip,
-                    { backgroundColor: isActive ? identity.palette.primary : withOpacity(identity.text.primary, 0.06) }
-                  ]}
-                >
-                  <Text style={styles.audienceChipIcon}>{aud.icon}</Text>
-                  <Text style={[
-                    styles.audienceChipLabel,
-                    { color: isActive ? identity.text.onPrimary : identity.text.primary }
-                  ]}>
-                    {aud.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </Section>
+        {/* Section Audience — masquée sur un build mono-public (verrouillé au build) */}
+        {!isAudienceLocked && (
+          <Section title="Version de l'app" identity={identity}>
+            <View style={styles.audienceRow}>
+              {AUDIENCES.map((aud) => {
+                const isActive = user?.audience === aud.key;
+                return (
+                  <Pressable
+                    key={aud.key}
+                    onPress={() => updateAudience(aud.key)}
+                    style={[
+                      styles.audienceChip,
+                      { backgroundColor: isActive ? identity.palette.primary : withOpacity(identity.text.primary, 0.06) }
+                    ]}
+                    accessibilityRole="radio"
+                    accessibilityLabel={aud.label}
+                    accessibilityState={{ selected: isActive }}
+                  >
+                    <Text style={styles.audienceChipIcon}>{aud.icon}</Text>
+                    <Text style={[
+                      styles.audienceChipLabel,
+                      { color: isActive ? identity.text.onPrimary : identity.text.primary }
+                    ]}>
+                      {aud.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </Section>
+        )}
 
         {/* Section Préférences */}
         <Section title="Préférences" identity={identity}>
@@ -254,6 +267,7 @@ export default function SettingsScreen() {
                 onValueChange={(v) => updatePref('soundEnabled', v)}
                 trackColor={{ false: withOpacity(identity.text.primary, 0.15), true: identity.palette.primary }}
                 thumbColor={Platform.OS === 'android' ? identity.palette.primary : undefined}
+                accessibilityLabel="Sons"
               />
             }
           />
@@ -269,6 +283,7 @@ export default function SettingsScreen() {
                 onValueChange={(v) => updatePref('hapticsEnabled', v)}
                 trackColor={{ false: withOpacity(identity.text.primary, 0.15), true: identity.palette.primary }}
                 thumbColor={Platform.OS === 'android' ? identity.palette.primary : undefined}
+                accessibilityLabel="Vibrations"
               />
             }
           />

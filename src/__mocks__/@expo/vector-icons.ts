@@ -2,7 +2,7 @@
  * Mock @expo/vector-icons
  * Retourne des composants React factices pour tous les jeux d'icônes
  */
-const React = require('react');
+import React from 'react';
 
 const makeIconSet = (name: string) => {
   const Icon = ({ testID, ...props }: { testID?: string; name?: string; size?: number; color?: string }) =>

@@ -3,6 +3,7 @@
  */
 
 import { renderHook, act } from '@testing-library/react-native';
+import type { useConnectorHandlers as UseConnectorHandlersType } from '@/screens/ConnectorScreen/hooks/useConnectorHandlers';
 
 jest.mock('@/utils/logUtils', () => ({
   log: { error: jest.fn(), warn: jest.fn(), debug: jest.fn(), info: jest.fn() },
@@ -39,7 +40,7 @@ describe('useConnectorHandlers', () => {
     const onValidationSuccess = jest.fn();
     const recordError = jest.fn();
     const handlers = useConnectorHandlers({
-      question: question as any,
+      question: question as unknown as Parameters<typeof UseConnectorHandlersType>[0]['question'],
       isLastQuestion: isLast,
       onNavigateBack,
       setCurrentQuestionIndex,
@@ -180,7 +181,7 @@ describe('useDialogueContent', () => {
 
   it('construit les characters depuis speakers si absent du JSON', async () => {
     const rawData = makeRawDialogue();
-    delete (rawData as any).characters;
+    delete (rawData as Record<string, unknown>).characters;
     const db = makeDb([{ id: 1, data: JSON.stringify(rawData) }]);
     const { result } = renderHook(() => useDialogueContent(db, '1', 1));
     await act(async () => { await flushPromises(); });

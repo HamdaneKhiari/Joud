@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import Animated, { FadeIn, FadeInDown, FadeInRight } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, FadeInRight, ReduceMotion } from 'react-native-reanimated';
 import { useTheme } from '@/themes/ThemeContext';
 import ThemeContainer from '@/themes/ThemeContainer';
 import { createStyles } from './headerStyles';
@@ -24,11 +24,11 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
       {isPlayful && (
         <>
           <Animated.View
-            entering={FadeIn.duration(800)}
+            entering={FadeIn.duration(800).reduceMotion(ReduceMotion.System)}
             style={styles.decorativeCircle}
           />
           <Animated.View
-            entering={FadeIn.duration(800).delay(200)}
+            entering={FadeIn.duration(800).delay(200).reduceMotion(ReduceMotion.System)}
             style={styles.decorativeCircleSmall}
           />
         </>
@@ -38,7 +38,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
         <View style={styles.welcomeSection}>
           {isPlayful && !!identity.header.emoji && (
             <Animated.View
-              entering={FadeInDown.delay(100).springify()}
+              entering={FadeInDown.delay(100).springify().reduceMotion(ReduceMotion.System)}
               style={styles.emojiContainer}
             >
               <Text style={styles.emoji}>{identity.header.emoji}</Text>
@@ -46,14 +46,14 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
           )}
 
           <Animated.Text
-            entering={FadeInDown.delay(200).springify()}
+            entering={FadeInDown.delay(200).springify().reduceMotion(ReduceMotion.System)}
             style={styles.greeting}
           >
             {identity.header.welcomeText}
           </Animated.Text>
 
           <Animated.Text
-            entering={FadeInDown.delay(300).springify()}
+            entering={FadeInDown.delay(300).springify().reduceMotion(ReduceMotion.System)}
             style={styles.userName}
           >
             {user.name}
@@ -61,7 +61,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
         </View>
 
         <Animated.View
-          entering={FadeInRight.delay(400).springify()}
+          entering={FadeInRight.delay(400).springify().reduceMotion(ReduceMotion.System)}
           style={styles.organizationSection}
         >
           <Text style={styles.organizationName}>

@@ -1,10 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import ExerciseValidation from '@/components/common/ExerciseValidation';
 import { useTheme } from '@/themes/ThemeContext';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
-import { useFeedbackMessages, getFeedbackState } from '@/hooks/exercises/useFeedbackMessages';
-import type { FeedbackData } from '@/hooks/exercises/useFeedbackMessages';
+import useWordGameFeedback from '@/screens/WordGames/hooks/useWordGameFeedback';
 import { tokens } from '@/themes/tokens';
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
 import type { SentenceQuestion } from '@/screens/WordGames/schema';
@@ -60,22 +59,7 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
     ordered.length > 0
   );
 
-  const { getFeedback } = useFeedbackMessages();
-  const [feedbackMessage, setFeedbackMessage] = useState<FeedbackData | null>(null);
-
-  useEffect(() => {
-    const loadFeedback = async () => {
-      const feedbackState = getFeedbackState(isValidated, isCorrect, attemptCount, maxAttempts);
-      if (feedbackState) {
-        const feedback = await getFeedback('wordgames', feedbackState);
-        setFeedbackMessage(feedback);
-      } else {
-        setFeedbackMessage(null);
-      }
-    };
-
-    loadFeedback();
-  }, [isValidated, isCorrect, attemptCount, maxAttempts, getFeedback]);
+  const feedbackMessage = useWordGameFeedback(isValidated, isCorrect, attemptCount, maxAttempts);
 
   const handleWordPress = (index: number) => {
     if (!isValidated) {
@@ -208,6 +192,8 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
                   onPress={() => handleRemoveWord(index)}
                   disabled={isValidated}
                   activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Retirer "${item.text}"`}
                 >
                   <Text style={styles.orderedWordText}>{item.text}</Text>
                 </TouchableOpacity>
@@ -226,6 +212,8 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
                 onPress={() => handleWordPress(index)}
                 disabled={isValidated}
                 activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={`Ajouter "${item.text}"`}
               >
                 <Text style={styles.availableWordText}>{item.text}</Text>
               </TouchableOpacity>
@@ -234,7 +222,13 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
         </View>
 
         {ordered.length > 0 && !isValidated && (
-          <TouchableOpacity style={styles.resetButton} onPress={handleReset} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={styles.resetButton}
+            onPress={handleReset}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Recommencer"
+          >
             <Text style={styles.resetButtonText}>↻ Reset</Text>
           </TouchableOpacity>
         )}

@@ -4,7 +4,10 @@ import { baseColors } from '@/themes/colors';
 import type { Identity } from '@/themes/ThemeContext';
 
 // baseColors utilisé uniquement pour success/error (couleurs système), le reste vient de l'identity (white label)
-export const getStyles = (identity: Identity) => StyleSheet.create({
+export const getStyles = (identity: Identity) => {
+  const isPlayful = identity.ui.mood === 'playful';
+
+  return StyleSheet.create({
   container: {
     paddingHorizontal: 0,
     paddingTop: spacing.xl,
@@ -24,8 +27,8 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     borderRadius: borderRadius.lg,
     marginHorizontal: spacing.md,
     marginBottom: spacing.xl,
-    borderWidth: borderWidths.thick,
-    ...shadows.md,
+    borderWidth: isPlayful ? borderWidths.thick : borderWidths.thin,
+    ...(isPlayful ? shadows.md : shadows.sm),
   },
 
   feedbackCorrect: {
@@ -103,10 +106,10 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 64,
-    borderRadius: borderRadius.lg,
+    borderRadius: isPlayful ? borderRadius.lg : borderRadius.md,
     paddingHorizontal: spacing.xxl,
     paddingVertical: spacing.lg,
-    ...shadows.xl,
+    ...(isPlayful ? shadows.xl : shadows.sm),
   },
 
   buttonIconContainer: {
@@ -121,11 +124,11 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
 
   buttonLabel: {
     fontSize: fontSize.lg,
-    fontWeight: fontWeight.extrabold,
-    fontFamily: identity.fontFamily.extrabold,
+    fontWeight: isPlayful ? fontWeight.extrabold : fontWeight.bold,
+    fontFamily: isPlayful ? identity.fontFamily.extrabold : identity.fontFamily.semibold,
     color: identity.text.onPrimary,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    textTransform: isPlayful ? 'uppercase' : 'none',
+    letterSpacing: isPlayful ? 1 : 0.2,
     flex: 1,
     textAlign: 'center',
   },
@@ -143,32 +146,32 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
   // buttonInitial : couleur principale de l'identity (white label)
   buttonInitial: {
     backgroundColor: identity.palette.primary,
-    borderWidth: borderWidths.thick,
+    borderWidth: isPlayful ? borderWidths.thick : borderWidths.none,
     borderColor: withOpacity(baseColors.white, 0.3),
   },
 
   buttonCorrect: {
     backgroundColor: baseColors.green500,
-    borderWidth: borderWidths.thick,
+    borderWidth: isPlayful ? borderWidths.thick : borderWidths.none,
     borderColor: baseColors.green600,
   },
 
   buttonIncorrect: {
     backgroundColor: baseColors.orange500,
-    borderWidth: borderWidths.thick,
+    borderWidth: isPlayful ? borderWidths.thick : borderWidths.none,
     borderColor: baseColors.orange600,
   },
 
   buttonSkip: {
     backgroundColor: baseColors.gray400,
-    borderWidth: borderWidths.thick,
+    borderWidth: isPlayful ? borderWidths.thick : borderWidths.none,
     borderColor: baseColors.gray500,
-    ...shadows.xl,
+    ...(isPlayful ? shadows.xl : shadows.sm),
   },
 
   buttonDisabled: {
     backgroundColor: baseColors.gray300,
-    borderWidth: borderWidths.thick,
+    borderWidth: isPlayful ? borderWidths.thick : borderWidths.none,
     borderColor: baseColors.gray400,
     opacity: 1,
     shadowOpacity: 0.1,
@@ -200,4 +203,5 @@ export const getStyles = (identity: Identity) => StyleSheet.create({
     color: baseColors.orange600,
     marginLeft: spacing.xs,
   },
-});
+  });
+};

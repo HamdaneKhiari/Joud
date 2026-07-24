@@ -11,6 +11,10 @@ jest.mock('@/utils/logUtils', () => ({
   log: { error: jest.fn(), warn: jest.fn(), debug: jest.fn(), info: jest.fn() },
 }));
 
+jest.mock('@/contexts/UserContext', () => ({
+  useUser: () => ({ db: null, user: { id: 'test_user' } }),
+}));
+
 import { useGameState } from '@/screens/WordGames/hooks/useGameState';
 import { useGameHandlers } from '@/screens/WordGames/hooks/useGameHandlers';
 import type { UseGameHandlersParams } from '@/screens/WordGames/hooks/useGameHandlers';
@@ -81,16 +85,11 @@ describe('useGameState — resetAllStates', () => {
 // useGameHandlers
 // ============================================
 
-const makeStates = () => {
-  const { result } = renderHook(() => useGameState('definition'));
-  return result;
-};
-
 const mockTrackItemCompletion = jest.fn();
 const mockSafeGoBack = { navigate: jest.fn() };
 const mockSetCurrentIndex = jest.fn();
 
-function makeParams(question: unknown, states: ReturnType<typeof makeStates>['current'], isLastQuestion = false): UseGameHandlersParams {
+function makeParams(question: unknown, states: ReturnType<typeof useGameState>, isLastQuestion = false): UseGameHandlersParams {
   return {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     question: question as any,

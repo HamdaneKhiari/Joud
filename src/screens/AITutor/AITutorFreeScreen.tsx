@@ -196,7 +196,13 @@ const AITutorFreeScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Retour"
+        >
           <Ionicons name="arrow-back" size={24} color={identity.palette.primary} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
@@ -206,10 +212,22 @@ const AITutorFreeScreen: React.FC = () => {
           </Text>
         </View>
         <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.iconButton} onPress={newConversation} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={newConversation}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Nouvelle conversation"
+          >
             <Ionicons name="add-circle-outline" size={24} color={identity.palette.primary} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={() => router.push('/settings/ai')} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => router.push('/settings/ai')}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Paramètres IA"
+          >
             <Ionicons name="settings-outline" size={24} color={identity.palette.primary} />
           </TouchableOpacity>
         </View>
@@ -220,7 +238,15 @@ const AITutorFreeScreen: React.FC = () => {
           {conversations.map(conv => {
             const isActive = conv.id === currentConversationId;
             return (
-              <TouchableOpacity key={conv.id} style={[styles.convChip, isActive && styles.convChipActive]} onPress={() => switchConversation(conv.id)} activeOpacity={0.8}>
+              <TouchableOpacity
+                key={conv.id}
+                style={[styles.convChip, isActive && styles.convChipActive]}
+                onPress={() => switchConversation(conv.id)}
+                activeOpacity={0.8}
+                accessibilityRole="radio"
+                accessibilityLabel={conv.title || 'Nouvelle'}
+                accessibilityState={{ selected: isActive }}
+              >
                 <Text style={[styles.convChipText, isActive && styles.convChipTextActive]}>{conv.title || 'Nouvelle'}</Text>
               </TouchableOpacity>
             );
@@ -256,7 +282,15 @@ const AITutorFreeScreen: React.FC = () => {
             onSubmitEditing={handleSend}
             textAlignVertical="center"
           />
-          <TouchableOpacity style={[styles.sendButton, (!inputText.trim() || isSending) && styles.sendButtonDisabled]} onPress={handleSend} disabled={!inputText.trim() || isSending} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={[styles.sendButton, (!inputText.trim() || isSending) && styles.sendButtonDisabled]}
+            onPress={handleSend}
+            disabled={!inputText.trim() || isSending}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Envoyer"
+            accessibilityState={{ disabled: !inputText.trim() || isSending }}
+          >
             <Ionicons name="arrow-forward" size={20} color={identity.text.onPrimary} />
           </TouchableOpacity>
         </View>

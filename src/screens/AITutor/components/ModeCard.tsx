@@ -51,6 +51,8 @@ export const ModeCard: React.FC<ModeCardProps> = ({
         style={styles.modeButton}
         onPress={onPress}
         activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={`Démarrer, ${title}`}
       >
         <Text style={styles.modeButtonText}>Démarrer</Text>
         <Ionicons name="arrow-forward" size={18} color={identity.text.onPrimary} />

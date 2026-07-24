@@ -145,6 +145,9 @@ const mockIdentity = {
   fontFamily: { regular: 'System', medium: 'System', semibold: 'System', bold: 'System', title: 'System', extrabold: 'System' },
 };
 
+// identity.id détermine le mode phrase_types (primary → blanks, college → tiles, lycee/adult → free)
+const primaryIdentity = { ...mockIdentity, id: 'primary', organizationName: 'Joud Primaire' };
+
 const mockNav = { navigate: jest.fn(), loading: false, disabled: false, canNavigate: true, lastExecuted: null, cleanup: jest.fn() };
 const getFirstIncomplete = jest.fn().mockReturnValue(0);
 
@@ -215,12 +218,6 @@ function setupMocks() {
 // Tests
 // ============================================
 
-// Screens ancienne API react-navigation passent route/navigation comme props
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const mockRoute = { params: { familyId: '101', levelId: '1', exerciseType: 'vocab', subfamilyId: '0', moduleId: '1', title: 'Test', moduleColor: '#34495E' } };
-const mockNavigationProp = { navigate: jest.fn(), goBack: jest.fn(), push: jest.fn(), setOptions: jest.fn(), addListener: jest.fn().mockReturnValue(() => {}) };
-/* eslint-enable @typescript-eslint/no-explicit-any */
-
 // ============================================
 // Mock data
 // ============================================
@@ -260,7 +257,7 @@ describe('Smoke tests — Screens d\'exercices', () => {
   });
 
   it('VocabularyScreen — rend sans crash', () => {
-    expect(() => render(<VocabularyScreen route={mockRoute as any} navigation={mockNavigationProp as any} />)).not.toThrow();
+    expect(() => render(<VocabularyScreen />)).not.toThrow();
   });
 
   it('SentenceScreen — rend sans crash', () => {
@@ -276,7 +273,7 @@ describe('Smoke tests — Screens d\'exercices', () => {
   });
 
   it('WordGamesScreen — rend sans crash', () => {
-    expect(() => render(<WordGamesScreen route={mockRoute as any} navigation={mockNavigationProp as any} />)).not.toThrow();
+    expect(() => render(<WordGamesScreen />)).not.toThrow();
   });
 
   it('ConnectorScreen — rend sans crash', () => {
@@ -301,7 +298,7 @@ describe('Screens avec contenu — render paths', () => {
     require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
       module: mockModule, family: mockFamily, contentItems: mockVocabContent, isLoading: false, error: null,
     });
-    const { getAllByText } = render(<VocabularyScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
+    const { getAllByText } = render(<VocabularyScreen />);
     expect(getAllByText('apple').length).toBeGreaterThanOrEqual(1);
   });
 
@@ -313,13 +310,14 @@ describe('Screens avec contenu — render paths', () => {
     require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
       module: mockModule, family: mockFamily, contentItems: twoWords, isLoading: false, error: null,
     });
-    const { getByText } = render(<VocabularyScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
+    const { getByText } = render(<VocabularyScreen />);
     expect(getByText('pomme')).toBeTruthy();
   });
 
 // ─── SentenceScreen ───
 
-  it('SentenceScreen — render avec contentItems en mode blanks (college)', () => {
+  it('SentenceScreen — render avec contentItems en mode blanks (primary)', () => {
+    require('@/themes/ThemeContext').useTheme.mockReturnValue({ identity: primaryIdentity, tokens });
     require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
       module: mockModule, family: mockFamily, contentItems: mockSentenceContent, isLoading: false, error: null,
     });
@@ -328,6 +326,7 @@ describe('Screens avec contenu — render paths', () => {
   });
 
   it('SentenceScreen — sélectionner une option', () => {
+    require('@/themes/ThemeContext').useTheme.mockReturnValue({ identity: primaryIdentity, tokens });
     require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
       module: mockModule, family: mockFamily, contentItems: mockSentenceContent, isLoading: false, error: null,
     });
@@ -492,6 +491,7 @@ describe('Screens avec contenu — render paths', () => {
   // ─── SentenceScreen blanks validation ───
 
   it('SentenceScreen — blanks: réponse correcte → BRAVO', () => {
+    require('@/themes/ThemeContext').useTheme.mockReturnValue({ identity: primaryIdentity, tokens });
     require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
       module: mockModule, family: mockFamily, contentItems: mockSentenceContent, isLoading: false, error: null,
     });
@@ -504,6 +504,7 @@ describe('Screens avec contenu — render paths', () => {
   });
 
   it('SentenceScreen — blanks: réponse incorrecte → PAS TOUT À FAIT', () => {
+    require('@/themes/ThemeContext').useTheme.mockReturnValue({ identity: primaryIdentity, tokens });
     require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
       module: mockModule, family: mockFamily, contentItems: mockSentenceContent, isLoading: false, error: null,
     });
@@ -516,6 +517,7 @@ describe('Screens avec contenu — render paths', () => {
   });
 
   it('SentenceScreen — blanks: handleRetry remet en état initial', () => {
+    require('@/themes/ThemeContext').useTheme.mockReturnValue({ identity: primaryIdentity, tokens });
     require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
       module: mockModule, family: mockFamily, contentItems: mockSentenceContent, isLoading: false, error: null,
     });
@@ -560,7 +562,6 @@ describe('Screens avec contenu — render paths', () => {
     require('@/screens/ConnectorScreen/hooks/useConnectorContent').useConnectorContent.mockReturnValue({
       questions: fusionQuestion, loading: false,
     });
-    // Override exerciseType to fusion via mockRoute-like params
     expect(() => render(<ConnectorScreen />)).not.toThrow();
   });
 
@@ -575,7 +576,7 @@ describe('Screens avec contenu — render paths', () => {
     require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
       module: mockModule, family: mockFamily, contentItems: mockVocabContent, isLoading: false, error: null,
     });
-    const { UNSAFE_getAllByType } = render(<VocabularyScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
+    const { UNSAFE_getAllByType } = render(<VocabularyScreen />);
     const { TouchableOpacity } = require('react-native');
     const buttons = UNSAFE_getAllByType(TouchableOpacity);
     if (buttons.length > 0) fireEvent.press(buttons[buttons.length - 1]);
@@ -588,7 +589,7 @@ describe('Screens avec contenu — render paths', () => {
     require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
       module: null, family: null, contentItems: [], isLoading: true, error: null,
     });
-    const { UNSAFE_getByType } = render(<VocabularyScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
+    const { UNSAFE_getByType } = render(<VocabularyScreen />);
     const { ActivityIndicator } = require('react-native');
     expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
   });
@@ -601,7 +602,7 @@ describe('Screens avec contenu — render paths', () => {
     require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
       module: mockModule, family: mockFamily, contentItems: twoWords, isLoading: false, error: null,
     });
-    const { UNSAFE_getAllByType } = render(<VocabularyScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
+    const { UNSAFE_getAllByType } = render(<VocabularyScreen />);
     const { TouchableOpacity } = require('react-native');
     const buttons = UNSAFE_getAllByType(TouchableOpacity);
     // Press "next" (last button when isLast=false with 2 words at index 0)
@@ -631,7 +632,7 @@ describe('Screens avec contenu — render paths', () => {
       resetAllStates: jest.fn(),
       getCurrentState: jest.fn().mockReturnValue({ isValidated: false, isCorrect: false, attemptCount: 0, selectedOption: null }),
     });
-    expect(() => render(<WordGamesScreen route={mockRoute as any} navigation={mockNavigationProp as any} />)).not.toThrow();
+    expect(() => render(<WordGamesScreen />)).not.toThrow();
   });
 
   it('WordGamesScreen — auto-progress useEffect fires when validated+correct', () => {
@@ -661,7 +662,7 @@ describe('Screens avec contenu — render paths', () => {
       resetAllStates: jest.fn(),
       getCurrentState: jest.fn().mockReturnValue(validatedState),
     });
-    expect(() => render(<WordGamesScreen route={mockRoute as any} navigation={mockNavigationProp as any} />)).not.toThrow();
+    expect(() => render(<WordGamesScreen />)).not.toThrow();
     expect(trackItemCompletion).toHaveBeenCalled();
   });
 
@@ -677,8 +678,8 @@ describe('Screens avec contenu — render paths', () => {
     require('@/screens/ReadingScreen/hooks/useReadingContent').useReadingContent.mockReturnValue({
       questions: [], loading: false,
     });
-    const { getByText } = render(<ReadingScreen />);
-    fireEvent.press(getByText('Retour'));
+    const { getByLabelText } = render(<ReadingScreen />);
+    fireEvent.press(getByLabelText('Retour'));
     expect(mockNav.navigate).toHaveBeenCalled();
   });
 
@@ -712,7 +713,7 @@ describe('Screens avec contenu — render paths', () => {
     require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
       module: mockModule, family: mockFamily, contentItems: mockVocabContent, isLoading: false, error: null,
     });
-    render(<VocabularyScreen route={mockRoute as any} navigation={mockNavigationProp as any} />);
+    render(<VocabularyScreen />);
     // No crash with full content path
     expect(mockFamily.name).toBe('Fruits');
   });
