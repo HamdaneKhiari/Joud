@@ -10,8 +10,6 @@ module.exports = [
       '.expo/**',
       'dist/**',
       '*.config.js',
-      'convert_*.js',
-      'validate.js',
     ],
   },
   {

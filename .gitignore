@@ -36,6 +36,12 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# test coverage reports (générés par `npm run test:coverage`, jamais à committer)
+coverage/
+
+# préférences Claude Code locales (par convention ".local", propre à chaque machine)
+.claude/settings.local.json
+
 # generated native folders
 /ios
 /android

@@ -754,3 +754,54 @@ le bouton retour matériel Android contournent ce hook et déclenchent directeme
 stack de navigation — dans ce cas, seul `useExerciseSaveOnUnmount` (non attendu) protège, donc
 la même course reste théoriquement possible par ces deux chemins. Pas traité : nécessiterait
 d'intercepter `beforeRemove` au niveau du navigateur plutôt qu'un bouton précis.
+
+---
+
+## 18. Nettoyage des artefacts de dev (demande explicite de l'utilisateur)
+
+Demande (2026-07-29) : "cleaner totalement le code [...] des documents inutiles que l'on a fait
+en dev". Audit systématique (fichiers non référencés, dépendances inutilisées, config
+obsolète) plutôt qu'un tri à l'œil — chaque suppression vérifiée avant d'agir.
+
+- [x] **`App.tsx` + `index.js` (racine) supprimés** — code 100% mort. `App.tsx` était un
+  prototype antérieur à expo-router ("🧪 Banc de Test JanaCore", littéralement), `index.js`
+  l'entry point React Native standard qui l'importait. Ni l'un ni l'autre n'est atteignable :
+  `package.json` a `"main": "expo-router/entry"`, donc Metro ne charge jamais ces fichiers.
+  Confirmé par grep : zéro référence ailleurs dans `src/`/`app/`.
+- [x] **`jest.setup.ts` (racine) supprimé** — dead aussi : `jest.config.js` référence
+  uniquement `src/__tests__/setup.ts` (`setupFilesAfterEnv`), pas de clé `"jest"` dans
+  `package.json` qui aurait pu le charger autrement. Fichier orphelin d'une itération
+  antérieure de la config de test.
+- [x] **`src/database/dataExcel/` + `src/database/script/` supprimés** — un vieux fichier
+  Excel (`data_english_vocabulary_primaire.xlsx`, superseded par `src/data/` section 15) et
+  un script Python (`generate_migration.py`) qui génère des migrations numérotées "031" —
+  incompatible avec le système consolidé actuel (001-007). Zéro référence ailleurs.
+- [x] **`coverage/` retiré du suivi git + ajouté à `.gitignore`** — 7,2 Mo de rapports HTML
+  générés (`npm run test:coverage`) committés par erreur, jamais nettoyés depuis. Se
+  régénère à la demande, n'a rien à faire dans l'historique.
+- [x] **`.claude/settings.local.json` retiré du suivi + gitignored** — fichier de préférences
+  Claude Code censé rester local par convention (le "local" dans le nom), committé par erreur.
+- [x] **6 dépendances inutilisées supprimées** (`npx depcheck`, chaque résultat vérifié par
+  grep avant suppression — 2 faux positifs écartés, voir ci-dessous) :
+  `@react-navigation/stack`, `expo-status-bar` (StatusBar importé depuis `react-native`
+  partout, jamais depuis ce package), `lucide-react-native`, `prop-types`, `twrnc` (deps),
+  `eslint-plugin-react-native` (devDep, absent de `eslint.config.js`).
+- **Faux positifs de `depcheck` écartés après vérification** — pas supprimés :
+  `expo-localization` (référencé dans `app.config.js` comme plugin Expo, pas via un import,
+  invisible pour depcheck) ; `@types/jest` (types ambients globaux `describe`/`it`/`expect`,
+  aucune ligne `import` à trouver, mais indispensable — `tsconfig.json` n'a pas de clé
+  `"types"` donc TypeScript inclut tout `@types/*` présent automatiquement).
+- [x] **Dépendance manquante corrigée** : `expo-font` (utilisé dans `app/_layout.tsx` via
+  `useFonts`) n'était jamais déclaré dans `package.json` — présent seulement en transitif
+  via une autre dépendance Expo. Risque réel (un futur changement de version en amont
+  pourrait le faire disparaître) plutôt qu'un simple oubli cosmétique. Ajouté explicitement.
+- [x] **2 entrées mortes retirées de `eslint.config.js`** (`ignores`) — `convert_*.js` et
+  `validate.js`, fichiers qui n'existent plus dans le repo.
+- **Vérifié** : `npm install` après les suppressions de dépendances → 39 paquets retirés
+  proprement, aucune erreur. `npx jest --silent` → 50 suites, **941 tests**, 0 échec.
+  `npx eslint` → 0 problème. `npx tsc --noEmit` → aucune nouvelle erreur.
+
+**Pas touché** : `.qodo/` (dossier local non suivi par git, résidu d'un autre outil IA utilisé
+sur ce projet — aucun impact sur le repo, à supprimer manuellement si l'utilisateur le
+souhaite). Duplication de code (jscpd) re-mesurée à 4,78% — inchangée depuis le dernier audit,
+pas de nouveau clone significatif à traiter.
