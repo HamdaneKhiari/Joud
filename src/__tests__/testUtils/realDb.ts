@@ -108,6 +108,7 @@ export const createMigratedRealDb = async (): Promise<RealTestDb> => {
     require('@/database/migrations/004_remove_grammar_module').default,
     require('@/database/migrations/005_remove_assessment_module').default,
     require('@/database/migrations/006_fix_contrast_and_adult_language').default,
+    require('@/database/migrations/007_seed_real_content').default,
   ];
 
   await runner.runMigrations(migrationModules);

@@ -10,6 +10,7 @@ import migration003 from './migrations/003_seed_subfamily_labels';
 import migration004 from './migrations/004_remove_grammar_module';
 import migration005 from './migrations/005_remove_assessment_module';
 import migration006 from './migrations/006_fix_contrast_and_adult_language';
+import migration007 from './migrations/007_seed_real_content';
 
 // Une seule initialisation simultanée : évite la double-invocation de React 18 Strict Mode
 let _initPromise: Promise<SQLite.SQLiteDatabase> | null = null;
@@ -45,6 +46,7 @@ const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
       migration004, // Suppression du module grammar (données résiduelles)
       migration005, // Suppression du module assessment (données résiduelles)
       migration006, // Fix contraste header (primary, lycee) + feedback adult en français
+      migration007, // Premier import de contenu réel (primaire + collège, tous modules)
     ];
 
     console.log('[JanaCore] 🚀 Running migrations...');

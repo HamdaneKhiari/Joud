@@ -579,3 +579,103 @@ place. Deux couches ajoutées.
     `jest@30.2.0` vs `~29.7.0` attendu par `jest-expo`, `@types/jest@30.0.0` vs `29.5.14`).
     `npx expo install --check` réglerait ça mais n'a pas été lancé pour ne pas mélanger ce
     chantier avec une mise à jour de dépendances non demandée.
+
+---
+
+## 15. Premier import de contenu réel — Primaire + Collège, tous modules
+
+Demande de l'utilisateur : fichiers Excel déposés dans `src/data/` (vocab, dialogues, reading,
+word_games, phrase_types), pour les publics primaire et collège. Objectif : que "l'appli
+puisse démarrer" avec du vrai contenu au lieu du seed vide (blocage principal identifié
+section 12/13). Migration 007 créée, enregistrée dans `src/database/init.ts` et dans le
+harnais de test [[realdb_integration_harness]].
+
+### 15.1 Vocabulaire — taxonomie entièrement reconstruite
+
+- Le fichier `validation_finale_4tranches_v2.xlsx` a des colonnes Famille/Sous-famille, mais
+  l'utilisateur a explicitement indiqué qu'elles étaient **fausses** ("j'avais oublié, je
+  n'avais pas travaillé [dessus], revois entièrement"). Elles n'ont donc pas été utilisées.
+- [x] Les **1029 mots ont été lus intégralement** (622 primaire + 407 collège, pas un
+  échantillon) avant de concevoir la taxonomie, après une première tentative jugée trop
+  générique par l'utilisateur ("tu lis pas les fichiers pour les familles").
+- [x] **13 nouvelles familles** conçues à partir du contenu réel : Corps & Santé, Famille &
+  Gens, Nourriture & Boissons, Maison & Ville, Nature & Animaux, École & Apprentissage,
+  Temps & Nombres, Actions du Quotidien, Loisirs & Sport, Vêtements & Objets, Mots-Outils,
+  Décrire & Penser, Travail & Société (celle-ci concentrée côté collège : carrière, société,
+  technologie/science). 2 à 6 sous-familles chacune.
+- [x] Classement mot par mot (pas de règles keyword automatiques non vérifiées) : 100% des
+  1029 mots couverts après deux passes de complément. Taille max d'une sous-famille : 51 mots
+  (un seul public) — jugé raisonnable pour une liste défilante RN.
+- Familles partagées entre les 4 identités (comme l'étaient déjà les 6 familles vocab
+  précédentes) : primaire/collège ont du contenu dès maintenant, lycée/adulte auront les
+  mêmes familles/sous-familles dès que leurs propres données arriveront.
+
+### 15.2 Dialogues / Reading / Word Games / Phrase Types — vérifiés puis importés tels quels
+
+- Contrairement au vocabulaire, ces 4 fichiers n'ont pas été signalés comme faux — vérifiés
+  avant import plutôt que supposés bons (demande explicite de l'utilisateur) :
+  cohérence Family ID ↔ Family Name, réponses correctes toujours présentes dans les options,
+  JSON des dialogues valide et `correctAnswer` dans les bornes de `options`, aucun champ
+  critique vide. **0 problème trouvé** sur dialogues/reading/word_games/phrase_types (primaire
+  + collège) — confirmé que le souci de qualité était spécifique au vocabulaire.
+- Beaucoup de ces fichiers étaient déjà pré-formatés proche du schéma de l'app (colonnes
+  `Family ID`/`Subfamily ID`/`Module Slug`/`Audience`/`JSON Data`) — import largement mécanique.
+- **Dialogues** : 1 famille = 1 dialogue autonome (10 par public, sujets différents primaire
+  vs collège — pas de thème partagé), `subfamily_id` fixe à 1.
+- **Reading** : 1 famille = 1 texte (10 par public × 5 questions = 50 lignes de contenu).
+- **Word Games** : collège = 6 familles (1 par type : definition/blanks/speed/audio_match/
+  sentence/detective, alignées avec `wordGamesConfig.ts`). Primaire = 9 familles (formats
+  hétérogènes par feuille : blanks/definition/sentence en famille unique, speed/audio_match
+  en plusieurs sets thématiques).
+- [x] **Corrigé** : la colonne "image" des pairs `audio_match` collège était corrompue à la
+  source (mojibake — caractères chinois aléatoires à la place d'un emoji, ex. "throw"→"菉",
+  "island"→"", probablement un emoji UTF-8 mal réinterprété en GBK/Big5 lors d'un export).
+  Les 42 mots concernés (10 sets de 4-5 paires) ont été relus un par un et un emoji pertinent
+  choisi à la main pour chacun, distinct au sein de son propre set (vérifié
+  programmatiquement : 0 doublon). Le primaire n'était pas concerné (emoji déjà propres dans
+  sa colonne "Image").
+- **Phrase Types** : 10 familles × plusieurs sous-familles nommées par public (300 phrases
+  collège, 150 primaire), mode "blanks", structure déjà propre.
+
+### 15.3 Bug réel trouvé : familles non filtrées par audience
+
+- En important les dialogues, découverte que `useFamiliesWithProgress.ts` (hook réellement
+  utilisé par `FamilySelectionScreen`) liste les familles d'un module **sans filtrer par
+  public** — contrairement au vocab (familles génériques partagées, donc le bug était invisible
+  jusqu'ici), un module comme `dialogues` a maintenant des familles au nom explicitement
+  lié à un public ("First Day at a New School" = collège). Un utilisateur primaire aurait vu
+  ces titres dans sa liste de familles, alors même que leur contenu ne lui est pas destiné.
+- [x] **Corrigé** : ajout d'un `EXISTS (... c.target_audience = ? OR c.target_audience = 'all')`
+  à la requête. `families` n'a pas de colonne d'audience propre — la visibilité dépend
+  désormais de l'existence de contenu adapté au public de l'utilisateur.
+- **Vérifié par un vrai test d'intégration** (pas juste "ça compile") : pour dialogues/reading/
+  word_games/phrase_types, un public ne voit jamais une famille dont le slug appartient à
+  l'autre public, dans les deux sens.
+
+### 15.4 Génération et validation
+
+- Migration générée par script (Node, dans le scratchpad — pas écrite à la main vu le volume :
+  1720 lignes de contenu, 88 familles, 143 libellés de sous-familles) plutôt que codée
+  manuellement, pour éliminer le risque de faute de frappe sur des milliers de valeurs.
+- Piège TypeScript rencontré : le littéral `CONTENT: ContentSeed[] = [...]` (1720 objets aux
+  formes de `data` très variées) faisait échouer `tsc` avec *"Expression produces a union type
+  that is too complex to represent"*. Corrigé en chargeant via `JSON.parse(...)` (chaîne JSON
+  échappée) plutôt qu'un littéral typé directement — TypeScript n'essaie plus d'inférer/unifier
+  la structure de 1720 objets différents.
+- [x] **9 nouveaux tests d'intégration réels** dans `realDb.test.ts` (total 19 dans ce
+  fichier) : volumes exacts par module/public, un mot vocab précis relu avec sa traduction,
+  sous-familles nommées pour les 4 identités, dialogue avec messages/questions valides
+  (`correctAnswer` dans les bornes), et le test de non-fuite d'audience ci-dessus.
+- **Vérifié** : `npx jest --silent` → 50 suites, **937 tests** (929 précédents + 9 nouveaux −
+  1 test de comptage de migrations mis à jour de `[1..6]` à `[1..7]`), 0 échec. `npx eslint` →
+  0 problème (inchangé). `npx tsc --noEmit` → aucune nouvelle erreur hors `__tests__`.
+
+**Reste (pas fait, périmètre restreint à primaire/collège pour l'instant) :**
+- Lycée et adulte n'ont pas encore de contenu réel (mêmes familles vocab déjà prêtes à les
+  recevoir ; dialogues/reading/word_games/phrase_types n'ont aucune famille pour ces publics
+  tant que leurs fichiers ne sont pas fournis).
+- Le module `connector` (lycée/adulte uniquement) n'a pas été traité — hors scope de cette
+  livraison primaire/collège.
+- Confirmé avec l'utilisateur (2026-07-29) : sortie prévue **primaire + collège d'abord**,
+  lycée/adulte plus tard — le périmètre restreint ci-dessus est donc intentionnel, pas une
+  dette à combler avant publication.

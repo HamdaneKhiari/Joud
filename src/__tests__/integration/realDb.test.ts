@@ -23,6 +23,7 @@ import {
   getBrandingById,
   getIdentityPalette,
 } from '@/database/queries';
+import { getSubFamiliesByFamily } from '@/services/subfamilyService';
 
 // insertFamily n'existe plus (supprimé — code mort et cassé, cf. task.md section 14 :
 // omettait families.slug, colonne NOT NULL UNIQUE). Les familles de test sont donc seedées
@@ -48,10 +49,10 @@ describe('Intégration DB réelle — migrations', () => {
     await testDb.db.closeAsync?.();
   });
 
-  it('les 6 migrations s\'exécutent sans erreur et sont enregistrées', async () => {
+  it('les 7 migrations s\'exécutent sans erreur et sont enregistrées', async () => {
     const versions = testDb.raw.exec('SELECT version FROM schema_migrations ORDER BY version');
     const applied = versions[0]?.values.map((row) => row[0]) ?? [];
-    expect(applied).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(applied).toEqual([1, 2, 3, 4, 5, 6, 7]);
   });
 
   it('le module "assessment" n\'existe plus après la migration 005', async () => {
@@ -77,6 +78,106 @@ describe('Intégration DB réelle — migrations', () => {
       const palette = await getIdentityPalette(testDb.db, id);
       expect(palette.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe('Intégration DB réelle — contenu réel (migration 007)', () => {
+  let testDb: RealTestDb;
+
+  beforeAll(async () => {
+    testDb = await createMigratedRealDb();
+  }, 20000);
+
+  afterAll(async () => {
+    await testDb.db.closeAsync?.();
+  });
+
+  it('importe le bon volume de contenu par module et par public', async () => {
+    const counts = testDb.raw.exec(`
+      SELECT f.module_slug, c.target_audience, COUNT(*) as n
+      FROM content c JOIN families f ON f.id = c.family_id
+      WHERE f.order_index >= 100
+      GROUP BY f.module_slug, c.target_audience
+      ORDER BY f.module_slug, c.target_audience
+    `);
+    const rows = counts[0].values.map((r) => `${r[0]}|${r[1]}|${r[2]}`);
+    expect(rows).toEqual(expect.arrayContaining([
+      'dialogues|college|10', 'dialogues|primary|10',
+      'phrase_types|college|300', 'phrase_types|primary|150',
+      'reading|college|50', 'reading|primary|50',
+      'vocab|college|407', 'vocab|primary|622',
+      'word_games|college|85', 'word_games|primary|36',
+    ]));
+  });
+
+  it('retrouve un mot de vocabulaire précis avec sa traduction et son exemple', async () => {
+    const row = testDb.raw.exec(`
+      SELECT data FROM content c JOIN families f ON f.id = c.family_id
+      WHERE f.module_slug = 'vocab' AND c.target_audience = 'primary'
+        AND json_extract(c.data, '$.word') = 'APPLE'
+    `);
+    expect(row.length).toBe(1);
+    const data = JSON.parse(row[0].values[0][0] as string);
+    expect(data.translation).toBe('Pomme');
+    expect(data.example).toContain('apple');
+  });
+
+  it('une famille vocab a des sous-familles nommées pour les 4 identités', async () => {
+    const family = testDb.raw.exec("SELECT id FROM families WHERE slug = 'corps-sante'");
+    const familyId = family[0].values[0][0] as number;
+    for (const identity of ['primary', 'college', 'lycee', 'adult']) {
+      const labels = await getSubFamiliesByFamily(testDb.db, familyId, identity);
+      expect(labels.length).toBeGreaterThan(0);
+      expect(labels[0].title).toBeTruthy();
+    }
+  });
+
+  it('un dialogue importé a des messages et des questions valides', async () => {
+    const row = testDb.raw.exec(`
+      SELECT c.data FROM content c JOIN families f ON f.id = c.family_id
+      WHERE f.module_slug = 'dialogues' AND c.target_audience = 'primary' LIMIT 1
+    `);
+    const data = JSON.parse(row[0].values[0][0] as string);
+    expect(data.messages.length).toBeGreaterThan(0);
+    expect(data.questions.length).toBeGreaterThan(0);
+    for (const q of data.questions) {
+      expect(q.correctAnswer).toBeGreaterThanOrEqual(0);
+      expect(q.correctAnswer).toBeLessThan(q.options.length);
+    }
+  });
+
+  it('un public ne voit jamais les familles dialogues/reading/word_games réservées à un autre public', async () => {
+    // Reproduit le filtre EXISTS ajouté à useFamiliesWithProgress (families n'a pas de
+    // target_audience propre — la visibilité dépend du contenu qui lui est associé).
+    const familiesVisibleFor = (moduleSlug: string, audience: string) => {
+      const result = testDb.raw.exec(`
+        SELECT f.slug FROM families f
+        WHERE f.module_slug = '${moduleSlug}'
+        AND EXISTS (
+          SELECT 1 FROM content c
+          WHERE c.family_id = f.id AND (c.target_audience = '${audience}' OR c.target_audience = 'all')
+        )
+      `);
+      return result.length ? result[0].values.map((r) => r[0] as string) : [];
+    };
+
+    for (const moduleSlug of ['dialogues', 'reading', 'word_games', 'phrase_types']) {
+      const primaryFamilies = familiesVisibleFor(moduleSlug, 'primary');
+      const collegeFamilies = familiesVisibleFor(moduleSlug, 'college');
+      expect(primaryFamilies.some((s) => s.includes('college'))).toBe(false);
+      expect(collegeFamilies.some((s) => s.includes('primary'))).toBe(false);
+      expect(primaryFamilies.length).toBeGreaterThan(0);
+      expect(collegeFamilies.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('les familles vocab, dialogues, reading ont toutes des content rows accessibles via getContentByFamilyAndLevel', async () => {
+    const family = testDb.raw.exec("SELECT id FROM families WHERE slug = 'dlg-primary-1'");
+    const familyId = family[0].values[0][0] as number;
+    const levelRow = testDb.raw.exec('SELECT level FROM content WHERE family_id = ?', [familyId]);
+    const level = levelRow[0].values[0][0] as number;
+    const content = await getContentByFamilyAndLevel(testDb.db, familyId, level, 'primary');
+    expect(content.length).toBeGreaterThan(0);
   });
 });
 

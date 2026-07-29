@@ -54,12 +54,16 @@ export default function useFamiliesWithProgress(moduleId: string | number, level
         WHERE f.module_slug = (
           SELECT slug FROM modules WHERE CAST(id AS TEXT) = ? OR slug = ? LIMIT 1
         )
+        AND EXISTS (
+          SELECT 1 FROM content c
+          WHERE c.family_id = f.id AND (c.target_audience = ? OR c.target_audience = 'all')
+        )
         ORDER BY f.order_index ASC;
       `;
 
       const params = user
-        ? [levelId, user.id, moduleId.toString(), moduleId.toString()]
-        : [levelId, moduleId.toString(), moduleId.toString()];
+        ? [levelId, user.id, moduleId.toString(), moduleId.toString(), user.audience]
+        : [levelId, moduleId.toString(), moduleId.toString(), ''];
 
       const results = await db.getAllAsync<FamilyWithProgress>(query, params);
       setFamilies(results);
