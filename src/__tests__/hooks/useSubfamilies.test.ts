@@ -48,26 +48,26 @@ describe('useSubfamilies', () => {
     ];
     require('@/services/subfamilyService').getSubFamiliesByFamily.mockResolvedValueOnce(mockData);
 
-    const { result } = renderHook(() => useSubfamilies(1));
+    const { result } = renderHook(() => useSubfamilies(1, 2));
     await act(async () => { await new Promise(r => setTimeout(r, 0)); });
 
     expect(result.current.subfamilies).toEqual(mockData);
     expect(result.current.isLoading).toBe(false);
     expect(require('@/services/subfamilyService').getSubFamiliesByFamily).toHaveBeenCalledWith(
-      mockDb, 1, 'college', 'u1'
+      mockDb, 1, 'college', 2, 'u1'
     );
   });
 
   it('isLoading=false quand db est null', async () => {
     setupMocks(null);
-    const { result } = renderHook(() => useSubfamilies(1));
+    const { result } = renderHook(() => useSubfamilies(1, 1));
     await act(async () => { await new Promise(r => setTimeout(r, 0)); });
     expect(result.current.isLoading).toBe(false);
     expect(result.current.subfamilies).toEqual([]);
   });
 
   it('isLoading=false quand familyId=0 (invalide)', async () => {
-    const { result } = renderHook(() => useSubfamilies(0));
+    const { result } = renderHook(() => useSubfamilies(0, 1));
     await act(async () => { await new Promise(r => setTimeout(r, 0)); });
     expect(result.current.isLoading).toBe(false);
     expect(require('@/services/subfamilyService').getSubFamiliesByFamily).not.toHaveBeenCalled();
@@ -75,7 +75,7 @@ describe('useSubfamilies', () => {
 
   it('propage les erreurs DB via log.error (catch block)', async () => {
     require('@/services/subfamilyService').getSubFamiliesByFamily.mockRejectedValueOnce(new Error('DB crash'));
-    const { result } = renderHook(() => useSubfamilies(5));
+    const { result } = renderHook(() => useSubfamilies(5, 1));
     await act(async () => { await new Promise(r => setTimeout(r, 0)); });
     expect(require('@/utils/logUtils').log.error).toHaveBeenCalled();
     expect(result.current.isLoading).toBe(false);
@@ -84,14 +84,14 @@ describe('useSubfamilies', () => {
   it('user=null → appelle getSubFamiliesByFamily sans userId', async () => {
     setupMocks(mockDb, null as unknown as { id: string });
     require('@/services/subfamilyService').getSubFamiliesByFamily.mockResolvedValueOnce([]);
-    const { result } = renderHook(() => useSubfamilies(3));
+    const { result } = renderHook(() => useSubfamilies(3, 1));
     await act(async () => { await new Promise(r => setTimeout(r, 0)); });
     expect(result.current.isLoading).toBe(false);
   });
 
   it('retourne isLoading=true initialement', () => {
     require('@/services/subfamilyService').getSubFamiliesByFamily.mockReturnValue(new Promise(() => {})); // never resolves
-    const { result } = renderHook(() => useSubfamilies(1));
+    const { result } = renderHook(() => useSubfamilies(1, 1));
     // Initially isLoading=true, then loadData sets it to false via finally
     // Since the promise never resolves, we just check the initial shape
     expect(typeof result.current.isLoading).toBe('boolean');

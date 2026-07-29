@@ -679,3 +679,41 @@ harnais de test [[realdb_integration_harness]].
 - Confirmé avec l'utilisateur (2026-07-29) : sortie prévue **primaire + collège d'abord**,
   lycée/adulte plus tard — le périmètre restreint ci-dessus est donc intentionnel, pas une
   dette à combler avant publication.
+
+---
+
+## 16. Bug réel trouvé en testant sur device : progression de sous-famille faussée entre niveaux
+
+Rapport utilisateur après test manuel (2026-07-29) : "j'ai fait sous famille j'étais à 20%
+tout est passé à 20%". Reproduit et corrigé — cause directe du nouveau contenu réel (section
+15) : le vocabulaire répartit chaque sous-famille sur les 4 niveaux de dashboard (chunking
+par quart lors de l'import), ce qui n'arrivait jamais avec l'ancien seed vide.
+
+- **Cause** : `getSubFamiliesByFamily` (`src/services/subfamilyService.ts`) joignait
+  `progress` sur `family_id` + `subfamily_id` **sans filtrer par `level`** (niveau de
+  dashboard). Dès qu'une sous-famille a de la progression à plusieurs niveaux (normal
+  maintenant), le `LEFT JOIN` remonte plusieurs lignes pour la même sous-famille, et
+  `GROUP BY ll.level_number` — sans agrégation explicite sur `p.completed`/`p.total` — fait
+  choisir à SQLite une ligne arbitraire parmi les niveaux. D'où une progression affichée qui
+  ne correspond ni au niveau courant ni à un calcul cohérent (et peut sembler "collée" à une
+  même valeur en changeant d'écran).
+- `useSubfamilies` (le hook appelant) ne recevait d'ailleurs même pas le niveau de dashboard
+  en paramètre alors que `SubFamilySelectionScreen` l'a déjà disponible (`dashboardLevelId`)
+  — jamais fil jusqu'à la requête.
+- [x] **Corrigé** : `getSubFamiliesByFamily(db, familyId, identityId, levelId, userId?)` —
+  nouveau paramètre `levelId` obligatoire, ajouté au `JOIN` (`AND p.level = ?`). Avec la
+  contrainte `UNIQUE(user_id, family_id, subfamily_id, level)` déjà en place, filtrer par
+  level garantit au plus une ligne `progress` par sous-famille — le `GROUP BY` redevient sûr.
+  `useSubfamilies(familyId, levelId)` et `SubFamilySelectionScreen` mis à jour pour propager
+  `dashboardLevelId`.
+- **Vérifié par un vrai test d'intégration** reproduisant exactement le scénario signalé :
+  progression 20% au niveau 1 et 80% au niveau 2 pour la *même* sous-famille → confirmé que
+  chaque niveau retourne bien son propre pourcentage, sans mélange (`realDb.test.ts`, 20
+  tests désormais dans ce fichier).
+- **Vérifié** : `npx jest --silent` → 50 suites, 939 tests (2 nouveaux), 0 échec. `eslint` →
+  0 problème. `tsc` → aucune nouvelle erreur.
+
+**Pas encore fait** : pas de vérification qu'un bug symétrique n'existe pas ailleurs dans la
+chaîne de progression (`getLevelProgress`/`getExerciseProgress` côté AsyncStorage,
+`getRecommendedModule`) — ce fix cible précisément la requête SQL identifiée comme cause du
+rapport utilisateur, pas un audit exhaustif de tout le système de progression.

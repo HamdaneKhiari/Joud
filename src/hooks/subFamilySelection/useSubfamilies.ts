@@ -6,7 +6,7 @@ import { useUser } from '@/contexts/UserContext';
 import { useTheme } from '@/themes/ThemeContext';
 import { getSubFamiliesByFamily, SubFamily } from '@/services/subfamilyService';
 
-export default function useSubfamilies(familyId: number) {
+export default function useSubfamilies(familyId: number, levelId: number) {
   const { db, user } = useUser();
   const { identity } = useTheme();
   const [subfamilies, setSubfamilies] = useState<SubFamily[]>([]);
@@ -20,14 +20,14 @@ export default function useSubfamilies(familyId: number) {
 
     try {
       setIsLoading(true);
-      const data = await getSubFamiliesByFamily(db, familyId, identity.id, user?.id);
+      const data = await getSubFamiliesByFamily(db, familyId, identity.id, levelId, user?.id);
       setSubfamilies(data);
     } catch (error) {
       log.error('❌ Erreur Subfamilies:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [db, familyId, identity?.id, user?.id]);
+  }, [db, familyId, levelId, identity?.id, user?.id]);
 
   useFocusEffect(useCallback(() => { loadData(); }, [loadData]));
 

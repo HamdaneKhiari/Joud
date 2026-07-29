@@ -49,7 +49,7 @@ const SubfamilySelectionScreen = () => {
     loadData();
   }, [db, familyId, displayTitle, resolvedModuleId]);
 
-  const { subfamilies, isLoading } = useSubfamilies(familyId);
+  const { subfamilies, isLoading } = useSubfamilies(familyId, dashboardLevelId);
   const styles = useMemo(() => createStyles(identity), [identity]);
 
   const safeGoBack = useSafeNavigation(() => {

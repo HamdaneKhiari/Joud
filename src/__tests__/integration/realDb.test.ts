@@ -126,10 +126,35 @@ describe('Intégration DB réelle — contenu réel (migration 007)', () => {
     const family = testDb.raw.exec("SELECT id FROM families WHERE slug = 'corps-sante'");
     const familyId = family[0].values[0][0] as number;
     for (const identity of ['primary', 'college', 'lycee', 'adult']) {
-      const labels = await getSubFamiliesByFamily(testDb.db, familyId, identity);
+      const labels = await getSubFamiliesByFamily(testDb.db, familyId, identity, 1);
       expect(labels.length).toBeGreaterThan(0);
       expect(labels[0].title).toBeTruthy();
     }
+  });
+
+  it('getSubFamiliesByFamily ne mélange pas la progression entre niveaux (bug réel corrigé)', async () => {
+    // Une sous-famille vocab a du contenu réparti sur les 4 niveaux de dashboard (chunking
+    // par quart lors de l'import). Avant le fix, la requête ne filtrait pas par `level` :
+    // avec de la progression à la fois au niveau 1 et au niveau 2 pour la même sous-famille,
+    // le LEFT JOIN remontait plusieurs lignes et GROUP BY en gardait une arbitrairement.
+    const family = testDb.raw.exec("SELECT id FROM families WHERE slug = 'corps-sante'");
+    const familyId = family[0].values[0][0] as number;
+
+    await upsertProgress(testDb.db, {
+      user_id: 'u_niveaux', family_id: familyId, subfamily_id: 1, level: 1, completed: 1, total: 5, score: 20,
+    });
+    await upsertProgress(testDb.db, {
+      user_id: 'u_niveaux', family_id: familyId, subfamily_id: 1, level: 2, completed: 4, total: 5, score: 80,
+    });
+
+    const atLevel1 = await getSubFamiliesByFamily(testDb.db, familyId, 'primary', 1, 'u_niveaux');
+    const atLevel2 = await getSubFamiliesByFamily(testDb.db, familyId, 'primary', 2, 'u_niveaux');
+
+    const sub1AtLevel1 = atLevel1.find((s) => s.subfamily_id === 1);
+    const sub1AtLevel2 = atLevel2.find((s) => s.subfamily_id === 1);
+
+    expect(sub1AtLevel1?.progress).toBe(20);
+    expect(sub1AtLevel2?.progress).toBe(80);
   });
 
   it('un dialogue importé a des messages et des questions valides', async () => {

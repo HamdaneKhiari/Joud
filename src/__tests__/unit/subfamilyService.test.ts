@@ -19,26 +19,35 @@ describe('getSubFamiliesByFamily', () => {
     ];
     mockDb.getAllAsync.mockResolvedValueOnce(mockData);
 
-    const result = await getSubFamiliesByFamily(db, 1, 'college', 'user1');
+    const result = await getSubFamiliesByFamily(db, 1, 'college', 2, 'user1');
     expect(result).toEqual(mockData);
     expect(mockDb.getAllAsync).toHaveBeenCalledWith(
       expect.stringContaining('SELECT'),
-      expect.arrayContaining([1, 'user1', 1, 'college'])
+      expect.arrayContaining([1, 2, 'user1', 1, 'college'])
     );
   });
 
   it('fonctionne sans userId (params sans user_id)', async () => {
     mockDb.getAllAsync.mockResolvedValueOnce([]);
-    const result = await getSubFamiliesByFamily(db, 2, 'lycee');
+    const result = await getSubFamiliesByFamily(db, 2, 'lycee', 1);
     expect(result).toEqual([]);
     expect(mockDb.getAllAsync).toHaveBeenCalledWith(
       expect.stringContaining('SELECT'),
-      expect.arrayContaining([2, 2, 'lycee'])
+      expect.arrayContaining([2, 1, 2, 'lycee'])
+    );
+  });
+
+  it('filtre bien par level (une sous-famille avec du contenu à plusieurs niveaux)', async () => {
+    mockDb.getAllAsync.mockResolvedValueOnce([]);
+    await getSubFamiliesByFamily(db, 5, 'primary', 3, 'user2');
+    expect(mockDb.getAllAsync).toHaveBeenCalledWith(
+      expect.stringContaining('p.level = ?'),
+      expect.arrayContaining([5, 3, 'user2', 5, 'primary'])
     );
   });
 
   it('propage les erreurs DB', async () => {
     mockDb.getAllAsync.mockRejectedValueOnce(new Error('DB error'));
-    await expect(getSubFamiliesByFamily(db, 1, 'college')).rejects.toThrow('DB error');
+    await expect(getSubFamiliesByFamily(db, 1, 'college', 1)).rejects.toThrow('DB error');
   });
 });
