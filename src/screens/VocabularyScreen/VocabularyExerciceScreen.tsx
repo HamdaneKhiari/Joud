@@ -10,7 +10,7 @@ import ExerciseEmptyState from '@/components/common/ExerciseEmptyState';
 import { DynamicIcon } from '../../components/ui/DynamicIcon';
 import { useTheme } from '../../themes/ThemeContext';
 import { useProgress } from '../../contexts/ProgressContext';
-import useSafeNavigation from '../../hooks/useSafeNavigation';
+import useExerciseBackNavigation from '../../hooks/exercises/useExerciseBackNavigation';
 import useResumeIndex from '../../hooks/exercises/useResumeIndex';
 import useExerciseCompletion from '../../hooks/exercises/useExerciseCompletion';
 import { useExerciseActivity } from '../../hooks/exercises/useExerciseActivity';
@@ -64,7 +64,7 @@ const VocabularyExerciseScreen: React.FC = () => {
   const [currentWordIndex, setCurrentWordIndex] = useResumeIndex(dashboardLevelId, EXERCISE_TYPE, compositeFamilyId, totalWords);
   const { showCompletion, complete } = useExerciseCompletion();
 
-  const safeGoBack = useSafeNavigation();
+  const safeGoBack = useExerciseBackNavigation();
 
   useExerciseActivity({
     moduleSlug: module?.slug || 'vocabulary',

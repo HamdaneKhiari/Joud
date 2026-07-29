@@ -12,7 +12,7 @@ import type { ValidationState } from '@/components/common/ExerciseValidation/typ
 import { useTheme } from '@/themes/ThemeContext';
 import { useUser } from '@/contexts/UserContext';
 import { useProgress } from '@/contexts/ProgressContext';
-import useSafeNavigation from '@/hooks/useSafeNavigation';
+import useExerciseBackNavigation from '@/hooks/exercises/useExerciseBackNavigation';
 import useFirstIncompleteIndex from '@/hooks/exercises/useFirstIncompleteIndex';
 import useExerciseCompletion from '@/hooks/exercises/useExerciseCompletion';
 import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
@@ -53,7 +53,7 @@ const DialogueExerciseScreen: React.FC = () => {
   const { trackItemCompletion, getFamilyProgress } = useProgress();
   const { showCompletion, complete } = useExerciseCompletion();
 
-  const safeGoBack = useSafeNavigation();
+  const safeGoBack = useExerciseBackNavigation();
 
   const { dialogue: dialogueFamily, isLoading: isDialogueLoading } = useDialogueContent(db, familyId, numSubfamilyId);
 

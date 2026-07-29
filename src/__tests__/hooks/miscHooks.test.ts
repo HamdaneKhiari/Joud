@@ -8,6 +8,7 @@ jest.mock('@/utils/logUtils', () => ({
   log: { error: jest.fn(), warn: jest.fn(), info: jest.fn() },
 }));
 jest.mock('@/contexts/UserContext', () => ({ useUser: jest.fn() }));
+jest.mock('@/contexts/ProgressContext', () => ({ useProgress: jest.fn() }));
 jest.mock('@/themes/ThemeContext', () => ({ useTheme: jest.fn() }));
 jest.mock('@/services/subfamilyService', () => ({ getSubFamiliesByFamily: jest.fn() }));
 jest.mock('@react-navigation/native', () => ({ useNavigation: jest.fn() }));
@@ -78,6 +79,52 @@ describe('useSafeNavigation', () => {
     const useSafeAction = require('@/hooks/useSafeAction').default;
     const [actionArg] = useSafeAction.mock.calls[0];
     expect(actionArg).toBe(customAction);
+  });
+});
+
+// ──────────────────────────────────────────────
+// useExerciseBackNavigation
+// ──────────────────────────────────────────────
+
+describe('useExerciseBackNavigation', () => {
+  const mockGoBack = jest.fn();
+  const mockSaveProgressNow = jest.fn().mockResolvedValue(undefined);
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockSaveProgressNow.mockResolvedValue(undefined);
+    const { useNavigation } = require('@react-navigation/native');
+    useNavigation.mockReturnValue({ canGoBack: jest.fn().mockReturnValue(true), goBack: mockGoBack });
+    require('@/contexts/ProgressContext').useProgress.mockReturnValue({ saveProgressNow: mockSaveProgressNow });
+    // useSafeAction ne rappelle pas vraiment l'action fournie — on la récupère et on
+    // l'invoque nous-mêmes pour vérifier l'ordre attendre-sauvegarde-puis-naviguer.
+    require('@/hooks/useSafeAction').default.mockImplementation((action: () => Promise<void>) => ({
+      execute: action, loading: false, disabled: false, lastExecuted: 0, cleanup: jest.fn(),
+    }));
+  });
+
+  it('attend saveProgressNow avant d\'appeler goBack (évite de lire une progression périmée)', async () => {
+    const order: string[] = [];
+    mockSaveProgressNow.mockImplementation(async () => { order.push('save'); });
+    mockGoBack.mockImplementation(() => { order.push('goBack'); });
+
+    const useExerciseBackNavigation = require('@/hooks/exercises/useExerciseBackNavigation').default;
+    const { result } = renderHook(() => useExerciseBackNavigation());
+    await act(async () => { await result.current.navigate(); });
+
+    expect(order).toEqual(['save', 'goBack']);
+  });
+
+  it('n\'appelle pas goBack si canGoBack() est false', async () => {
+    const { useNavigation } = require('@react-navigation/native');
+    useNavigation.mockReturnValue({ canGoBack: jest.fn().mockReturnValue(false), goBack: mockGoBack });
+
+    const useExerciseBackNavigation = require('@/hooks/exercises/useExerciseBackNavigation').default;
+    const { result } = renderHook(() => useExerciseBackNavigation());
+    await act(async () => { await result.current.navigate(); });
+
+    expect(mockSaveProgressNow).toHaveBeenCalled();
+    expect(mockGoBack).not.toHaveBeenCalled();
   });
 });
 

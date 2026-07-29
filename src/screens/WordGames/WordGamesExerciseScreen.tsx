@@ -8,7 +8,7 @@ import ExerciseEmptyState from '@/components/common/ExerciseEmptyState';
 import { DynamicIcon } from '@/components/ui/DynamicIcon';
 import { useTheme } from '@/themes/ThemeContext';
 import { useProgress } from '@/contexts/ProgressContext';
-import useSafeNavigation from '@/hooks/useSafeNavigation';
+import useExerciseBackNavigation from '@/hooks/exercises/useExerciseBackNavigation';
 import useResumeIndex from '@/hooks/exercises/useResumeIndex';
 import useExerciseCompletion from '@/hooks/exercises/useExerciseCompletion';
 import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
@@ -33,7 +33,7 @@ const WordGamesExerciseScreen: React.FC = () => {
   const { identity } = useTheme();
 
   const { trackItemCompletion, getFamilyProgress } = useProgress();
-  const safeGoBack = useSafeNavigation();
+  const safeGoBack = useExerciseBackNavigation();
   const { showCompletion, complete } = useExerciseCompletion();
 
   // word_games n'a pas de sous-familles → subfamilyId = 0

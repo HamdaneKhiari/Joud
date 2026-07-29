@@ -11,7 +11,7 @@ import { useRecordError } from '@/hooks/exercises/useRecordError';
 import { useProgress } from '@/contexts/ProgressContext';
 import useResumeIndex from '@/hooks/exercises/useResumeIndex';
 import useExerciseCompletion from '@/hooks/exercises/useExerciseCompletion';
-import useSafeNavigation from '@/hooks/useSafeNavigation';
+import useExerciseBackNavigation from '@/hooks/exercises/useExerciseBackNavigation';
 import { useLevelLabel } from '@/utils/labelMapper';
 import { makeCompositeFamilyId } from '@/contexts/progressUtils';
 
@@ -44,7 +44,7 @@ const SentenceExerciseScreen: React.FC = () => {
   const { identity } = useTheme();
 
   // 1. Navigation sécurisée (Utilise le goBack par défaut du hook)
-  const safeGoBack = useSafeNavigation();
+  const safeGoBack = useExerciseBackNavigation();
 
   // Paramètres de route
   const params             = useLocalSearchParams() as unknown as SentenceExerciseParams;

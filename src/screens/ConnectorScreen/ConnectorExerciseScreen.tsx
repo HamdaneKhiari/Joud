@@ -19,7 +19,7 @@ import type { LogicQuestion, FusionQuestion, RephrasingQuestion } from '../../co
 import { useConnectorState } from './hooks/useConnectorState';
 import { useConnectorHandlers } from './hooks/useConnectorHandlers';
 import { useConnectorContent } from './hooks/useConnectorContent';
-import useSafeNavigation from '@/hooks/useSafeNavigation';
+import useExerciseBackNavigation from '@/hooks/exercises/useExerciseBackNavigation';
 import useResumeIndex from '@/hooks/exercises/useResumeIndex';
 import useExerciseCompletion from '@/hooks/exercises/useExerciseCompletion';
 import { useLevelLabel } from '@/utils/labelMapper';
@@ -38,7 +38,7 @@ const ConnectorExerciseScreen: React.FC = () => {
   const { identity } = useTheme();
   const { db } = useUser();
   const { trackItemCompletion, getFamilyProgress, saveProgressNow } = useProgress();
-  const safeGoBack = useSafeNavigation();
+  const safeGoBack = useExerciseBackNavigation();
   const { recordError } = useRecordError();
 
   const params = useLocalSearchParams() as unknown as ConnectorExerciseParams;

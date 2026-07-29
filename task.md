@@ -717,3 +717,40 @@ par quart lors de l'import), ce qui n'arrivait jamais avec l'ancien seed vide.
 chaîne de progression (`getLevelProgress`/`getExerciseProgress` côté AsyncStorage,
 `getRecommendedModule`) — ce fix cible précisément la requête SQL identifiée comme cause du
 rapport utilisateur, pas un audit exhaustif de tout le système de progression.
+
+---
+
+## 17. Deuxième bug réel trouvé en testant : progression périmée en revenant en arrière
+
+Rapport utilisateur (2026-07-29) : "je fais 21% puis 25%, quand je reviens en arrière il reste
+sur 21% [...] comme s'il n'y avait pas de rafraîchissement". Corrigé — course entre la
+sauvegarde et la navigation, distincte du bug de la section 16.
+
+- **Cause** : la sauvegarde de progression vers SQLite est débouncée de 1500ms
+  (`ProgressContext.syncToSQLite`, déclenché par un `setTimeout` après chaque changement).
+  Le filet de secours `useExerciseSaveOnUnmount` appelle bien `saveProgressNow()` à la sortie
+  de l'écran, mais **dans le cleanup d'un `useEffect`, jamais attendu** — React ne peut pas
+  bloquer un unmount sur une promesse. Le bouton retour (`useSafeNavigation()`, sans action
+  personnalisée, donc `navigation.goBack()` immédiat) navigue donc AVANT que l'écriture
+  SQLite n'ait forcément eu lieu. L'écran de sélection de sous-famille (section 16, maintenant
+  bien filtré par `level`) se rafraîchit sur `useFocusEffect` au retour — mais lit une base pas
+  encore à jour : d'où le pourcentage figé sur l'ancienne valeur.
+- [x] **Corrigé** : nouveau hook `src/hooks/exercises/useExerciseBackNavigation.ts` — attend
+  explicitement `saveProgressNow()` avant d'appeler `navigation.goBack()`, en s'appuyant sur
+  `useSafeNavigation(action)` (qui accepte déjà une action personnalisée, mécanisme existant,
+  pas de nouvelle architecture). Branché dans les 6 écrans d'exercice à la place de
+  `useSafeNavigation()` sans argument (Vocabulaire, Phrases, Reading, Dialogues, Word Games,
+  Connector) — un seul changement d'import + une ligne par écran, `useExerciseSaveOnUnmount`
+  laissé en place comme filet de secours pour les autres sorties (voir limite ci-dessous).
+- **Vérifié par un test dédié** (pas juste "ça compile") : capture l'action réellement passée
+  à `useSafeAction` (le mock ne rappelle pas l'action automatiquement) et vérifie l'ordre
+  d'exécution — `saveProgressNow` puis `goBack`, jamais l'inverse.
+- **Vérifié** : `npx jest --silent` → 50 suites, 941 tests (2 nouveaux), 0 échec. `eslint` →
+  0 problème. `tsc` → aucune nouvelle erreur.
+
+**Limite connue, pas corrigée** : ce fix couvre le bouton retour explicite de l'écran
+(`safeGoBack.navigate()`), le chemin que l'utilisateur a testé. Le geste de swipe-back iOS et
+le bouton retour matériel Android contournent ce hook et déclenchent directement le pop du
+stack de navigation — dans ce cas, seul `useExerciseSaveOnUnmount` (non attendu) protège, donc
+la même course reste théoriquement possible par ces deux chemins. Pas traité : nécessiterait
+d'intercepter `beforeRemove` au niveau du navigateur plutôt qu'un bouton précis.

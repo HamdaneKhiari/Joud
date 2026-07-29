@@ -16,7 +16,7 @@ import { useRecordError } from '@/hooks/exercises/useRecordError';
 import { useProgress } from '@/contexts/ProgressContext';
 import { useExerciseActivity } from '@/hooks/exercises/useExerciseActivity';
 import { useExerciseSaveOnUnmount } from '@/hooks/exercises/useExerciseSaveOnUnmount';
-import useSafeNavigation from '@/hooks/useSafeNavigation';
+import useExerciseBackNavigation from '@/hooks/exercises/useExerciseBackNavigation';
 import useResumeIndex from '@/hooks/exercises/useResumeIndex';
 import useExerciseCompletion from '@/hooks/exercises/useExerciseCompletion';
 import { useLevelLabel } from '@/utils/labelMapper';
@@ -35,7 +35,7 @@ const MAX_ATTEMPTS = 2;
 const ReadingExerciseScreen: React.FC = () => {
   const { identity } = useTheme();
   const { db } = useUser();
-  const safeGoBack = useSafeNavigation();
+  const safeGoBack = useExerciseBackNavigation();
 
   const params            = useLocalSearchParams() as unknown as ReadingExerciseParams;
   const familyId          = Number(params?.familyId);
