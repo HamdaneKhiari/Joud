@@ -75,21 +75,4 @@ export const createFreeStyles = (identity: Identity, isPlayful: boolean) =>
       color: identity.text.secondary,
     },
     convChipTextActive: { color: identity.text.onPrimary },
-
-    // --- Badge RAG ---
-    ragBadge: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: tokens.spacing.xs,
-      marginBottom: tokens.spacing.xs,
-      paddingHorizontal: tokens.spacing.sm,
-      paddingVertical: tokens.spacing.xs,
-      borderRadius: tokens.borderRadius.sm,
-      backgroundColor: withOpacity(identity.palette.accent, 0.15),
-    },
-    ragBadgeText: {
-      fontSize: tokens.fontSize.xs,
-      fontWeight: tokens.fontWeight.semibold,
-      color: identity.palette.accent,
-    },
   });

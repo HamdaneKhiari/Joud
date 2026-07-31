@@ -23,8 +23,6 @@ export const mockUser = {
   isOnboarded: true,
 };
 
-export { realTokens as mockTokens };
-
 export const mockIdentity = {
   id: 'college',
   themeMode: 'light' as const,

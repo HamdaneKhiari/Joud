@@ -826,7 +826,7 @@ describe('updateSpacedRepetitionResult', () => {
 describe('insertContent', () => {
   it('insère du contenu dans la table content', async () => {
     (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
-    await insertContent(db, { family_id: 1, level: 1, content_type: 'word', data: '{"word":"cat"}', difficulty: 1, tags: null, target_audience: 'all' });
+    await insertContent(db, { family_id: 1, level: 1, content_type: 'word', data: '{"word":"cat"}', difficulty: 'easy', target_audience: 'all' });
     expect(db.runAsync).toHaveBeenCalledWith(
       expect.stringContaining('INSERT INTO content'),
       expect.arrayContaining([1, 1, 'word'])

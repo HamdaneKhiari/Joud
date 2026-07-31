@@ -805,3 +805,93 @@ obsolète) plutôt qu'un tri à l'œil — chaque suppression vérifiée avant d
 sur ce projet — aucun impact sur le repo, à supprimer manuellement si l'utilisateur le
 souhaite). Duplication de code (jscpd) re-mesurée à 4,78% — inchangée depuis le dernier audit,
 pas de nouveau clone significatif à traiter.
+
+---
+
+## 19. Finalisation tests + audit doublons/bugs (avant séparation des versions par public)
+
+Demande (2026-07-31) : « on va mettre en place aussi les tests ou plutôt les terminer [...] des
+vérifications doublon, risque de bug, syntaxe [...] et ensuite on séparera » — terminer
+proprement la suite de tests et auditer le code avant d'attaquer la séparation primaire/collège
+vs lycée/adulte (le sélecteur de public actuel était temporaire, pour les tests).
+
+- [x] **8 erreurs `tsc` résiduelles dans des fichiers de test, jamais vues car masquées par le
+  filtre `grep -v __tests__` utilisé dans toutes les vérifications précédentes** — corrigées
+  une par une après lecture du vrai contrat du composant/type concerné à chaque fois (pas de
+  correction à l'aveugle) :
+  - `pedagogyComponents.test.tsx` : `QuestionCard` sans `correctAnswer` (prop requise) ;
+    `RevisionQuestionCard` avec un mock `RevisionQuestion` sans le champ `word` (requis) ;
+    `LogicLinksCard` avec `selectedOption={null}` alors que le type attend `string | undefined`
+    (pas de `null`).
+  - `uiComponents.test.tsx` : `RephrasingCard`/`SentenceFusionCard` sans `attemptCount`/
+    `maxAttempts` (requis, pas optionnels malgré leur nom).
+  - `wordGameCards.test.tsx` : `SyntaxMasterCard` recevait `onAnswer`/`selectedOption` via
+    `{...sharedCardProps}` alors que ce composant n'a jamais eu ces props (sa state machine
+    utilise `onOrder`/`selectedOrder`) — nouveau `sharedOrderCardProps` isolé du
+    `sharedCardProps` générique pour ne plus lui injecter des props qui n'existent pas.
+  - `stateHooks.test.ts` : `prev` implicite `any` dans deux callbacks (le hook est chargé via
+    `require()`, donc `any`, TS ne peut pas inférer contextuellement) — annotation explicite.
+  - `queries.test.ts` : `insertContent` appelé avec `difficulty: 1` (nombre) et `tags: null` au
+    lieu de `difficulty: 'easy'` (union de strings) — le type réel `Content.difficulty` est
+    `'easy' | 'medium' | 'hard'`, jamais un nombre.
+  - `Dashboard.test.tsx` : `UNSAFE_getByType('ActivityIndicator')` (chaîne) au lieu du composant
+    réel — RNTL attend une référence de composant, pas un nom.
+  - `testUtils.tsx` : ligne morte `export { realTokens as mockTokens }` — `realTokens` n'existe
+    nulle part (jamais importé ailleurs dans le projet), doublon cassé de l'export valide de la
+    ligne 13. Supprimée.
+  - **Résultat** : `npx tsc --noEmit` est maintenant réellement à **0 erreur sur tout le
+    projet**, tests compris — ce n'était jamais vérifié directement jusqu'ici (seulement
+    "hors tests/mocks", ce qui masquait ces 8 erreurs depuis un moment).
+- [x] **Audit duplication (jscpd)** re-mesuré à 4,19% (précédemment 4,78%). Confirmé par
+  `git log` que le plus gros foyer de duplication (`AITutorFreeScreen.tsx` vs
+  `AITutorGuidedScreen.tsx`, ~7 blocs dupliqués dont un de 44 lignes) datait d'avant cette
+  session — pas une régression. Sur demande explicite de l'utilisateur, refactorisé quand
+  même :
+  - `chatStyles.ts` (déjà partagé Free+Guided) récupère les styles `ragBadge`/`ragBadgeText`,
+    auparavant dupliqués dans `AITutorFreeScreen.styles.ts` seulement (Guided n'en a jamais eu
+    besoin, mais le composant partagé ci-dessous en a besoin pour les deux).
+  - Nouveaux composants partagés dans `src/screens/AITutor/components/` :
+    `ChatMessageBubble.tsx` (bulle de message — le badge RAG et l'avatar 📚/🤖 sont conditionnés
+    sur `message.source === 'joud_academy'`, qui n'est jamais vrai côté Guided, donc **aucune
+    prop de variante n'est nécessaire**, le même composant sert les deux écrans sans
+    branchement) ; `ChatSendingIndicator.tsx` (bulle "en train d'écrire") ; `ChatInputBar.tsx`
+    (zone de saisie + bouton envoyer, `placeholder` paramétrable).
+  - Nouveau hook `src/screens/AITutor/hooks/useAIConfigCheck.ts` — logique `checkAIConfiguration`
+    (config manquante / quota atteint) était identique mot pour mot dans les deux écrans.
+  - **Pas fusionné** : le corps de `handleSend` (3 petits blocs de 10-19 lignes restants dans le
+    diff jscpd) — Free a une branche RAG et une alerte "clé API invalide" que Guided n'a pas,
+    Guided construit un prompt par domaine là où Free construit un prompt par niveau. Forcer
+    une abstraction commune sur des branches qui divergent réellement aurait ajouté de la
+    complexity pour un gain marginal.
+  - **Résultat** : duplication globale 4,19% → **3,93%**. `AITutorFreeScreen.tsx` passé de
+    303 à 222 lignes, `AITutorGuidedScreen.tsx` de 279 à ~200 lignes.
+- [x] **Audit bug/syntaxe** (patterns à risque, pas juste linter) : recherché et vérifié —
+  aucun `TODO`/`FIXME`/`XXX`/`HACK`, aucun `@ts-ignore`/`@ts-nocheck` en code de prod, aucun
+  `eval`, aucun secret/clé API loggé, la seule requête SQL avec interpolation de gabarit
+  (`UPDATE user_metrics SET ${setClause}...` dans `queries.ts`) construit ses colonnes à partir
+  des clés d'un objet **typé** (`Partial<UserMetrics>`), jamais d'une entrée utilisateur libre —
+  pas d'injection possible. Tous les `JSON.parse` sur du contenu venant de SQLite sont dans un
+  `try/catch`, sauf un : `useReducedMotion.ts` appelait
+  `AccessibilityInfo.isReduceMotionEnabled().then(...)` sans `.catch()` — rejet de promesse non
+  géré si l'API native échoue. **Corrigé** (`.catch(() => {})` ajouté).
+- [x] **Audit couverture de tests** (`npx jest --coverage`) : `services/ai/ragService.ts` à
+  **0% de couverture** — logique métier réelle et non triviale (extraction de mots-clés,
+  recherche `LIKE` en SQLite, calcul de pertinence, formatage par type de contenu), activement
+  utilisée dans le chat AI Tutor (`AITutorFreeScreen.handleSend`, juste retouché ci-dessus).
+  Écrit `src/__tests__/unit/ragService.test.ts` (21 tests) couvrant : détection de mots-clés
+  RAG, recherche avec DB mockée (dédoublonnage par id, tri par pertinence, JSON malformé
+  ignoré silencieusement), `getSimilarExamples`, `enrichContext`, cas `db=null`. Les autres
+  fichiers à 0% (`APIKeyInput.tsx`, `ProviderSelector.tsx` — composants de présentation purs ;
+  `useReadingState.ts` — wrapper `useState` de 5 lignes ; `types/pedagogy.ts`,
+  `themes/types.ts` — fichiers de types, non exécutables) ne présentent pas de risque
+  comparable, laissés tels quels.
+  - **Résultat** : `ragService.ts` 0% → **95,71%**. Couverture globale du projet 72,67% →
+    **74,17%** (statements).
+- **Vérifié (état final)** : `npx jest --silent` → **51 suites, 962 tests**, 0 échec.
+  `npx tsc --noEmit` → **0 erreur sur tout le projet** (tests inclus, pas seulement hors
+  `__tests__`). `npx eslint` → 0 problème. `npx jscpd` → 3,93% (contre 4,78% au dernier audit).
+
+**Pas encore fait** : séparation des versions par public (primaire+collège vs lycée+adulte) —
+le sélecteur de public actuel dans l'app est un outil de développement temporaire pour tester
+les différents publics, pas la structure de distribution finale. Prévu pour la suite, une fois
+cette passe de finalisation validée par l'utilisateur.

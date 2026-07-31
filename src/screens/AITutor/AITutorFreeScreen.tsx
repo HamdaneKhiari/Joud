@@ -1,11 +1,11 @@
 // Chat libre avec l'IA (mode non guidé). Historique persistant (3 conversations max via useChatConversation).
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, ScrollView,
+  View, Text, TouchableOpacity, ScrollView,
   KeyboardAvoidingView, Platform, ActivityIndicator, Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { sanitizeUserInput } from '@/utils/inputSanitizer';
 
@@ -15,13 +15,16 @@ import { useCurrentLevel } from '@/contexts/CurrentLevelContext';
 import aiService from '@/services/ai/aiService';
 import ragService from '@/services/ai/ragService';
 import { useChatConversation } from './hooks/useChatConversation';
+import { useAIConfigCheck } from './hooks/useAIConfigCheck';
 import { createFreeStyles } from './AITutorFreeScreen.styles';
 import { createChatStyles } from './chatStyles';
 import {
   ChatUIMessage, toUIMessage,
   getLevelWelcomeMessage, buildLevelAdaptedSystemPrompt,
 } from './helpers';
-import { MarkdownText } from '@/components/ui/MarkdownText';
+import ChatMessageBubble from './components/ChatMessageBubble';
+import ChatSendingIndicator from './components/ChatSendingIndicator';
+import ChatInputBar from './components/ChatInputBar';
 
 const AITutorFreeScreen: React.FC = () => {
   const router = useRouter();
@@ -63,28 +66,7 @@ const AITutorFreeScreen: React.FC = () => {
     setTimeout(() => { scrollViewRef.current?.scrollToEnd({ animated: true }); }, 100);
   }, [messages]);
 
-  const checkAIConfiguration = useCallback(() => {
-    if (!settings.isConfigured) {
-      Alert.alert(
-        'Configuration requise',
-        "Tu dois d'abord configurer ton IA pour utiliser le chat.",
-        [
-          { text: 'Configurer maintenant', onPress: () => router.push('/settings/ai') },
-          { text: 'Plus tard', style: 'cancel' },
-        ]
-      );
-      return false;
-    }
-    if (!canSendMessage()) {
-      Alert.alert(
-        'Limite atteinte',
-        `Tu as atteint ta limite quotidienne de ${settings.maxMessagesPerDay} messages. Reviens demain !`,
-        [{ text: 'OK', style: 'cancel' }]
-      );
-      return false;
-    }
-    return true;
-  }, [settings, canSendMessage, router]);
+  const checkAIConfiguration = useAIConfigCheck(settings, canSendMessage);
 
   const handleSend = useCallback(async () => {
     if (!inputText.trim() || isSending) return;
@@ -144,44 +126,6 @@ const AITutorFreeScreen: React.FC = () => {
       setIsSending(false);
     }
   }, [inputText, isSending, checkAIConfiguration, messages, currentLevel, settings, saveMessage, incrementUsage, router]);
-
-  const renderMessage = (message: ChatUIMessage) => {
-    const isAI = message.type === 'ai';
-    const isUser = message.type === 'user';
-    const isError = message.type === 'error';
-    return (
-      <View key={message.id} style={[styles.messageBubble, isAI && styles.messageBubbleAI, isUser && styles.messageBubbleUser]}>
-        {isAI && (
-          <View style={styles.aiAvatarContainer}>
-            <Text style={styles.aiAvatar}>{message.source === 'joud_academy' ? '📚' : '🤖'}</Text>
-          </View>
-        )}
-        <View style={[styles.messageContent, isAI && styles.messageContentAI, isUser && styles.messageContentUser, isError && styles.messageContentError]}>
-          {isAI && message.source === 'joud_academy' && (
-            <View style={styles.ragBadge}>
-              <MaterialCommunityIcons name="school" size={12} color={identity.palette.accent} />
-              <Text style={styles.ragBadgeText}>Source : Joud Academy</Text>
-            </View>
-          )}
-          {isAI ? (
-            <MarkdownText
-              content={message.content}
-              textStyle={[styles.messageText, styles.messageTextAI]}
-            />
-          ) : (
-            <Text style={[styles.messageText, isUser && styles.messageTextUser, isError && styles.messageTextError]}>
-              {message.content}
-            </Text>
-          )}
-          {isAI && message.source === 'ai_api' && message.provider && (
-            <Text style={styles.messageProvider}>
-              via {message.provider === 'openai' ? 'OpenAI' : message.provider === 'mistral' ? 'Mistral' : 'Claude'}
-            </Text>
-          )}
-        </View>
-      </View>
-    );
-  };
 
   if (isDBLoading) {
     return (
@@ -256,44 +200,19 @@ const AITutorFreeScreen: React.FC = () => {
 
       <KeyboardAvoidingView style={styles.keyboardView} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
         <ScrollView ref={scrollViewRef} style={styles.messagesContainer} contentContainerStyle={styles.messagesContent} showsVerticalScrollIndicator={false}>
-          {messages.map(msg => renderMessage(msg))}
-          {isSending && (
-            <View style={[styles.messageBubble, styles.messageBubbleAI]}>
-              <View style={styles.aiAvatarContainer}><Text style={styles.aiAvatar}>🤖</Text></View>
-              <View style={[styles.messageContent, styles.messageContentAI]}>
-                <ActivityIndicator size="small" color={identity.palette.primary} />
-              </View>
-            </View>
-          )}
+          {messages.map(msg => <ChatMessageBubble key={msg.id} message={msg} styles={styles} identity={identity} />)}
+          {isSending && <ChatSendingIndicator styles={styles} identity={identity} />}
         </ScrollView>
 
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Pose ta question..."
-            placeholderTextColor={identity.text.tertiary}
-            value={inputText}
-            onChangeText={setInputText}
-            multiline
-            maxLength={500}
-            editable={!isSending}
-            returnKeyType="send"
-            blurOnSubmit={false}
-            onSubmitEditing={handleSend}
-            textAlignVertical="center"
-          />
-          <TouchableOpacity
-            style={[styles.sendButton, (!inputText.trim() || isSending) && styles.sendButtonDisabled]}
-            onPress={handleSend}
-            disabled={!inputText.trim() || isSending}
-            activeOpacity={0.8}
-            accessibilityRole="button"
-            accessibilityLabel="Envoyer"
-            accessibilityState={{ disabled: !inputText.trim() || isSending }}
-          >
-            <Ionicons name="arrow-forward" size={20} color={identity.text.onPrimary} />
-          </TouchableOpacity>
-        </View>
+        <ChatInputBar
+          styles={styles}
+          identity={identity}
+          inputText={inputText}
+          onChangeText={setInputText}
+          onSend={handleSend}
+          isSending={isSending}
+          placeholder="Pose ta question..."
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

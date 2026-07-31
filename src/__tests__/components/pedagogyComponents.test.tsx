@@ -146,6 +146,7 @@ describe('QuestionCard', () => {
       <QuestionCard
         question="What is the plural of 'cat'?"
         options={['cats', 'cates', 'caties']}
+        correctAnswer="cats"
         onAnswer={onAnswer}
       />
     )).not.toThrow();
@@ -156,6 +157,7 @@ describe('QuestionCard', () => {
       <QuestionCard
         question="What is the plural of 'cat'?"
         options={['cats', 'cates', 'caties']}
+        correctAnswer="cats"
         onAnswer={onAnswer}
       />
     );
@@ -169,6 +171,7 @@ describe('QuestionCard', () => {
       <QuestionCard
         question="Question?"
         options={['cats', 'cates']}
+        correctAnswer="cats"
         onAnswer={onAnswer}
       />
     );
@@ -181,6 +184,7 @@ describe('QuestionCard', () => {
       <QuestionCard
         question="Question?"
         options={['A', 'B']}
+        correctAnswer="A"
         onAnswer={onAnswer}
         hint="This is a hint"
       />
@@ -194,6 +198,7 @@ describe('QuestionCard', () => {
       <QuestionCard
         question="Question?"
         options={['A', 'B']}
+        correctAnswer="A"
         onAnswer={onAnswer}
         hint="This is a hint"
       />
@@ -210,6 +215,7 @@ describe('QuestionCard', () => {
       <QuestionCard
         question="Question?"
         options={['A', 'B']}
+        correctAnswer="A"
         onAnswer={onAnswer}
         hint="This is a hint"
       />
@@ -223,7 +229,7 @@ describe('QuestionCard', () => {
 
   it('n\'affiche pas le bouton d\'indice si hint est absent', () => {
     const { queryByText } = render(
-      <QuestionCard question="Q?" options={['A', 'B']} onAnswer={onAnswer} />
+      <QuestionCard question="Q?" options={['A', 'B']} correctAnswer="A" onAnswer={onAnswer} />
     );
     expect(queryByText("Besoin d'aide ?")).toBeNull();
   });
@@ -233,6 +239,7 @@ describe('QuestionCard', () => {
       <QuestionCard
         question="Q?"
         options={['A', 'B']}
+        correctAnswer="A"
         onAnswer={onAnswer}
         externalShowFeedback
         externalIsCorrect
@@ -363,13 +370,12 @@ describe('ExerciseValidation', () => {
 // ============================================
 
 const mockRevisionQuestion = {
-  id: 'q1',
+  id: 1,
   questionText: 'What is the capital of France?',
   options: ['London', 'Paris', 'Berlin'],
   correctAnswer: 'Paris',
+  word: 'Paris',
   emoji: '🌍',
-  module: 'vocab',
-  difficulty: 1,
 };
 
 describe('RevisionQuestionCard', () => {
@@ -615,27 +621,27 @@ describe('LogicLinksCard', () => {
 
   it('rend sans crash', () => {
     expect(() => render(
-      <LogicLinksCard question={mockLogicQuestion} selectedOption={null} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
+      <LogicLinksCard question={mockLogicQuestion} selectedOption={undefined} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
     )).not.toThrow();
   });
 
   it('affiche la phrase avec le trou', () => {
     const { getByText } = render(
-      <LogicLinksCard question={mockLogicQuestion} selectedOption={null} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
+      <LogicLinksCard question={mockLogicQuestion} selectedOption={undefined} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
     );
     expect(getByText('I was tired ___ I went to bed early.')).toBeTruthy();
   });
 
   it('affiche la traduction quand présente', () => {
     const { getByText } = render(
-      <LogicLinksCard question={mockLogicQuestion} selectedOption={null} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
+      <LogicLinksCard question={mockLogicQuestion} selectedOption={undefined} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
     );
     expect(getByText('J\'étais fatigué donc je suis allé me coucher tôt.')).toBeTruthy();
   });
 
   it('affiche les 4 options', () => {
     const { getByText } = render(
-      <LogicLinksCard question={mockLogicQuestion} selectedOption={null} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
+      <LogicLinksCard question={mockLogicQuestion} selectedOption={undefined} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
     );
     expect(getByText('so')).toBeTruthy();
     expect(getByText('but')).toBeTruthy();
@@ -645,7 +651,7 @@ describe('LogicLinksCard', () => {
   it('appelle onAnswer au clic d\'une option', () => {
     const onAnswer = jest.fn();
     const { getByText } = render(
-      <LogicLinksCard question={mockLogicQuestion} selectedOption={null} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={onAnswer} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
+      <LogicLinksCard question={mockLogicQuestion} selectedOption={undefined} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={onAnswer} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
     );
     fireEvent.press(getByText('so'));
     expect(onAnswer).toHaveBeenCalledWith('so');

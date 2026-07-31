@@ -9,9 +9,9 @@ export const useReducedMotion = (): boolean => {
 
   useEffect(() => {
     let mounted = true;
-    AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
-      if (mounted) setReduced(enabled);
-    });
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((enabled) => { if (mounted) setReduced(enabled); })
+      .catch(() => {});
     const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduced);
     return () => {
       mounted = false;

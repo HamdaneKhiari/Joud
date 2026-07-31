@@ -75,6 +75,23 @@ export const createChatStyles = (identity: Identity, isPlayful: boolean) =>
       fontStyle: 'italic',
     },
 
+    // --- Badge RAG (source Joud Academy) ---
+    ragBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: tokens.spacing.xs,
+      marginBottom: tokens.spacing.xs,
+      paddingHorizontal: tokens.spacing.sm,
+      paddingVertical: tokens.spacing.xs,
+      borderRadius: tokens.borderRadius.sm,
+      backgroundColor: withOpacity(identity.palette.accent, 0.15),
+    },
+    ragBadgeText: {
+      fontSize: tokens.fontSize.xs,
+      fontWeight: tokens.fontWeight.semibold,
+      color: identity.palette.accent,
+    },
+
     // --- Saisie ---
     inputContainer: {
       flexDirection: 'row',

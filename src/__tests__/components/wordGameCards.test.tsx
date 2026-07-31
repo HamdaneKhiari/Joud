@@ -367,6 +367,19 @@ const mockSentenceQuestion = {
   hint: 'Commence par "She".',
 };
 
+// SyntaxMasterCard n'a pas onAnswer/selectedOption (state machine par mots ordonnés,
+// pas par option choisie) — sous-ensemble de sharedCardProps qui correspond à son vrai contrat.
+const sharedOrderCardProps = {
+  isValidated: false,
+  isCorrect: false,
+  attemptCount: 0,
+  maxAttempts: 2,
+  onValidate: jest.fn(),
+  onRetry: jest.fn(),
+  onNext: jest.fn(),
+  isLastQuestion: false,
+};
+
 describe('SyntaxMasterCard', () => {
   beforeEach(() => { jest.clearAllMocks(); setupMocks(); });
 
@@ -375,8 +388,7 @@ describe('SyntaxMasterCard', () => {
       <SyntaxMasterCard
         question={mockSentenceQuestion}
         selectedOrder={[]}
-        {...sharedCardProps}
-        onAnswer={jest.fn()}
+        {...sharedOrderCardProps}
         onOrder={jest.fn()}
       />
     )).not.toThrow();
@@ -387,8 +399,7 @@ describe('SyntaxMasterCard', () => {
       <SyntaxMasterCard
         question={mockSentenceQuestion}
         selectedOrder={[]}
-        {...sharedCardProps}
-        onAnswer={jest.fn()}
+        {...sharedOrderCardProps}
         onOrder={jest.fn()}
       />
     );
@@ -402,8 +413,7 @@ describe('SyntaxMasterCard', () => {
       <SyntaxMasterCard
         question={mockSentenceQuestion}
         selectedOrder={[]}
-        {...sharedCardProps}
-        onAnswer={jest.fn()}
+        {...sharedOrderCardProps}
         onOrder={onOrder}
       />
     );
@@ -416,9 +426,8 @@ describe('SyntaxMasterCard', () => {
       <SyntaxMasterCard
         question={mockSentenceQuestion}
         selectedOrder={['She', 'is']}
-        {...sharedCardProps}
+        {...sharedOrderCardProps}
         isValidated={false}
-        onAnswer={jest.fn()}
         onOrder={jest.fn()}
       />
     );
@@ -432,9 +441,8 @@ describe('SyntaxMasterCard', () => {
       <SyntaxMasterCard
         question={mockSentenceQuestion}
         selectedOrder={['She']}
-        {...sharedCardProps}
+        {...sharedOrderCardProps}
         isValidated={false}
-        onAnswer={jest.fn()}
         onOrder={onOrder}
       />
     );

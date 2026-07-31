@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { render, act } from '@testing-library/react-native';
+import { ActivityIndicator } from 'react-native';
 
 /** Flush all pending microtasks so async useEffect state updates are committed */
 const flushPromises = () => new Promise<void>(resolve => setTimeout(resolve, 0));
@@ -158,7 +159,7 @@ describe('Dashboard — smoke tests', () => {
   it('affiche un loader pendant le chargement (db null)', () => {
     setupMocks({ db: null, user: null, loading: true });
     const { UNSAFE_getByType } = render(<Dashboard />);
-    expect(UNSAFE_getByType('ActivityIndicator')).toBeTruthy();
+    expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy();
   });
 
   it('affiche le contenu complet après chargement', async () => {

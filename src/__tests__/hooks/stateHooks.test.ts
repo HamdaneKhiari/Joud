@@ -88,7 +88,7 @@ describe('useConnectorState', () => {
   it('setLogicState met à jour l\'état', () => {
     const { result } = renderHook(() => useConnectorState('logic'));
     act(() => {
-      result.current.setLogicState(prev => ({ ...prev, selectedOption: 'because', isValidated: true, isCorrect: true, attemptCount: 1 }));
+      result.current.setLogicState((prev: typeof result.current.logicState) => ({ ...prev, selectedOption: 'because', isValidated: true, isCorrect: true, attemptCount: 1 }));
     });
     expect(result.current.logicState.selectedOption).toBe('because');
     expect(result.current.logicState.isValidated).toBe(true);
@@ -97,7 +97,7 @@ describe('useConnectorState', () => {
   it('resetAllStates remet tout à zéro', () => {
     const { result } = renderHook(() => useConnectorState('fusion'));
     act(() => {
-      result.current.setFusionState(prev => ({ ...prev, userAnswer: 'hello', isValidated: true, isCorrect: true, attemptCount: 2 }));
+      result.current.setFusionState((prev: typeof result.current.fusionState) => ({ ...prev, userAnswer: 'hello', isValidated: true, isCorrect: true, attemptCount: 2 }));
     });
     act(() => { result.current.resetAllStates(); });
     expect(result.current.fusionState.userAnswer).toBeUndefined();

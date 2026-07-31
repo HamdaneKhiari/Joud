@@ -260,6 +260,7 @@ describe('RephrasingCard', () => {
   it('rend sans crash', () => {
     expect(() => render(
       <RephrasingCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
+        attemptCount={0} maxAttempts={2}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     )).not.toThrow();
   });
@@ -267,6 +268,7 @@ describe('RephrasingCard', () => {
   it('affiche la phrase originale', () => {
     const { getByText } = render(
       <RephrasingCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
+        attemptCount={0} maxAttempts={2}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     );
     expect(getByText('I am happy.')).toBeTruthy();
@@ -275,6 +277,7 @@ describe('RephrasingCard', () => {
   it('affiche l\'instruction', () => {
     const { getByText } = render(
       <RephrasingCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
+        attemptCount={0} maxAttempts={2}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     );
     expect(getByText('Rephrase using "feel"')).toBeTruthy();
@@ -283,6 +286,7 @@ describe('RephrasingCard', () => {
   it('hideValidation=true → pas de bouton Valider', () => {
     const { queryByText } = render(
       <RephrasingCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
+        attemptCount={0} maxAttempts={2}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} hideValidation />
     );
     expect(queryByText('Valider')).toBeNull();
@@ -314,6 +318,7 @@ describe('SentenceFusionCard', () => {
   it('rend sans crash', () => {
     expect(() => render(
       <SentenceFusionCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
+        attemptCount={0} maxAttempts={2}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     )).not.toThrow();
   });
@@ -321,6 +326,7 @@ describe('SentenceFusionCard', () => {
   it('affiche phrase1 et phrase2', () => {
     const { getByText } = render(
       <SentenceFusionCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
+        attemptCount={0} maxAttempts={2}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     );
     expect(getByText('I was tired.')).toBeTruthy();
@@ -330,6 +336,7 @@ describe('SentenceFusionCard', () => {
   it('affiche le hint', () => {
     const { getByText } = render(
       <SentenceFusionCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
+        attemptCount={0} maxAttempts={2}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     );
     expect(getByText('Use "so"')).toBeTruthy();
@@ -338,6 +345,7 @@ describe('SentenceFusionCard', () => {
   it('hideValidation=true → pas de bouton', () => {
     const { queryByText } = render(
       <SentenceFusionCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
+        attemptCount={0} maxAttempts={2}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} hideValidation />
     );
     expect(queryByText('Valider')).toBeNull();
@@ -347,6 +355,7 @@ describe('SentenceFusionCard', () => {
     const noHintQ = { ...baseQuestion, hint: undefined };
     expect(() => render(
       <SentenceFusionCard question={noHintQ} userAnswer="" isValidated={false} isCorrect={false}
+        attemptCount={0} maxAttempts={2}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     )).not.toThrow();
   });
