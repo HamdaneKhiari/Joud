@@ -46,6 +46,10 @@ export interface Content {
   difficulty?: 'easy' | 'medium' | 'hard';
   tags?: string;
   target_audience?: 'primary' | 'college' | 'lycee' | 'adult' | 'all';
+  // Paire de langues, ex: 'fr-en', 'fr-ar' (format 'langueNative-langueCible'). Contrairement à
+  // target_audience, pas de valeur joker 'all' : un contenu n'est jamais neutre vis-à-vis de la
+  // langue. Une seule valeur existe à ce jour ('fr-en').
+  course: string;
 }
 
 export interface Progress {

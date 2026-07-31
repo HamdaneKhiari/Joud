@@ -10,6 +10,9 @@ interface User {
   id: string;
   firstName: string;
   audience: 'primary' | 'college' | 'lycee' | 'adult';
+  // Paire de langues, ex: 'fr-en', 'fr-ar'. Pas de verrouillage/sélecteur pour l'instant
+  // (une seule valeur existe) — fondation pour un futur modèle multi-langue.
+  course: string;
   isOnboarded: boolean;
   lastActivity?: string;
 }
@@ -39,6 +42,7 @@ const DEFAULT_USER: User = {
   id: 'user_01',
   firstName: '',
   audience: LOCKED_AUDIENCE || 'college',
+  course: 'fr-en',
   isOnboarded: false,
 };
 
@@ -63,6 +67,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           // Migration: anciens profils sans isOnboarded
           if (parsed.isOnboarded === undefined) {
             parsed.isOnboarded = !!parsed.firstName && parsed.firstName !== '';
+          }
+          // Migration: anciens profils sans course (avant l'ajout du modèle multi-langue)
+          if (!parsed.course) {
+            parsed.course = 'fr-en';
           }
           // Build mono-public : l'audience stockée ne fait pas foi, ce build ne sert qu'un public
           if (LOCKED_AUDIENCE) {

@@ -49,10 +49,10 @@ describe('Intégration DB réelle — migrations', () => {
     await testDb.db.closeAsync?.();
   });
 
-  it('les 7 migrations s\'exécutent sans erreur et sont enregistrées', async () => {
+  it('les 8 migrations s\'exécutent sans erreur et sont enregistrées', async () => {
     const versions = testDb.raw.exec('SELECT version FROM schema_migrations ORDER BY version');
     const applied = versions[0]?.values.map((row) => row[0]) ?? [];
-    expect(applied).toEqual([1, 2, 3, 4, 5, 6, 7]);
+    expect(applied).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
   });
 
   it('le module "assessment" n\'existe plus après la migration 005', async () => {
@@ -206,6 +206,70 @@ describe('Intégration DB réelle — contenu réel (migration 007)', () => {
   });
 });
 
+describe('Intégration DB réelle — fondation cours (multi-langue)', () => {
+  let testDb: RealTestDb;
+
+  beforeAll(async () => {
+    testDb = await createMigratedRealDb();
+  }, 20000);
+
+  afterAll(async () => {
+    await testDb.db.closeAsync?.();
+  });
+
+  it('tout le contenu migré (007) a bien course = fr-en après la migration 008 (ALTER + backfill)', async () => {
+    const result = testDb.raw.exec(`SELECT DISTINCT course FROM content`);
+    const courses = result.length ? result[0].values.map((r) => r[0] as string) : [];
+    expect(courses).toEqual(['fr-en']);
+  });
+
+  it('getContentByFamilyAndLevel isole le contenu par cours (fr-en vs fr-ar synthétique)', async () => {
+    const familyId = seedFamily(testDb, 'vocab', 'Course Isolation Family');
+    await insertContent(testDb.db, {
+      family_id: familyId, level: 1, content_type: 'word',
+      data: JSON.stringify({ word: 'قطة', translation: 'chat' }),
+      target_audience: 'all', course: 'fr-ar',
+    });
+    await insertContent(testDb.db, {
+      family_id: familyId, level: 1, content_type: 'word',
+      data: JSON.stringify({ word: 'cat', translation: 'chat' }),
+      target_audience: 'all', course: 'fr-en',
+    });
+
+    const frEnContent = await getContentByFamilyAndLevel(testDb.db, familyId, 1, undefined, 'fr-en');
+    expect(frEnContent).toHaveLength(1);
+    expect(JSON.parse(frEnContent[0].data).word).toBe('cat');
+
+    const frArContent = await getContentByFamilyAndLevel(testDb.db, familyId, 1, undefined, 'fr-ar');
+    expect(frArContent).toHaveLength(1);
+    expect(JSON.parse(frArContent[0].data).word).toBe('قطة');
+  });
+
+  it('un contenu fr-ar synthétique ne rend jamais une famille visible pour un utilisateur fr-en (sous-requête EXISTS de useFamiliesWithProgress)', async () => {
+    const familyId = seedFamily(testDb, 'vocab', 'Course EXISTS Family');
+    await insertContent(testDb.db, {
+      family_id: familyId, level: 1, content_type: 'word',
+      data: JSON.stringify({ word: 'test', translation: 'test' }),
+      target_audience: 'all', course: 'fr-ar',
+    });
+
+    const existsForCourse = (course: string) => {
+      const result = testDb.raw.exec(`
+        SELECT 1 FROM families f
+        WHERE f.id = ${familyId}
+        AND EXISTS (
+          SELECT 1 FROM content c
+          WHERE c.family_id = f.id AND (c.target_audience = 'all') AND c.course = '${course}'
+        )
+      `);
+      return result.length > 0;
+    };
+
+    expect(existsForCourse('fr-en')).toBe(false);
+    expect(existsForCourse('fr-ar')).toBe(true);
+  });
+});
+
 describe('Intégration DB réelle — modules par audience', () => {
   let testDb: RealTestDb;
 
@@ -274,6 +338,7 @@ describe('Intégration DB réelle — flux famille → contenu → progression',
       level: 1,
       content_type: 'word',
       data: JSON.stringify({ word: 'apple', translation: 'pomme' }),
+      course: 'fr-en',
     });
 
     const content = await getContentByFamilyAndLevel(testDb.db, familyId, 1);

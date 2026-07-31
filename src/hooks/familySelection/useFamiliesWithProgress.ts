@@ -56,14 +56,16 @@ export default function useFamiliesWithProgress(moduleId: string | number, level
         )
         AND EXISTS (
           SELECT 1 FROM content c
-          WHERE c.family_id = f.id AND (c.target_audience = ? OR c.target_audience = 'all')
+          WHERE c.family_id = f.id
+            AND (c.target_audience = ? OR c.target_audience = 'all')
+            AND c.course = ?
         )
         ORDER BY f.order_index ASC;
       `;
 
       const params = user
-        ? [levelId, user.id, moduleId.toString(), moduleId.toString(), user.audience]
-        : [levelId, moduleId.toString(), moduleId.toString(), ''];
+        ? [levelId, user.id, moduleId.toString(), moduleId.toString(), user.audience, user.course]
+        : [levelId, moduleId.toString(), moduleId.toString(), '', ''];
 
       const results = await db.getAllAsync<FamilyWithProgress>(query, params);
       setFamilies(results);

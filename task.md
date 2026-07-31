@@ -895,3 +895,70 @@ vs lycée/adulte (le sélecteur de public actuel était temporaire, pour les tes
 le sélecteur de public actuel dans l'app est un outil de développement temporaire pour tester
 les différents publics, pas la structure de distribution finale. Prévu pour la suite, une fois
 cette passe de finalisation validée par l'utilisateur.
+
+---
+
+## 20. Fondation "cours" (paire de langues) — préparer le multi-langue avant qu'il soit trop tard
+
+Discussion (2026-07-31) : l'objectif produit à moyen terme n'est pas seulement l'anglais —
+c'est un modèle multi-langue (français→anglais aujourd'hui, français→arabe plus tard),
+distribué sur le même modèle white-label que l'audience (un build/listing verrouillé par
+combinaison public×cours, sans choix pour le client final). Aucun contenu non-anglais n'existe
+à ce jour ; le but ici n'est **pas** de livrer l'arabe, mais de poser la colonne manquante en
+base **pendant que tout le contenu est encore 100% anglais** — plus on attend, plus le retrofit
+coûtera cher. Portée validée avec l'utilisateur : schéma DB + typage + requêtes qui filtrent
+déjà par `target_audience`, rien d'autre (plan complet dans
+`C:\Users\khi_h\.claude\plans\piped-doodling-elephant.md`).
+
+- **Constat clé** (vérifié dans le code avant d'agir) : `families` ne porte aucune colonne
+  `target_audience` — seule `content` (et `modules`/`levels`) la porte, et la visibilité d'une
+  famille se déduit via un `EXISTS` sur son contenu (`useFamiliesWithProgress.ts`). Un mot n'est
+  en revanche **jamais** neutre vis-à-vis de la langue (contrairement à l'audience) : pas de
+  valeur joker `'all'` pour `course` sur `content`, chaque ligne déclare une valeur explicite.
+  `families`/`modules`/`levels` restent neutres (un "niveau 1" a du sens pour n'importe quel
+  cours) → **aucune colonne `course` ajoutée sur ces 3 tables**, uniquement sur `content`.
+- [x] **Migration `008_add_course_column.ts`** : `ALTER TABLE content ADD COLUMN course TEXT
+  NOT NULL DEFAULT 'fr-en'` — un seul statement SQLite fait à la fois l'ajout de colonne et le
+  backfill de tout le contenu déjà seedé (migration 007) vers `'fr-en'`. Migration 007 elle-même
+  non modifiée (on ne retouche jamais une migration déjà livrée).
+- [x] **`Content.course: string`** (requis, `src/database/schema.ts`) et **`User.course: string`**
+  (`src/contexts/UserContext.tsx`, défaut `'fr-en'`, rétro-compat sur les profils déjà persistés
+  sans ce champ). `updateUser` étant déjà générique (`Partial<Omit<User,'id'>>`), `course` est
+  déjà settable sans code supplémentaire — pas de `updateCourse`/verrouillage écrit (hors
+  périmètre, voir plus bas).
+- [x] **5 fonctions de `queries.ts` étendues** en miroir exact de leur filtre `target_audience`
+  existant : `insertContent`, `getContentByFamilyAndLevel`, `getDailyWord`,
+  `getDailyReviewWords`, `getSpacedReviewWords`. `getFamiliesForModule`/
+  `getFamiliesByModuleAndLevel` non touchées (elles ne filtraient déjà pas par audience non
+  plus — trou pré-existant documenté, pas dans le périmètre de ce chantier).
+- [x] **`useFamiliesWithProgress.ts`** : la sous-requête `EXISTS` qui décide la visibilité d'une
+  famille filtre désormais aussi par `c.course = ?`.
+- [x] **Callers production mis à jour** : `useDailyWord.ts` (ajout de `user` à la déstructuration
+  de `useUser()`), `useRevisionQuestions.ts` (thread `user.course` dans les 2 appels SRS).
+- [x] **3 nouveaux tests d'intégration réels** dans `realDb.test.ts` : tout le contenu migré a
+  bien `course = 'fr-en'` après la migration 008 ; `getContentByFamilyAndLevel` isole un contenu
+  `fr-ar` synthétique d'un contenu `fr-en` dans la même famille ; la sous-requête `EXISTS` de
+  `useFamiliesWithProgress` ne rend jamais visible une famille dont le seul contenu est `fr-ar`
+  pour un utilisateur `fr-en`.
+- **Piège évité** : `getSpacedReviewWords` avait un appel de test `getSpacedReviewWords(db,
+  'u1', 'adult')` où `'adult'` était positionnellement le 3ᵉ argument (`audience`, optionnel).
+  Après ajout de `course` en 3ᵉ position (requis), ce même appel serait resté valide côté
+  TypeScript (les deux paramètres sont des `string`) mais aurait silencieusement fait passer
+  `'adult'` comme `course` au lieu de `audience` — un bug de sens, invisible au typage. Repéré
+  en lisant chaque site d'appel un par un plutôt qu'en se fiant uniquement à `tsc`/`jest` au vert.
+- **Vérifié** : `npx tsc --noEmit` → 0 erreur sur tout le projet (le typage requis de
+  `Content.course`/`User.course` a servi de filet de sécurité principal pour retrouver tous les
+  sites à mettre à jour — seulement 7 erreurs de compilation + 2 assertions runtime cassées au
+  final, bien moins que les ~13 fichiers de test repérés par une recherche `grep` initiale, la
+  plupart des mocks n'étant pas typés strictement contre `User`). `npx jest --silent` → 51
+  suites, **965 tests**, 0 échec. `npx eslint` → 0 problème.
+
+**Hors périmètre (documenté, pas fait)** : verrouillage de build par cours
+(`EXPO_PUBLIC_LOCKED_COURSE`, miroir de `EXPO_PUBLIC_LOCKED_AUDIENCE` dans `eas.json`/
+`app.config.js` — question ouverte non tranchée : comment combiner 2 axes de verrouillage,
+audience × cours, dans les identifiants de bundle/app id) ; généralisation des ~15 fichiers qui
+codent `english`/`french` en dur (interfaces `DailyWord`/`SpeedMatchQuestion`, props
+`englishWord`/`frenchWord`, prompts IA dans `src/screens/AITutor/helpers.ts` qui disent
+explicitement "coach d'anglais") ; TTS arabe (`useAudioPlayer.ts` — `SpeakOptions.language`
+limité à `'en'|'fr'`) ; écran de choix de cours à l'onboarding. Tout ça à faire au moment de
+l'import du premier contenu non-anglais, pas avant.

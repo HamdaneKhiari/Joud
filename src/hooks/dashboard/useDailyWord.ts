@@ -11,7 +11,7 @@ interface UseDailyWordReturn {
 }
 
 export const useDailyWord = (): UseDailyWordReturn => {
-  const { db } = useUser();
+  const { db, user } = useUser();
   const { identity } = useTheme();
   const [dailyWord, setDailyWord] = useState<{ english: string; french: string; emoji: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +26,7 @@ export const useDailyWord = (): UseDailyWordReturn => {
 
       try {
         setIsLoading(true);
-        const word = await getDailyWord(db, identity.id);
+        const word = await getDailyWord(db, identity.id, user?.course || 'fr-en');
 
         if (word) {
           setDailyWord({
@@ -55,7 +55,7 @@ export const useDailyWord = (): UseDailyWordReturn => {
     };
 
     fetchDailyWord();
-  }, [db, identity.id]);
+  }, [db, identity.id, user?.course]);
 
   return { dailyWord, isLoading, error };
 };

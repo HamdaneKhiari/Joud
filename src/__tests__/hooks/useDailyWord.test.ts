@@ -91,7 +91,7 @@ describe('useDailyWord — mot présent en DB', () => {
     const { result } = renderHook(() => useDailyWord());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(mockGetDailyWord).toHaveBeenCalledWith(mockDb, 'jana');
+    expect(mockGetDailyWord).toHaveBeenCalledWith(mockDb, 'jana', 'fr-en');
   });
 });
 

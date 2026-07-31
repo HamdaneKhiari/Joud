@@ -626,7 +626,7 @@ describe('getDailyWord', () => {
     (db.getFirstAsync as jest.Mock).mockResolvedValueOnce({
       data: JSON.stringify({ word: 'apple', translation: 'pomme' }),
     });
-    const result = await getDailyWord(db, 'jana');
+    const result = await getDailyWord(db, 'jana', 'fr-en');
     expect(result).toEqual({ english: 'apple', french: 'pomme' });
   });
 
@@ -634,13 +634,13 @@ describe('getDailyWord', () => {
     (db.getFirstAsync as jest.Mock)
       .mockResolvedValueOnce(null)
       .mockResolvedValueOnce({ data: JSON.stringify({ word: 'cat', translation: 'chat' }) });
-    const result = await getDailyWord(db, 'jana');
+    const result = await getDailyWord(db, 'jana', 'fr-en');
     expect(result).toEqual({ english: 'cat', french: 'chat' });
   });
 
   it('retourne null si aucun mot trouvé', async () => {
     (db.getFirstAsync as jest.Mock).mockResolvedValue(null);
-    const result = await getDailyWord(db, 'jana');
+    const result = await getDailyWord(db, 'jana', 'fr-en');
     expect(result).toBeNull();
   });
 });
@@ -728,7 +728,7 @@ describe('updateUserMetrics', () => {
 describe('getDailyReviewWords', () => {
   it('utilise la limite selon l\'audience', async () => {
     (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
-    await getDailyReviewWords(db, 'u1', 'lycee', 2);
+    await getDailyReviewWords(db, 'u1', 'lycee', 2, 'fr-en');
     expect(db.getAllAsync).toHaveBeenCalledWith(
       expect.stringContaining('LIMIT ?'),
       expect.arrayContaining([15])
@@ -739,7 +739,7 @@ describe('getDailyReviewWords', () => {
 describe('getSpacedReviewWords', () => {
   it('sans audience → query de base', async () => {
     (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
-    await getSpacedReviewWords(db, 'u1');
+    await getSpacedReviewWords(db, 'u1', 'fr-en');
     expect(db.getAllAsync).toHaveBeenCalledWith(
       expect.stringContaining('spaced_repetition'),
       expect.arrayContaining(['u1'])
@@ -748,7 +748,7 @@ describe('getSpacedReviewWords', () => {
 
   it('avec audience → filtre target_audience', async () => {
     (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
-    await getSpacedReviewWords(db, 'u1', 'adult');
+    await getSpacedReviewWords(db, 'u1', 'fr-en', 'adult');
     expect(db.getAllAsync).toHaveBeenCalledWith(
       expect.stringContaining('target_audience'),
       expect.arrayContaining(['u1', 'adult'])
@@ -826,7 +826,7 @@ describe('updateSpacedRepetitionResult', () => {
 describe('insertContent', () => {
   it('insère du contenu dans la table content', async () => {
     (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
-    await insertContent(db, { family_id: 1, level: 1, content_type: 'word', data: '{"word":"cat"}', difficulty: 'easy', target_audience: 'all' });
+    await insertContent(db, { family_id: 1, level: 1, content_type: 'word', data: '{"word":"cat"}', difficulty: 'easy', target_audience: 'all', course: 'fr-en' });
     expect(db.runAsync).toHaveBeenCalledWith(
       expect.stringContaining('INSERT INTO content'),
       expect.arrayContaining([1, 1, 'word'])

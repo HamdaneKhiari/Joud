@@ -153,9 +153,9 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
       let words: Content[] = [];
 
       if (selectedMode === 'daily') {
-        words = await getDailyReviewWords(db, user.id, user.audience, currentLevel);
+        words = await getDailyReviewWords(db, user.id, user.audience, currentLevel, user.course);
       } else {
-        words = await getSpacedReviewWords(db, user.id);
+        words = await getSpacedReviewWords(db, user.id, user.course);
       }
 
       const generatedQuestions = wordsToQuestions(words);
