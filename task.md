@@ -1128,3 +1128,75 @@ jouant normalement.
 
 **Pas fait** : re-confirmation visuelle du rafraîchissement live des métriques (cf. ci-dessus).
 Le point "test privé utilisateurs" mentionné en section 21 n'a pas encore été lancé.
+
+---
+
+## 23. Suite du test manuel — 4 bugs réels supplémentaires + nettoyage Réglages, puis doc
+
+Suite directe de la section 22, même séance de test manuel avec l'utilisateur sur émulateur.
+
+- [x] **Bug réel — pourcentage de module toujours à 0%** (`120b3b3`). `getFamilyProgress`
+  cherchait une clé exacte dans l'état de progression, mais pour les modules à sous-familles
+  (vocab, phrases, lecture, dialogues) la progression est stockée sous une clé composite
+  `"familyId-subfamilyId"` (ex: `"1-1"`) alors que `ExerciceSelectionScreen` interroge avec
+  l'id de famille brut (`"1"`). La clé ne matchait jamais → 0% affiché quel que soit le
+  nombre d'exercices faits. Les modules sans sous-famille (Jeux, Connecteur) fonctionnaient
+  par coïncidence (clé composite = id brut), d'où l'incohérence perçue. Corrigé :
+  `getFamilyProgress` agrège désormais toutes les entrées qui matchent exactement OU
+  commencent par `"familyId-"`, pondérées par completed/total. Vérifié sur device.
+
+- [x] **Bug réel — pourcentage de niveau (Dashboard) ignorait les familles jamais ouvertes**
+  (`a26743a`). `getLevelProgress` ne moyennait que les familles déjà commencées
+  (`Object.keys` de l'état en mémoire) — une famille jamais ouverte était absente du calcul
+  au lieu de compter 0%, gonflant le pourcentage de niveau par rapport aux cartes en dessous.
+  `getLevelProgress` accepte désormais un `familyIdsByModule` optionnel (liste complète des
+  familles du niveau, fournie par `Dashboard.tsx`) ; sans ce paramètre, comportement inchangé.
+
+- [x] **Bug réel puis décision produit — badge "EN COURS" instable** (`05c900b`, `d08eafb`).
+  `syncToSQLite` réécrit périodiquement toutes les familles en mémoire, et `upsertProgress`
+  tamponnait systématiquement `last_accessed = maintenant` sur chaque ligne réécrite — jouer
+  un mot dans un module remettait aussi à jour le timestamp de toutes les familles des
+  *autres* modules, rendant `getRecommendedModule` incapable de déterminer la vraie dernière
+  famille jouée. Fixé (`upsertProgress` utilise le `last_accessed` fourni par l'appelant), puis
+  **retiré entièrement** : le Dashboard a déjà "Continuer l'aventure" comme affordance de
+  reprise, plus utile sur une liste courte de 5-6 modules qu'un badge — et la fonctionnalité
+  a été la source de deux bugs dans la même soirée. `getRecommendedModule` supprimé de
+  `ProgressContext`.
+
+- [x] **Bug réel — traduction des phrases d'exemple du vocabulaire vide** (`161ffd3`,
+  migration 010). Le code était déjà complet (`VocabData.exampleTranslation`, affiché
+  conditionnellement par `WordCard`) mais la donnée était vide pour les 1029 mots
+  primaire+collège depuis leur import initial (section 15). Retrouvée dans le fichier source
+  (`validation_finale_4tranches_v2.xlsx`, colonne "Traduction exemple", remplie à 100%) — la
+  perte a eu lieu dans le script d'import ponctuel (jamais commité), pas dans la donnée
+  source. Migration 010 recolle chaque mot par `(target_audience, MOT)`, matching vérifié
+  exhaustif (1029/1029, 0 ambiguïté) en amont. Trouvé par l'utilisateur en testant, pas par
+  l'audit de la soirée.
+
+- [x] **Switch "Vibrations" des Réglages sans effet réel, switch "Sons" retiré** (`823d35a`,
+  `a70941c`). `hapticsEnabled`/`soundEnabled` (`usePreferences`) étaient persistés en
+  AsyncStorage mais lus nulle part — couper "Vibrations" ne changeait rien. Les 5 appels
+  Haptics du projet (FlowCard, AudioMatchCard/SpeedMatchCard sur erreur, bouton audio, carte
+  de niveau) sont désormais conditionnés à `prefs.hapticsEnabled`. "Sons" retiré : aucun son
+  de feedback distinct n'existe dans l'app (seule la prononciation TTS, qui est du contenu,
+  pas un feedback à couper) — le switch décrivait une fonctionnalité jamais construite.
+
+- [x] **`tsconfig.json` : `baseUrl` déprécié retiré** (`d9940fc`). TypeScript 5.9 prévenait de
+  sa suppression en 7.0. Avec `moduleResolution: "bundler"` (déjà actif via
+  `expo/tsconfig.base`), les entrées de `paths` préfixées par `"./"` se résolvent depuis le
+  tsconfig lui-même sans `baseUrl`. Alias `@/*` vérifiés fonctionnels, `tsc --noEmit` 0 erreur.
+
+- **Suite automatisée à la fin de cette section** : `npx tsc --noEmit` → 0 erreur,
+  `npx jest --silent` → 1005 tests / 51 suites, `npx eslint` → 0 problème.
+
+**Plan validé avec l'utilisateur pour la suite** (dans cet ordre) :
+1. Documentation — comment ajouter du contenu (migrations) et comment builder pour un public
+   verrouillé (EAS) → fait, voir `README.md` (racine du projet, créé après cette section).
+2. Gros nettoyage de code — inventaire des artefacts de dev suspectés avant toute suppression.
+3. Augmenter la couverture de tests (inégale : `aiService.ts` ~23%, `phraseUtils.ts` ~50%).
+4. Retirer le sélecteur d'audience des Réglages (outil de test primaire/collège/lycée/adulte,
+   à retirer une fois les tests terminés).
+
+Préparation publication (plus tard, pas commencé) : jamais testé en build de production réel
+ni sur iOS, pas de politique de confidentialité (app pour enfants), pas d'assets de store, pas
+de crash reporting en prod.
