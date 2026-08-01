@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { useTheme } from '@/themes/ThemeContext';
 import { createStyles } from './style';
+import NavigationButtons from '@/components/common/NavigationButtons';
 
 export interface Character {
   name: string;
@@ -67,9 +68,10 @@ const DialogueReaderCard: React.FC<DialogueReaderCardProps> = ({
         friction: 7,
       }).start();
 
-      setTimeout(() => {
+      const t = setTimeout(() => {
         scrollViewRef.current?.scrollToEnd({ animated: true });
       }, 100);
+      return () => clearTimeout(t);
     }
   }, [currentMessageIndex]);
 
@@ -83,7 +85,9 @@ const DialogueReaderCard: React.FC<DialogueReaderCardProps> = ({
 
   const playBubbleAudio = useCallback(async (messageIndex: number) => {
     const message = dialogue.messages?.[messageIndex];
-    if (!message?.audio || playingBubble === messageIndex) return;
+    // Bloque tant qu'une bulle (n'importe laquelle) joue déjà — pas seulement un second tap
+    // sur la même — pour éviter deux Audio.Sound concurrents (fuite + lecture superposée).
+    if (!message?.audio || playingBubble !== null) return;
 
     try {
       setPlayingBubble(messageIndex);
@@ -93,13 +97,13 @@ const DialogueReaderCard: React.FC<DialogueReaderCardProps> = ({
         typeof message.audio === 'string' ? { uri: message.audio } : message.audio
       );
 
-      setSound(newSound);
-      await newSound.playAsync();
       newSound.setOnPlaybackStatusUpdate((status) => {
         if (status.isLoaded && status.didJustFinish) {
           setPlayingBubble(null);
         }
       });
+      setSound(newSound);
+      await newSound.playAsync();
     } catch (error) {
       log.error('Audio playback error:', error);
       setPlayingBubble(null);
@@ -149,10 +153,10 @@ const DialogueReaderCard: React.FC<DialogueReaderCardProps> = ({
             <TouchableOpacity
               style={[styles.bubbleAudioBtn, position === 'right' && styles.bubbleAudioBtnRight, isPlaying && styles.bubbleAudioBtnPlaying]}
               onPress={() => playBubbleAudio(index)}
-              disabled={isPlaying}
+              disabled={playingBubble !== null}
               accessibilityRole="button"
               accessibilityLabel={isPlaying ? 'Lecture audio en cours' : `Écouter "${message.text}"`}
-              accessibilityState={{ disabled: isPlaying }}
+              accessibilityState={{ disabled: playingBubble !== null }}
             >
               <Ionicons name={isPlaying ? 'volume-high' : 'volume-medium'} size={18} color="white" />
             </TouchableOpacity>
@@ -185,29 +189,15 @@ const DialogueReaderCard: React.FC<DialogueReaderCardProps> = ({
       >
         {dialogue.messages?.map((message, index) => renderBubble(message, index))}
       </ScrollView>
-      <View style={styles.navigationBar}>
-        <TouchableOpacity
-          style={[styles.navButton, currentMessageIndex === 0 && styles.navButtonDisabled]}
-          onPress={onPreviousMessage}
-          disabled={currentMessageIndex === 0}
-          accessibilityRole="button"
-          accessibilityLabel="Message précédent"
-          accessibilityState={{ disabled: currentMessageIndex === 0 }}
-        >
-          <Ionicons name="chevron-back" size={24} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.navigationText}>
-          {currentMessageIndex + 1} / {totalMessages}
-        </Text>
-        <TouchableOpacity
-          style={[styles.navButton, isLastMessage ? styles.navButtonFinish : styles.navButtonNext]}
-          onPress={onNextMessage}
-          accessibilityRole="button"
-          accessibilityLabel={isLastMessage ? 'Passer aux questions' : 'Message suivant'}
-        >
-          <Ionicons name={isLastMessage ? 'checkmark' : 'chevron-forward'} size={24} color="white" />
-        </TouchableOpacity>
-      </View>
+      <Text style={styles.navigationText}>
+        {currentMessageIndex + 1} / {totalMessages}
+      </Text>
+      <NavigationButtons
+        isFirst={currentMessageIndex === 0}
+        onPrevious={onPreviousMessage}
+        onNext={onNextMessage}
+        nextLabel={isLastMessage ? 'Voir les questions' : 'Suivant'}
+      />
     </View>
   );
 };

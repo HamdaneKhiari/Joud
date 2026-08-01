@@ -5,6 +5,7 @@ import { useTheme } from '@/themes/ThemeContext';
 import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidationState';
 import useWordGameFeedback from '@/screens/WordGames/hooks/useWordGameFeedback';
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
+import HintToggle from '@/components/common/HintToggle';
 import type { BlanksQuestion } from '@/screens/WordGames/schema';
 
 export interface BlanksCardProps {
@@ -61,17 +62,15 @@ const BlanksCard: React.FC<BlanksCardProps> = ({
 
         <View style={styles.contentBox}>
           <Text style={styles.contentText}>{question.sentence}</Text>
-          {question.hint && (
-            <Text style={[styles.contentText, { marginTop: 8, fontStyle: 'italic' }]}>
-              💡 {question.hint}
-            </Text>
-          )}
         </View>
+
+        <HintToggle hint={question.hint} />
 
         <View style={styles.optionsContainer}>
           {question.options.map((option) => {
             const isSelected = selectedOption === option;
             const isCorrectOption = option === question.correctAnswer;
+            const resultSuffix = showFeedback && isSelected ? (isCorrect ? ', bonne réponse' : ', mauvaise réponse') : '';
 
             const buttonStyle = [
               styles.optionButton,
@@ -94,7 +93,7 @@ const BlanksCard: React.FC<BlanksCardProps> = ({
                 disabled={isValidated}
                 activeOpacity={0.7}
                 accessibilityRole="radio"
-                accessibilityLabel={option}
+                accessibilityLabel={`${option}${resultSuffix}`}
                 accessibilityState={{ selected: isSelected, disabled: isValidated }}
               >
                 <Text style={textStyle}>{option}</Text>

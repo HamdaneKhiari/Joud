@@ -73,6 +73,26 @@ describe('useConnectorHandlers', () => {
     expect(result.current.states.logicState.isValidated).toBe(true);
   });
 
+  it('logic.onValidate avec correctAnswer manquant en base → ne plante pas, juste incorrect', () => {
+    const malformedQ = { type: 'logic', sentence: 'x', options: ['a', 'b'], correctAnswer: undefined };
+    const { result } = renderHook(() => useSetup(malformedQ));
+    act(() => { result.current.handlers.logic.onAnswer('a'); });
+    expect(() => {
+      act(() => { result.current.handlers.logic.onValidate(); });
+    }).not.toThrow();
+    expect(result.current.states.logicState.isCorrect).toBe(false);
+  });
+
+  it('fusion.onValidate avec correctAnswer manquant en base → ne plante pas', () => {
+    const malformedQ = { type: 'fusion', sentence1: 'x', sentence2: 'y', correctAnswer: undefined };
+    const { result } = renderHook(() => useSetup(malformedQ));
+    act(() => { result.current.handlers.fusion.onAnswer('une réponse'); });
+    expect(() => {
+      act(() => { result.current.handlers.fusion.onValidate(); });
+    }).not.toThrow();
+    expect(result.current.states.fusionState.isCorrect).toBe(false);
+  });
+
   it('logic.onValidate sans option → rien ne se passe', () => {
     const { result } = renderHook(() => useSetup(makeLogicQ()));
     act(() => { result.current.handlers.logic.onValidate(); });

@@ -139,18 +139,21 @@ const SentenceBlanksCard: React.FC<SentenceBlanksCardProps> = ({
 
     return (
       <View style={styles.feedbackContainer}>
-        {/* Bloc de la bonne réponse */}
+        {/* Bloc de la bonne réponse — style conditionné sur isCorrect : le vrai signal
+            correct/incorrect vient déjà du blankBox ci-dessus, mais ce bloc gardait toujours
+            son style "bonne réponse" (coche verte) même après une réponse fausse, ce qui
+            induisait en erreur si on le lisait isolément. */}
         <View
           style={[
             styles.correctAnswerBlock,
             {
-              backgroundColor: identity.palette.accent + '10',
-              borderLeftColor: identity.palette.accent,
+              backgroundColor: (isCorrect ? identity.palette.accent : identity.aiDiagnostic.error) + '10',
+              borderLeftColor: isCorrect ? identity.palette.accent : identity.aiDiagnostic.error,
             },
           ]}
         >
-          <Text style={[styles.correctAnswerLabel, { color: identity.palette.accent }]}>
-            ✓ BONNE RÉPONSE :
+          <Text style={[styles.correctAnswerLabel, { color: isCorrect ? identity.palette.accent : identity.aiDiagnostic.error }]}>
+            {isCorrect ? '✓ BONNE RÉPONSE :' : 'RÉPONSE CORRECTE :'}
           </Text>
           <Text style={[styles.correctAnswerText, { color: identity.text.primary }]}>
             {data.correctAnswer || data.correct_answer}

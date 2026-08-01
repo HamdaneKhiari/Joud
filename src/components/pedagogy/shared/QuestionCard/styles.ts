@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import { spacing, withOpacity, shadows, fontSize, fontWeight } from '@/themes/tokens';
 import type { Identity } from '@/themes/ThemeContext';
 
-export const getStyles = (identity: Identity, brandColor: string) => {
+export const getStyles = (identity: Identity) => {
   return StyleSheet.create({
     questionCard: {
       padding: spacing.lg,
@@ -23,42 +23,6 @@ export const getStyles = (identity: Identity, brandColor: string) => {
     optionsContainer: {
       gap: spacing.md,
     },
-    hintSection: {
-      marginTop: spacing.xl,
-      borderTopWidth: 1,
-      borderTopColor: withOpacity(identity.text.tertiary, 0.05),
-      paddingTop: spacing.lg,
-    },
-    hintToggleButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.sm,
-      paddingVertical: spacing.sm,
-      paddingHorizontal: spacing.lg,
-      borderRadius: identity.ui.cardRadius || 20,
-      borderWidth: 1.5,
-      borderColor: brandColor,
-      alignSelf: 'flex-start',
-    },
-    hintToggleText: {
-      color: brandColor,
-      fontWeight: fontWeight.bold,
-      fontSize: fontSize.sm,
-    },
-    hintContent: {
-      marginTop: spacing.md,
-      padding: spacing.lg,
-      borderRadius: identity.ui.cardRadius * 0.75,
-      backgroundColor: withOpacity(brandColor, 0.05),
-      borderLeftWidth: 4,
-      borderLeftColor: brandColor,
-    },
-    hintText: {
-      color: identity.text.primary,
-      fontSize: fontSize.lg,
-      lineHeight: fontSize.lg * 1.6,
-      fontStyle: 'normal',
-    }
   });
 };
 

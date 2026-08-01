@@ -962,3 +962,99 @@ codent `english`/`french` en dur (interfaces `DailyWord`/`SpeedMatchQuestion`, p
 explicitement "coach d'anglais") ; TTS arabe (`useAudioPlayer.ts` — `SpeakOptions.language`
 limité à `'en'|'fr'`) ; écran de choix de cours à l'onboarding. Tout ça à faire au moment de
 l'import du premier contenu non-anglais, pas avant.
+
+---
+
+## 21. Correction complète de l'audit global (31 juillet) + unification navigation/indices
+
+Demande (2026-07-31/08-01) : « corrige tous les points énoncés dans l'audit [...] et ensuite on
+fait tester en privé les gens ». Fermeture des 3 crashs critiques, 11 bugs importants, 9 points
+mineurs de l'audit (cf. section précédente/artifact publié), plus deux chantiers de cohérence
+que l'audit avait signalés sans les corriger (3 systèmes de navigation différents, 3
+comportements d'indice différents) — sur confirmation explicite de l'utilisateur d'unifier
+plutôt que de laisser de côté. Exécuté en 10 lots, avec validation (`tsc`+`jest`+`eslint`) après
+chacun, plan détaillé dans `piped-doodling-elephant.md`.
+
+- [x] **Lot 1 — 3 crashs critiques.** `useReadingContent.ts` filtre désormais aussi
+  `options`/`correct_answer` (pas juste `passage`/`question_text`) avant de faire confiance au
+  contenu. `normalizeAnswer` (Connector) accepte `string | undefined` au lieu de crasher sur
+  `undefined.toLowerCase()`. `LogicLinksCard` garde `question.options` derrière
+  `Array.isArray(...)`. Une seule ligne de contenu malformée en base ne fait plus planter
+  l'écran — elle est filtrée silencieusement, comme le reste du pipeline le fait déjà.
+- [x] **Lot 2 — Erreurs silencieuses.** `aiService.ts` : nouvelle fonction `redactApiKey` qui
+  masque tout motif `sk-\S+` avant de logger (`log.error` est actif même en prod,
+  `logUtils.ts:26`) ou d'afficher une erreur provider — un fragment de clé API pouvait fuiter
+  via un message d'erreur OpenAI non filtré. Les 3 `catch` silencieux de `useAudioPlayer.ts`
+  loggent désormais l'erreur. `labelMapper.ts` : le filtre "erreurs DB fermée bénignes en DEV"
+  est maintenant gardé par `!__DEV__` — en prod, tout est loggé, plus aucune erreur avalée en
+  silence sous prétexte de bruit de dev.
+- [x] **Lot 3 — Races et fuites mineures.** Les 4 hooks de fetch de contenu
+  (`useExerciseContent`, `useReadingContent`, `useDialogueContent`, `useConnectorContent`) ont
+  désormais un flag `cancelled` qui empêche une requête périmée d'écraser un contenu plus
+  récent lors d'une navigation rapide. Les 3 `setTimeout` de scroll auto (AITutor ×2,
+  `DialogueReaderCard`) sont nettoyés au démontage. `stopSpeech()` nullifie sa référence audio
+  avant l'appel async. `useConnectorContent` protège chaque ligne individuellement (une ligne
+  malformée ne fait plus échouer tout le chargement).
+- [x] **Lot 4 — Audio : fuite et callback racé.** `DialogueReaderCard.playBubbleAudio` bloque
+  désormais tant qu'une bulle *quelconque* joue (pas seulement un second tap sur la même),
+  fermant la fenêtre de fuite d'`Audio.Sound` natif. `AudioMatchCard.handlePlayPress` utilise un
+  `activeSpeakIndexRef` pour qu'un callback `onDone` obsolète ne remette pas `speakingIndex` à
+  `null` par-dessus un second mot déjà lancé ; ajout d'un `onError` manquant.
+- [x] **Lot 5 — Fin de partie injuste + minuteur en arrière-plan (SpeedMatchCard,
+  AudioMatchCard).** Remplacé les `isSuccess`/`isTimeout` dérivés à chaque render (source du
+  bug "pile au moment où le chrono passe à 0 → message d'échec au lieu de victoire") par un
+  état explicite `outcome`, posé une seule fois avec un garde `current ?? ...` des deux côtés
+  pour qu'aucun des deux chemins ne puisse écraser l'autre. Ajout d'un premier usage
+  d'`AppState` dans le projet — le minuteur se met en pause proprement quand l'app quitte le
+  premier plan et reprend exactement où il en était, au lieu de geler silencieusement ou de
+  rattraper brutalement.
+- [x] **Lot 6 — Accessibilité.** Le pattern `resultSuffix` (résultat annoncé aux lecteurs
+  d'écran après validation, déjà présent dans `OptionButton`) répliqué dans 8 cartes qui ne
+  l'avaient pas (6 de l'audit + 2 trouvées en implémentant : `SentenceBlanksCard`,
+  `RevisionQuestionCard`, même trou exact). Zones tactiles `SyntaxMasterCard`/`DetectiveCard`
+  passées à `minHeight/minWidth: 44`. `ExerciseProgressBar` a un vrai
+  `accessibilityRole="progressbar"`. Défaut mort `maxAttempts = 3` aligné sur `2` (jamais
+  utilisé, tous les appelants réels passent `2`).
+- [x] **Lot 7 — Feedback sur mauvaise réponse (Speed/AudioMatch).** Les deux seules cartes de
+  l'app sans aucun signal d'erreur (juste une désélection silencieuse) ont maintenant un flash
+  rouge ~400ms + `Haptics.notificationAsync(Error)` sur une mauvaise association.
+- [x] **Lot 8 — Unification de l'indice.** Nouveau composant partagé
+  `src/components/common/HintToggle/index.tsx` (toggle "Besoin d'aide ?" contrôlé, auto-stylé,
+  extrait de `QuestionCard`). `QuestionCard`, `BlanksCard`, `TransformerCard`,
+  `SentenceFusionCard` migrés dessus ; `SyntaxMasterCard` l'utilise pour la première fois
+  (corrige au passage le bug "indice jamais affiché" malgré `question.hint` disponible dans le
+  schéma). Nettoyage : props mortes `hintUsed`/`onToggleHint`/`i18n` retirées de
+  `QuestionCardProps` (jamais utilisées par aucun appelant), styles hint dupliqués retirés de
+  `QuestionCard/styles.ts`.
+- [x] **Lot 9 — Unification de la navigation (3 → 2 systèmes).** `NavigationButtons` (boutons
+  ronds icône-seule, réservé à Vocabulaire) affiche désormais un libellé texte visible sous
+  chaque icône, plus une prop `nextLabel?` pour préciser l'action réelle. `DialogueReaderCard`
+  abandonne sa barre de navigation custom (3ᵉ système) au profit de `NavigationButtons`
+  (`nextLabel="Voir les questions"` sur le dernier message) — le compteur "X / Y" reste un
+  `<Text>` séparé au-dessus. `ExerciseValidation` (validation de réponse) reste un système à
+  part : fusionner "valider une réponse" et "défiler sans réponse" dans le même composant
+  aurait ajouté des branches artificielles pour un gain nul. Styles morts (`navigationBar`,
+  `navButton*`) retirés de `DialogueReaderCard/style.ts`.
+- [x] **Lot 10 — Cosmétique.** `AudioMatchCard` : `"Continue"` → `"Continuer"` (incohérence
+  avec `SpeedMatchCard`). `ConnectorExerciseScreen` : message de chargement traduit en
+  français. `SentenceBlanksCard` : le bloc de révélation de la réponse (coche verte "BONNE
+  RÉPONSE") devient conditionnel sur `isCorrect` — libellé neutre "RÉPONSE CORRECTE" sans coche
+  quand la réponse était fausse, au lieu du même style vert dans tous les cas.
+- [x] **Point manqué, rattrapé après relecture** — "minuteur sans signal d'urgence ni
+  accessibilité" (Speed/AudioMatch) : présent dans l'analyse initiale mais tombé entre les
+  mailles du filet en écrivant le plan final (absent du Lot 5 tel qu'approuvé). Détecté en
+  recomparant méthodiquement la liste de l'audit après que l'utilisateur a demandé confirmation
+  que tout était corrigé — plutôt que de répondre "oui" par réflexe. Corrigé : icône + texte du
+  minuteur passent en rouge (`identity.aiDiagnostic.error`) dans les 5 dernières secondes, avec
+  `accessibilityLiveRegion="polite"` activé uniquement à ce moment-là (évite de spammer les
+  lecteurs d'écran à chaque seconde pendant toute la partie).
+- **Vérifié après chaque lot et à la fin** : `npx jest --silent` → **51 suites, 993 tests**
+  (partis de 979 avant ce chantier, +14 tests ciblés prouvant les comportements corrigés — pas
+  de la robustesse défensive non testée). `npx tsc --noEmit` → 0 erreur. `npx eslint` → 0
+  problème. `npx jscpd` → 4,09% (contre 3,93% avant, légère hausse due au pattern
+  `resultSuffix` répété consciemment dans 8 cartes plutôt qu'une régression de duplication
+  incontrôlée).
+
+**Pas fait dans ce chantier** : test manuel sur émulateur/device réel — validé uniquement via
+la suite automatisée cette fois (contrairement à la section 15 où un test live avait été fait).
+À faire avant le test privé utilisateurs mentionné par l'utilisateur, si souhaité.

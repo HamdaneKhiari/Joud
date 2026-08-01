@@ -13,6 +13,16 @@ import {
 import { useState, useEffect } from 'react';
 import { SQLiteDatabase } from 'expo-sqlite';
 
+// Erreurs de fermeture de DB natives lors d'un hot-reload en DEV (bénignes, jamais en prod
+// puisque log.error n'est pas coupé par __DEV__ — voir logUtils.ts). En prod, on logue tout,
+// même un message qui contiendrait ces mots par coïncidence : mieux vaut un faux positif
+// bruyant qu'une vraie erreur avalée en silence.
+const isBenignDevDbError = (error: unknown): boolean => {
+  if (!__DEV__) return false;
+  const errorMsg = String(error);
+  return errorMsg.includes('shared object') || errorMsg.includes('NativeStatement');
+};
+
 export interface ModuleLabel {
   title: string;
   description: string;
@@ -46,9 +56,7 @@ export const useModuleLabel = (moduleSlug: string): ModuleLabel => {
           icon: moduleLabel.icon_name
         });
       } catch (error) {
-        const errorMsg = String(error);
-        // Silence les erreurs de DB fermée (auto-reset en DEV)
-        if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
+        if (!isBenignDevDbError(error)) {
           log.error('Error loading module label:', error);
         }
       }
@@ -77,9 +85,7 @@ export const useLevelLabel = (levelNumber: number, familyId?: string): LevelLabe
         const levelLabel = await getLevelLabel(db, levelNumber, currentApp, familyId);
         setLabel(levelLabel);
       } catch (error) {
-        const errorMsg = String(error);
-        // Silence les erreurs de DB fermée (auto-reset en DEV)
-        if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
+        if (!isBenignDevDbError(error)) {
           log.error('Error loading level label:', error);
         }
       }
@@ -108,9 +114,7 @@ export const getModuleLabel = async (
       icon: moduleLabel.icon_name
     };
   } catch (error) {
-    const errorMsg = String(error);
-    // Silence les erreurs de DB fermée (auto-reset en DEV)
-    if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
+    if (!isBenignDevDbError(error)) {
       log.error('Error in getModuleLabel:', error);
     }
     return { title: moduleSlug, description: 'Module', icon: 'book' };
@@ -180,9 +184,7 @@ export const getLevelLabel = async (
 
     return { title: `Niveau ${levelNumber}`, badge: `N${levelNumber}`, description: 'Niveau' };
   } catch (error) {
-    const errorMsg = String(error);
-    // Silence les erreurs de DB fermée (auto-reset en DEV)
-    if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
+    if (!isBenignDevDbError(error)) {
       log.error('Error in getLevelLabel:', error);
     }
     return { title: `Niveau ${levelNumber}`, badge: `N${levelNumber}`, description: 'Niveau' };
@@ -199,9 +201,7 @@ export const getAvailableModules = async (
   try {
     return await getAvailableModulesFromDB(db, identityId, levelNumber);
   } catch (error) {
-    const errorMsg = String(error);
-    // Silence les erreurs de DB fermée (auto-reset en DEV)
-    if (!errorMsg.includes('shared object') && !errorMsg.includes('NativeStatement')) {
+    if (!isBenignDevDbError(error)) {
       log.error('Error in getAvailableModules:', error);
     }
     return [];

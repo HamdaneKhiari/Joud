@@ -69,6 +69,7 @@ const DefinitionCard: React.FC<DefinitionCardProps> = ({
           {question.options.map((option) => {
             const isSelected = selectedOption === option;
             const isCorrectOption = option === question.correctAnswer;
+            const resultSuffix = showFeedback && isSelected ? (isCorrect ? ', bonne réponse' : ', mauvaise réponse') : '';
 
             const buttonStyle = [
               styles.optionButton,
@@ -91,7 +92,7 @@ const DefinitionCard: React.FC<DefinitionCardProps> = ({
                 disabled={isValidated}
                 activeOpacity={0.7}
                 accessibilityRole="radio"
-                accessibilityLabel={option}
+                accessibilityLabel={`${option}${resultSuffix}`}
                 accessibilityState={{ selected: isSelected, disabled: isValidated }}
               >
                 <Text style={textStyle}>{option}</Text>

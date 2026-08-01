@@ -24,13 +24,15 @@ export const useReadingContent = (
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadContent = async () => {
       if (!db || typeof db === 'number' || !familyId) {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
         return;
       }
       try {
-        setLoading(true);
+        if (!cancelled) setLoading(true);
         const result = await db.getAllAsync<{ data: string }>(
           `SELECT data FROM content WHERE family_id = ? AND subfamily_id = ?`,
           [familyId, subfamilyId]
@@ -39,18 +41,21 @@ export const useReadingContent = (
         if (result && result.length > 0) {
           const parsed = result.map(item => {
             const data = typeof item.data === 'string' ? JSON.parse(item.data) : item.data;
-            return (data.passage && data.question_text) ? data as ReadingQuestion : null;
+            const isValid = data.passage && data.question_text
+              && Array.isArray(data.options) && data.correct_answer;
+            return isValid ? data as ReadingQuestion : null;
           }).filter((q): q is ReadingQuestion => q !== null);
-          setQuestions(parsed);
+          if (!cancelled) setQuestions(parsed);
         }
       } catch (error) {
         log.error('[useReadingContent] Load failed:', error);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     loadContent();
+    return () => { cancelled = true; };
   }, [db, familyId, subfamilyId]);
 
   return { questions, loading };

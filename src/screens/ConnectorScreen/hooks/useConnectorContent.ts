@@ -23,34 +23,44 @@ export const useConnectorContent = (
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadContent = async () => {
       if (!db || typeof db === 'number' || !familyId) {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
         return;
       }
       try {
-        setLoading(true);
+        if (!cancelled) setLoading(true);
         const result = await db.getAllAsync<{ id: number; data: string; content_type: string }>(
           `SELECT id, data, content_type FROM content WHERE family_id = ? AND subfamily_id = ?`,
           [familyId, subfamilyId]
         );
 
         if (result && result.length > 0) {
-          const parsed: ConnectorQuestion[] = result.map(item => ({
-            id: item.id,
-            type: item.content_type,
-            data: typeof item.data === 'string' ? JSON.parse(item.data) : item.data,
-          }));
-          setQuestions(parsed);
+          const parsed: ConnectorQuestion[] = result.map(item => {
+            try {
+              return {
+                id: item.id,
+                type: item.content_type,
+                data: typeof item.data === 'string' ? JSON.parse(item.data) : item.data,
+              };
+            } catch (e) {
+              log.error(`[useConnectorContent] JSON Parse Error (ID: ${item.id}):`, e);
+              return null;
+            }
+          }).filter((item): item is ConnectorQuestion => item !== null);
+          if (!cancelled) setQuestions(parsed);
         }
       } catch (error) {
         log.error('[useConnectorContent] Load failed:', error);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     loadContent();
+    return () => { cancelled = true; };
   }, [db, familyId, subfamilyId]);
 
   return { questions, loading };

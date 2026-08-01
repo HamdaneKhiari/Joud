@@ -9,8 +9,10 @@ import type { useConnectorState, UnifiedConnectorState } from './useConnectorSta
 type ConnectorStates = ReturnType<typeof useConnectorState>;
 type StateSetter = (updater: (prev: UnifiedConnectorState) => UnifiedConnectorState) => void;
 
-const normalizeAnswer = (text: string) => {
-  return text.toLowerCase().trim().replaceAll(/\s+/g, ' ');
+// `text` peut être absent si une ligne de contenu réelle n'a pas de correctAnswer/réponse
+// utilisateur (donnée malformée) — sans ce garde, ça plantait sur undefined.toLowerCase().
+const normalizeAnswer = (text: string | undefined) => {
+  return (text ?? '').toLowerCase().trim().replaceAll(/\s+/g, ' ');
 };
 
 interface UseConnectorHandlersProps {

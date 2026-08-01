@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Audio, AVPlaybackStatus } from 'expo-av';
 import * as Speech from 'expo-speech';
 import * as Haptics from 'expo-haptics';
+import { log } from '@/utils/logUtils';
 
 interface SpeakOptions {
   language?: 'en' | 'fr';
@@ -91,7 +92,8 @@ export const useAudioPlayer = (
       });
 
       await newSound.playAsync();
-    } catch (_) {
+    } catch (e) {
+      log.error('[useAudioPlayer] playAudioFile error:', e);
       setPlaying(false);
     }
   }, [onAudioPlayCallback]);
@@ -116,7 +118,8 @@ export const useAudioPlayer = (
         }
       });
       await newSound.playAsync();
-    } catch (_) {
+    } catch (e) {
+      log.error('[useAudioPlayer] playAudio error:', e);
       setPlaying(false);
     }
   }, [audioSource, onAudioPlayCallback]);
@@ -159,7 +162,8 @@ export const useAudioPlayer = (
             setPlaying(false);
           },
         });
-      } catch (_) {
+      } catch (e) {
+        log.error('[useAudioPlayer] speakText error:', e);
         clearSafetyTimer();
         setPlaying(false);
       }
@@ -171,7 +175,9 @@ export const useAudioPlayer = (
     clearSafetyTimer();
     Speech.stop();
     if (soundRef.current) {
-      soundRef.current.stopAsync();
+      const sound = soundRef.current;
+      soundRef.current = null;
+      sound.stopAsync().catch(() => {});
     }
     setPlaying(false);
   }, []);

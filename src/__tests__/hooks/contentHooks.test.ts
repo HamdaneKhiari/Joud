@@ -64,6 +64,19 @@ describe('useConnectorContent', () => {
     await act(async () => { await flushPromises(); });
     expect(result.current.loading).toBe(false);
   });
+
+  it('une ligne au JSON malformé est ignorée sans faire échouer les autres', async () => {
+    const { useConnectorContent } = require('@/screens/ConnectorScreen/hooks/useConnectorContent');
+    const rows = [
+      { id: 1, content_type: 'logic', data: 'not valid json{' },
+      { id: 2, content_type: 'fusion', data: JSON.stringify({ sentence1: 'I like coffee.', sentence2: 'It is hot.' }) },
+    ];
+    const db = { getAllAsync: jest.fn().mockResolvedValue(rows) };
+    const { result } = renderHook(() => useConnectorContent(db, 1, 1));
+    await act(async () => { await flushPromises(); });
+    expect(result.current.questions).toHaveLength(1);
+    expect(result.current.questions[0].id).toBe(2);
+  });
 });
 
 // ──────────────────────────────────────────────

@@ -13,7 +13,7 @@ export const useExerciseValidationState = (
   isValidated: boolean,
   isCorrect: boolean,
   attemptCount: number = 0,
-  maxAttempts: number = 3,
+  maxAttempts: number = 2,
   hasAnswer: boolean = false
 ): ValidationResult => {
 

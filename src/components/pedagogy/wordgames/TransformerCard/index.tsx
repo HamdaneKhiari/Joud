@@ -6,6 +6,7 @@ import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidat
 import useWordGameFeedback from '@/screens/WordGames/hooks/useWordGameFeedback';
 import { tokens } from '@/themes/tokens';
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
+import HintToggle from '@/components/common/HintToggle';
 import type { TransformerQuestion } from '@/screens/WordGames/schema';
 
 export interface TransformerCardProps {
@@ -169,11 +170,7 @@ const TransformerCard: React.FC<TransformerCardProps> = ({
           {!!after && <Text style={styles.sentenceText}>{after}</Text>}
         </View>
 
-        {!!question.hint && (
-          <View style={styles.hintBox}>
-            <Text style={styles.hintText}>💡 {question.hint}</Text>
-          </View>
-        )}
+        <HintToggle hint={question.hint} />
 
         {!!question.translation && showFeedback && (
           <Text style={styles.translationText}>🇫🇷 {question.translation}</Text>
@@ -183,6 +180,7 @@ const TransformerCard: React.FC<TransformerCardProps> = ({
           {question.options.map((option) => {
             const isSelected = selectedOption === option;
             const isCorrectOption = option === question.correctAnswer;
+            const resultSuffix = showFeedback && isSelected ? (isCorrect ? ', bonne réponse' : ', mauvaise réponse') : '';
 
             const buttonStyle = [
               baseStyles.optionButton,
@@ -205,7 +203,7 @@ const TransformerCard: React.FC<TransformerCardProps> = ({
                 disabled={isValidated}
                 activeOpacity={0.7}
                 accessibilityRole="radio"
-                accessibilityLabel={option}
+                accessibilityLabel={`${option}${resultSuffix}`}
                 accessibilityState={{ selected: isSelected, disabled: isValidated }}
               >
                 <Text style={textStyle}>{option}</Text>

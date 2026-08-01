@@ -64,7 +64,8 @@ const AITutorGuidedScreen: React.FC = () => {
 
   useEffect(() => {
     if (phase !== 'chat') return;
-    setTimeout(() => { scrollViewRef.current?.scrollToEnd({ animated: true }); }, 100);
+    const t = setTimeout(() => { scrollViewRef.current?.scrollToEnd({ animated: true }); }, 100);
+    return () => clearTimeout(t);
   }, [messages, phase]);
 
   const safeGoBack = useCallback(() => {

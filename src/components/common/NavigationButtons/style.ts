@@ -29,6 +29,15 @@ export const createStyles = (identity: Identity) => {
     spacer: {
       flex: 1,
     },
+    navItem: {
+      alignItems: 'center',
+      gap: tokens.spacing.xs,
+    },
+    navLabel: {
+      fontSize: tokens.fontSize.xs,
+      fontWeight: tokens.fontWeight.semibold,
+      color: identity.text.secondary,
+    },
     navButton: {
       width: BUTTON_SIZE,
       height: BUTTON_SIZE,

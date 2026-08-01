@@ -160,6 +160,25 @@ describe('DefinitionCard', () => {
     fireEvent.press(getByText('A type of bread.'));
     expect(onAnswer).toHaveBeenCalledWith('A type of bread.');
   });
+
+  it('annonce le résultat aux lecteurs d\'écran après validation (option mauvaise)', () => {
+    // showFeedback = isValidated && (isCorrect || canSkip) — canSkip vient du hook mocké,
+    // il faut donc le faire renvoyer true pour simuler "dernière tentative épuisée".
+    require('@/hooks/exercises/useExerciceValidationState').useExerciseValidationState
+      .mockReturnValue({ canSkip: true, validationState: 'incorrect', buttonDisabled: false });
+    const { getByLabelText } = render(
+      <DefinitionCard
+        question={mockDefinitionQuestion}
+        {...sharedCardProps}
+        selectedOption="A type of bread."
+        isValidated
+        isCorrect={false}
+        attemptCount={2}
+        maxAttempts={2}
+      />
+    );
+    expect(getByLabelText('A type of bread., mauvaise réponse')).toBeTruthy();
+  });
 });
 
 // ============================================
@@ -262,6 +281,20 @@ describe('DetectiveCard', () => {
     );
     fireEvent.press(getByText("don't"));
     expect(onAnswer).toHaveBeenCalledWith(1);
+  });
+
+  it('annonce le résultat aux lecteurs d\'écran après validation (mot correct trouvé)', () => {
+    const { getByLabelText } = render(
+      <DetectiveCard
+        question={mockDetectiveQuestion}
+        selectedWord={1}
+        {...sharedCardProps}
+        isValidated
+        isCorrect
+        onAnswer={jest.fn()}
+      />
+    );
+    expect(getByLabelText("don't, bonne réponse")).toBeTruthy();
   });
 });
 
@@ -451,6 +484,20 @@ describe('SyntaxMasterCard', () => {
     fireEvent.press(sheButtons[0]);
     expect(onOrder).toHaveBeenCalled();
   });
+
+  it('affiche l\'indice via le toggle "Besoin d\'aide ?" (absent avant ce correctif malgré la donnée disponible)', () => {
+    const { getByText, queryByText } = render(
+      <SyntaxMasterCard
+        question={mockSentenceQuestion}
+        selectedOrder={[]}
+        {...sharedOrderCardProps}
+        onOrder={jest.fn()}
+      />
+    );
+    expect(queryByText('Commence par "She".')).toBeNull();
+    fireEvent.press(getByText("Besoin d'aide ?"));
+    expect(getByText('Commence par "She".')).toBeTruthy();
+  });
 });
 
 // ============================================
@@ -537,6 +584,90 @@ describe('SpeedMatchCard', () => {
     // Toutes les paires sont matchées → écran de résultats
     expect(getByText('Continuer')).toBeTruthy();
   });
+
+  it('mauvaise association → flash rouge + vibration (avant ce correctif : aucun signal du tout)', () => {
+    const { act } = require('@testing-library/react-native');
+    const Haptics = require('expo-haptics');
+    // 2 paires pour avoir une mauvaise réponse possible (apple/pomme, banana/banane)
+    const twoPairGame = { ...mockSpeedMatchQuestion, pairs: mockSpeedMatchQuestion.pairs.slice(0, 2), timeLimit: 30 };
+    const { getByText, getByLabelText } = render(<SpeedMatchCard game={twoPairGame} onComplete={jest.fn()} />);
+
+    fireEvent.press(getByText('apple'));
+    fireEvent.press(getByText('banane')); // ne correspond pas à apple → mauvaise association
+
+    expect(Haptics.notificationAsync).toHaveBeenCalledWith(Haptics.NotificationFeedbackType.Error);
+    expect(getByLabelText('apple, mauvaise association')).toBeTruthy();
+    expect(getByLabelText('banane, mauvaise association')).toBeTruthy();
+
+    // Le flash s'efface après le délai (l'app redevient utilisable normalement)
+    act(() => { jest.advanceTimersByTime(400); });
+    expect(getByLabelText('apple')).toBeTruthy();
+  });
+
+  it('trouve la dernière paire exactement quand le chrono passe à 0 → succès, pas échec (bug corrigé)', () => {
+    const { act } = require('@testing-library/react-native');
+    const singlePairGame = {
+      ...mockSpeedMatchQuestion,
+      pairs: [{ english: 'apple', french: 'pomme' }],
+      timeLimit: 1,
+    };
+    const { getByText } = render(<SpeedMatchCard game={singlePairGame} onComplete={jest.fn()} />);
+    fireEvent.press(getByText('apple'));
+    // Le clic qui complète le match ET le tick du minuteur à 0 dans le même batch (act englobant
+    // : les effets ne se recalculent qu'à sa sortie, donc l'ancien intervalle est encore actif) —
+    // reproduit exactement le scénario "pile au moment où le temps expire" signalé par l'audit.
+    act(() => {
+      fireEvent.press(getByText('pomme'));
+      jest.advanceTimersByTime(1000);
+    });
+    expect(getByText('Bravo! Tu as réussi!')).toBeTruthy();
+    expect(() => getByText('Temps écoulé!')).toThrow();
+    expect(() => getByText('Game Over!')).toThrow();
+  });
+
+  it('temps écoulé sans avoir trouvé toutes les paires → message "Temps écoulé", jamais le générique "Game Over"', () => {
+    const { act } = require('@testing-library/react-native');
+    const { getByText } = render(
+      <SpeedMatchCard game={{ ...mockSpeedMatchQuestion, timeLimit: 1 }} onComplete={jest.fn()} />
+    );
+    act(() => { jest.advanceTimersByTime(1000); });
+    expect(getByText('Temps écoulé!')).toBeTruthy();
+  });
+
+  it('met le minuteur en pause quand l\'app passe en arrière-plan, reprend exactement où il en était au retour', () => {
+    const { act } = require('@testing-library/react-native');
+    const { AppState } = require('react-native');
+    const { getByText } = render(
+      <SpeedMatchCard game={{ ...mockSpeedMatchQuestion, timeLimit: 10 }} onComplete={jest.fn()} />
+    );
+    const [, changeHandler] = AppState.addEventListener.mock.calls.find(([event]: [string]) => event === 'change');
+
+    act(() => { jest.advanceTimersByTime(3000); });
+    expect(getByText('7s')).toBeTruthy();
+
+    act(() => { changeHandler('background'); });
+    act(() => { jest.advanceTimersByTime(5000); }); // en pause : ne décompte pas
+    expect(getByText('7s')).toBeTruthy();
+
+    act(() => { changeHandler('active'); });
+    act(() => { jest.advanceTimersByTime(2000); }); // reprend pile où il en était
+    expect(getByText('5s')).toBeTruthy();
+  });
+
+  it('signale l\'urgence (couleur + annonce lecteur d\'écran) dans les 5 dernières secondes', () => {
+    const { act } = require('@testing-library/react-native');
+    const { getByText, getByLabelText } = render(
+      <SpeedMatchCard game={{ ...mockSpeedMatchQuestion, timeLimit: 7 }} onComplete={jest.fn()} />
+    );
+    // À 6s restantes : pas encore critique
+    act(() => { jest.advanceTimersByTime(1000); });
+    expect(getByText('6s').props.accessibilityLiveRegion).toBe('none');
+
+    // À 5s restantes : signal d'urgence actif
+    act(() => { jest.advanceTimersByTime(1000); });
+    expect(getByText('5s').props.accessibilityLiveRegion).toBe('polite');
+    expect(getByLabelText('5 secondes restantes')).toBeTruthy();
+  });
 });
 
 // ============================================
@@ -559,7 +690,6 @@ describe('AudioMatchCard', () => {
     jest.clearAllMocks();
     setupMocks();
     jest.useFakeTimers();
-    jest.mock('expo-speech', () => ({ speak: jest.fn(), stop: jest.fn() }));
   });
 
   afterEach(() => {
@@ -594,7 +724,44 @@ describe('AudioMatchCard', () => {
       <AudioMatchCard game={{ ...mockAudioMatchQuestion, timeLimit: 1 }} onComplete={jest.fn()} />
     );
     act(() => { jest.advanceTimersByTime(1500); });
-    expect(getByText('Continue')).toBeTruthy();
+    expect(getByText('Continuer')).toBeTruthy();
+  });
+
+  it('mauvaise association → flash rouge + vibration sur l\'image (avant ce correctif : aucun signal du tout)', () => {
+    const { act } = require('@testing-library/react-native');
+    const Haptics = require('expo-haptics');
+    // Rend le mélange des images déterministe (sort no-op) pour cibler "Image 2" (= banana)
+    // sans ambiguïté après avoir sélectionné "apple".
+    const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.5);
+    const { getByLabelText } = render(
+      <AudioMatchCard game={mockAudioMatchQuestion} onComplete={jest.fn()} />
+    );
+    randomSpy.mockRestore();
+
+    fireEvent.press(getByLabelText('Écouter "apple"'));
+    fireEvent.press(getByLabelText('Image 2')); // banana, pas apple → mauvaise association
+
+    expect(Haptics.notificationAsync).toHaveBeenCalledWith(Haptics.NotificationFeedbackType.Error);
+    expect(getByLabelText('Image 2, mauvaise association')).toBeTruthy();
+
+    act(() => { jest.advanceTimersByTime(400); });
+    expect(getByLabelText('Image 2')).toBeTruthy();
+  });
+
+  it('le callback onDone d\'un 1er mot ne remet pas l\'icône "en lecture" d\'un 2e mot déjà lancé', () => {
+    const Speech = require('expo-speech');
+    const { getByLabelText } = render(
+      <AudioMatchCard game={mockAudioMatchQuestion} onComplete={jest.fn()} />
+    );
+    fireEvent.press(getByLabelText('Écouter "apple"'));
+    const firstCallOptions = Speech.speak.mock.calls[0][1];
+    fireEvent.press(getByLabelText('Écouter "banana"'));
+
+    // Le callback onDone du mot "apple" (obsolète, plus l'utterance active) se déclenche après coup.
+    firstCallOptions.onDone();
+
+    // "banana" doit rester affiché comme en cours de lecture, pas repasser à son état "arrêté".
+    expect(getByLabelText('Lecture en cours')).toBeTruthy();
   });
 });
 
@@ -644,6 +811,59 @@ describe('DialogueReaderCard', () => {
       />
     );
     expect(getByText('Hello, can I have a coffee please?')).toBeTruthy();
+  });
+
+  it('bloque le lancement d\'une 2e bulle audio tant que la 1re joue encore', () => {
+    const dialogueWithAudio = {
+      ...mockDialogue,
+      messages: [
+        { ...mockDialogue.messages[0], audio: 'file://msg0.mp3' },
+        { ...mockDialogue.messages[1], audio: 'file://msg1.mp3' },
+      ],
+    };
+    const { getByLabelText } = render(
+      <DialogueReaderCard
+        dialogue={dialogueWithAudio}
+        currentMessageIndex={1}
+        onPreviousMessage={jest.fn()}
+        onNextMessage={jest.fn()}
+        isLastMessage={false}
+        totalMessages={2}
+      />
+    );
+    const { Audio } = require('expo-av');
+    fireEvent.press(getByLabelText('Écouter "Hello, can I have a coffee please?"'));
+    // La 2e bulle passe disabled=true dès que playingBubble n'est plus null,
+    // avant même que la 1re lecture ait fini de charger (createAsync).
+    expect(getByLabelText('Écouter "Of course! Anything else?"').props.accessibilityState.disabled).toBe(true);
+    fireEvent.press(getByLabelText('Écouter "Of course! Anything else?"'));
+    expect(Audio.Sound.createAsync).toHaveBeenCalledTimes(1);
+  });
+
+  it('utilise le NavigationButtons unifié — "Suivant" en cours de dialogue, "Voir les questions" au dernier message', () => {
+    const { getByText, rerender } = render(
+      <DialogueReaderCard
+        dialogue={mockDialogue}
+        currentMessageIndex={0}
+        onPreviousMessage={jest.fn()}
+        onNextMessage={jest.fn()}
+        isLastMessage={false}
+        totalMessages={2}
+      />
+    );
+    expect(getByText('Suivant')).toBeTruthy();
+
+    rerender(
+      <DialogueReaderCard
+        dialogue={mockDialogue}
+        currentMessageIndex={1}
+        onPreviousMessage={jest.fn()}
+        onNextMessage={jest.fn()}
+        isLastMessage
+        totalMessages={2}
+      />
+    );
+    expect(getByText('Voir les questions')).toBeTruthy();
   });
 });
 

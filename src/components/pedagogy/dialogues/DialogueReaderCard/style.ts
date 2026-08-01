@@ -9,7 +9,6 @@ export const createStyles = (identity: Identity) => {
   const containerRadius = isPlayful ? 24 : 16;
   const bubbleRadius = isPlayful ? 18 : 14;
   const tagRadius = isPlayful ? 20 : 12;
-  const buttonRadius = isPlayful ? 26 : 18;
 
   return StyleSheet.create({
     dialogueContainer: {
@@ -171,48 +170,13 @@ export const createStyles = (identity: Identity) => {
       textAlign: 'right',
     },
 
-    navigationBar: {
-      backgroundColor: identity.palette.surface,
-      padding: tokens.spacing.lg,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: tokens.spacing.xl,
-      borderTopWidth: 2,
-      borderTopColor: isDark ? identity.palette.primary + '30' : identity.palette.primary + '15',
-    },
-
-    navButton: {
-      width: 52,
-      height: 52,
-      borderRadius: buttonRadius,
-      alignItems: 'center',
-      justifyContent: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.15,
-      shadowRadius: 6,
-      elevation: 3,
-      backgroundColor: identity.palette.accent,
-    },
-
-    navButtonNext: {
-      backgroundColor: identity.palette.accent,
-    },
-
-    navButtonFinish: {
-      backgroundColor: '#10B981', // Green success
-    },
-
-    navButtonDisabled: {
-      opacity: 0.3,
-      backgroundColor: isDark ? '#4B5563' : '#D1D5DB',
-    },
-
     navigationText: {
       fontSize: tokens.fontSize.base,
       fontWeight: tokens.fontWeight.extrabold,
       color: identity.text.primary,
+      textAlign: 'center',
+      paddingVertical: tokens.spacing.sm,
+      backgroundColor: identity.palette.surface,
     },
   });
 };

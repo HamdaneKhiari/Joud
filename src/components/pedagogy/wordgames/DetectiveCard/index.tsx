@@ -90,6 +90,10 @@ const DetectiveCard: React.FC<DetectiveCardProps> = ({
     },
 
     wordButton: {
+      minHeight: 44,
+      minWidth: 44,
+      alignItems: 'center',
+      justifyContent: 'center',
       paddingHorizontal: tokens.spacing.md,
       paddingVertical: tokens.spacing.sm,
       borderRadius: isPlayful ? tokens.borderRadius.lg : tokens.borderRadius.md,
@@ -158,6 +162,7 @@ const DetectiveCard: React.FC<DetectiveCardProps> = ({
           {words.map((word, index) => {
             const isSelected = selectedWord === index;
             const isError = index === errorIndex;
+            const resultSuffix = showFeedback && isSelected ? (isCorrect ? ', bonne réponse' : ', mauvaise réponse') : '';
 
             const buttonStyle = [
               styles.wordButton,
@@ -179,7 +184,7 @@ const DetectiveCard: React.FC<DetectiveCardProps> = ({
                 disabled={isValidated}
                 activeOpacity={0.7}
                 accessibilityRole="radio"
-                accessibilityLabel={word}
+                accessibilityLabel={`${word}${resultSuffix}`}
                 accessibilityState={{ selected: isSelected, disabled: isValidated }}
               >
                 <Text style={textStyle}>{word}</Text>

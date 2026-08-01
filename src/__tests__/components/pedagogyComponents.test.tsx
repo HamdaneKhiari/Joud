@@ -210,6 +210,21 @@ describe('QuestionCard', () => {
     expect(getByText("Masquer l'indice")).toBeTruthy();
   });
 
+  it('accessibilityState.expanded suit l\'état ouvert/fermé du toggle d\'indice (HintToggle)', () => {
+    const { getByText, getByLabelText } = render(
+      <QuestionCard
+        question="Question?"
+        options={['A', 'B']}
+        correctAnswer="A"
+        onAnswer={onAnswer}
+        hint="This is a hint"
+      />
+    );
+    expect(getByLabelText("Besoin d'aide ?").props.accessibilityState.expanded).toBe(false);
+    fireEvent.press(getByText("Besoin d'aide ?"));
+    expect(getByLabelText("Masquer l'indice").props.accessibilityState.expanded).toBe(true);
+  });
+
   it('masque l\'indice quand on presse "Masquer l\'indice"', () => {
     const { getByText, queryByText } = render(
       <QuestionCard
@@ -588,6 +603,15 @@ describe('SentenceBlanksCard', () => {
     expect(getAllByText('goes').length).toBeGreaterThanOrEqual(1);
     expect(getByText('Elle va à l\'école chaque jour.')).toBeTruthy();
     expect(getByText('Use third person singular with -s.')).toBeTruthy();
+    expect(getByText('✓ BONNE RÉPONSE :')).toBeTruthy();
+  });
+
+  it('réponse incorrecte → libellé neutre "RÉPONSE CORRECTE" au lieu de la coche verte (avant ce correctif : même style vert peu importe isCorrect)', () => {
+    const { getByText, queryByText } = render(
+      <SentenceBlanksCard data={mockBlanksData} selectedOption="go" onSelectOption={jest.fn()} isValidated={true} isCorrect={false} moduleColor="#3498DB" />
+    );
+    expect(getByText('RÉPONSE CORRECTE :')).toBeTruthy();
+    expect(queryByText('✓ BONNE RÉPONSE :')).toBeNull();
   });
 
   it('affiche le tip quand présent', () => {
@@ -664,5 +688,12 @@ describe('LogicLinksCard', () => {
     );
     fireEvent.press(getByText('so'));
     expect(onAnswer).not.toHaveBeenCalled();
+  });
+
+  it('ne plante pas si options est absent (contenu réel malformé)', () => {
+    const malformedQuestion = { ...mockLogicQuestion, options: undefined as unknown as string[] };
+    expect(() => render(
+      <LogicLinksCard question={malformedQuestion} selectedOption={undefined} isValidated={false} isCorrect={false} attemptCount={0} maxAttempts={2} onAnswer={jest.fn()} onValidate={jest.fn()} onRetry={jest.fn()} onNext={jest.fn()} isLastQuestion={false} />
+    )).not.toThrow();
   });
 });

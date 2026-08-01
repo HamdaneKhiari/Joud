@@ -48,33 +48,37 @@ export const useExerciseContent = <T = unknown>(
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchContent = async () => {
       if (!db || typeof db === 'number' || familyId <= 0) {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
         return;
       }
 
       try {
-        setIsLoading(true);
-        setError(null);
+        if (!cancelled) {
+          setIsLoading(true);
+          setError(null);
+        }
 
         const familyResult = await db.getFirstAsync<Family>(
-          `SELECT * FROM families WHERE id = ?`, 
+          `SELECT * FROM families WHERE id = ?`,
           [familyId]
         );
-        
+
         if (familyResult?.id == null) {
           throw new Error(`Famille ID "${familyId}" introuvable.`);
         }
-        
+
         const validatedFamilyId = familyResult.id;
-        setFamily(familyResult);
+        if (!cancelled) setFamily(familyResult);
 
         const moduleResult = await db.getFirstAsync<Module>(
           `SELECT * FROM modules WHERE slug = ?`,
           [familyResult.module_slug]
         );
-        setModule(moduleResult || null);
+        if (!cancelled) setModule(moduleResult || null);
 
         // subfamilyId=0 means "no subfamily" → match both NULL and 0
         const contentResult = subfamilyId === 0
@@ -86,12 +90,12 @@ export const useExerciseContent = <T = unknown>(
               `SELECT id, data FROM content WHERE family_id = ? AND subfamily_id = ?`,
               [validatedFamilyId, subfamilyId]
             );
-        
+
         const parsedContent = contentResult.map(item => {
           try {
-            return { 
-              id: item.id, 
-              data: JSON.parse(item.data) as T 
+            return {
+              id: item.id,
+              data: JSON.parse(item.data) as T
             };
           } catch (e) {
             log.error(`[useExerciseContent] JSON Parse Error (ID: ${item.id}):`, e);
@@ -99,16 +103,17 @@ export const useExerciseContent = <T = unknown>(
           }
         }).filter((item): item is ContentItem<T> => item !== null);
 
-        setContentItems(parsedContent);
+        if (!cancelled) setContentItems(parsedContent);
 
       } catch (err) {
-        setError(err as Error);
+        if (!cancelled) setError(err as Error);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
 
     fetchContent();
+    return () => { cancelled = true; };
   }, [db, familyId, subfamilyId]);
 
   return { module, family, contentItems, isLoading, error };

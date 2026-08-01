@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, AppState } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
@@ -27,17 +28,48 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
   const [score, setScore] = useState(0);
   const [enWords] = useState<Pair[]>(game.pairs);
   const [frWords] = useState<Pair[]>(() => [...game.pairs].sort(() => Math.random() - 0.5));
-  const [isGameFinished, setIsGameFinished] = useState(false);
-
-  const isPlayful = identity.ui.mood === 'playful';
+  // Fixé une seule fois, à l'endroit précis où l'issue survient (dernière paire trouvée OU
+  // chrono à 0) — remplace les anciens isSuccess/isTimeout dérivés à chaque render de
+  // timeRemaining/matchedCount, qui pouvaient tous les deux être faux si le joueur finissait
+  // pile au moment où le chrono passait à 0 (bug réel : message d'échec au lieu de victoire).
+  const [outcome, setOutcome] = useState<'success' | 'timeout' | null>(null);
+  const [isAppActive, setIsAppActive] = useState(true);
+  // Seule carte à donner un feedback visible sur mauvaise association (flash rouge + vibration
+  // ~400ms) — avant ce correctif, la sélection se réinitialisait silencieusement sans aucun
+  // signal, seule carte de l'app dans ce cas (point relevé par l'audit UX).
+  const [wrongFlash, setWrongFlash] = useState<{ en: number; fr: number } | null>(null);
+  const wrongFlashTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (isGameFinished || timeRemaining <= 0) return;
+    return () => {
+      if (wrongFlashTimeoutRef.current) clearTimeout(wrongFlashTimeoutRef.current);
+    };
+  }, []);
+
+  const isPlayful = identity.ui.mood === 'playful';
+  const totalPairs = game.pairs.length;
+  const matchedCount = matched.length / 2;
+
+  // Aucun usage d'AppState ailleurs dans le projet — premier pattern du genre. Le minuteur ne
+  // tourne que quand l'app est réellement au premier plan : ni gel silencieux, ni rattrapage
+  // brutal au retour (les deux comportements observés sans ce garde selon la façon dont RN
+  // gère les timers JS en arrière-plan).
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      setIsAppActive(nextState === 'active');
+    });
+    return () => subscription.remove();
+  }, []);
+
+  useEffect(() => {
+    if (!isAppActive || outcome || timeRemaining <= 0) return;
 
     const timer = setInterval(() => {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
-          setIsGameFinished(true);
+          // current ?? ... : si un succès a déjà été posé (même juste avant, même tick),
+          // ce tick de minuteur ne doit jamais l'écraser avec un verdict "timeout" obsolète.
+          setOutcome((current) => current ?? (matchedCount === totalPairs ? 'success' : 'timeout'));
           return 0;
         }
         return prev - 1;
@@ -45,7 +77,7 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isGameFinished, timeRemaining]);
+  }, [isAppActive, outcome, timeRemaining, matchedCount, totalPairs]);
 
   const handleEnWordPress = (index: number) => {
     if (matched.includes(index)) return;
@@ -66,18 +98,26 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
       setScore(newScore);
       setSelected(null);
 
+      // Atteindre ce code = toutes les paires sont trouvées = succès, peu importe le temps
+      // restant à cet instant précis (même si le chrono atteint 0 au même moment).
       if (newMatched.length === game.pairs.length * 2) {
-        setIsGameFinished(true);
+        setOutcome('success');
       }
     } else {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      if (wrongFlashTimeoutRef.current) clearTimeout(wrongFlashTimeoutRef.current);
+      setWrongFlash({ en: selected, fr: frIndex });
+      wrongFlashTimeoutRef.current = setTimeout(() => setWrongFlash(null), 400);
       setSelected(null);
     }
   };
 
-  const totalPairs = game.pairs.length;
-  const matchedCount = matched.length / 2;
-  const isSuccess = matchedCount === totalPairs && timeRemaining > 0;
-  const isTimeout = timeRemaining <= 0 && matchedCount < totalPairs;
+  const isGameFinished = outcome !== null;
+  const isSuccess = outcome === 'success';
+  const isTimeout = outcome === 'timeout';
+  // Signal d'urgence (couleur + annonce lecteur d'écran) sur les 5 dernières secondes —
+  // avant ce correctif, aucun indice progressif que le temps venait à manquer.
+  const isTimeCritical = timeRemaining > 0 && timeRemaining <= 5;
 
   const styles = StyleSheet.create({
     headerSection: {
@@ -177,6 +217,11 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
     wordButtonMatched: {
       backgroundColor: baseColors.green500,
       borderColor: baseColors.green600,
+    },
+
+    wordButtonWrong: {
+      backgroundColor: identity.aiDiagnostic.error,
+      borderColor: identity.aiDiagnostic.error,
     },
 
     wordText: {
@@ -307,8 +352,18 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
 
         <View style={styles.headerSection}>
           <View style={styles.timerBox}>
-            <Ionicons name="timer" size={24} color={identity.palette.primary} />
-            <Text style={styles.timerText}>{timeRemaining}s</Text>
+            <Ionicons
+              name="timer"
+              size={24}
+              color={isTimeCritical ? identity.aiDiagnostic.error : identity.palette.primary}
+            />
+            <Text
+              style={[styles.timerText, isTimeCritical && { color: identity.aiDiagnostic.error }]}
+              accessibilityLiveRegion={isTimeCritical ? 'polite' : 'none'}
+              accessibilityLabel={`${timeRemaining} secondes restantes`}
+            >
+              {timeRemaining}s
+            </Text>
           </View>
           <Text style={styles.scoreText}>{score} pts</Text>
         </View>
@@ -337,6 +392,7 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
             {enWords.map((pair, index) => {
               const isMatched = matched.includes(index);
               const isSelected = selected === index;
+              const isWrong = wrongFlash?.en === index;
 
               return (
                 <TouchableOpacity
@@ -345,15 +401,16 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
                     styles.wordButton,
                     isMatched && styles.wordButtonMatched,
                     isSelected && styles.wordButtonSelected,
+                    isWrong && styles.wordButtonWrong,
                   ]}
                   onPress={() => handleEnWordPress(index)}
                   disabled={isMatched}
                   activeOpacity={0.7}
                   accessibilityRole="button"
-                  accessibilityLabel={pair.english}
+                  accessibilityLabel={isWrong ? `${pair.english}, mauvaise association` : pair.english}
                   accessibilityState={{ selected: isSelected, disabled: isMatched }}
                 >
-                  <Text style={[styles.wordText, isMatched && styles.wordTextMatched]}>
+                  <Text style={[styles.wordText, (isMatched || isWrong) && styles.wordTextMatched]}>
                     {pair.english}
                   </Text>
                 </TouchableOpacity>
@@ -368,19 +425,20 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
             {frWords.map((pair, index) => {
               const actualIndex = index + game.pairs.length;
               const isMatched = matched.includes(actualIndex);
+              const isWrong = wrongFlash?.fr === index;
 
               return (
                 <TouchableOpacity
                   key={pair.french}
-                  style={[styles.wordButton, isMatched && styles.wordButtonMatched]}
+                  style={[styles.wordButton, isMatched && styles.wordButtonMatched, isWrong && styles.wordButtonWrong]}
                   onPress={() => handleFrWordPress(index)}
                   disabled={isMatched || selected === null}
                   activeOpacity={0.7}
                   accessibilityRole="button"
-                  accessibilityLabel={pair.french}
+                  accessibilityLabel={isWrong ? `${pair.french}, mauvaise association` : pair.french}
                   accessibilityState={{ disabled: isMatched || selected === null }}
                 >
-                  <Text style={[styles.wordText, isMatched && styles.wordTextMatched]}>
+                  <Text style={[styles.wordText, (isMatched || isWrong) && styles.wordTextMatched]}>
                     {pair.french}
                   </Text>
                 </TouchableOpacity>

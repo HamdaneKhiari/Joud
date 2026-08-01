@@ -6,6 +6,7 @@ import { useExerciseValidationState } from '@/hooks/exercises/useExerciceValidat
 import useWordGameFeedback from '@/screens/WordGames/hooks/useWordGameFeedback';
 import { tokens } from '@/themes/tokens';
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
+import HintToggle from '@/components/common/HintToggle';
 import type { SentenceQuestion } from '@/screens/WordGames/schema';
 
 interface WordItem {
@@ -106,6 +107,10 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
     },
 
     orderedWord: {
+      minHeight: 44,
+      minWidth: 44,
+      alignItems: 'center',
+      justifyContent: 'center',
       paddingHorizontal: tokens.spacing.md,
       paddingVertical: tokens.spacing.sm,
       borderRadius: isPlayful ? tokens.borderRadius.xl : tokens.borderRadius.md,
@@ -138,6 +143,10 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
     },
 
     availableWord: {
+      minHeight: 44,
+      minWidth: 44,
+      alignItems: 'center',
+      justifyContent: 'center',
       paddingHorizontal: tokens.spacing.md,
       paddingVertical: tokens.spacing.sm,
       borderRadius: isPlayful ? tokens.borderRadius.lg : tokens.borderRadius.md,
@@ -201,6 +210,8 @@ const SyntaxMasterCard: React.FC<SyntaxMasterCardProps> = ({
             )}
           </View>
         </View>
+
+        <HintToggle hint={question.hint} />
 
         <View style={styles.availableWordsContainer}>
           <Text style={styles.availableLabel}>Available words:</Text>

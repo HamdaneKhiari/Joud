@@ -29,6 +29,9 @@ jest.mock('expo-haptics', () => ({
   impactAsync: jest.fn().mockResolvedValue(undefined),
   ImpactFeedbackStyle: { Light: 'light' },
 }));
+jest.mock('@/utils/logUtils', () => ({
+  log: { error: jest.fn(), warn: jest.fn(), info: jest.fn(), debug: jest.fn() },
+}));
 
 import { useAudioPlayer } from '@/components/ui/AudioButtons/hooks/useAudioPlayer';
 
@@ -98,12 +101,14 @@ describe('playAudio', () => {
     expect(result.current.isPlayingAudio).toBe(false);
   });
 
-  it('gère les erreurs createAsync sans crasher', async () => {
+  it('gère les erreurs createAsync sans crasher et logue l\'erreur', async () => {
     const { Audio } = require('expo-av');
     Audio.Sound.createAsync.mockRejectedValueOnce(new Error('load error'));
     const { result } = renderHook(() => useAudioPlayer('file://bad.mp3'));
     await act(async () => { await result.current.playAudio(); });
     expect(result.current.isPlayingAudio).toBe(false);
+    const { log } = require('@/utils/logUtils');
+    expect(log.error).toHaveBeenCalledWith(expect.stringContaining('playAudio'), expect.any(Error));
   });
 });
 

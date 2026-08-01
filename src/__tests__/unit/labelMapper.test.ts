@@ -115,6 +115,22 @@ describe('getModuleLabel', () => {
     const { log } = require('@/utils/logUtils');
     expect(log.error).toHaveBeenCalled();
   });
+
+  it('en prod (__DEV__=false), une erreur "shared object" est quand même loggée (pas avalée silencieusement)', async () => {
+    const originalDev = (global as { __DEV__?: boolean }).__DEV__;
+    (global as { __DEV__?: boolean }).__DEV__ = false;
+    try {
+      const db = makeDb();
+      mockGetModuleLabelWithFallback().mockRejectedValue(new Error('shared object closed'));
+
+      await getModuleLabel(db, 'vocab', 'college');
+
+      const { log } = require('@/utils/logUtils');
+      expect(log.error).toHaveBeenCalled();
+    } finally {
+      (global as { __DEV__?: boolean }).__DEV__ = originalDev;
+    }
+  });
 });
 
 // ============================================

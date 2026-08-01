@@ -64,14 +64,16 @@ export const useDialogueContent = (
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+
     const load = async () => {
       if (!db || typeof db === 'number' || !familyId) {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
         return;
       }
 
       try {
-        setIsLoading(true);
+        if (!cancelled) setIsLoading(true);
         const numFamilyId = Number.parseInt(String(familyId), 10);
 
         log.debug('[useDialogueContent] Loading:', { familyId: numFamilyId, subfamilyId });
@@ -111,23 +113,26 @@ export const useDialogueContent = (
 
         const questions: Question[] = (rawData.questions || []).map(mapQuestion);
 
-        setDialogue({
-          name: rawData.name || rawData.title || family?.name || 'Dialogue',
-          title: rawData.title,
-          icon: rawData.icon || family?.icon || '💬',
-          color: rawData.color,
-          characters,
-          messages: rawMessages,
-          questions,
-        });
+        if (!cancelled) {
+          setDialogue({
+            name: rawData.name || rawData.title || family?.name || 'Dialogue',
+            title: rawData.title,
+            icon: rawData.icon || family?.icon || '💬',
+            color: rawData.color,
+            characters,
+            messages: rawMessages,
+            questions,
+          });
+        }
       } catch (e) {
         log.error('[useDialogueContent] Load error:', e);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
 
     load();
+    return () => { cancelled = true; };
   }, [db, familyId, subfamilyId]);
 
   return { dialogue, isLoading };

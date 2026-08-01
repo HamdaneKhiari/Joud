@@ -181,5 +181,23 @@ describe('useReadingContent', () => {
     expect(result.current.loading).toBe(false);
     expect(result.current.questions).toEqual([]);
   });
+
+  it('filtre une ligne réelle sans options (ne plante pas) au lieu de la laisser passer', async () => {
+    const db = { getAllAsync: jest.fn().mockResolvedValue([
+      { data: JSON.stringify({ passage: 'foo', question_text: 'bar', correct_answer: 'A' }) },
+    ]) };
+    const { result } = renderHook(() => useReadingContent(db, 1, 1));
+    await act(async () => { await flushPromises(); });
+    expect(result.current.questions).toEqual([]);
+  });
+
+  it('filtre une ligne réelle sans correct_answer (ne plante pas)', async () => {
+    const db = { getAllAsync: jest.fn().mockResolvedValue([
+      { data: JSON.stringify({ passage: 'foo', question_text: 'bar', options: ['A', 'B'] }) },
+    ]) };
+    const { result } = renderHook(() => useReadingContent(db, 1, 1));
+    await act(async () => { await flushPromises(); });
+    expect(result.current.questions).toEqual([]);
+  });
 });
 

@@ -141,7 +141,7 @@ const ConnectorExerciseScreen: React.FC = () => {
       <ExerciseLoadingState
         onBack={() => { safeGoBack.navigate(); }}
         headerTitle={title}
-        message="Preparing your session..."
+        message="Préparation de ta session..."
       />
     );
   }

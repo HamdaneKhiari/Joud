@@ -5,6 +5,7 @@ import useConnectorFeedback from '../hooks/useConnectorFeedback';
 import { useTheme } from '@/themes/ThemeContext';
 import { tokens, withOpacity } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
+import HintToggle from '@/components/common/HintToggle';
 import { SentenceFusionCardProps } from '../types';
 
 const SentenceFusionCard: React.FC<SentenceFusionCardProps & { hideValidation?: boolean; scrollEnabled?: boolean }> = ({
@@ -75,12 +76,7 @@ const SentenceFusionCard: React.FC<SentenceFusionCardProps & { hideValidation?: 
           <Text style={[styles.phraseText, { color: identity.text.primary }]}>{question.phrase2}</Text>
         </View>
 
-        {question.hint && (
-          <View style={[styles.hintBox, { backgroundColor: withOpacity(baseColors.orange500, 0.1) }]}>
-            <Text style={styles.hintIcon}>💡</Text>
-            <Text style={[styles.hintText, { color: identity.text.secondary }]}>{question.hint}</Text>
-          </View>
-        )}
+        <HintToggle hint={question.hint} brandColor={brandColor} />
 
         <View style={styles.answerSection}>
           <Text style={[styles.answerLabel, { color: identity.text.primary }]}>Your answer:</Text>

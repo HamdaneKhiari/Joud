@@ -67,6 +67,13 @@ describe('aiService.formatAIError', () => {
     expect(result).toBe("Erreur de communication avec l'IA. Vérifie ta connexion.");
   });
 
+  // Fragment de clé API dans le message brut d'un provider (format OpenAI)
+  it('message contenant un fragment de clé API → clé masquée', () => {
+    const result = aiService.formatAIError(new Error('Incorrect API key provided: sk-abc123...xyz789. You can find your key at...'));
+    expect(result).not.toContain('sk-abc123');
+    expect(result).toContain('[clé masquée]');
+  });
+
   it('objet sans message → message de connexion par défaut', () => {
     const result = aiService.formatAIError({ code: 500 });
     expect(result).toBe("Erreur de communication avec l'IA. Vérifie ta connexion.");

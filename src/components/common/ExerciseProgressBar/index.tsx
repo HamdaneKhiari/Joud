@@ -24,7 +24,11 @@ const ExerciseProgressBar: React.FC<ExerciseProgressBarProps> = ({
         <Text style={styles.progressText}>{progressText}</Text>
       )}
 
-      <View style={styles.track}>
+      <View
+        style={styles.track}
+        accessibilityRole="progressbar"
+        accessibilityValue={{ min: 0, max: 100, now: clampedProgress }}
+      >
         <View style={[styles.fill, { width: `${clampedProgress}%` }]} />
       </View>
     </View>

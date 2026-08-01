@@ -3,7 +3,7 @@
  * Couvre : sélection de requête SQL selon subfamilyId, gestion d'erreur, parsing JSON
  */
 
-import { renderHook, waitFor } from '@testing-library/react-native';
+import { renderHook, waitFor, act } from '@testing-library/react-native';
 
 // ============================================
 // Mocks
@@ -110,6 +110,45 @@ describe('useExerciseContent — subfamilyId = 0', () => {
 
     expect(result.current.family?.id).toBe(10);
     expect(result.current.module?.slug).toBe('vocab');
+  });
+
+  it('ignore une réponse DB périmée si familyId change avant sa résolution (race condition)', async () => {
+    // mockReset (pas juste clearAllMocks) : vide aussi la queue de mockResolvedValueOnce
+    // laissée par le beforeEach du bloc, sinon le premier appel consomme sa valeur au lieu
+    // de bloquer sur stalePromise comme le test l'exige.
+    mockDb.getFirstAsync.mockReset();
+    mockDb.getAllAsync.mockReset();
+    const { useUser } = require('@/contexts/UserContext');
+    useUser.mockReturnValue({ db: mockDb, user: { id: 1 } });
+
+    let resolveStaleFamily: (v: unknown) => void = () => {};
+    const stalePromise = new Promise((resolve) => { resolveStaleFamily = resolve; });
+
+    mockDb.getFirstAsync
+      .mockImplementationOnce(() => stalePromise)             // famille pour familyId=10, jamais résolue tout de suite
+      .mockResolvedValueOnce(makeFamilyRow(20, 'reading'))     // famille pour familyId=20
+      .mockResolvedValueOnce(makeModuleRow('reading'));        // module pour familyId=20
+    mockDb.getAllAsync.mockResolvedValue([]);
+
+    const { result, rerender } = renderHook(
+      ({ familyId }: { familyId: number }) => useExerciseContent(familyId, 0),
+      { initialProps: { familyId: 10 } }
+    );
+
+    rerender({ familyId: 20 });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.family?.id).toBe(20);
+
+    // La réponse périmée (familyId=10) arrive après coup — ne doit plus rien écraser.
+    // L'effet annulé continue quand même sa chaîne d'awaits (module puis contenu) en tâche
+    // de fond ; on la vide complètement pour ne pas polluer les tests suivants.
+    await act(async () => {
+      resolveStaleFamily(makeFamilyRow(10, 'vocab'));
+      for (let i = 0; i < 5; i++) await Promise.resolve();
+    });
+
+    expect(result.current.family?.id).toBe(20);
   });
 });
 

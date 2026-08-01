@@ -144,6 +144,7 @@ const ReplyCard: React.FC<ReplyCardProps> = ({
           {question.options.map((option) => {
             const isSelected = selectedOption === option;
             const isCorrectOption = option === question.correctAnswer;
+            const resultSuffix = showFeedback && isSelected ? (isCorrect ? ', bonne réponse' : ', mauvaise réponse') : '';
 
             const buttonStyle = [
               baseStyles.optionButton,
@@ -166,7 +167,7 @@ const ReplyCard: React.FC<ReplyCardProps> = ({
                 disabled={isValidated}
                 activeOpacity={0.7}
                 accessibilityRole="radio"
-                accessibilityLabel={option}
+                accessibilityLabel={`${option}${resultSuffix}`}
                 accessibilityState={{ selected: isSelected, disabled: isValidated }}
               >
                 <Text style={textStyle}>{option}</Text>

@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, AppState } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
@@ -21,8 +22,26 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
   const [matchedIndices, setMatchedIndices] = useState<number[]>([]);
   const [selectedPlayIndex, setSelectedPlayIndex] = useState<number | null>(null);
   const [score, setScore] = useState(0);
-  const [isGameFinished, setIsGameFinished] = useState(false);
+  // Fixé une seule fois, à l'endroit précis où l'issue survient — remplace l'ancien isSuccess
+  // dérivé à chaque render de timeRemaining/matchedCount (bug réel : pile au moment où le
+  // chrono passe à 0, les deux pouvaient être faux en même temps → message d'échec injustifié).
+  const [outcome, setOutcome] = useState<'success' | 'timeout' | null>(null);
+  const [isAppActive, setIsAppActive] = useState(true);
   const [speakingIndex, setSpeakingIndex] = useState<number | null>(null);
+  // Un tap sur un 2e mot avant la fin du 1er ne doit pas laisser le callback du 1er
+  // remettre speakingIndex à null par-dessus le 2e — seul le TTS "actif" a le droit de le faire.
+  const activeSpeakIndexRef = useRef<number | null>(null);
+  // Seule carte (avec SpeedMatchCard) à donner un feedback visible sur mauvaise association
+  // (flash rouge + vibration ~400ms) — avant ce correctif, la sélection se réinitialisait
+  // silencieusement sans aucun signal (point relevé par l'audit UX).
+  const [wrongImageIndex, setWrongImageIndex] = useState<number | null>(null);
+  const wrongFlashTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (wrongFlashTimeoutRef.current) clearTimeout(wrongFlashTimeoutRef.current);
+    };
+  }, []);
 
   // Mélanger les images une seule fois à l'initialisation
   const [shuffledImages] = useState(() =>
@@ -32,15 +51,32 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
   const isPlayful = identity.ui.mood === 'playful';
   const totalPairs = game.pairs.length;
   const matchedCount = matchedIndices.length;
-  const isSuccess = matchedCount === totalPairs && timeRemaining > 0;
+  const isGameFinished = outcome !== null;
+  const isSuccess = outcome === 'success';
+  // Signal d'urgence (couleur + annonce lecteur d'écran) sur les 5 dernières secondes —
+  // avant ce correctif, aucun indice progressif que le temps venait à manquer.
+  const isTimeCritical = timeRemaining > 0 && timeRemaining <= 5;
+
+  // Aucun usage d'AppState ailleurs dans le projet — premier pattern du genre. Le minuteur ne
+  // tourne que quand l'app est réellement au premier plan : ni gel silencieux, ni rattrapage
+  // brutal au retour (les deux comportements observés sans ce garde selon la façon dont RN
+  // gère les timers JS en arrière-plan).
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      setIsAppActive(nextState === 'active');
+    });
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
-    if (isGameFinished || timeRemaining <= 0) return;
+    if (!isAppActive || outcome || timeRemaining <= 0) return;
 
     const timer = setInterval(() => {
       setTimeRemaining((prev) => {
         if (prev <= 1) {
-          setIsGameFinished(true);
+          // current ?? ... : si un succès a déjà été posé (même juste avant, même tick),
+          // ce tick de minuteur ne doit jamais l'écraser avec un verdict "timeout" obsolète.
+          setOutcome((current) => current ?? (matchedCount === totalPairs ? 'success' : 'timeout'));
           return 0;
         }
         return prev - 1;
@@ -48,12 +84,13 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isGameFinished, timeRemaining]);
+  }, [isAppActive, outcome, timeRemaining, matchedCount, totalPairs]);
 
-  // Fin de partie quand toutes les paires sont trouvées
+  // Fin de partie quand toutes les paires sont trouvées : atteindre ce code = succès, peu
+  // importe le temps restant à cet instant précis (même si le chrono atteint 0 au même moment).
   useEffect(() => {
     if (matchedCount === totalPairs && totalPairs > 0) {
-      setIsGameFinished(true);
+      setOutcome((current) => current ?? 'success');
     }
   }, [matchedCount, totalPairs]);
 
@@ -69,13 +106,15 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
 
     setSelectedPlayIndex(index === selectedPlayIndex ? null : index);
     setSpeakingIndex(index);
+    activeSpeakIndexRef.current = index;
 
     Speech.stop();
     Speech.speak(game.pairs[index].word, {
       language: 'en-US',
       rate: 0.9,
-      onDone: () => setSpeakingIndex(null),
-      onStopped: () => setSpeakingIndex(null),
+      onDone: () => { if (activeSpeakIndexRef.current === index) setSpeakingIndex(null); },
+      onStopped: () => { if (activeSpeakIndexRef.current === index) setSpeakingIndex(null); },
+      onError: () => { if (activeSpeakIndexRef.current === index) setSpeakingIndex(null); },
     });
   };
 
@@ -90,7 +129,12 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
       setScore((prev) => prev + 10);
       setSelectedPlayIndex(null);
       Speech.stop();
+      if (speakingIndex === selectedPlayIndex) setSpeakingIndex(null);
     } else {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      if (wrongFlashTimeoutRef.current) clearTimeout(wrongFlashTimeoutRef.current);
+      setWrongImageIndex(shuffledIndex);
+      wrongFlashTimeoutRef.current = setTimeout(() => setWrongImageIndex(null), 400);
       setSelectedPlayIndex(null);
     }
   };
@@ -207,6 +251,10 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
       backgroundColor: baseColors.green500,
       borderColor: baseColors.green600,
     },
+    imageButtonWrong: {
+      backgroundColor: identity.aiDiagnostic.error,
+      borderColor: identity.aiDiagnostic.error,
+    },
     imageEmoji: {
       fontSize: tokens.emojiSize.md,
     },
@@ -276,7 +324,7 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
               accessibilityRole="button"
               accessibilityLabel="Continuer"
             >
-              <Text style={styles.continueButtonText}>Continue</Text>
+              <Text style={styles.continueButtonText}>Continuer</Text>
               <Ionicons name="arrow-forward" size={20} color={identity.text.onPrimary} />
             </TouchableOpacity>
           </View>
@@ -297,8 +345,18 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
 
         <View style={styles.headerSection}>
           <View style={styles.timerBox}>
-            <Ionicons name="timer" size={24} color={identity.palette.primary} />
-            <Text style={styles.timerText}>{timeRemaining}s</Text>
+            <Ionicons
+              name="timer"
+              size={24}
+              color={isTimeCritical ? identity.aiDiagnostic.error : identity.palette.primary}
+            />
+            <Text
+              style={[styles.timerText, isTimeCritical && { color: identity.aiDiagnostic.error }]}
+              accessibilityLiveRegion={isTimeCritical ? 'polite' : 'none'}
+              accessibilityLabel={`${timeRemaining} secondes restantes`}
+            >
+              {timeRemaining}s
+            </Text>
           </View>
           <Text style={styles.scoreText}>{score} pts</Text>
         </View>
@@ -354,16 +412,17 @@ const AudioMatchCard: React.FC<AudioMatchCardProps> = ({ game, onComplete }) => 
             <Text style={styles.columnLabel}>🖼 Match</Text>
             {shuffledImages.map((pair, shuffledIndex) => {
               const isMatched = matchedIndices.includes(pair.originalIndex);
+              const isWrong = wrongImageIndex === shuffledIndex;
 
               return (
                 <TouchableOpacity
                   key={`img-${pair.originalIndex}`}
-                  style={[styles.imageButton, isMatched && styles.imageButtonMatched]}
+                  style={[styles.imageButton, isMatched && styles.imageButtonMatched, isWrong && styles.imageButtonWrong]}
                   onPress={() => handleImagePress(shuffledIndex)}
                   disabled={isMatched || selectedPlayIndex === null}
                   activeOpacity={0.7}
                   accessibilityRole="button"
-                  accessibilityLabel={`Image ${shuffledIndex + 1}`}
+                  accessibilityLabel={isWrong ? `Image ${shuffledIndex + 1}, mauvaise association` : `Image ${shuffledIndex + 1}`}
                   accessibilityState={{ disabled: isMatched || selectedPlayIndex === null }}
                 >
                   <Text style={styles.imageEmoji}>{pair.image}</Text>

@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { render, fireEvent } from '@testing-library/react-native';
 import { tokens } from '@/themes/tokens';
 import type { Identity } from '@/themes/ThemeContext';
 
@@ -32,6 +32,7 @@ import CompletionModal from '@/components/common/CompletionModal';
 import { InfoBox } from '@/screens/components/InfoBox';
 import RephrasingCard from '@/components/pedagogy/Connector/RephrasingCard';
 import SentenceFusionCard from '@/components/pedagogy/Connector/SentenceFusionCard';
+import NavigationButtons from '@/components/common/NavigationButtons';
 import type { ConnectorCardRendererProps, LogicQuestion } from '@/components/pedagogy/Connector/types';
 
 // ============================================
@@ -333,12 +334,14 @@ describe('SentenceFusionCard', () => {
     expect(getByText('I went to bed.')).toBeTruthy();
   });
 
-  it('affiche le hint', () => {
-    const { getByText } = render(
+  it('affiche le hint via le toggle "Besoin d\'aide ?" (masqué par défaut, comme partout ailleurs dans l\'app)', () => {
+    const { getByText, queryByText } = render(
       <SentenceFusionCard question={baseQuestion} userAnswer="" isValidated={false} isCorrect={false}
         attemptCount={0} maxAttempts={2}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     );
+    expect(queryByText('Use "so"')).toBeNull();
+    fireEvent.press(getByText("Besoin d'aide ?"));
     expect(getByText('Use "so"')).toBeTruthy();
   });
 
@@ -358,5 +361,55 @@ describe('SentenceFusionCard', () => {
         attemptCount={0} maxAttempts={2}
         onAnswer={noop} onValidate={noop} onRetry={noop} onNext={noop} isLastQuestion={false} />
     )).not.toThrow();
+  });
+});
+
+// ============================================
+// NavigationButtons
+// ============================================
+
+describe('NavigationButtons', () => {
+  beforeEach(() => { jest.clearAllMocks(); setupMocks(); });
+
+  it('affiche des libellés texte visibles, pas juste des icônes (point de cohérence de l\'audit)', () => {
+    const { getByText } = render(
+      <NavigationButtons onPrevious={jest.fn()} onNext={jest.fn()} isFirst={false} isLast={false} />
+    );
+    expect(getByText('Précédent')).toBeTruthy();
+    expect(getByText('Suivant')).toBeTruthy();
+  });
+
+  it('premier élément → pas de bouton "Précédent"', () => {
+    const { queryByText } = render(
+      <NavigationButtons onNext={jest.fn()} isFirst isLast={false} />
+    );
+    expect(queryByText('Précédent')).toBeNull();
+  });
+
+  it('dernier élément → bouton "Terminer"', () => {
+    const { getByText } = render(
+      <NavigationButtons onPrevious={jest.fn()} onFinish={jest.fn()} isFirst={false} isLast />
+    );
+    expect(getByText('Terminer')).toBeTruthy();
+  });
+
+  it('nextLabel personnalisé → remplace "Suivant" (texte ET accessibilityLabel)', () => {
+    const { getByText, getByLabelText } = render(
+      <NavigationButtons onPrevious={jest.fn()} onNext={jest.fn()} isFirst={false} isLast={false} nextLabel="Voir les questions" />
+    );
+    expect(getByText('Voir les questions')).toBeTruthy();
+    expect(getByLabelText('Voir les questions')).toBeTruthy();
+  });
+
+  it('appelle onPrevious/onNext au clic', () => {
+    const onPrevious = jest.fn();
+    const onNext = jest.fn();
+    const { getByLabelText } = render(
+      <NavigationButtons onPrevious={onPrevious} onNext={onNext} isFirst={false} isLast={false} />
+    );
+    fireEvent.press(getByLabelText('Précédent'));
+    fireEvent.press(getByLabelText('Suivant'));
+    expect(onPrevious).toHaveBeenCalled();
+    expect(onNext).toHaveBeenCalled();
   });
 });

@@ -28,6 +28,12 @@ interface ChatOptions {
   temperature?: number;
 }
 
+// Certains providers (OpenAI notamment) incluent un fragment de la clé API soumise dans
+// leurs messages d'erreur ("Incorrect API key provided: sk-abc...xyz") — on masque tout motif
+// de ce type avant de logger ou d'afficher l'erreur, plutôt que de faire confiance au masquage
+// du provider.
+const redactApiKey = (text: string): string => text.replace(/\bsk-\S+/gi, '[clé masquée]');
+
 class AIService {
   async sendMessage(request: AIRequest): Promise<AIResponse> {
     const messages: ChatMessage[] = [];
@@ -74,7 +80,7 @@ class AIService {
           throw new Error(`Provider non supporté : ${provider}`);
       }
     } catch (error: unknown) {
-      log.error('[AIService] Error:', error instanceof Error ? error.message : 'Unknown error');
+      log.error('[AIService] Error:', error instanceof Error ? redactApiKey(error.message) : 'Unknown error');
       throw new Error(this.formatAIError(error));
     }
   }
@@ -194,7 +200,7 @@ class AIService {
       if (message.includes('Clé API manquante')) {
         return message;
       }
-      return message;
+      return redactApiKey(message);
     }
     return 'Erreur de communication avec l\'IA. Vérifie ta connexion.';
   }

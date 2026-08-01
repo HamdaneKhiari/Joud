@@ -76,10 +76,11 @@ const LogicLinksCard: React.FC<LogicLinksCardProps & { hideValidation?: boolean;
         )}
 
         <View style={styles.optionsContainer}>
-          {question.options.map((option) => {
+          {(Array.isArray(question.options) ? question.options : []).map((option) => {
             const isSelected = selectedOption === option;
             const isCorrectOption = option === question.correctAnswer;
             const showFeedback = isValidated && (isCorrect || canSkip);
+            const resultSuffix = showFeedback && isSelected ? (isCorrect ? ', bonne réponse' : ', mauvaise réponse') : '';
 
             const getButtonStyle = () => {
               if (showFeedback && isCorrectOption)
@@ -104,7 +105,7 @@ const LogicLinksCard: React.FC<LogicLinksCardProps & { hideValidation?: boolean;
                 onPress={() => !isValidated && onAnswer(option)}
                 disabled={isValidated}
                 accessibilityRole="radio"
-                accessibilityLabel={option}
+                accessibilityLabel={`${option}${resultSuffix}`}
                 accessibilityState={{ selected: isSelected, disabled: isValidated }}
               >
                 <Text style={[

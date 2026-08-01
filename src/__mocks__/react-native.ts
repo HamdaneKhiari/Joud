@@ -73,6 +73,11 @@ export const AccessibilityInfo = {
   addEventListener: jest.fn().mockReturnValue({ remove: jest.fn() }),
 };
 
+export const AppState = {
+  currentState: 'active' as const,
+  addEventListener: jest.fn().mockReturnValue({ remove: jest.fn() }),
+};
+
 export const useColorScheme = jest.fn().mockReturnValue('light');
 
 export default {
@@ -94,5 +99,6 @@ export default {
   Vibration,
   Keyboard,
   AccessibilityInfo,
+  AppState,
   useColorScheme,
 };
