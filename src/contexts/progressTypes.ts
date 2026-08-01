@@ -56,7 +56,7 @@ export interface ProgressContextValue {
   resetProgress: () => Promise<void>;
   getFamilyProgress: (levelId: number, exerciseType: string, familyId: string) => number;
   getExerciseProgress: (levelId: number, exerciseType: string, allFamilyIds?: string[] | null) => number;
-  getLevelProgress: (levelId: number) => number;
+  getLevelProgress: (levelId: number, familyIdsByModule?: Record<string, string[]>) => number;
   getRevisionFamilies: (levelId: number) => RevisionFamily[];
   getLastActivity: (levelId: number, exerciseType: string) => { familyId: string; progress: number; lastReviewed: number } | null;
   getRecommendedModule: (levelId: number) => { exerciseType: string; progress: number; lastReviewed: number } | null;

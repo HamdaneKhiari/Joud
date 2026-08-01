@@ -371,6 +371,29 @@ describe('ProgressContext', () => {
 
       expect(result.current.getLevelProgress(1)).toBe(100);
     });
+
+    it('BUG RÉEL — une famille jamais ouverte compte 0% quand familyIdsByModule est fourni', async () => {
+      // Sans familyIdsByModule, seules les familles déjà commencées entrent dans la moyenne du
+      // module (famille '101' à 100%, famille '102' totalement absente de l'état → ignorée),
+      // ce qui donne vocab=100% et gonfle le niveau. Avec la liste complète (101 ET 102, comme
+      // le fait maintenant Dashboard.tsx via getFamiliesByModuleAndLevel), 102 compte pour 0%.
+      const db = makeDb({
+        getAllAsync: jest.fn().mockResolvedValue([
+          { family_id: 101, subfamily_id: 0, level: 1, completed: 10, total: 10, last_accessed: null, module_slug: 'vocab' },
+        ]),
+      });
+      setupUser(db);
+
+      const { result } = renderHook(() => useProgress(), { wrapper });
+      await act(flushPromises);
+
+      // Sans le paramètre : comportement inchangé (rétrocompatible)
+      expect(result.current.getLevelProgress(1)).toBe(20);
+
+      // Avec le paramètre : vocab = (100 + 0) / 2 = 50%, niveau (collège, 5 modules) = round(50/5) = 10%
+      const familyIdsByModule = { vocab: ['101', '102'] };
+      expect(result.current.getLevelProgress(1, familyIdsByModule)).toBe(10);
+    });
   });
 
   describe('getFamilyProgress', () => {

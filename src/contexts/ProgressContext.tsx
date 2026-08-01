@@ -203,13 +203,20 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return Math.round(ids.reduce((sum, id) => sum + getFamilyProgress(levelId, exerciseType, id), 0) / ids.length);
   }, [progress, getFamilyProgress]);
 
-  const getLevelProgress = useCallback((levelId: number): number => {
+  // familyIdsByModule (optionnel) : liste complète des familles existantes par module pour ce
+  // niveau (touchées ou non), fournie par l'appelant — cf. Dashboard.tsx qui la récupère en
+  // base, comme le fait déjà ModuleItem pour le pourcentage de module. Sans ça, seules les
+  // familles déjà commencées entrent dans la moyenne (une famille jamais ouverte est absente
+  // du calcul au lieu de compter 0%), ce qui gonfle le pourcentage du niveau par rapport à ce
+  // que montrent les cartes famille/module en dessous.
+  const getLevelProgress = useCallback((
+    levelId: number, familyIdsByModule?: Record<string, string[]>
+  ): number => {
     const levelData = progress?.[`level${levelId}`];
-    if (!levelData) return 0;
     const applicableModules = getApplicableModules(user?.audience);
     let total = 0;
     for (const slug of applicableModules) {
-      const ids = Object.keys(levelData[slug] || {});
+      const ids = familyIdsByModule?.[slug] ?? Object.keys(levelData?.[slug] || {});
       if (ids.length > 0) total += getExerciseProgress(levelId, slug, ids);
     }
     return applicableModules.length > 0 ? Math.round(total / applicableModules.length) : 0;

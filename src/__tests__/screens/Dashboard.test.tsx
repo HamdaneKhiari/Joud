@@ -59,6 +59,7 @@ jest.mock('@/hooks/useLastActivity', () => ({ useLastActivity: jest.fn() }));
 
 jest.mock('@/database/queries', () => ({
   getLevelsByAudience: jest.fn(),
+  getFamiliesByModuleAndLevel: jest.fn().mockResolvedValue([]),
 }));
 jest.mock('@/utils/labelMapper', () => ({
   getLevelLabel: jest.fn(),

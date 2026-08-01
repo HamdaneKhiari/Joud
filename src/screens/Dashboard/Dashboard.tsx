@@ -13,10 +13,10 @@ import MetricsSection from './components/DashboardMetricsSession/metricsSession'
 import LevelCard from './components/DashboardLevel/levelCard';
 import ContinueLearningCard from './components/ContinueLearningCard';
 import RevisionCard from './components/RevisionCard';
-import { getLevelsByAudience } from '@/database/queries';
+import { getLevelsByAudience, getFamiliesByModuleAndLevel } from '@/database/queries';
 import { useUser } from '@/contexts/UserContext';
 import { useProgress } from '@/contexts/ProgressContext';
-import { parseCompositeKey } from '@/contexts/progressUtils';
+import { parseCompositeKey, getApplicableModules } from '@/contexts/progressUtils';
 import { Level } from '@/database/schema';
 import { getLevelLabel } from '@/utils/labelMapper';
 import { navigateToExerciseSelection } from '@/utils/navigationHelper';
@@ -39,6 +39,7 @@ export default function Dashboard() {
 
   const [levels, setLevels] = useState<Level[]>([]);
   const [levelLabels, setLevelLabels] = useState<Record<number, { title: string; badge: string; description: string }>>({});
+  const [familyIdsByLevelModule, setFamilyIdsByLevelModule] = useState<Record<number, Record<string, string[]>>>({});
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
@@ -53,11 +54,25 @@ export default function Dashboard() {
         setLevels(data);
 
         const labels: Record<number, { title: string; badge: string; description: string }> = {};
+        const familyIdsByLevel: Record<number, Record<string, string[]>> = {};
+        const applicableModules = getApplicableModules(user.audience);
+
         for (const level of data) {
           const label = await getLevelLabel(db, level.level, identity.id);
           labels[level.level] = label;
+
+          // Liste complète des familles par module pour ce niveau (touchées ou non) — nécessaire
+          // pour que getLevelProgress compte une famille jamais ouverte comme 0%, cohérent avec
+          // le pourcentage déjà affiché sur les cartes famille/module.
+          const familiesByModule: Record<string, string[]> = {};
+          for (const slug of applicableModules) {
+            const families = await getFamiliesByModuleAndLevel(db, slug, level.level);
+            familiesByModule[slug] = families.map(f => f.id?.toString() || '');
+          }
+          familyIdsByLevel[level.level] = familiesByModule;
         }
         setLevelLabels(labels);
+        setFamilyIdsByLevelModule(familyIdsByLevel);
       } catch (error) {
         log.error('Error loading dashboard data:', error);
       } finally {
@@ -163,7 +178,7 @@ export default function Dashboard() {
               badge: `${level.level}`,
               description: 'Niveau'
             };
-            const progress = getLevelProgress(level.level);
+            const progress = getLevelProgress(level.level, familyIdsByLevelModule[level.level]);
             const status = progress === 100 ? 'completed' : 'in_progress';
 
             return (
