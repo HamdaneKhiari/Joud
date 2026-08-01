@@ -94,6 +94,22 @@ describe('upsertProgress', () => {
     expect(lastAccessed).toBeLessThanOrEqual(after);
   });
 
+  it('BUG RÉEL — utilise le last_accessed fourni au lieu de toujours tamponner "maintenant"', async () => {
+    // syncToSQLite (ProgressContext) réécrit périodiquement TOUTES les familles en mémoire, pas
+    // seulement celle qui vient de changer. Si upsertProgress tamponnait "maintenant" à chaque
+    // appel, la moindre activité sur une famille remettrait aussi à jour le timestamp de toutes
+    // les autres, rendant "dernière famille jouée" (getRecommendedModule) impossible à déterminer.
+    const oldTimestamp = new Date('2026-01-01T10:00:00.000Z').toISOString();
+
+    await upsertProgress(db, {
+      user_id: 'u1', family_id: 7, subfamily_id: 0, level: 1,
+      completed: 3, total: 10, score: 30, last_accessed: oldTimestamp,
+    });
+
+    const callArgs = (db.runAsync as jest.Mock).mock.calls[0][1] as unknown[];
+    expect(callArgs[7]).toBe(oldTimestamp);
+  });
+
   it('inclut subfamily_id = 0 pour les modules sans sous-familles', async () => {
     await upsertProgress(db, {
       user_id: 'u1', family_id: 3, subfamily_id: 0, level: 2,

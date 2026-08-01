@@ -108,6 +108,12 @@ export const insertContent = async (db: SQLiteDatabase, content: Omit<Content, '
 };
 
 export const upsertProgress = async (db: SQLiteDatabase, progress: Omit<Progress, 'id'>): Promise<void> => {
+  // last_accessed doit refléter le vrai moment où CETTE famille a été jouée (progress.last_accessed,
+  // fourni par l'appelant), pas le moment de l'écriture SQL. syncToSQLite réécrit périodiquement
+  // TOUTES les familles en mémoire (pas seulement celle qui vient de changer) — si on tamponnait
+  // "maintenant" ici, la moindre activité sur une famille remettrait aussi à jour le timestamp de
+  // toutes les autres, rendant "dernière famille jouée" (cf. getRecommendedModule) impossible à
+  // déterminer correctement.
   await db.runAsync(
     `INSERT OR REPLACE INTO progress (user_id, family_id, subfamily_id, level, completed, total, score, last_accessed)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -119,7 +125,7 @@ export const upsertProgress = async (db: SQLiteDatabase, progress: Omit<Progress
       progress.completed,
       progress.total,
       progress.score,
-      new Date().toISOString(),
+      progress.last_accessed || new Date().toISOString(),
     ]
   );
 };

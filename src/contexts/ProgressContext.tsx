@@ -123,6 +123,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
                 completed: family.completed,
                 total: family.total,
                 score: Math.round((family.completed / family.total) * 100),
+                last_accessed: family.lastReviewed ? new Date(family.lastReviewed).toISOString() : undefined,
               });
             }
           }

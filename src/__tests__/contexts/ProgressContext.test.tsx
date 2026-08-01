@@ -254,6 +254,39 @@ describe('ProgressContext', () => {
         expect.any(String)
       );
     });
+
+    it('BUG RÉEL — chaque famille garde son propre last_accessed, pas l\'heure de la sync', async () => {
+      // syncToSQLite réécrit TOUTES les familles en mémoire à chaque sauvegarde, pas seulement
+      // celle qui vient de changer. Avant le fix, upsertProgress tamponnait systématiquement
+      // "maintenant" : une famille jouée hier se retrouvait avec le même timestamp qu'une
+      // famille jouée à l'instant, rendant getRecommendedModule ("dernière famille jouée")
+      // incapable de distinguer laquelle est vraiment la plus récente.
+      const db = makeDb();
+      setupUser(db);
+      const { result } = renderHook(() => useProgress(), { wrapper });
+      await act(flushPromises);
+
+      const dateNowSpy = jest.spyOn(Date, 'now');
+
+      dateNowSpy.mockReturnValue(new Date('2026-01-01T10:00:00.000Z').getTime());
+      act(() => { result.current.trackItemCompletion(1, 'vocab', '101', 4, 10); });
+
+      dateNowSpy.mockReturnValue(new Date('2026-01-02T10:00:00.000Z').getTime());
+      act(() => { result.current.trackItemCompletion(1, 'reading', '202', 2, 5); });
+
+      jest.clearAllMocks();
+      await act(async () => { await result.current.saveProgressNow(); });
+
+      const writes = (db.runAsync as jest.Mock).mock.calls
+        .filter(([sql]) => String(sql).includes('INSERT OR REPLACE INTO progress'));
+      const vocabWrite = writes.find(([, params]) => params[1] === 101);
+      const readingWrite = writes.find(([, params]) => params[1] === 202);
+
+      expect(vocabWrite?.[1][7]).toBe(new Date('2026-01-01T10:00:00.000Z').toISOString());
+      expect(readingWrite?.[1][7]).toBe(new Date('2026-01-02T10:00:00.000Z').toISOString());
+
+      dateNowSpy.mockRestore();
+    });
   });
 
   // =================== RESET ===================
