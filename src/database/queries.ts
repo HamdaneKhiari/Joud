@@ -483,13 +483,15 @@ export const calculateUserMetrics = async (
   // stocké dans les colonnes current_streak/longest_streak par cohérence avec le schéma existant,
   // mais les deux valent désormais ce même total cumulé.
   const activeDaysResult = await db.getFirstAsync<{ count: number }>(
-    `SELECT COUNT(DISTINCT DATE(timestamp / 1000, 'unixepoch')) as count FROM activity_log`
+    `SELECT COUNT(DISTINCT DATE(timestamp / 1000, 'unixepoch')) as count FROM activity_log WHERE user_id = ?`,
+    [userId]
   );
   const activeDays = activeDaysResult?.count || 0;
 
   // Total time : estimer depuis le nombre d'entrées activity_log (env. 2 min par activité)
   const activityCount = await db.getFirstAsync<{ count: number }>(
-    `SELECT COUNT(*) as count FROM activity_log`
+    `SELECT COUNT(*) as count FROM activity_log WHERE user_id = ?`,
+    [userId]
   );
   const estimatedMinutes = (activityCount?.count || 0) * 2;
 

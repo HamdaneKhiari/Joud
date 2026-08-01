@@ -15,8 +15,10 @@ const mockDb = {
   getFirstAsync: jest.fn().mockResolvedValue(null),
 };
 
+const mockUser = { id: 'u1' };
+
 jest.mock('@/contexts/UserContext', () => ({
-  useUser: jest.fn().mockReturnValue({ db: mockDb }),
+  useUser: jest.fn().mockReturnValue({ db: mockDb, user: { id: 'u1' } }),
 }));
 
 jest.mock('@/utils/logUtils', () => ({
@@ -42,7 +44,7 @@ const makeActivity = (overrides: Partial<ActivityData> = {}): ActivityData => ({
 describe('useLastActivity — guard DB null', () => {
   it('recordActivity ne plante pas si db est null', async () => {
     const { useUser } = require('@/contexts/UserContext');
-    useUser.mockReturnValue({ db: null });
+    useUser.mockReturnValue({ db: null, user: mockUser });
 
     const { result } = renderHook(() => useLastActivity());
 
@@ -55,7 +57,7 @@ describe('useLastActivity — guard DB null', () => {
 
   it('fetchLastActivity ne plante pas si db est null', async () => {
     const { useUser } = require('@/contexts/UserContext');
-    useUser.mockReturnValue({ db: null });
+    useUser.mockReturnValue({ db: null, user: mockUser });
 
     const { result } = renderHook(() => useLastActivity());
 
@@ -67,6 +69,21 @@ describe('useLastActivity — guard DB null', () => {
   });
 });
 
+describe('useLastActivity — guard user absent', () => {
+  it('recordActivity ne plante pas et n\'écrit rien si user est absent', async () => {
+    const { useUser } = require('@/contexts/UserContext');
+    useUser.mockReturnValue({ db: mockDb, user: null });
+
+    const { result } = renderHook(() => useLastActivity());
+
+    await act(async () => {
+      await result.current.recordActivity(makeActivity());
+    });
+
+    expect(mockDb.runAsync).not.toHaveBeenCalled();
+  });
+});
+
 // ============================================
 // recordActivity — familyId simple
 // ============================================
@@ -75,7 +92,7 @@ describe('useLastActivity — recordActivity avec familyId simple', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     const { useUser } = require('@/contexts/UserContext');
-    useUser.mockReturnValue({ db: mockDb });
+    useUser.mockReturnValue({ db: mockDb, user: mockUser });
     mockDb.runAsync.mockResolvedValue({ changes: 1 });
   });
 
@@ -100,9 +117,10 @@ describe('useLastActivity — recordActivity avec familyId simple', () => {
     });
 
     const [, params] = mockDb.runAsync.mock.calls[0];
-    // params: [moduleSlug, family_id, subfamily_id, level, ...]
-    expect(params[1]).toBe(5);   // family_id
-    expect(params[2]).toBe(0);   // subfamily_id
+    // params: [user_id, moduleSlug, family_id, subfamily_id, level, ...]
+    expect(params[0]).toBe('u1'); // user_id
+    expect(params[2]).toBe(5);   // family_id
+    expect(params[3]).toBe(0);   // subfamily_id
   });
 });
 
@@ -114,7 +132,7 @@ describe('useLastActivity — recordActivity avec clé composite', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     const { useUser } = require('@/contexts/UserContext');
-    useUser.mockReturnValue({ db: mockDb });
+    useUser.mockReturnValue({ db: mockDb, user: mockUser });
     mockDb.runAsync.mockResolvedValue({ changes: 1 });
   });
 
@@ -126,8 +144,8 @@ describe('useLastActivity — recordActivity avec clé composite', () => {
     });
 
     const [, params] = mockDb.runAsync.mock.calls[0];
-    expect(params[1]).toBe(12);  // family_id
-    expect(params[2]).toBe(3);   // subfamily_id
+    expect(params[2]).toBe(12);  // family_id
+    expect(params[3]).toBe(3);   // subfamily_id
   });
 
   it('familyId="100-0" → family_id=100, subfamily_id=0', async () => {
@@ -138,8 +156,8 @@ describe('useLastActivity — recordActivity avec clé composite', () => {
     });
 
     const [, params] = mockDb.runAsync.mock.calls[0];
-    expect(params[1]).toBe(100);
-    expect(params[2]).toBe(0);
+    expect(params[2]).toBe(100);
+    expect(params[3]).toBe(0);
   });
 
   it('erreur DB → ne plante pas', async () => {
@@ -162,7 +180,7 @@ describe('useLastActivity — fetchLastActivity', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     const { useUser } = require('@/contexts/UserContext');
-    useUser.mockReturnValue({ db: mockDb });
+    useUser.mockReturnValue({ db: mockDb, user: mockUser });
   });
 
   it('retourne null si aucune activité en DB', async () => {

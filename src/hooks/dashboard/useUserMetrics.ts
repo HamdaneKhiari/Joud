@@ -47,9 +47,9 @@ export const useUserMetrics = (): UseUserMetricsReturn => {
     fetchMetrics();
   }, [fetchMetrics]);
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     fetchMetrics();
-  };
+  }, [fetchMetrics]);
 
   return {
     wordsLearned: metrics?.words_learned || 0,

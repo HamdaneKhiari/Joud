@@ -12,6 +12,7 @@ import migration005 from './migrations/005_remove_assessment_module';
 import migration006 from './migrations/006_fix_contrast_and_adult_language';
 import migration007 from './migrations/007_seed_real_content';
 import migration008 from './migrations/008_add_course_column';
+import migration009 from './migrations/009_add_user_id_to_activity_log';
 
 // Une seule initialisation simultanée : évite la double-invocation de React 18 Strict Mode
 let _initPromise: Promise<SQLite.SQLiteDatabase> | null = null;
@@ -49,6 +50,7 @@ const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
       migration006, // Fix contraste header (primary, lycee) + feedback adult en français
       migration007, // Premier import de contenu réel (primaire + collège, tous modules)
       migration008, // Colonne course (fondation multi-langue), backfill fr-en
+      migration009, // user_id sur activity_log (jours actifs/dernière activité scopés par profil)
     ];
 
     console.log('[JanaCore] 🚀 Running migrations...');

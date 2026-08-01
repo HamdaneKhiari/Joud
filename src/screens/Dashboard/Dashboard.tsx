@@ -35,7 +35,7 @@ export default function Dashboard() {
 
   const { dailyWord } = useDailyWord();
   const { wordsToReview } = useRevisions();
-  const { wordsLearned, streak } = useUserMetrics();
+  const { wordsLearned, streak, refresh: refreshMetrics } = useUserMetrics();
 
   const [levels, setLevels] = useState<Level[]>([]);
   const [levelLabels, setLevelLabels] = useState<Record<number, { title: string; badge: string; description: string }>>({});
@@ -71,7 +71,8 @@ export default function Dashboard() {
     useCallback(() => {
       fetchLastActivity();
       refreshProgress();
-    }, [fetchLastActivity, refreshProgress])
+      refreshMetrics();
+    }, [fetchLastActivity, refreshProgress, refreshMetrics])
   );
 
   if (userLoading || dataLoading || !user || !db) {

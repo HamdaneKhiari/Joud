@@ -159,4 +159,18 @@ describe('useUserMetrics — refresh', () => {
 
     expect(mockCalculateUserMetrics.mock.calls.length).toBeGreaterThan(callsBefore);
   });
+
+  it('conserve la même référence de refresh entre deux renders (db/user inchangés)', async () => {
+    // Régression : une référence instable ici, combinée à un useFocusEffect qui la liste en
+    // dépendance (cf. Dashboard.tsx), reproduit la même boucle de re-render infinie que le fix
+    // de useFeedbackMessages.getFeedback — refresh() déclenche setIsLoading, qui re-render,
+    // qui recrée refresh, qui redéclenche l'effet de focus, etc.
+    const { result, rerender } = renderHook(() => useUserMetrics());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    const firstRef = result.current.refresh;
+
+    rerender({});
+
+    expect(result.current.refresh).toBe(firstRef);
+  });
 });

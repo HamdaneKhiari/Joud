@@ -9,7 +9,17 @@
  * échoue pour de vraies raisons plutôt que sur un mock qui a toujours raison.
  */
 
-import { createMigratedRealDb, type RealTestDb } from '../testUtils/realDb';
+import { createMigratedRealDb, createRealDb, type RealTestDb } from '../testUtils/realDb';
+import { MigrationRunner } from '@/database/migrations/runner';
+import migration001 from '@/database/migrations/001_schema';
+import migration002 from '@/database/migrations/002_seed_config';
+import migration003 from '@/database/migrations/003_seed_subfamily_labels';
+import migration004 from '@/database/migrations/004_remove_grammar_module';
+import migration005 from '@/database/migrations/005_remove_assessment_module';
+import migration006 from '@/database/migrations/006_fix_contrast_and_adult_language';
+import migration007 from '@/database/migrations/007_seed_real_content';
+import migration008 from '@/database/migrations/008_add_course_column';
+import migration009 from '@/database/migrations/009_add_user_id_to_activity_log';
 import {
   getModulesByAudience,
   getAvailableModules,
@@ -22,6 +32,7 @@ import {
   getAggregatedFamilyProgress,
   getBrandingById,
   getIdentityPalette,
+  calculateUserMetrics,
 } from '@/database/queries';
 import { getSubFamiliesByFamily } from '@/services/subfamilyService';
 
@@ -49,10 +60,10 @@ describe('Intégration DB réelle — migrations', () => {
     await testDb.db.closeAsync?.();
   });
 
-  it('les 8 migrations s\'exécutent sans erreur et sont enregistrées', async () => {
+  it('les 9 migrations s\'exécutent sans erreur et sont enregistrées', async () => {
     const versions = testDb.raw.exec('SELECT version FROM schema_migrations ORDER BY version');
     const applied = versions[0]?.values.map((row) => row[0]) ?? [];
-    expect(applied).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(applied).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
 
   it('le module "assessment" n\'existe plus après la migration 005', async () => {
@@ -267,6 +278,88 @@ describe('Intégration DB réelle — fondation cours (multi-langue)', () => {
 
     expect(existsForCourse('fr-en')).toBe(false);
     expect(existsForCourse('fr-ar')).toBe(true);
+  });
+});
+
+describe('Intégration DB réelle — activity_log scopé par utilisateur (migration 009)', () => {
+  let testDb: RealTestDb;
+
+  beforeAll(async () => {
+    testDb = await createMigratedRealDb();
+  }, 20000);
+
+  afterAll(async () => {
+    await testDb.db.closeAsync?.();
+  });
+
+  it('deux profils jouant la même famille écrivent deux lignes distinctes (ne se clobber plus)', async () => {
+    testDb.raw.run(
+      `INSERT OR REPLACE INTO activity_log (user_id, module_slug, family_id, subfamily_id, level, family_name, icon, progress, timestamp)
+       VALUES (?, 'vocab', 42, 0, 1, 'Animaux', '🐾', 50, ?)`,
+      ['user-a', Date.now()]
+    );
+    testDb.raw.run(
+      `INSERT OR REPLACE INTO activity_log (user_id, module_slug, family_id, subfamily_id, level, family_name, icon, progress, timestamp)
+       VALUES (?, 'vocab', 42, 0, 1, 'Animaux', '🐾', 80, ?)`,
+      ['user-b', Date.now()]
+    );
+
+    const rows = testDb.raw.exec(
+      `SELECT user_id, progress FROM activity_log WHERE module_slug = 'vocab' AND family_id = 42 ORDER BY user_id`
+    );
+    const result = rows[0]?.values ?? [];
+    expect(result).toEqual([['user-a', 50], ['user-b', 80]]);
+  });
+
+  it('calculateUserMetrics ne compte que les jours actifs du user demandé', async () => {
+    const today = Date.now();
+    const yesterday = today - 86400000;
+    testDb.raw.run(
+      `INSERT INTO activity_log (user_id, module_slug, family_id, subfamily_id, level, family_name, icon, progress, timestamp)
+       VALUES ('metrics-a', 'vocab', 43, 0, 1, 'Familles', '👪', 100, ?)`,
+      [today]
+    );
+    testDb.raw.run(
+      `INSERT INTO activity_log (user_id, module_slug, family_id, subfamily_id, level, family_name, icon, progress, timestamp)
+       VALUES ('metrics-b', 'vocab', 44, 0, 1, 'Couleurs', '🎨', 100, ?)`,
+      [yesterday]
+    );
+    testDb.raw.run(
+      `INSERT INTO activity_log (user_id, module_slug, family_id, subfamily_id, level, family_name, icon, progress, timestamp)
+       VALUES ('metrics-b', 'reading', 45, 0, 1, 'Histoire', '📖', 100, ?)`,
+      [today]
+    );
+
+    const metricsA = await calculateUserMetrics(testDb.db, 'metrics-a');
+    expect(metricsA.current_streak).toBe(1);
+
+    const metricsB = await calculateUserMetrics(testDb.db, 'metrics-b');
+    expect(metricsB.current_streak).toBe(2);
+  });
+
+  it('backfille les lignes pré-existantes (avant la migration) avec user_id = \'\'', async () => {
+    // Reproduit l'état d'une base pré-009 : migrations 1 à 8 seulement, puis une ligne insérée
+    // à l'ancien format (sans user_id), avant que la migration 009 ne tourne.
+    const legacyDb = await createRealDb();
+    const runner = new MigrationRunner(legacyDb.db);
+    await runner.initialize();
+    await runner.runMigrations([
+      migration001, migration002, migration003, migration004,
+      migration005, migration006, migration007, migration008,
+    ]);
+
+    legacyDb.raw.run(
+      `INSERT INTO activity_log (module_slug, family_id, subfamily_id, level, family_name, icon, progress, timestamp)
+       VALUES ('vocab', 99, 0, 1, 'Legacy', '📦', 100, ?)`,
+      [Date.now()]
+    );
+
+    await runner.runMigration(migration009);
+
+    const rows = legacyDb.raw.exec(`SELECT user_id, family_id FROM activity_log WHERE family_id = 99`);
+    expect(rows[0]?.values).toEqual([['', 99]]);
+
+    await legacyDb.db.closeAsync?.();
   });
 });
 

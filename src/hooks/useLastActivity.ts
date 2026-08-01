@@ -16,12 +16,12 @@ export interface ActivityData {
 }
 
 export const useLastActivity = () => {
-  const { db } = useUser();
+  const { db, user } = useUser();
   const [lastActivity, setLastActivity] = useState<ActivityData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const recordActivity = useCallback(async (activity: ActivityData) => {
-    if (!db || typeof db === 'number') return;
+    if (!db || typeof db === 'number' || !user) return;
 
     try {
       const timestamp = Date.now();
@@ -29,9 +29,10 @@ export const useLastActivity = () => {
 
       await db.runAsync(`
         INSERT OR REPLACE INTO activity_log (
-          module_slug, family_id, subfamily_id, level, family_name, icon, progress, timestamp
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          user_id, module_slug, family_id, subfamily_id, level, family_name, icon, progress, timestamp
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
+        user.id,
         activity.moduleSlug,
         familyIdNum,
         subfamilyIdNum,
@@ -44,10 +45,10 @@ export const useLastActivity = () => {
     } catch (error) {
       log.error('[useLastActivity] recordActivity error:', error);
     }
-  }, [db]);
+  }, [db, user]);
 
   const fetchLastActivity = useCallback(async () => {
-    if (!db || typeof db === 'number') return;
+    if (!db || typeof db === 'number' || !user) return;
 
     try {
       setIsLoading(true);
@@ -69,9 +70,10 @@ export const useLastActivity = () => {
           icon,
           progress
         FROM activity_log
+        WHERE user_id = ?
         ORDER BY timestamp DESC
         LIMIT 1
-      `);
+      `, [user.id]);
 
       // Reconstruire le familyId composite si subfamily existe
       const result = row ? {
@@ -85,7 +87,7 @@ export const useLastActivity = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [db]);
+  }, [db, user]);
 
   return { 
     lastActivity, 

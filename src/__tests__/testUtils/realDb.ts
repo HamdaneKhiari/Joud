@@ -110,6 +110,7 @@ export const createMigratedRealDb = async (): Promise<RealTestDb> => {
     require('@/database/migrations/006_fix_contrast_and_adult_language').default,
     require('@/database/migrations/007_seed_real_content').default,
     require('@/database/migrations/008_add_course_column').default,
+    require('@/database/migrations/009_add_user_id_to_activity_log').default,
   ];
 
   await runner.runMigrations(migrationModules);
