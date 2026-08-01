@@ -373,6 +373,64 @@ describe('ProgressContext', () => {
     });
   });
 
+  describe('getFamilyProgress', () => {
+
+    it('trouve la progression avec une clé exacte (modules sans sous-famille)', async () => {
+      const { result } = renderHook(() => useProgress(), { wrapper });
+      await act(flushPromises);
+
+      act(() => { result.current.trackItemCompletion(1, 'word_games', '20', 3, 4); });
+
+      expect(result.current.getFamilyProgress(1, 'word_games', '20')).toBe(100);
+    });
+
+    it('BUG RÉEL — agrège les sous-familles quand on interroge avec l\'id de famille brut', async () => {
+      // Cas exact de ExerciceSelectionScreen/ModuleItem : useGetFamiliesByModule renvoie des
+      // id de famille bruts ("1"), mais vocab/phrase_types/reading/dialogues stockent la
+      // progression sous des clés composites "1-1", "1-2"... Avant le fix, cette requête
+      // retournait toujours 0 car "1" ne matchait jamais "1-1"/"1-2" exactement.
+      const { result } = renderHook(() => useProgress(), { wrapper });
+      await act(flushPromises);
+
+      act(() => { result.current.trackItemCompletion(1, 'vocab', '1-1', 3, 4); }); // sous-famille 1 : 4/4 = 100%
+      act(() => { result.current.trackItemCompletion(1, 'vocab', '1-2', 1, 4); }); // sous-famille 2 : 2/4 = 50%
+
+      // Interrogation avec l'id de famille brut "1" (pas "1-1" ni "1-2")
+      // Complété pondéré : (4+2)/(4+4) = 6/8 = 75%
+      expect(result.current.getFamilyProgress(1, 'vocab', '1')).toBe(75);
+    });
+
+    it('retourne 0 si aucune entrée ne correspond', async () => {
+      const { result } = renderHook(() => useProgress(), { wrapper });
+      await act(flushPromises);
+
+      expect(result.current.getFamilyProgress(1, 'vocab', '999')).toBe(0);
+    });
+
+    it('ne mélange pas les familles dont l\'id est un préfixe d\'un autre (ex: "1" vs "12")', async () => {
+      const { result } = renderHook(() => useProgress(), { wrapper });
+      await act(flushPromises);
+
+      act(() => { result.current.trackItemCompletion(1, 'reading', '12-1', 9, 10); }); // famille 12, pas 1
+
+      expect(result.current.getFamilyProgress(1, 'reading', '1')).toBe(0);
+      expect(result.current.getFamilyProgress(1, 'reading', '12')).toBe(100);
+    });
+  });
+
+  describe('getExerciseProgress', () => {
+
+    it('BUG RÉEL — calcule un pourcentage de module non nul avec des familyIds bruts sur un module à sous-familles', async () => {
+      const { result } = renderHook(() => useProgress(), { wrapper });
+      await act(flushPromises);
+
+      act(() => { result.current.trackItemCompletion(1, 'phrase_types', '3-1', 3, 4); }); // 4/4 = 100%
+
+      // Reproduit exactement l'appel de ModuleItem : familyIds bruts issus de useGetFamiliesByModule
+      expect(result.current.getExerciseProgress(1, 'phrase_types', ['3', '4'])).toBe(50); // (100 + 0) / 2
+    });
+  });
+
   describe('refreshProgress', () => {
 
     it('recharge depuis SQLite et met à jour le state', async () => {

@@ -176,8 +176,22 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   const getFamilyProgress = useCallback((levelId: number, exerciseType: string, familyId: string): number => {
-    const family = progress?.[`level${levelId}`]?.[exerciseType as keyof LevelProgress]?.[familyId];
-    return family ? Math.round((family.completed / family.total) * 100) : 0;
+    const exerciseData = progress?.[`level${levelId}`]?.[exerciseType as keyof LevelProgress] || {};
+
+    // familyId peut être une clé simple ("3", modules sans sous-famille) ou composite
+    // ("3-1", modules avec sous-famille — vocab/phrase_types/reading/dialogues). Un appelant
+    // qui ne connaît que l'id de famille brut (ex: ModuleItem, qui liste les modules par
+    // famille top-level) doit quand même trouver la progression stockée sous "3-1"/"3-2".
+    // On agrège donc toutes les entrées qui correspondent exactement OU qui appartiennent à
+    // cette famille (préfixe "familyId-").
+    const matchingEntries = Object.entries(exerciseData).filter(
+      ([key]) => key === familyId || key.startsWith(`${familyId}-`)
+    );
+    if (matchingEntries.length === 0) return 0;
+
+    const totalCompleted = matchingEntries.reduce((sum, [, f]) => sum + f.completed, 0);
+    const totalItems = matchingEntries.reduce((sum, [, f]) => sum + f.total, 0);
+    return totalItems > 0 ? Math.round((totalCompleted / totalItems) * 100) : 0;
   }, [progress]);
 
   const getExerciseProgress = useCallback((
