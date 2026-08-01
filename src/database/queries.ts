@@ -459,66 +459,11 @@ export const updateUserMetrics = async (
   );
 };
 
-const _calculateCurrentStreak = (days: { day: string }[]): number => {
-  if (days.length === 0) return 0;
-
-  let tempStreak = 0;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  for (let i = 0; i < days.length; i++) {
-    const dayDate = new Date(days[i].day + 'T00:00:00');
-    const expectedDate = new Date(today);
-    expectedDate.setDate(expectedDate.getDate() - i);
-    expectedDate.setHours(0, 0, 0, 0);
-
-    // Tolérer un décalage de 1 jour (si l'utilisateur n'a pas encore joué aujourd'hui)
-    const diffMs = Math.abs(dayDate.getTime() - expectedDate.getTime());
-    const diffDays = diffMs / (1000 * 60 * 60 * 24);
-
-    if (i === 0 && diffDays > 1) return 0;
-
-    if (diffDays <= 1) {
-      tempStreak++;
-    } else {
-      break;
-    }
-  }
-  return tempStreak;
-};
-
-const _calculateLongestStreak = (days: { day: string }[], currentStreak: number): number => {
-  if (days.length === 0) return 0;
-
-  let tempStreak = 1;
-  let longestStreak = 1;
-
-  for (let i = 1; i < days.length; i++) {
-    const prev = new Date(days[i - 1].day + 'T00:00:00');
-    const curr = new Date(days[i].day + 'T00:00:00');
-    const diff = (prev.getTime() - curr.getTime()) / (1000 * 60 * 60 * 24);
-
-    if (Math.abs(diff - 1) < 0.1) {
-      tempStreak++;
-      longestStreak = Math.max(longestStreak, tempStreak);
-    } else {
-      tempStreak = 1;
-    }
-  }
-  return Math.max(longestStreak, currentStreak);
-};
-
-const _calculateStreak = (days: { day: string }[]): { currentStreak: number; longestStreak: number } => {
-  const currentStreak = _calculateCurrentStreak(days);
-  const longestStreak = _calculateLongestStreak(days, currentStreak);
-  return { currentStreak, longestStreak };
-};
-
 export const calculateUserMetrics = async (
   db: SQLiteDatabase,
   userId: string
 ): Promise<UserMetrics> => {
-  // Mots appris = nombre de contenus de type 'word' complétés
+  // Mots appris = nombre de contenus de type 'word' complétés (cumul depuis le début, jamais décroissant)
   const wordsResult = await db.getFirstAsync<{ count: number }>(
     `SELECT COUNT(DISTINCT c.id) as count
      FROM content c
@@ -533,15 +478,14 @@ export const calculateUserMetrics = async (
     [userId]
   );
 
-  // Streak = jours consécutifs depuis activity_log
-  const days = await db.getAllAsync<{ day: string }>(
-    `SELECT DISTINCT DATE(timestamp / 1000, 'unixepoch') as day
-     FROM activity_log
-     ORDER BY day DESC
-     LIMIT 60`
+  // Jours d'apprentissage = nombre de jours distincts d'activité, cumulé depuis le début.
+  // Volontairement pas un "streak" consécutif (qui retombe à 0 si un jour est raté) —
+  // stocké dans les colonnes current_streak/longest_streak par cohérence avec le schéma existant,
+  // mais les deux valent désormais ce même total cumulé.
+  const activeDaysResult = await db.getFirstAsync<{ count: number }>(
+    `SELECT COUNT(DISTINCT DATE(timestamp / 1000, 'unixepoch')) as count FROM activity_log`
   );
-
-  const { currentStreak, longestStreak } = _calculateStreak(days);
+  const activeDays = activeDaysResult?.count || 0;
 
   // Total time : estimer depuis le nombre d'entrées activity_log (env. 2 min par activité)
   const activityCount = await db.getFirstAsync<{ count: number }>(
@@ -553,8 +497,8 @@ export const calculateUserMetrics = async (
     user_id: userId,
     words_learned: wordsResult?.count || 0,
     exercises_completed: exercisesResult?.total || 0,
-    current_streak: currentStreak,
-    longest_streak: longestStreak,
+    current_streak: activeDays,
+    longest_streak: activeDays,
     total_time_minutes: estimatedMinutes,
     updated_at: new Date().toISOString(),
   };

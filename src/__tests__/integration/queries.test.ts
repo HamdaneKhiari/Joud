@@ -842,47 +842,41 @@ describe('calculateUserMetrics', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('calcule les métriques depuis DB avec activité', async () => {
-    // words count
     (db.getFirstAsync as jest.Mock)
-      .mockResolvedValueOnce({ count: 15 })         // wordsResult
-      .mockResolvedValueOnce({ total: 30 })          // exercisesResult
-      .mockResolvedValueOnce({ count: 10 })          // activityCount
-      .mockResolvedValueOnce(null);                  // getUserMetrics create branch
-    // streak days
-    const today = new Date().toISOString().split('T')[0];
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-    (db.getAllAsync as jest.Mock).mockResolvedValueOnce([{ day: today }, { day: yesterday }]);
+      .mockResolvedValueOnce({ count: 15 })  // wordsResult
+      .mockResolvedValueOnce({ total: 30 })  // exercisesResult
+      .mockResolvedValueOnce({ count: 2 })   // activeDaysResult
+      .mockResolvedValueOnce({ count: 10 }); // activityCount
     (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined); // updateUserMetrics
 
     const result = await calculateUserMetrics(db, 'u1');
     expect(result.words_learned).toBe(15);
     expect(result.exercises_completed).toBe(30);
     expect(result.total_time_minutes).toBe(20); // 10 * 2
-    expect(result.current_streak).toBeGreaterThanOrEqual(1);
+    expect(result.current_streak).toBe(2);
   });
 
-  it('streak=0 quand dernier jour > 1 jour', async () => {
+  // Un jour d'activité ancien (non consécutif à aujourd'hui) compte quand même dans le total
+  // cumulé : contrairement à un streak, ce chiffre ne retombe jamais à 0 tant qu'il y a eu
+  // au moins une activité un jour donné.
+  it('un jour actif ancien compte dans le total cumulé (pas de notion de streak cassé)', async () => {
     (db.getFirstAsync as jest.Mock)
       .mockResolvedValueOnce({ count: 0 })
       .mockResolvedValueOnce({ total: 0 })
-      .mockResolvedValueOnce({ count: 0 })
-      .mockResolvedValueOnce({ user_id: 'u1', words_learned: 0, exercises_completed: 0, current_streak: 0, longest_streak: 0, total_time_minutes: 0 });
-    // Pas d'activité récente — 5 jours en arrière
-    const oldDay = new Date(Date.now() - 5 * 86400000).toISOString().split('T')[0];
-    (db.getAllAsync as jest.Mock).mockResolvedValueOnce([{ day: oldDay }]);
+      .mockResolvedValueOnce({ count: 1 })
+      .mockResolvedValueOnce({ count: 0 });
     (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
 
     const result = await calculateUserMetrics(db, 'u1');
-    expect(result.current_streak).toBe(0);
+    expect(result.current_streak).toBe(1);
   });
 
-  it('aucune activité → streak=0, total_time=0', async () => {
+  it('aucune activité → jours=0, total_time=0', async () => {
     (db.getFirstAsync as jest.Mock)
       .mockResolvedValueOnce({ count: 0 })
       .mockResolvedValueOnce({ total: null })
       .mockResolvedValueOnce({ count: 0 })
-      .mockResolvedValueOnce({ user_id: 'u1', words_learned: 0, exercises_completed: 0, current_streak: 0, longest_streak: 0, total_time_minutes: 0 });
-    (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
+      .mockResolvedValueOnce({ count: 0 });
     (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
 
     const result = await calculateUserMetrics(db, 'u1');
@@ -890,20 +884,16 @@ describe('calculateUserMetrics', () => {
     expect(result.total_time_minutes).toBe(0);
   });
 
-  it('streak consécutif sur plusieurs jours → longestStreak calculé', async () => {
+  it('plusieurs jours actifs, même non consécutifs → current_streak = longest_streak = total', async () => {
     (db.getFirstAsync as jest.Mock)
       .mockResolvedValueOnce({ count: 5 })
       .mockResolvedValueOnce({ total: 10 })
       .mockResolvedValueOnce({ count: 3 })
-      .mockResolvedValueOnce({ user_id: 'u1', words_learned: 0, exercises_completed: 0, current_streak: 0, longest_streak: 0, total_time_minutes: 0 });
-    const days = Array.from({ length: 3 }, (_, i) => ({
-      day: new Date(Date.now() - i * 86400000).toISOString().split('T')[0]
-    }));
-    (db.getAllAsync as jest.Mock).mockResolvedValueOnce(days);
+      .mockResolvedValueOnce({ count: 3 });
     (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
 
     const result = await calculateUserMetrics(db, 'u1');
-    expect(result.current_streak).toBeGreaterThanOrEqual(2);
-    expect(result.longest_streak).toBeGreaterThanOrEqual(result.current_streak);
+    expect(result.current_streak).toBe(3);
+    expect(result.longest_streak).toBe(3);
   });
 });

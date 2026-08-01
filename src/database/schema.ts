@@ -202,6 +202,8 @@ export interface UserMetrics {
   user_id: string;
   words_learned: number;
   exercises_completed: number;
+  // Malgré leur nom, ces deux champs valent le même total : le nombre de jours distincts
+  // d'activité cumulés depuis le début (pas un streak consécutif qui peut retomber à 0).
   current_streak: number;
   longest_streak: number;
   last_activity_date?: string;

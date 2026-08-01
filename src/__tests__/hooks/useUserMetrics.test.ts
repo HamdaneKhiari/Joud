@@ -58,7 +58,6 @@ describe('useUserMetrics — sans user ou DB', () => {
     expect(result.current.wordsLearned).toBe(0);
     expect(result.current.exercisesCompleted).toBe(0);
     expect(result.current.streak).toBe(0);
-    expect(result.current.badges).toBe(0);
   });
 
   it('retourne 0 si db est null', async () => {
@@ -82,7 +81,6 @@ describe('useUserMetrics — métriques depuis la DB', () => {
     const { useUser } = require('@/contexts/UserContext');
     useUser.mockReturnValue({ db: mockDb, user: mockUser });
     mockCalculateUserMetrics.mockResolvedValue(makeMetrics());
-    mockDb.getFirstAsync.mockResolvedValue({ count: 3 }); // badges
   });
 
   it('wordsLearned = words_learned depuis la DB', async () => {
@@ -104,13 +102,6 @@ describe('useUserMetrics — métriques depuis la DB', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(result.current.streak).toBe(7);
-  });
-
-  it('badges = count depuis user_badges', async () => {
-    const { result } = renderHook(() => useUserMetrics());
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    expect(result.current.badges).toBe(3);
   });
 
   it('calculateUserMetrics est appelé avec db et userId', async () => {
@@ -139,27 +130,6 @@ describe('useUserMetrics — erreur DB', () => {
 
     expect(result.current.wordsLearned).toBe(0);
     expect(result.current.streak).toBe(0);
-  });
-});
-
-// ============================================
-// Badges absent de la DB (getFirstAsync retourne null)
-// ============================================
-
-describe('useUserMetrics — badges absent', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    const { useUser } = require('@/contexts/UserContext');
-    useUser.mockReturnValue({ db: mockDb, user: mockUser });
-    mockCalculateUserMetrics.mockResolvedValue(makeMetrics());
-    mockDb.getFirstAsync.mockResolvedValue(null); // pas de ligne badges
-  });
-
-  it('badges = 0 si user_badges vide', async () => {
-    const { result } = renderHook(() => useUserMetrics());
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    expect(result.current.badges).toBe(0);
   });
 });
 

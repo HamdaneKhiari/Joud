@@ -10,7 +10,7 @@ interface MetricCardProps {
   value: string | number;
   label: string;
   isDark: boolean;
-  variant?: 'wordsLearned' | 'badges' | 'streak';
+  variant?: 'wordsLearned' | 'streak';
   animationDelay?: number;
 }
 
@@ -68,7 +68,6 @@ const MetricCard: React.FC<MetricCardProps> = ({
 
 interface Metrics {
   wordsLearned: number;
-  badges: number;
   streak: number;
 }
 
@@ -78,19 +77,15 @@ interface MetricsSectionProps {
 }
 
 /**
- * MetricsSection - Affiche les métriques principales
- * Pour Primary & College : 3 métriques (mots, badges, série)
- * Pour Lycée & Adult : 2 métriques (mots, série) - PAS de badges
+ * MetricsSection - Affiche les métriques principales : mots appris et jours d'utilisation,
+ * tous deux cumulés depuis le début (jamais décroissants, pas de mécanique de streak à casser)
  */
 const MetricsSection: React.FC<MetricsSectionProps> = ({
-  metrics = { wordsLearned: 0, badges: 0, streak: 0 },
+  metrics = { wordsLearned: 0, streak: 0 },
   theme = 'light'
 }) => {
   const { identity } = useTheme();
   const isDark = theme === 'dark';
-
-  // Badges uniquement pour Primary et College
-  const isStudent = ['primary', 'college'].includes(identity.id);
 
   const styles = useMemo(() => createStyles(identity), [identity]);
 
@@ -105,24 +100,13 @@ const MetricsSection: React.FC<MetricsSectionProps> = ({
         animationDelay={0}
       />
 
-      {isStudent && (
-        <MetricCard
-          badgeLabel="RÉCOMPENSES"
-          value={metrics.badges}
-          label="Badges"
-          isDark={isDark}
-          variant="badges"
-          animationDelay={100}
-        />
-      )}
-
       <MetricCard
-        badgeLabel="SÉRIE"
+        badgeLabel="JOURS"
         value={metrics.streak}
-        label="Jours"
+        label="Jours d'apprentissage"
         isDark={isDark}
         variant="streak"
-        animationDelay={isStudent ? 200 : 100}
+        animationDelay={100}
       />
     </View>
   );

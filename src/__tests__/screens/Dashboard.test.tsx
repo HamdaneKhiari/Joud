@@ -123,7 +123,7 @@ function setupMocks(overrides: { loading?: boolean; user?: object | null; db?: o
   useRevisions.mockReturnValue({ wordsToReview: 5, isLoading: false, refresh: jest.fn() });
 
   useUserMetrics.mockReturnValue({
-    wordsLearned: 42, exercisesCompleted: 10, streak: 3, badges: 1,
+    wordsLearned: 42, exercisesCompleted: 10, streak: 3,
     isLoading: false, refresh: jest.fn(),
   });
 

@@ -35,7 +35,7 @@ export default function Dashboard() {
 
   const { dailyWord } = useDailyWord();
   const { wordsToReview } = useRevisions();
-  const { wordsLearned, badges, streak } = useUserMetrics();
+  const { wordsLearned, streak } = useUserMetrics();
 
   const [levels, setLevels] = useState<Level[]>([]);
   const [levelLabels, setLevelLabels] = useState<Record<number, { title: string; badge: string; description: string }>>({});
@@ -143,7 +143,6 @@ export default function Dashboard() {
         <MetricsSection
           metrics={{
             wordsLearned,
-            badges,
             streak
           }}
           theme={identity.themeMode}

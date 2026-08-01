@@ -38,11 +38,6 @@ export const createStyles = (identity: Identity) => {
       ...(isPlayful ? tokens.shadows.elevated : tokens.shadows.md),
     },
 
-    cardBadges: {
-      backgroundColor: identity.palette.primary,
-      ...(isPlayful ? tokens.shadows.elevated : tokens.shadows.md),
-    },
-
     cardStreak: {
       backgroundColor: identity.aiDiagnostic.accent,
       ...(isPlayful ? tokens.shadows.elevated : tokens.shadows.md),
@@ -84,13 +79,6 @@ export const createStyles = (identity: Identity) => {
       textShadowRadius: 4,
     },
 
-    valueBadges: {
-      color: identity.text.onPrimary,
-      textShadowColor: 'rgba(0, 0, 0, 0.2)',
-      textShadowOffset: { width: 0, height: 2 },
-      textShadowRadius: 4,
-    },
-
     valueStreak: {
       color: identity.text.onPrimary,
       textShadowColor: 'rgba(0, 0, 0, 0.2)',
@@ -112,11 +100,6 @@ export const createStyles = (identity: Identity) => {
     },
 
     labelWordsLearned: {
-      color: identity.text.onPrimary,
-      opacity: 0.9,
-    },
-
-    labelBadges: {
       color: identity.text.onPrimary,
       opacity: 0.9,
     },
