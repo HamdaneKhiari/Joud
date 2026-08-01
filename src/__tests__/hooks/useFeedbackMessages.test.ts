@@ -141,4 +141,16 @@ describe('useFeedbackMessages — getFeedback', () => {
 
     expect(feedback).toBeNull();
   });
+
+  it('conserve la même référence de getFeedback entre deux renders (db/identity inchangés)', async () => {
+    // Régression : une référence instable ici, combinée à un useEffect qui la liste
+    // en dépendance (cf. useWordGameFeedback), provoque une boucle de re-render infinie
+    // ("Maximum update depth exceeded") — observée en test manuel sur émulateur.
+    const { result, rerender } = renderHook(() => useFeedbackMessages());
+    const firstRef = result.current.getFeedback;
+
+    rerender({});
+
+    expect(result.current.getFeedback).toBe(firstRef);
+  });
 });

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { useTheme } from '@/themes/ThemeContext';
 import { getFeedbackMessage } from '@/database/queries';
@@ -23,33 +23,36 @@ export const useFeedbackMessages = (): UseFeedbackMessagesReturn => {
   const { identity } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
 
-  const getFeedback = async (
-    context: 'exercise' | 'wordgames' | 'vocabulary',
-    state: 'correct' | 'incorrect_attempt_1' | 'incorrect_attempt_2' | 'skip'
-  ): Promise<FeedbackData | null> => {
-    if (!db || typeof db === 'number') return null;
+  const getFeedback = useCallback(
+    async (
+      context: 'exercise' | 'wordgames' | 'vocabulary',
+      state: 'correct' | 'incorrect_attempt_1' | 'incorrect_attempt_2' | 'skip'
+    ): Promise<FeedbackData | null> => {
+      if (!db || typeof db === 'number') return null;
 
-    try {
-      setIsLoading(true);
-      const message = await getFeedbackMessage(db, identity.id, context, state);
+      try {
+        setIsLoading(true);
+        const message = await getFeedbackMessage(db, identity.id, context, state);
 
-      if (!message) {
-        log.warn(`No feedback found for ${identity.id}/${context}/${state}`);
+        if (!message) {
+          log.warn(`No feedback found for ${identity.id}/${context}/${state}`);
+          return null;
+        }
+
+        return {
+          icon: message.icon,
+          title: message.title,
+          message: message.message,
+        };
+      } catch (error) {
+        log.error('[useFeedbackMessages] Error:', error);
         return null;
+      } finally {
+        setIsLoading(false);
       }
-
-      return {
-        icon: message.icon,
-        title: message.title,
-        message: message.message,
-      };
-    } catch (error) {
-      log.error('[useFeedbackMessages] Error:', error);
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [db, identity.id]
+  );
 
   return { getFeedback, isLoading };
 };
