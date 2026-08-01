@@ -1,6 +1,6 @@
 /**
  * usePreferences — Préférences utilisateur persistées en AsyncStorage
- * Sons de feedback + vibrations haptiques
+ * Vibrations haptiques
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -9,12 +9,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const PREFS_KEY = 'JOUD_PREFERENCES';
 
 export interface Preferences {
-  soundEnabled: boolean;
   hapticsEnabled: boolean;
 }
 
 const DEFAULT_PREFS: Preferences = {
-  soundEnabled: true,
   hapticsEnabled: true,
 };
 

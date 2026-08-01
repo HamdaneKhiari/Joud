@@ -37,7 +37,7 @@ jest.mock('@/hooks/useSafeAction', () => ({
 }));
 
 jest.mock('@/hooks/usePreferences', () => ({
-  usePreferences: jest.fn().mockReturnValue({ prefs: { soundEnabled: true, hapticsEnabled: true }, updatePref: jest.fn() }),
+  usePreferences: jest.fn().mockReturnValue({ prefs: { hapticsEnabled: true }, updatePref: jest.fn() }),
 }));
 
 // ============================================
@@ -612,7 +612,7 @@ describe('SpeedMatchCard', () => {
     const { usePreferences } = require('@/hooks/usePreferences');
     // mockReturnValue (pas Once) : le composant ré-invoque usePreferences() à chaque re-render
     // (sélection, match...), un Once ne couvrirait que le tout premier appel.
-    usePreferences.mockReturnValue({ prefs: { soundEnabled: true, hapticsEnabled: false }, updatePref: jest.fn() });
+    usePreferences.mockReturnValue({ prefs: { hapticsEnabled: false }, updatePref: jest.fn() });
     const Haptics = require('expo-haptics');
 
     const twoPairGame = { ...mockSpeedMatchQuestion, pairs: mockSpeedMatchQuestion.pairs.slice(0, 2), timeLimit: 30 };
@@ -623,7 +623,7 @@ describe('SpeedMatchCard', () => {
 
     expect(Haptics.notificationAsync).not.toHaveBeenCalled();
 
-    usePreferences.mockReturnValue({ prefs: { soundEnabled: true, hapticsEnabled: true }, updatePref: jest.fn() });
+    usePreferences.mockReturnValue({ prefs: { hapticsEnabled: true }, updatePref: jest.fn() });
   });
 
   it('trouve la dernière paire exactement quand le chrono passe à 0 → succès, pas échec (bug corrigé)', () => {
@@ -772,7 +772,7 @@ describe('AudioMatchCard', () => {
 
   it('BUG RÉEL — respecte hapticsEnabled=false (le switch Réglages n\'avait aucun effet avant ce fix)', () => {
     const { usePreferences } = require('@/hooks/usePreferences');
-    usePreferences.mockReturnValue({ prefs: { soundEnabled: true, hapticsEnabled: false }, updatePref: jest.fn() });
+    usePreferences.mockReturnValue({ prefs: { hapticsEnabled: false }, updatePref: jest.fn() });
     const Haptics = require('expo-haptics');
     const randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.5);
     const { getByLabelText } = render(
@@ -785,7 +785,7 @@ describe('AudioMatchCard', () => {
 
     expect(Haptics.notificationAsync).not.toHaveBeenCalled();
 
-    usePreferences.mockReturnValue({ prefs: { soundEnabled: true, hapticsEnabled: true }, updatePref: jest.fn() });
+    usePreferences.mockReturnValue({ prefs: { hapticsEnabled: true }, updatePref: jest.fn() });
   });
 
   it('le callback onDone d\'un 1er mot ne remet pas l\'icône "en lecture" d\'un 2e mot déjà lancé', () => {

@@ -257,21 +257,6 @@ export default function SettingsScreen() {
         {/* Section Préférences */}
         <Section title="Préférences" identity={identity}>
           <Row
-            icon="🔊"
-            label="Sons"
-            sublabel="Feedback sonore des exercices"
-            identity={identity}
-            right={
-              <Switch
-                value={prefs.soundEnabled}
-                onValueChange={(v) => updatePref('soundEnabled', v)}
-                trackColor={{ false: withOpacity(identity.text.primary, 0.15), true: identity.palette.primary }}
-                thumbColor={Platform.OS === 'android' ? identity.palette.primary : undefined}
-                accessibilityLabel="Sons"
-              />
-            }
-          />
-          <Row
             icon="📳"
             label="Vibrations"
             sublabel="Retour haptique"

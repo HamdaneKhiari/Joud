@@ -33,7 +33,7 @@ jest.mock('@/utils/logUtils', () => ({
   log: { error: jest.fn(), warn: jest.fn(), info: jest.fn(), debug: jest.fn() },
 }));
 jest.mock('@/hooks/usePreferences', () => ({
-  usePreferences: jest.fn().mockReturnValue({ prefs: { soundEnabled: true, hapticsEnabled: true }, updatePref: jest.fn() }),
+  usePreferences: jest.fn().mockReturnValue({ prefs: { hapticsEnabled: true }, updatePref: jest.fn() }),
 }));
 
 import { useAudioPlayer } from '@/components/ui/AudioButtons/hooks/useAudioPlayer';
@@ -242,13 +242,13 @@ describe('respect de la préférence hapticsEnabled', () => {
 
   it('ne déclenche aucune vibration quand hapticsEnabled=false', async () => {
     const { usePreferences } = require('@/hooks/usePreferences');
-    usePreferences.mockReturnValue({ prefs: { soundEnabled: true, hapticsEnabled: false }, updatePref: jest.fn() });
+    usePreferences.mockReturnValue({ prefs: { hapticsEnabled: false }, updatePref: jest.fn() });
 
     const { result } = renderHook(() => useAudioPlayer('http://example.com/a.mp3'));
     await act(async () => { await result.current.playAudio(); });
     const Haptics = require('expo-haptics');
     expect(Haptics.impactAsync).not.toHaveBeenCalled();
 
-    usePreferences.mockReturnValue({ prefs: { soundEnabled: true, hapticsEnabled: true }, updatePref: jest.fn() });
+    usePreferences.mockReturnValue({ prefs: { hapticsEnabled: true }, updatePref: jest.fn() });
   });
 });

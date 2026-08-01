@@ -28,12 +28,6 @@ describe('usePreferences — valeurs par défaut', () => {
     mockGetItem.mockResolvedValue(null); // Rien en storage
   });
 
-  it('soundEnabled = true par défaut', async () => {
-    const { result } = renderHook(() => usePreferences());
-    await waitFor(() => expect(result.current.loaded).toBe(true));
-    expect(result.current.prefs.soundEnabled).toBe(true);
-  });
-
   it('hapticsEnabled = true par défaut', async () => {
     const { result } = renderHook(() => usePreferences());
     await waitFor(() => expect(result.current.loaded).toBe(true));
@@ -54,23 +48,21 @@ describe('usePreferences — valeurs par défaut', () => {
 describe('usePreferences — lecture AsyncStorage', () => {
   it('charge les préférences stockées', async () => {
     mockGetItem.mockResolvedValue(
-      JSON.stringify({ soundEnabled: false, hapticsEnabled: true })
+      JSON.stringify({ hapticsEnabled: false })
     );
 
     const { result } = renderHook(() => usePreferences());
     await waitFor(() => expect(result.current.loaded).toBe(true));
 
-    expect(result.current.prefs.soundEnabled).toBe(false);
-    expect(result.current.prefs.hapticsEnabled).toBe(true);
+    expect(result.current.prefs.hapticsEnabled).toBe(false);
   });
 
   it('prefs partielles sont complétées par les défauts', async () => {
-    mockGetItem.mockResolvedValue(JSON.stringify({ soundEnabled: false }));
+    mockGetItem.mockResolvedValue(JSON.stringify({}));
 
     const { result } = renderHook(() => usePreferences());
     await waitFor(() => expect(result.current.loaded).toBe(true));
 
-    expect(result.current.prefs.soundEnabled).toBe(false);
     expect(result.current.prefs.hapticsEnabled).toBe(true); // valeur par défaut
   });
 
@@ -81,7 +73,6 @@ describe('usePreferences — lecture AsyncStorage', () => {
     await waitFor(() => expect(result.current.loaded).toBe(true));
 
     // Valeurs par défaut conservées
-    expect(result.current.prefs.soundEnabled).toBe(true);
     expect(result.current.prefs.hapticsEnabled).toBe(true);
   });
 
@@ -91,7 +82,7 @@ describe('usePreferences — lecture AsyncStorage', () => {
     const { result } = renderHook(() => usePreferences());
     await waitFor(() => expect(result.current.loaded).toBe(true));
 
-    expect(result.current.prefs.soundEnabled).toBe(true);
+    expect(result.current.prefs.hapticsEnabled).toBe(true);
   });
 });
 
@@ -105,15 +96,15 @@ describe('usePreferences — updatePref', () => {
     mockGetItem.mockResolvedValue(null);
   });
 
-  it('met à jour soundEnabled immédiatement', async () => {
+  it('met à jour hapticsEnabled immédiatement', async () => {
     const { result } = renderHook(() => usePreferences());
     await waitFor(() => expect(result.current.loaded).toBe(true));
 
     act(() => {
-      result.current.updatePref('soundEnabled', false);
+      result.current.updatePref('hapticsEnabled', false);
     });
 
-    expect(result.current.prefs.soundEnabled).toBe(false);
+    expect(result.current.prefs.hapticsEnabled).toBe(false);
   });
 
   it('persiste la mise à jour dans AsyncStorage', async () => {
@@ -128,19 +119,5 @@ describe('usePreferences — updatePref', () => {
     const [, json] = mockSetItem.mock.calls[0];
     const saved = JSON.parse(json);
     expect(saved.hapticsEnabled).toBe(false);
-  });
-
-  it('updatePref ne touche pas les autres préférences', async () => {
-    mockGetItem.mockResolvedValue(
-      JSON.stringify({ soundEnabled: true, hapticsEnabled: true })
-    );
-    const { result } = renderHook(() => usePreferences());
-    await waitFor(() => expect(result.current.loaded).toBe(true));
-
-    act(() => {
-      result.current.updatePref('soundEnabled', false);
-    });
-
-    expect(result.current.prefs.hapticsEnabled).toBe(true); // inchangé
   });
 });
