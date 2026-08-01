@@ -1058,3 +1058,73 @@ chacun, plan détaillé dans `piped-doodling-elephant.md`.
 **Pas fait dans ce chantier** : test manuel sur émulateur/device réel — validé uniquement via
 la suite automatisée cette fois (contrairement à la section 15 où un test live avait été fait).
 À faire avant le test privé utilisateurs mentionné par l'utilisateur, si souhaité.
+
+---
+
+## 22. Test manuel sur émulateur (le "dernier test" resté en suspens depuis la section 21) — 2 bugs réels trouvés en jouant, + refonte des métriques dashboard
+
+Suite directe de la section 21 : l'utilisateur reprend le contrôle pour un test manuel sur
+l'émulateur Android avant de considérer le code prêt pour un test privé. Reproduit exactement
+le pattern des sections 16/17 — un bug réel qu'aucune suite automatisée n'attrape, trouvé en
+jouant normalement.
+
+- [x] **Bug réel — boucle de re-render infinie (`useFeedbackMessages`).** En revenant de
+  "Grammar in Action" (word game) vers la sélection de module, toast rouge "Maximum update
+  depth exceeded". Cause : `getFeedback` (retourné par `useFeedbackMessages`) était une
+  fonction recréée à chaque render, mais `useWordGameFeedback.ts` la liste en dépendance d'un
+  `useEffect` — et `getFeedback` appelle `setIsLoading`, donc chaque appel déclenche un
+  re-render qui recrée `getFeedback`, qui redéclenche l'effet, à l'infini. Corrigé avec
+  `useCallback([db, identity.id])`. Test de régression : la référence de `getFeedback` doit
+  rester stable entre deux renders à `db`/`identity.id` inchangés.
+
+- [x] **Refonte des métriques du dashboard** (demande utilisateur, indépendante du bug
+  ci-dessus, déclenchée en observant les captures d'écran du test manuel) :
+  - Carte "Récompenses/Badges" retirée — elle affichait "0" en permanence (aucune logique
+    d'attribution n'existe ailleurs dans le code), carte morte et démotivante.
+  - "Série" (jours consécutifs, retombe à 0 si un jour est raté — mécanique de pression
+    classique) remplacée par un total de jours d'activité **cumulés depuis le début**, jamais
+    décroissant. `calculateUserMetrics` (`queries.ts`) : `COUNT(DISTINCT DATE(...))` sur
+    `activity_log` sans logique de consécutivité. Stocké dans les colonnes DB
+    `current_streak`/`longest_streak` par cohérence avec le schéma existant (pas de migration
+    de renommage), commenté pour expliquer le décalage nom/sens. Carte renommée "JOURS" /
+    "Jours d'apprentissage". "Mots appris" inchangé — déjà un cumul total, pas un compteur
+    journalier comme l'utilisateur le craignait.
+
+- [x] **Bug réel — `activity_log` sans `user_id` (migration 009).** En creusant le calcul du
+  streak pour la refonte ci-dessus : la table n'a jamais eu de colonne `user_id`
+  (`001_schema.ts`). Le calcul des jours actifs et la "dernière activité" lisaient donc
+  l'historique de **tout profil ayant utilisé l'appareil**, pas seulement l'utilisateur
+  courant — et la contrainte `UNIQUE(module_slug, family_id, subfamily_id)` combinée à
+  `INSERT OR REPLACE` faisait qu'un profil **écrasait** la ligne d'un autre ayant joué la même
+  famille (pas juste une lecture mélangée : une perte de donnée). SQLite ne permettant pas de
+  modifier une contrainte UNIQUE via `ALTER TABLE`, la migration recrée la table avec `user_id`
+  dans la contrainte, backfille les lignes existantes en `user_id = ''` (non attribuables avec
+  certitude). `recordActivity`/`fetchLastActivity` (`useLastActivity.ts`) et
+  `calculateUserMetrics` filtrent désormais par `user_id`. Tests d'intégration DB réelle ajoutés
+  : deux profils jouant la même famille écrivent deux lignes distinctes ; `calculateUserMetrics`
+  n'agrège que les jours du user demandé ; les lignes pré-migration sont bien backfillées.
+
+- [x] **Bug réel — métriques dashboard jamais rafraîchies après le premier chargement.**
+  Découvert en vérifiant le fix précédent sur device : "MOTS"/"JOURS" restaient figés à leur
+  valeur initiale même après avoir joué un exercice complet. Cause : `Dashboard.tsx` a un
+  `useFocusEffect` qui rafraîchit `lastActivity` et `progress` à chaque retour sur l'écran,
+  mais n'appelait jamais `refresh()` de `useUserMetrics`. En l'ajoutant, `refresh()` devait être
+  mémoïsé (`useCallback`) — sinon exactement la même classe de bug que le premier point de
+  cette section (référence instable + `useFocusEffect` qui la liste en dépendance → boucle).
+  Test de régression identique au premier (stabilité de la référence entre renders).
+
+- **Vérifié sur device réel** (pas seulement en suite automatisée, contrairement à la section
+  21) : migration 009 confirmée tournant proprement dans les logs Metro contre la DB déjà
+  peuplée de l'émulateur (aucune erreur) ; "JOURS" observé passant de 0 (nouveau profil "Sami"
+  recréé pendant les tests) à 1 après une vraie activité, **survivant à un redémarrage complet
+  de l'app** — preuve directe que le scope par utilisateur fonctionne. Le rafraîchissement en
+  direct sans redémarrage (dernier point) n'a pas pu être confirmé visuellement — un bug
+  d'overlay clavier Gboard bloquant les taps sur l'émulateur (environnement, pas l'app) a
+  interrompu la vérification manuelle ; ce point repose sur le test de régression unitaire, pas
+  une observation à l'écran.
+- **Suite automatisée** : `npx jest --silent` → **51 suites, 997 tests** (993 avant ce
+  chantier). `npx tsc --noEmit` → 0 erreur. `npx eslint` → 0 problème, après chacun des 3
+  commits de cette section.
+
+**Pas fait** : re-confirmation visuelle du rafraîchissement live des métriques (cf. ci-dessus).
+Le point "test privé utilisateurs" mentionné en section 21 n'a pas encore été lancé.
