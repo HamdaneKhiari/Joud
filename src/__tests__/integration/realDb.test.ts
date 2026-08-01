@@ -60,10 +60,10 @@ describe('Intégration DB réelle — migrations', () => {
     await testDb.db.closeAsync?.();
   });
 
-  it('les 9 migrations s\'exécutent sans erreur et sont enregistrées', async () => {
+  it('les 10 migrations s\'exécutent sans erreur et sont enregistrées', async () => {
     const versions = testDb.raw.exec('SELECT version FROM schema_migrations ORDER BY version');
     const applied = versions[0]?.values.map((row) => row[0]) ?? [];
-    expect(applied).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(applied).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   });
 
   it('le module "assessment" n\'existe plus après la migration 005', async () => {
@@ -131,6 +131,24 @@ describe('Intégration DB réelle — contenu réel (migration 007)', () => {
     const data = JSON.parse(row[0].values[0][0] as string);
     expect(data.translation).toBe('Pomme');
     expect(data.example).toContain('apple');
+  });
+
+  it('migration 010 backfille exampleTranslation pour tout le vocabulaire (perdu à l\'import 007)', async () => {
+    const row = testDb.raw.exec(`
+      SELECT data FROM content c JOIN families f ON f.id = c.family_id
+      WHERE f.module_slug = 'vocab' AND c.target_audience = 'primary'
+        AND json_extract(c.data, '$.word') = 'APPLE'
+    `);
+    const data = JSON.parse(row[0].values[0][0] as string);
+    expect(data.exampleTranslation).toBe('Je mange une pomme chaque jour.');
+
+    const emptyCount = testDb.raw.exec(`
+      SELECT COUNT(*) FROM content c JOIN families f ON f.id = c.family_id
+      WHERE f.module_slug = 'vocab' AND c.target_audience IN ('primary', 'college')
+        AND (json_extract(c.data, '$.exampleTranslation') IS NULL
+             OR json_extract(c.data, '$.exampleTranslation') = '')
+    `);
+    expect(emptyCount[0].values[0][0]).toBe(0);
   });
 
   it('une famille vocab a des sous-familles nommées pour les 4 identités', async () => {
