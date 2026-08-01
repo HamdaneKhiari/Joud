@@ -59,5 +59,4 @@ export interface ProgressContextValue {
   getLevelProgress: (levelId: number, familyIdsByModule?: Record<string, string[]>) => number;
   getRevisionFamilies: (levelId: number) => RevisionFamily[];
   getLastActivity: (levelId: number, exerciseType: string) => { familyId: string; progress: number; lastReviewed: number } | null;
-  getRecommendedModule: (levelId: number) => { exerciseType: string; progress: number; lastReviewed: number } | null;
 }

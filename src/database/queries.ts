@@ -112,8 +112,8 @@ export const upsertProgress = async (db: SQLiteDatabase, progress: Omit<Progress
   // fourni par l'appelant), pas le moment de l'écriture SQL. syncToSQLite réécrit périodiquement
   // TOUTES les familles en mémoire (pas seulement celle qui vient de changer) — si on tamponnait
   // "maintenant" ici, la moindre activité sur une famille remettrait aussi à jour le timestamp de
-  // toutes les autres, rendant "dernière famille jouée" (cf. getRecommendedModule) impossible à
-  // déterminer correctement.
+  // toutes les autres, rendant "dernière famille jouée" (cf. ProgressContext.getLastActivity)
+  // impossible à déterminer correctement.
   await db.runAsync(
     `INSERT OR REPLACE INTO progress (user_id, family_id, subfamily_id, level, completed, total, score, last_accessed)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,

@@ -24,8 +24,6 @@ interface ExerciseItem {
   title: string;
   description?: string;
   color?: string;
-  badge?: string;
-  progress?: number;
 }
 
 interface ModuleItemProps {
@@ -48,10 +46,8 @@ const ModuleItem: React.FC<ModuleItemProps> = ({
 
   const progress = useMemo(() => {
     if (loadingFamilies) return 0;
-    // Si la progression est déjà fournie par le parent (pour le recommandé)
-    if (exercise.progress !== undefined) return exercise.progress;
     return getExerciseProgress(levelId, exercise.id, familyIds) || 0;
-  }, [loadingFamilies, familyIds, levelId, exercise.id, exercise.progress, getExerciseProgress]);
+  }, [loadingFamilies, familyIds, levelId, exercise.id, getExerciseProgress]);
 
   return (
     <ModuleCard
@@ -59,7 +55,7 @@ const ModuleItem: React.FC<ModuleItemProps> = ({
       title={exercise.title}
       subtitle=""
       color={exercise.color || identity.palette.primary}
-      badge={exercise.badge || null}
+      badge={null}
       progress={progress > 0 ? progress : null}
       onPress={onPress}
       animationDelay={index * 50}
@@ -72,7 +68,7 @@ const ExerciseSelectionScreen: React.FC = () => {
   const params = useLocalSearchParams<{ levelId: string }>();
   const { identity } = useTheme();
   const { db } = useUser();
-  const { isLoading, getRecommendedModule, refreshProgress } = useProgress();
+  const { isLoading, refreshProgress } = useProgress();
   const safeNavigate = useSafeAction();
 
   const numLevelId = Number.parseInt(params.levelId || '1', 10);
@@ -88,22 +84,6 @@ const ExerciseSelectionScreen: React.FC = () => {
   const [levelLabel, setLevelLabel] = useState({ title: '', badge: '', description: '' });
   const [exercises, setExercises] = useState<ExerciseItem[]>([]);
   const [loadingData, setLoadingData] = useState(true);
-
-  // Module en cours en premier
-  const sortedExercises = useMemo(() => {
-    const recommended = getRecommendedModule(numLevelId);
-    if (!recommended || !exercises.length) return exercises;
-
-    const recommendedItem = exercises.find(ex => ex.id === recommended.exerciseType);
-    if (!recommendedItem) return exercises;
-
-    const others = exercises.filter(ex => ex.id !== recommended.exerciseType);
-
-    return [
-      { ...recommendedItem, progress: recommended.progress, badge: 'EN COURS' },
-      ...others
-    ];
-  }, [numLevelId, exercises, getRecommendedModule]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -146,7 +126,7 @@ const ExerciseSelectionScreen: React.FC = () => {
 
   const renderHeader = () => <View style={{ height: 20 }} />;
 
-  const isSingleCard = sortedExercises.length === 1;
+  const isSingleCard = exercises.length === 1;
 
   const renderItem = ({ item, index }: { item: ExerciseItem; index: number }) => {
     const card = (
@@ -184,7 +164,7 @@ const ExerciseSelectionScreen: React.FC = () => {
         ) : (
           <FlatList
             key={isSingleCard ? 'single' : 'grid'}
-            data={sortedExercises}
+            data={exercises}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
             numColumns={isSingleCard ? 1 : 2}

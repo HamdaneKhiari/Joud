@@ -241,30 +241,14 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return mostRecent;
   }, [progress]);
 
-  const getRecommendedModule = useCallback((
-    levelId: number
-  ): { exerciseType: string; progress: number; lastReviewed: number } | null => {
-    const levelData = progress?.[`level${levelId}`];
-    if (!levelData) return null;
-    let mostRecent: { exerciseType: string; progress: number; lastReviewed: number } | null = null;
-    Object.entries(levelData).forEach(([exerciseType, exerciseData]) => {
-      Object.values(exerciseData).forEach(family => {
-        if (family.lastReviewed && (!mostRecent || family.lastReviewed > mostRecent.lastReviewed)) {
-          mostRecent = { exerciseType, progress: getExerciseProgress(levelId, exerciseType, null), lastReviewed: family.lastReviewed };
-        }
-      });
-    });
-    return mostRecent;
-  }, [progress, getExerciseProgress]);
-
   const value = useMemo<ProgressContextValue>(() => ({
     progress, isLoading, trackItemCompletion, saveProgressNow, refreshProgress, resetProgress,
     getFamilyProgress, getExerciseProgress, getLevelProgress,
-    getRevisionFamilies, getLastActivity, getRecommendedModule,
+    getRevisionFamilies, getLastActivity,
   }), [
     progress, isLoading, trackItemCompletion, saveProgressNow, refreshProgress, resetProgress,
     getFamilyProgress, getExerciseProgress, getLevelProgress,
-    getRevisionFamilies, getLastActivity, getRecommendedModule,
+    getRevisionFamilies, getLastActivity,
   ]);
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;

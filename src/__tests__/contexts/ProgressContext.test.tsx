@@ -259,8 +259,9 @@ describe('ProgressContext', () => {
       // syncToSQLite réécrit TOUTES les familles en mémoire à chaque sauvegarde, pas seulement
       // celle qui vient de changer. Avant le fix, upsertProgress tamponnait systématiquement
       // "maintenant" : une famille jouée hier se retrouvait avec le même timestamp qu'une
-      // famille jouée à l'instant, rendant getRecommendedModule ("dernière famille jouée")
-      // incapable de distinguer laquelle est vraiment la plus récente.
+      // famille jouée à l'instant, rendant getLastActivity ("dernière famille jouée dans ce
+      // module", utilisé par FamilySelectionScreen) incapable de distinguer laquelle est
+      // vraiment la plus récente.
       const db = makeDb();
       setupUser(db);
       const { result } = renderHook(() => useProgress(), { wrapper });
@@ -546,31 +547,6 @@ describe('ProgressContext', () => {
       const { result } = renderHook(() => useProgress(), { wrapper });
       await act(flushPromises);
       expect(result.current.getLastActivity(1, 'vocab')).toBeNull();
-    });
-  });
-
-  describe('getRecommendedModule', () => {
-    it('retourne null si aucune donnée pour le niveau', async () => {
-      setupUser(makeDb());
-      const { result } = renderHook(() => useProgress(), { wrapper });
-      await act(flushPromises);
-      expect(result.current.getRecommendedModule(99)).toBeNull();
-    });
-
-    it('retourne le module le plus récent', async () => {
-      const now = Date.now();
-      const progressData = {
-        level1: {
-          vocab:   { '5': { completed: 3, total: 5, lastReviewed: now - 5000 } },
-          reading: { '7': { completed: 1, total: 8, lastReviewed: now } },
-        }
-      };
-      AsyncStorage.setItem('JOUD_PROGRESS_user_01', JSON.stringify(progressData));
-      setupUser(makeDb());
-      const { result } = renderHook(() => useProgress(), { wrapper });
-      await act(flushPromises);
-      const recommended = result.current.getRecommendedModule(1);
-      expect(recommended?.exerciseType).toBe('reading');
     });
   });
 

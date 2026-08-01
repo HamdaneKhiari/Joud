@@ -168,7 +168,6 @@ function setupMocks() {
     resetProgress: jest.fn(), getFamilyProgress: jest.fn().mockReturnValue(0),
     getExerciseProgress: jest.fn().mockReturnValue(0),
     getLastActivity: jest.fn().mockReturnValue(null),
-    getRecommendedModule: jest.fn().mockReturnValue(null),
     isLoading: false,
   });
   useCurrentLevel.mockReturnValue({ currentLevel: 1, setCurrentLevel: jest.fn() });
@@ -257,7 +256,6 @@ describe('Smoke tests — Navigation et autres screens', () => {
       trackItemCompletion: jest.fn(), getRevisionFamilies: jest.fn().mockReturnValue([]),
       resetProgress: jest.fn(), getFamilyProgress: jest.fn().mockReturnValue(0),
       getLastActivity: jest.fn().mockReturnValue({ familyId: '1', progress: 50, lastReviewed: Date.now() }),
-      getRecommendedModule: jest.fn().mockReturnValue(null),
       isLoading: false,
     });
     expect(() => render(
@@ -300,30 +298,6 @@ describe('Smoke tests — Navigation et autres screens', () => {
     expect(require('@/utils/labelMapper').getAvailableModules).toHaveBeenCalled();
   });
 
-  it('ExerciceSelectionScreen — sortedExercises avec module recommandé (lines 124-129)', async () => {
-    require('@/utils/labelMapper').getAvailableModules.mockResolvedValueOnce(['vocab', 'reading']);
-    require('@/utils/labelMapper').getModuleLabel
-      .mockResolvedValueOnce({ title: 'Vocabulaire', description: '', icon: 'book' })
-      .mockResolvedValueOnce({ title: 'Grammaire', description: '', icon: 'pencil' });
-    require('@/utils/moduleHelper').getModuleColor
-      .mockResolvedValueOnce('#E74C3C')
-      .mockResolvedValueOnce('#27AE60');
-    require('@/contexts/ProgressContext').useProgress.mockReturnValue({
-      progress: {}, getLevelProgress: jest.fn().mockReturnValue(0),
-      refreshProgress: jest.fn(), saveProgressNow: jest.fn().mockResolvedValue(undefined),
-      trackItemCompletion: jest.fn(), getRevisionFamilies: jest.fn().mockReturnValue([]),
-      resetProgress: jest.fn(), getFamilyProgress: jest.fn().mockReturnValue(0),
-      getExerciseProgress: jest.fn().mockReturnValue(30),
-      getLastActivity: jest.fn().mockReturnValue(null),
-      getRecommendedModule: jest.fn().mockReturnValue({ exerciseType: 'vocab', progress: 40 }),
-      isLoading: false,
-    });
-    render(<ExerciceSelectionScreen />);
-    await act(async () => { await new Promise(r => setTimeout(r, 0)); });
-    // After load, sortedExercises runs with recommended→ 'vocab' moved first with badge 'EN COURS'
-    expect(require('@/utils/labelMapper').getAvailableModules).toHaveBeenCalled();
-  });
-
   it('ExerciceSelectionScreen — catch bloc: getAvailableModules rejette (line 163)', async () => {
     require('@/utils/labelMapper').getAvailableModules.mockRejectedValueOnce(new Error('DB fail'));
     render(<ExerciceSelectionScreen />);
@@ -352,7 +326,6 @@ describe('Smoke tests — Navigation et autres screens', () => {
       resetProgress: jest.fn(), getFamilyProgress: jest.fn().mockReturnValue(0),
       getExerciseProgress: jest.fn().mockReturnValue(0),
       getLastActivity: jest.fn().mockReturnValue(null),
-      getRecommendedModule: jest.fn().mockReturnValue(null),
       isLoading: true,
     });
     expect(() => render(<ExerciceSelectionScreen />)).not.toThrow();
@@ -370,7 +343,6 @@ describe('Smoke tests — Navigation et autres screens', () => {
       resetProgress: jest.fn(), getFamilyProgress: jest.fn().mockReturnValue(0),
       getExerciseProgress: jest.fn().mockReturnValue(0),
       getLastActivity: jest.fn().mockReturnValue({ familyId: '1', progress: 30, moduleSlug: 'vocab' }),
-      getRecommendedModule: jest.fn().mockReturnValue({ exerciseType: 'vocab', progress: 30 }),
       isLoading: false,
     });
     expect(() => render(

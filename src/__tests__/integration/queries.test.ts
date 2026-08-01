@@ -98,7 +98,7 @@ describe('upsertProgress', () => {
     // syncToSQLite (ProgressContext) réécrit périodiquement TOUTES les familles en mémoire, pas
     // seulement celle qui vient de changer. Si upsertProgress tamponnait "maintenant" à chaque
     // appel, la moindre activité sur une famille remettrait aussi à jour le timestamp de toutes
-    // les autres, rendant "dernière famille jouée" (getRecommendedModule) impossible à déterminer.
+    // les autres, rendant "dernière famille jouée" (ProgressContext.getLastActivity) impossible à déterminer.
     const oldTimestamp = new Date('2026-01-01T10:00:00.000Z').toISOString();
 
     await upsertProgress(db, {
