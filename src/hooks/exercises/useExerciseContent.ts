@@ -118,5 +118,3 @@ export const useExerciseContent = <T = unknown>(
 
   return { module, family, contentItems, isLoading, error };
 };
-
-export default useExerciseContent;

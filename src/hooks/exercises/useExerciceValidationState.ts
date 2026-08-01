@@ -48,5 +48,3 @@ export const useExerciseValidationState = (
 
   return validationData;
 };
-
-export default useExerciseValidationState;

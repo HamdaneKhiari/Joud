@@ -14,5 +14,3 @@ export const useExerciseSaveOnUnmount = () => {
     };
   }, [saveProgressNow]);
 };
-
-export default useExerciseSaveOnUnmount;

@@ -48,5 +48,3 @@ export const generateFeedbackMessage = (
     message: 'Réessaie.',
   };
 };
-
-export default generateFeedbackMessage;
