@@ -4,6 +4,7 @@ import Animated, { FadeInRight, ReduceMotion } from 'react-native-reanimated';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/themes/ThemeContext';
+import { usePreferences } from '@/hooks/usePreferences';
 import { createStyles } from './levelCardStyle';
 
 interface LevelData {
@@ -28,6 +29,7 @@ const LevelCard: React.FC<LevelCardProps> = ({
   animationDelay = 0
 }) => {
   const { identity } = useTheme();
+  const { prefs } = usePreferences();
   const styles = useMemo(() => createStyles(identity), [identity]);
 
   const isPlayful = identity.ui.mood === 'playful';
@@ -67,7 +69,7 @@ const LevelCard: React.FC<LevelCardProps> = ({
 
   const handlePress = () => {
     if (isLocked) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (prefs.hapticsEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     onPress();
   };
 

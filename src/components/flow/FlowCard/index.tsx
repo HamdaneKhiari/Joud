@@ -10,6 +10,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 
 import { useTheme } from '@/themes/ThemeContext';
+import { usePreferences } from '@/hooks/usePreferences';
 import { createStyles } from './style';
 import { isEmoji } from './helpers';
 
@@ -43,6 +44,7 @@ const FlowCard: React.FC<FlowCardProps> = ({
   style = {}
 }) => {
   const { identity } = useTheme();
+  const { prefs } = usePreferences();
   const { cardStyle } = identity.ui;
   const isCentered = cardStyle === 'bubbly' || cardStyle === 'playful';
   const isHorizontal = variant === 'horizontal';
@@ -58,9 +60,11 @@ const FlowCard: React.FC<FlowCardProps> = ({
 
   const handlePress = () => {
     if (locked || !onPress) return;
-    Haptics.impactAsync(
-      isHorizontal ? Haptics.ImpactFeedbackStyle.Medium : Haptics.ImpactFeedbackStyle.Light
-    );
+    if (prefs.hapticsEnabled) {
+      Haptics.impactAsync(
+        isHorizontal ? Haptics.ImpactFeedbackStyle.Medium : Haptics.ImpactFeedbackStyle.Light
+      );
+    }
     onPress();
   };
 

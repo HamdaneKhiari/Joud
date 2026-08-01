@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet, AppState } from '
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '@/themes/ThemeContext';
+import { usePreferences } from '@/hooks/usePreferences';
 import { tokens } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
 import { createWordGameStyles } from '../shared/commonWordGameStyles';
@@ -20,6 +21,7 @@ export interface SpeedMatchCardProps {
 
 const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => {
   const { identity } = useTheme();
+  const { prefs } = usePreferences();
   const baseStyles = useMemo(() => createWordGameStyles(identity), [identity]);
 
   const [timeRemaining, setTimeRemaining] = useState(game.timeLimit);
@@ -104,7 +106,7 @@ const SpeedMatchCard: React.FC<SpeedMatchCardProps> = ({ game, onComplete }) => 
         setOutcome('success');
       }
     } else {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      if (prefs.hapticsEnabled) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       if (wrongFlashTimeoutRef.current) clearTimeout(wrongFlashTimeoutRef.current);
       setWrongFlash({ en: selected, fr: frIndex });
       wrongFlashTimeoutRef.current = setTimeout(() => setWrongFlash(null), 400);

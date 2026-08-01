@@ -32,6 +32,9 @@ jest.mock('expo-haptics', () => ({
 jest.mock('@/utils/logUtils', () => ({
   log: { error: jest.fn(), warn: jest.fn(), info: jest.fn(), debug: jest.fn() },
 }));
+jest.mock('@/hooks/usePreferences', () => ({
+  usePreferences: jest.fn().mockReturnValue({ prefs: { soundEnabled: true, hapticsEnabled: true }, updatePref: jest.fn() }),
+}));
 
 import { useAudioPlayer } from '@/components/ui/AudioButtons/hooks/useAudioPlayer';
 
@@ -221,5 +224,31 @@ describe('safety timeout', () => {
     expect(result.current.isPlayingAudio).toBe(true);
     act(() => { jest.advanceTimersByTime(10001); });
     expect(result.current.isPlayingAudio).toBe(false);
+  });
+});
+
+// ──────────────────────────────────────────────
+// Préférence Vibrations — BUG RÉEL : hapticsEnabled n'était lu nulle part, le switch des
+// Réglages n'avait aucun effet réel sur les vibrations.
+// ──────────────────────────────────────────────
+
+describe('respect de la préférence hapticsEnabled', () => {
+  it('déclenche la vibration quand hapticsEnabled=true (comportement par défaut)', async () => {
+    const { result } = renderHook(() => useAudioPlayer('http://example.com/a.mp3'));
+    await act(async () => { await result.current.playAudio(); });
+    const Haptics = require('expo-haptics');
+    expect(Haptics.impactAsync).toHaveBeenCalled();
+  });
+
+  it('ne déclenche aucune vibration quand hapticsEnabled=false', async () => {
+    const { usePreferences } = require('@/hooks/usePreferences');
+    usePreferences.mockReturnValue({ prefs: { soundEnabled: true, hapticsEnabled: false }, updatePref: jest.fn() });
+
+    const { result } = renderHook(() => useAudioPlayer('http://example.com/a.mp3'));
+    await act(async () => { await result.current.playAudio(); });
+    const Haptics = require('expo-haptics');
+    expect(Haptics.impactAsync).not.toHaveBeenCalled();
+
+    usePreferences.mockReturnValue({ prefs: { soundEnabled: true, hapticsEnabled: true }, updatePref: jest.fn() });
   });
 });

@@ -3,6 +3,7 @@ import { Audio, AVPlaybackStatus } from 'expo-av';
 import * as Speech from 'expo-speech';
 import * as Haptics from 'expo-haptics';
 import { log } from '@/utils/logUtils';
+import { usePreferences } from '@/hooks/usePreferences';
 
 interface SpeakOptions {
   language?: 'en' | 'fr';
@@ -52,6 +53,7 @@ export const useAudioPlayer = (
   audioSource?: string | null,
   onAudioPlayCallback?: () => void
 ): AudioPlayerReturn => {
+  const { prefs } = usePreferences();
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
   const soundRef = useRef<Audio.Sound | null>(null);
   const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -77,7 +79,7 @@ export const useAudioPlayer = (
       }
 
       setPlaying(true);
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      if (prefs.hapticsEnabled) await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       onAudioPlayCallback?.();
 
       const { sound: newSound } = await Audio.Sound.createAsync({ uri: url });
@@ -96,7 +98,7 @@ export const useAudioPlayer = (
       log.error('[useAudioPlayer] playAudioFile error:', e);
       setPlaying(false);
     }
-  }, [onAudioPlayCallback]);
+  }, [onAudioPlayCallback, prefs.hapticsEnabled]);
 
   const playAudio = useCallback(async () => {
     if (!audioSource || isPlayingRef.current) return;
@@ -106,7 +108,7 @@ export const useAudioPlayer = (
         soundRef.current = null;
       }
       setPlaying(true);
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      if (prefs.hapticsEnabled) await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       const { sound: newSound } = await Audio.Sound.createAsync({ uri: audioSource });
       soundRef.current = newSound;
       onAudioPlayCallback?.();
@@ -122,7 +124,7 @@ export const useAudioPlayer = (
       log.error('[useAudioPlayer] playAudio error:', e);
       setPlaying(false);
     }
-  }, [audioSource, onAudioPlayCallback]);
+  }, [audioSource, onAudioPlayCallback, prefs.hapticsEnabled]);
 
   // Fallback TTS si pas d'URL audio
   const speakText = useCallback(
@@ -140,7 +142,7 @@ export const useAudioPlayer = (
       // Priorité 2 : TTS expo-speech
       try {
         setPlaying(true);
-        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        if (prefs.hapticsEnabled) await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         onAudioPlayCallback?.();
 
         // Timeout de sécurité — onDone ne se déclenche pas toujours sur Android
@@ -168,7 +170,7 @@ export const useAudioPlayer = (
         setPlaying(false);
       }
     },
-    [playAudioFile, onAudioPlayCallback]
+    [playAudioFile, onAudioPlayCallback, prefs.hapticsEnabled]
   );
 
   const stopSpeech = useCallback(() => {
