@@ -3,31 +3,6 @@ import type { Identity } from '@/themes/ThemeContext';
 import { tokens } from '@/themes/tokens';
 import { baseColors } from '@/themes/colors';
 
-export interface WordGameStyles {
-  // Base Card
-  container: object;
-  content: object;
-  card: object;
-  colorBar: object;
-  titleSection: object;
-  titleIcon: object;
-  titleText: object;
-
-  // Options
-  optionsContainer: object;
-  optionButton: object;
-  optionButtonSelected: object;
-  optionButtonCorrect: object;
-  optionButtonIncorrect: object;
-  optionText: object;
-  optionTextWhite: object;
-
-  // Content Box
-  contentBox: object;
-  contentText: object;
-  contentTextBold: object;
-}
-
 export const createWordGameStyles = (identity: Identity): ReturnType<typeof StyleSheet.create> => {
   const isPlayful = identity.ui.mood === 'playful';
 
@@ -149,8 +124,4 @@ export const createWordGameStyles = (identity: Identity): ReturnType<typeof Styl
       fontWeight: tokens.fontWeight.bold,
     },
   });
-};
-
-export const mergeStyles = (baseStyles: Record<string, object>, customStyles: Record<string, object> = {}) => {
-  return { ...baseStyles, ...customStyles };
 };

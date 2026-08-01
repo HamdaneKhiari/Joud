@@ -24,12 +24,10 @@ export type {
   Content,
   Progress,
   Level,
-  
+
   // Types White Label
   Branding,
   ModuleLabel,
   LevelLabel,
-  IdentityPalette,
-  ModuleAvailability,
-  ActivityLog
+  IdentityPalette
 } from './schema';

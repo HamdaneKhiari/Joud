@@ -133,26 +133,6 @@ export interface IdentityPalette {
   color_value: string;
 }
 
-export interface ModuleAvailability {
-  id?: number;
-  module_slug: string;
-  identity_id: string;
-  level_number: number | null;
-  is_available: number; // 0 ou 1 (SQLite)
-}
-
-export interface ActivityLog {
-  id?: number;
-  module_slug: string;
-  family_id: number;
-  subfamily_id: number; // 0 = pas de sous-famille
-  level: number;
-  family_name: string;
-  icon: string | null;
-  progress: number;
-  timestamp: number;
-}
-
 export interface FeedbackMessage {
   id?: number;
   identity_id: 'primary' | 'college' | 'lycee' | 'adult';
