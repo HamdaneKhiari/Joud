@@ -78,6 +78,9 @@ module.exports = {
           faceIDPermission: "Autorise Face ID pour protéger l'accès à ta clé API IA.",
         },
       ],
+      // recordAudioAndroid: false (ci-dessus) ne suffit pas : expo-audio déclare quand même
+      // RECORD_AUDIO dans son propre manifeste natif. Ce plugin force son retrait effectif.
+      './plugins/withoutMicrophonePermission',
     ],
   },
 };
