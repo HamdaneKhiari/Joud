@@ -2,25 +2,25 @@
 
 App d'apprentissage de l'anglais, white-label, React Native / Expo SDK 54.
 
-4 publics : `primary` (primaire), `college`, `lycee`, `adult`. Une seule base de code — le
-public change le contenu affiché et, en build de production, le nom/bundle/icône de l'app.
-Comment builder pour un public donné : voir [docs/HOWTOPUBLISH.md](docs/HOWTOPUBLISH.md).
+Conçue pour 4 publics distincts — Primaire, Collège, Lycée, Adulte — à partir d'une seule base
+de code. Chaque public a son propre contenu pédagogique et sa propre identité visuelle, et se
+publie comme une app à part entière (nom, icône, identifiant distincts).
 
-Pour l'historique détaillé des décisions (pourquoi telle architecture, quels bugs ont été
-trouvés et comment), voir `task.md` — ce README ne documente que le "comment faire", pas le
-"pourquoi historique". Pour la checklist avant publication réelle sur les stores (politique de
-confidentialité, comptes développeur...), voir [docs/BeforePublish.pdf](docs/BeforePublish.pdf).
+## Fonctionnalités
+
+- 6 modules pédagogiques : vocabulaire, phrases, lecture, dialogues, jeux de mots, connecteurs
+- Progression suivie localement sur l'appareil — pas de compte, pas de serveur
+- Tuteur IA optionnel (BYOK — l'utilisateur apporte sa propre clé API OpenAI/Mistral/Claude),
+  réservé à collège/lycée/adulte, jamais exposé au public Primaire (enfants)
+- Contenu réel disponible pour Primaire et Collège ; Lycée et Adulte en préparation
 
 ## Stack
 
 - Expo Router (routing par fichiers)
 - SQLite local (`expo-sqlite`) — contenu + progression, migrations versionnées
 - AsyncStorage — cache UI (progression rapide, préférences)
-- expo-secure-store — clé API IA de l'utilisateur (BYOK)
-- expo-audio — lecture audio (prononciation, dialogues) ; synthèse vocale via `expo-speech` en
-  repli quand aucun fichier audio n'est fourni pour un mot/une phrase
-- Tuteur IA (BYOK, `OpenAI`/`Mistral`/`Claude`) — optionnel, réservé à collège/lycée/adulte,
-  jamais accessible sur le public primaire (enfants) ; voir `src/hooks/useBlockPrimaryAudience.ts`
+- expo-secure-store — clé API IA de l'utilisateur, chiffrée (AES-256)
+- expo-audio / expo-speech — lecture audio et synthèse vocale
 
 ## Développement
 
@@ -72,27 +72,18 @@ pour générer une migration de seed) n'est pas commité par nature — la migra
 Si un script d'import est nécessaire, l'écrire dans le scratchpad et ne committer que son
 résultat (la migration).
 
-Lycée et Adulte n'ont quasiment aucun contenu réel pour l'instant (travail séparé, en cours).
+## Builds par public
 
-## Builds verrouillés par public
+Un build de production correspond à un seul public verrouillé à la compilation (variable
+`EXPO_PUBLIC_LOCKED_AUDIENCE`) — voir [docs/HOWTOPUBLISH.md](docs/HOWTOPUBLISH.md) pour lancer
+un build ciblant un public donné.
 
-Un build de production correspond à **un seul public verrouillé** (audience fixée une fois pour
-toutes au build, pas de sélecteur dans l'app — retiré une fois les tests internes terminés).
-Piloté par la variable d'environnement `EXPO_PUBLIC_LOCKED_AUDIENCE`, inlinée dans le bundle par
-Metro au moment du build. Sans cette variable (dev normal via `npx expo start`), l'app démarre
-sur le public `college` par défaut — pour tester un autre public en dev, voir
-[docs/HOWTOPUBLISH.md](docs/HOWTOPUBLISH.md).
+## Publication
 
-### Ce qui n'est pas encore prêt côté publication
+Checklist avant une vraie publication sur les stores (comptes développeur, politique de
+confidentialité, etc.) : [docs/BeforePublish.pdf](docs/BeforePublish.pdf).
 
-- **Jamais buildé via un vrai serveur EAS** — seule la génération de config a été vérifiée
-  localement (`npx expo config`), jamais un `eas build` bout en bout.
-- Icônes/splash par public : la structure (`assets/icon-<audience>.png`) est prête, les
-  fichiers eux-mêmes ne sont pas encore fournis pour les 4 publics.
-- Comptes développeur App Store Connect / Google Play Console et credentials EAS côté serveur
-  à configurer (`eas login`).
-- Jamais testé sur un vrai téléphone, ni sur iOS (émulateur Android uniquement à ce jour).
-- Politique de confidentialité : un brouillon technique existe
-  ([docs/BeforePublish.pdf](docs/BeforePublish.pdf)), pas encore validé ni publié.
+## Historique
 
-Checklist complète : [docs/BeforePublish.pdf](docs/BeforePublish.pdf).
+Pour le détail des décisions d'architecture et des bugs résolus au fil des sessions, voir
+`task.md`.
