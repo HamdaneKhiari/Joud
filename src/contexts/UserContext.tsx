@@ -22,8 +22,6 @@ interface UserContextType {
   user: User | null;
   loading: boolean;
   isOnboarded: boolean;
-  isAudienceLocked: boolean;
-  updateAudience: (newAudience: User['audience']) => void;
   updateUser: (partial: Partial<Omit<User, 'id'>>) => void;
 }
 
@@ -95,18 +93,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     loadUserAndDB();
   }, []);
 
-  // Changer l'audience (et persister) — no-op sur un build mono-public verrouillé
-  const updateAudience = useCallback(async (newAudience: User['audience']) => {
-    if (!user || LOCKED_AUDIENCE) return;
-    const updated = { ...user, audience: newAudience };
-    setUser(updated);
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updated));
-    } catch (e) {
-      log.warn('[UserContext] updateAudience persist error:', e);
-    }
-  }, [user]);
-
   // Mettre a jour le profil utilisateur (et persister)
   const updateUser = useCallback(async (partial: Partial<Omit<User, 'id'>>) => {
     if (!user) return;
@@ -120,11 +106,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }, [user]);
 
   const isOnboarded = user?.isOnboarded ?? false;
-  const isAudienceLocked = !!LOCKED_AUDIENCE;
 
   const contextValue = useMemo(
-    () => ({ db, user, loading, isOnboarded, isAudienceLocked, updateAudience, updateUser }),
-    [db, user, loading, isOnboarded, isAudienceLocked, updateAudience, updateUser]
+    () => ({ db, user, loading, isOnboarded, updateUser }),
+    [db, user, loading, isOnboarded, updateUser]
   );
 
   if (loading) {

@@ -157,7 +157,6 @@ function setupMocks() {
     user: { id: 'u1', firstName: 'Alice', audience: 'college', isOnboarded: true },
     loading: false,
     updateUser: jest.fn(),
-    updateAudience: jest.fn(),
     isOnboarded: true,
   });
   useTheme.mockReturnValue({ identity: mockIdentity, tokens });

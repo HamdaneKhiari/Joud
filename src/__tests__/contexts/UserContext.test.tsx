@@ -2,7 +2,7 @@
  * UserContext — tests
  *
  * Vérifie le chargement du profil, la persistance, la migration,
- * et les actions updateUser / updateAudience.
+ * et l'action updateUser.
  *
  * Note: UserProvider rend un ActivityIndicator pendant loading=true
  * (pas de children). renderHook attend flushPromises pour avoir
@@ -146,40 +146,6 @@ describe('UserContext', () => {
       });
 
       expect(result.current.isOnboarded).toBe(true);
-    });
-  });
-
-  describe('updateAudience', () => {
-
-    it('change l\'audience et persiste', async () => {
-      const storedUser = { id: 'user_01', firstName: 'Alice', audience: 'college', isOnboarded: true };
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(storedUser));
-
-      const { result } = renderHook(() => useUser(), { wrapper });
-      await act(flushPromises);
-
-      await act(async () => {
-        await result.current.updateAudience('adult');
-      });
-
-      expect(result.current.user?.audience).toBe('adult');
-
-      const persisted = JSON.parse(await AsyncStorage.getItem(STORAGE_KEY) ?? '{}');
-      expect(persisted.audience).toBe('adult');
-    });
-
-    it('ne fait rien si user est null', async () => {
-      // initDatabase échoue → user reste DEFAULT_USER (non null ici)
-      // Pour user null : on simule en ne chargeant pas de profil
-      const { result } = renderHook(() => useUser(), { wrapper });
-      await act(flushPromises);
-
-      // DEFAULT_USER est chargé (pas null) — on teste que updateAudience fonctionne dessus
-      await act(async () => {
-        await result.current.updateAudience('primary');
-      });
-
-      expect(result.current.user?.audience).toBe('primary');
     });
   });
 

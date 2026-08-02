@@ -97,7 +97,6 @@ function setupMocks(overrides: { loading?: boolean; user?: object | null; db?: o
       id: 'user_01', firstName: 'Alice', audience: 'college', isOnboarded: true,
     },
     loading: overrides.loading ?? false,
-    updateAudience: jest.fn(),
     updateUser: jest.fn(),
   });
 

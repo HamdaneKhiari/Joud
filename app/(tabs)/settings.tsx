@@ -135,7 +135,7 @@ const rowStyles = StyleSheet.create({
 
 export default function SettingsScreen() {
   const { identity } = useTheme();
-  const { user, isAudienceLocked, updateAudience, updateUser } = useUser();
+  const { user, updateUser } = useUser();
   const { resetProgress } = useProgress();
   const { prefs, updatePref } = usePreferences();
   const router = useRouter();
@@ -221,38 +221,6 @@ export default function SettingsScreen() {
             <Text style={[styles.profileAudience, { color: identity.text.secondary }]}>{audienceLabel}</Text>
           </View>
         </View>
-
-        {/* Section Audience — masquée sur un build mono-public (verrouillé au build) */}
-        {!isAudienceLocked && (
-          <Section title="Version de l'app" identity={identity}>
-            <View style={styles.audienceRow}>
-              {AUDIENCES.map((aud) => {
-                const isActive = user?.audience === aud.key;
-                return (
-                  <Pressable
-                    key={aud.key}
-                    onPress={() => updateAudience(aud.key)}
-                    style={[
-                      styles.audienceChip,
-                      { backgroundColor: isActive ? identity.palette.primary : withOpacity(identity.text.primary, 0.06) }
-                    ]}
-                    accessibilityRole="radio"
-                    accessibilityLabel={aud.label}
-                    accessibilityState={{ selected: isActive }}
-                  >
-                    <Text style={styles.audienceChipIcon}>{aud.icon}</Text>
-                    <Text style={[
-                      styles.audienceChipLabel,
-                      { color: isActive ? identity.text.onPrimary : identity.text.primary }
-                    ]}>
-                      {aud.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </Section>
-        )}
 
         {/* Section Préférences */}
         <Section title="Préférences" identity={identity}>
@@ -375,27 +343,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     paddingBottom: 2,
     marginBottom: 2,
-  },
-
-  // Audience chips
-  audienceRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: tokens.spacing.sm,
-    padding: tokens.spacing.md,
-  },
-  audienceChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: tokens.spacing.sm,
-    paddingHorizontal: tokens.spacing.md,
-    borderRadius: tokens.borderRadius.round,
-    gap: tokens.spacing.xs,
-  },
-  audienceChipIcon: { fontSize: tokens.emojiSize.sm },
-  audienceChipLabel: {
-    fontSize: tokens.fontSize.sm,
-    fontWeight: tokens.fontWeight.bold,
   },
 
   bottomPadding: { height: tokens.spacing.xxxl },
