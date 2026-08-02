@@ -25,8 +25,14 @@ jest.mock('@/themes/ThemeContext', () => ({
   useTheme: jest.fn().mockImplementation(() => ({ identity: mockIdentity })),
 }));
 
+const mockReplace = jest.fn();
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ back: mockBack }),
+  useRouter: () => ({ back: mockBack, replace: mockReplace }),
+}));
+
+const mockUseUser = jest.fn();
+jest.mock('@/contexts/UserContext', () => ({
+  useUser: () => mockUseUser(),
 }));
 
 let mockCurrentSettings: { provider: string; apiKey: string | null; isConfigured: boolean } | null = null;
@@ -52,6 +58,17 @@ beforeEach(() => {
   mockUpdateSettings.mockResolvedValue(undefined);
   jest.spyOn(Alert, 'alert').mockImplementation(() => {});
   mockCurrentSettings = { provider: 'openai', apiKey: null, isConfigured: false };
+  mockUseUser.mockReturnValue({ user: { audience: 'college' } });
+});
+
+describe('SettingsAIScreen — public primaire', () => {
+  it('audience=primary → ne rend rien et redirige vers /', () => {
+    mockUseUser.mockReturnValue({ user: { audience: 'primary' } });
+    const { queryByText } = render(<SettingsAIScreen />);
+
+    expect(queryByText('Configuration IA')).toBeNull();
+    expect(mockReplace).toHaveBeenCalledWith('/');
+  });
 });
 
 describe('SettingsAIScreen — validation à l\'enregistrement', () => {

@@ -5,6 +5,7 @@ import { useRouter, type Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/themes/ThemeContext';
 import { useAISettings } from '@/hooks/useAISettings';
+import { useBlockPrimaryAudience } from '@/hooks/useBlockPrimaryAudience';
 import { MODES } from './AITutorSelectionScreen.config';
 import { createStyles } from './AITutorSelectionScreen.styles';
 import { ModeCard } from './components';
@@ -14,8 +15,11 @@ const AITutorSelectionScreen: React.FC = () => {
   const { identity } = useTheme();
   const { settings, isLoading } = useAISettings();
   const isPlayful = identity.ui.mood === 'playful';
+  const blocked = useBlockPrimaryAudience();
 
   const styles = useMemo(() => createStyles(identity, isPlayful), [identity, isPlayful]);
+
+  if (blocked) return null;
 
   const isConfigured = !isLoading && settings?.isConfigured && !!settings?.apiKey;
 

@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/themes/ThemeContext';
 import { withOpacity, tokens } from '@/themes/tokens';
 import { useAISettings, AISettings } from '@/hooks/useAISettings';
+import { useBlockPrimaryAudience } from '@/hooks/useBlockPrimaryAudience';
 import { PROVIDERS, INFO_BOXES } from './SettingsAIScreen.config';
 import { createStyles } from './SettingsAIScreen.styles';
 import {
@@ -28,6 +29,7 @@ type Provider = AISettings['provider'];
 export default function SettingsAIScreen() {
   const router = useRouter();
   const { identity } = useTheme();
+  const blocked = useBlockPrimaryAudience();
   const {
     settings,
     isLoading,
@@ -121,6 +123,8 @@ export default function SettingsAIScreen() {
       setIsSaving(false);
     }
   };
+
+  if (blocked) return null;
 
   if (isLoading) {
     return (

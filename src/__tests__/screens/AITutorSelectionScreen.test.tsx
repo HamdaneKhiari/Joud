@@ -9,7 +9,9 @@ import { Alert } from 'react-native';
 
 const mockPush = jest.fn();
 const mockBack = jest.fn();
+const mockReplace = jest.fn();
 const mockUseAISettings = jest.fn();
+const mockUseUser = jest.fn();
 
 const mockIdentity = {
   id: 'college', themeMode: 'light', organizationName: 'Joud Collège',
@@ -23,11 +25,15 @@ jest.mock('@/themes/ThemeContext', () => ({
 }));
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush, back: mockBack }),
+  useRouter: () => ({ push: mockPush, back: mockBack, replace: mockReplace }),
 }));
 
 jest.mock('@/hooks/useAISettings', () => ({
   useAISettings: () => mockUseAISettings(),
+}));
+
+jest.mock('@/contexts/UserContext', () => ({
+  useUser: () => mockUseUser(),
 }));
 
 import AITutorSelectionScreen from '@/screens/AITutor/AITutorSelectionScreen';
@@ -35,6 +41,19 @@ import AITutorSelectionScreen from '@/screens/AITutor/AITutorSelectionScreen';
 beforeEach(() => {
   jest.clearAllMocks();
   jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+  mockUseUser.mockReturnValue({ user: { audience: 'college' } });
+});
+
+describe('AITutorSelectionScreen — public primaire', () => {
+  it('audience=primary → ne rend rien et redirige vers /', () => {
+    mockUseUser.mockReturnValue({ user: { audience: 'primary' } });
+    mockUseAISettings.mockReturnValue({ settings: { isConfigured: true, apiKey: 'sk-key', provider: 'openai' }, isLoading: false });
+
+    const { queryByText } = render(<AITutorSelectionScreen />);
+
+    expect(queryByText('Tuteur IA')).toBeNull();
+    expect(mockReplace).toHaveBeenCalledWith('/');
+  });
 });
 
 describe('AITutorSelectionScreen — non configuré', () => {

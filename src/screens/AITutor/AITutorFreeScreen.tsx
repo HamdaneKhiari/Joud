@@ -11,6 +11,7 @@ import { sanitizeUserInput } from '@/utils/inputSanitizer';
 
 import { useTheme } from '@/themes/ThemeContext';
 import { useAI } from '@/contexts/AIContext';
+import { useBlockPrimaryAudience } from '@/hooks/useBlockPrimaryAudience';
 import { useCurrentLevel } from '@/contexts/CurrentLevelContext';
 import aiService from '@/services/ai/aiService';
 import ragService from '@/services/ai/ragService';
@@ -29,6 +30,7 @@ import ChatInputBar from './components/ChatInputBar';
 const AITutorFreeScreen: React.FC = () => {
   const router = useRouter();
   const { identity } = useTheme();
+  const blocked = useBlockPrimaryAudience();
   const { settings, canSendMessage, incrementUsage } = useAI();
   const { currentLevel } = useCurrentLevel();
   const {
@@ -127,6 +129,8 @@ const AITutorFreeScreen: React.FC = () => {
       setIsSending(false);
     }
   }, [inputText, isSending, checkAIConfiguration, messages, currentLevel, settings, saveMessage, incrementUsage, router]);
+
+  if (blocked) return null;
 
   if (isDBLoading) {
     return (

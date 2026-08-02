@@ -242,17 +242,20 @@ export default function SettingsScreen() {
           />
         </Section>
 
-        {/* Section Intelligence Artificielle */}
-        <Section title="Intelligence artificielle" identity={identity}>
-          <Row
-            icon="🤖"
-            label="Configuration IA"
-            sublabel="Clés API, modèles et limites"
-            identity={identity}
-            separator={false}
-            onPress={() => router.push('/settings-ai' as Href)}
-          />
-        </Section>
+        {/* Section Intelligence Artificielle — réservée à collège/lycée/adulte (BYOK, envoie
+            les messages à un provider tiers), jamais au public primaire (enfants) */}
+        {user?.audience !== 'primary' && (
+          <Section title="Intelligence artificielle" identity={identity}>
+            <Row
+              icon="🤖"
+              label="Configuration IA"
+              sublabel="Clés API, modèles et limites"
+              identity={identity}
+              separator={false}
+              onPress={() => router.push('/settings-ai' as Href)}
+            />
+          </Section>
+        )}
 
         {/* Section Données */}
         <Section title="Données" identity={identity}>

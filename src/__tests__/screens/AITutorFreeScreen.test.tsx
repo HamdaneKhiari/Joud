@@ -10,6 +10,8 @@ import { Alert } from 'react-native';
 
 const mockPush = jest.fn();
 const mockBack = jest.fn();
+const mockReplace = jest.fn();
+const mockUseUser = jest.fn();
 
 const mockIdentity = {
   id: 'college', themeMode: 'light', organizationName: 'Joud Collège',
@@ -24,11 +26,15 @@ jest.mock('@/themes/ThemeContext', () => ({
 }));
 
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush, back: mockBack }),
+  useRouter: () => ({ push: mockPush, back: mockBack, replace: mockReplace }),
 }));
 
 jest.mock('@/contexts/CurrentLevelContext', () => ({
   useCurrentLevel: jest.fn().mockReturnValue({ currentLevel: 2 }),
+}));
+
+jest.mock('@/contexts/UserContext', () => ({
+  useUser: () => mockUseUser(),
 }));
 
 const mockSettings = {
@@ -99,6 +105,17 @@ beforeEach(() => {
   mockConversationState = {
     conversations: [], currentConversationId: 1, messages: [], isLoading: false,
   };
+  mockUseUser.mockReturnValue({ user: { audience: 'college' } });
+});
+
+describe('AITutorFreeScreen — public primaire', () => {
+  it('audience=primary → ne rend rien et redirige vers /', () => {
+    mockUseUser.mockReturnValue({ user: { audience: 'primary' } });
+    const { queryByText } = render(<AITutorFreeScreen />);
+
+    expect(queryByText('AI Tutor')).toBeNull();
+    expect(mockReplace).toHaveBeenCalledWith('/');
+  });
 });
 
 describe('AITutorFreeScreen — chargement', () => {

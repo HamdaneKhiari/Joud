@@ -33,6 +33,11 @@ jest.mock('@/contexts/CurrentLevelContext', () => ({
   useCurrentLevel: jest.fn().mockReturnValue({ currentLevel: 2 }),
 }));
 
+const mockUseUser = jest.fn();
+jest.mock('@/contexts/UserContext', () => ({
+  useUser: () => mockUseUser(),
+}));
+
 const mockSettings = {
   provider: 'openai' as const, apiKey: 'sk-key', model: 'gpt-4', isConfigured: true,
   maxTokens: 500, temperature: 0.7, maxMessagesPerDay: 50, currentUsageCount: 0, lastResetDate: 0,
@@ -93,6 +98,17 @@ beforeEach(() => {
   mockNewConversation.mockResolvedValue(42);
   mockDomainsState = { domains: [DOMAIN], isLoading: false };
   mockConversationState = { messages: [], isLoading: false };
+  mockUseUser.mockReturnValue({ user: { audience: 'college' } });
+});
+
+describe('AITutorGuidedScreen — public primaire', () => {
+  it('audience=primary → ne rend rien et redirige vers /', () => {
+    mockUseUser.mockReturnValue({ user: { audience: 'primary' } });
+    const { queryByText } = render(<AITutorGuidedScreen />);
+
+    expect(queryByText('Coach IA')).toBeNull();
+    expect(mockReplace).toHaveBeenCalledWith('/');
+  });
 });
 
 describe('AITutorGuidedScreen — chargement', () => {

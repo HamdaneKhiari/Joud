@@ -12,6 +12,7 @@ import { sanitizeUserInput } from '@/utils/inputSanitizer';
 import { useTheme } from '@/themes/ThemeContext';
 import { useCurrentLevel } from '@/contexts/CurrentLevelContext';
 import { useAI } from '@/contexts/AIContext';
+import { useBlockPrimaryAudience } from '@/hooks/useBlockPrimaryAudience';
 import aiService from '@/services/ai/aiService';
 import GuidedHeader from './components/GuidedHeader';
 import DomainCard from './components/DomainCard';
@@ -34,6 +35,7 @@ const AITutorGuidedScreen: React.FC = () => {
   const router = useRouter();
   const navigation = useNavigation();
   const { identity } = useTheme();
+  const blocked = useBlockPrimaryAudience();
   const { currentLevel } = useCurrentLevel();
   const { settings, canSendMessage, incrementUsage } = useAI();
   const isPlayful = identity.ui.mood === 'playful';
@@ -139,6 +141,8 @@ const AITutorGuidedScreen: React.FC = () => {
       setIsSending(false);
     }
   }, [inputText, isSending, selectedDomain, checkAIConfiguration, messages, currentLevel, settings, saveMessage, incrementUsage]);
+
+  if (blocked) return null;
 
   if (isDomainsLoading) {
     return (
