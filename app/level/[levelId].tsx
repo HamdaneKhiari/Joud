@@ -1,8 +1,8 @@
 /**
  * Route dynamique : /level/[levelId]
- * Affiche la s�lection d'exercices (modules) pour un niveau donn�
+ * Affiche la sélection d'exercices (modules) pour un niveau donné
  */
 
-import ExerciceSelectionScreen from '@/screens//ExerciceSelectionScreen';
+import ExerciceSelectionScreen from '@/screens/ExerciceSelectionScreen';
 
 export default ExerciceSelectionScreen;

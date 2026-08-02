@@ -236,9 +236,8 @@ describe('Smoke tests — Navigation et autres screens', () => {
       ],
       isLoading: false, refresh: jest.fn(),
     });
-    expect(() => render(
-      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } }} />
-    )).not.toThrow();
+    require('expo-router').useLocalSearchParams.mockReturnValueOnce({ moduleId: 'vocab', levelId: '1' });
+    expect(() => render(<FamilySelectionScreen />)).not.toThrow();
   });
 
   it('FamilySelectionScreen — recentActivity tri la famille en premier', () => {
@@ -257,9 +256,8 @@ describe('Smoke tests — Navigation et autres screens', () => {
       getLastActivity: jest.fn().mockReturnValue({ familyId: '1', progress: 50, lastReviewed: Date.now() }),
       isLoading: false,
     });
-    expect(() => render(
-      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } }} />
-    )).not.toThrow();
+    require('expo-router').useLocalSearchParams.mockReturnValueOnce({ moduleId: 'vocab', levelId: '1' });
+    expect(() => render(<FamilySelectionScreen />)).not.toThrow();
   });
 
   it('SubFamilySelectionScreen — rend sans crash', () => {
@@ -344,9 +342,8 @@ describe('Smoke tests — Navigation et autres screens', () => {
       getLastActivity: jest.fn().mockReturnValue({ familyId: '1', progress: 30, moduleSlug: 'vocab' }),
       isLoading: false,
     });
-    expect(() => render(
-      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } }} />
-    )).not.toThrow();
+    require('expo-router').useLocalSearchParams.mockReturnValueOnce({ moduleId: 'vocab', levelId: '1' });
+    expect(() => render(<FamilySelectionScreen />)).not.toThrow();
   });
 
   it('SubFamilySelectionScreen — isLoading=true affiche skeleton', () => {
@@ -491,9 +488,8 @@ describe('Smoke tests — Navigation et autres screens', () => {
     require('@/hooks/familySelection/useFamiliesWithProgress').default.mockReturnValue({
       families: [], isLoading: true, refresh: jest.fn(),
     });
-    expect(() => render(
-      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } }} />
-    )).not.toThrow();
+    require('expo-router').useLocalSearchParams.mockReturnValueOnce({ moduleId: 'vocab', levelId: '1' });
+    expect(() => render(<FamilySelectionScreen />)).not.toThrow();
   });
 
   it('FamilySelectionScreen — loadLabels async avec modules non-vides (ligne 109)', async () => {
@@ -501,16 +497,16 @@ describe('Smoke tests — Navigation et autres screens', () => {
     require('@/utils/labelMapper').getLevelLabel.mockResolvedValueOnce({ badge: 'N1', title: 'Les Bases', description: '' });
     require('@/utils/labelMapper').getModuleLabel.mockResolvedValueOnce({ title: 'Vocabulaire', icon: 'book', description: '' });
     require('@/utils/moduleHelper').getModuleColor.mockResolvedValueOnce('#E74C3C');
-    render(<FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } }} />);
+    require('expo-router').useLocalSearchParams.mockReturnValueOnce({ moduleId: 'vocab', levelId: '1' });
+    render(<FamilySelectionScreen />);
     await act(async () => { await new Promise(r => setTimeout(r, 0)); });
     expect(require('@/utils/labelMapper').getAvailableModules).toHaveBeenCalled();
   });
 
   it('FamilySelectionScreen — catch bloc: getLevelLabel rejette', async () => {
     require('@/utils/labelMapper').getLevelLabel.mockRejectedValueOnce(new Error('DB fail'));
-    expect(() => render(
-      <FamilySelectionScreen route={{ params: { moduleId: 'vocab', levelId: '1' } }} />
-    )).not.toThrow();
+    require('expo-router').useLocalSearchParams.mockReturnValueOnce({ moduleId: 'vocab', levelId: '1' });
+    expect(() => render(<FamilySelectionScreen />)).not.toThrow();
     await act(async () => { await new Promise(r => setTimeout(r, 0)); });
     // log.error should have been called (catch block covered)
     expect(require('@/utils/logUtils').log.error).toHaveBeenCalled();

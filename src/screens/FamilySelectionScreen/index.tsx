@@ -23,32 +23,16 @@ interface RouteParams {
   familyId?: string;
 }
 
-interface LegacyNavigation {
-  goBack?: () => void;
-}
-
-interface LegacyRoute {
-  params?: RouteParams;
-}
-
-interface FamilySelectionScreenProps {
-  navigation?: LegacyNavigation;
-  route?: LegacyRoute;
-}
-
-const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
-  navigation,
-  route
-}) => {
+const FamilySelectionScreen: React.FC = () => {
   const router = useRouter();
   const expoParams = useLocalSearchParams() as unknown as RouteParams;
   const { identity } = useTheme();
   const { db } = useUser();
   const { getLastActivity } = useProgress();
 
-  const rawModuleId = route?.params?.moduleId || expoParams.moduleId || expoParams.familyId || '';
+  const rawModuleId = expoParams.moduleId || expoParams.familyId || '';
   const moduleId = Array.isArray(rawModuleId) ? rawModuleId[0] : rawModuleId.toString();
-  const levelId = route?.params?.levelId || expoParams.levelId || '1';
+  const levelId = expoParams.levelId || '1';
   const numLevelId = Number.parseInt(levelId.toString(), 10);
 
   // useFamiliesWithProgress gère déjà son propre focusEffect pour le rafraîchissement
@@ -56,9 +40,7 @@ const FamilySelectionScreen: React.FC<FamilySelectionScreenProps> = ({
   const styles = useMemo(() => createStyles(identity), [identity]);
 
   const safeGoBack = useSafeNavigation(() => {
-    if (navigation?.goBack) {
-      navigation.goBack();
-    } else if (router.canGoBack()) {
+    if (router.canGoBack()) {
       router.back();
     } else {
       router.replace('/');
