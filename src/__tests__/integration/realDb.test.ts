@@ -36,7 +36,7 @@ import {
 } from '@/database/queries';
 import { getSubFamiliesByFamily } from '@/services/subfamilyService';
 
-// insertFamily n'existe plus (supprimé — code mort et cassé, cf. task.md section 14 :
+// insertFamily n'existe plus (supprimé — code mort et cassé, cf. docs/task.md section 14 :
 // omettait families.slug, colonne NOT NULL UNIQUE). Les familles de test sont donc seedées
 // directement en SQL, comme le fait la vraie migration 002_seed_config.
 let nextTestFamilyId = 90000;

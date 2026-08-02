@@ -1,6 +1,6 @@
 /**
  * Migration 007 : premier import de contenu réel (Primaire + Collège), tous modules.
- * Généré à partir des fichiers Excel fournis dans src/data/ (voir task.md section 15).
+ * Généré à partir des fichiers Excel fournis dans docs/data/ (voir docs/task.md section 15).
  * - Vocabulaire : taxonomie de 13 familles reconstruite entièrement (celle du fichier source
  *   était incohérente) à partir de la lecture complète des 1029 mots.
  * - Dialogues / Reading / Word Games / Phrase Types : familles/sous-familles du fichier source

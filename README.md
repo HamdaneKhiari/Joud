@@ -66,7 +66,7 @@ modification directe des migrations déjà exécutées en production.
 
 ### Où sont les données sources
 
-Les fichiers Excel d'où vient le contenu importé sont dans `src/data/` (ex.
+Les fichiers Excel d'où vient le contenu importé sont dans `docs/data/` (ex.
 `validation_finale_4tranches_v2.xlsx`). Un script d'import ponctuel (Node, exécuté une fois
 pour générer une migration de seed) n'est pas commité par nature — la migration générée l'est.
 Si un script d'import est nécessaire, l'écrire dans le scratchpad et ne committer que son
@@ -86,4 +86,4 @@ confidentialité, etc.) : [docs/BeforePublish.pdf](docs/BeforePublish.pdf).
 ## Historique
 
 Pour le détail des décisions d'architecture et des bugs résolus au fil des sessions, voir
-`task.md`.
+`docs/task.md`.

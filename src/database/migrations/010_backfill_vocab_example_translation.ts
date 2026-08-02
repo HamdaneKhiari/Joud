@@ -2,10 +2,10 @@
  * Migration 010 : backfille `exampleTranslation` (traduction de la phrase d'exemple) pour le
  * vocabulaire primaire + collège, vide pour les 1029 mots depuis leur import (migration 007).
  *
- * La donnée existe bien dans le fichier source (`src/data/validation_finale_4tranches_v2.xlsx`,
+ * La donnée existe bien dans le fichier source (`docs/data/validation_finale_4tranches_v2.xlsx`,
  * colonne "Traduction exemple", remplie à 100% sur les deux feuilles Primaire/Collège) — elle a
  * été perdue lors du script d'import (Node, exécuté une fois dans un scratchpad, jamais commité,
- * cf. task.md section 15.4) qui a généré la migration 007. Le champ `exampleTranslation` existait
+ * cf. docs/task.md section 15.4) qui a généré la migration 007. Le champ `exampleTranslation` existait
  * déjà dans le type `VocabData` et `WordCard` l'affiche déjà conditionnellement — seule la donnée
  * manquait, pas le code.
  *
