@@ -21,6 +21,10 @@ const appName = cfg ? cfg.name : 'Joud';
 const slug = cfg ? `joud-${cfg.slugSuffix}` : 'Joud';
 const bundleIdentifier = cfg ? `${BASE_IOS_ID}.${cfg.idSuffix}` : BASE_IOS_ID;
 const androidPackage = cfg ? `${BASE_ANDROID_PACKAGE}.${cfg.idSuffix}` : BASE_ANDROID_PACKAGE;
+// Un scheme distinct par public évite toute ambiguïté si plusieurs builds sont
+// installés en parallèle sur le même appareil de test (chacun a déjà son propre
+// bundle ID/package, mais Linking se base sur le scheme, pas sur l'identifiant natif).
+const scheme = cfg ? `joud-${cfg.slugSuffix}` : 'joud';
 
 // Icône dédiée si déjà fournie (assets/icon-<audience>.png), sinon fallback sur l'icône générique
 // le temps que les déclinaisons par public soient prêtes.
@@ -33,6 +37,7 @@ module.exports = {
   expo: {
     name: appName,
     slug,
+    scheme,
     version: '1.0.0',
     orientation: 'portrait',
     icon,
@@ -62,6 +67,7 @@ module.exports = {
       'expo-router',
       'expo-sqlite',
       'expo-localization',
+      'expo-audio',
       [
         'expo-secure-store',
         {

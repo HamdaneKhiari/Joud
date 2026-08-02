@@ -34,7 +34,7 @@ module.exports = {
     '^expo-router$': '<rootDir>/src/__mocks__/expo-router.ts',
     '^expo-secure-store$': '<rootDir>/src/__mocks__/expo-secure-store.ts',
     '^expo-haptics$': '<rootDir>/src/__mocks__/expo-haptics.ts',
-    '^expo-av$': '<rootDir>/src/__mocks__/expo-av.ts',
+    '^expo-audio$': '<rootDir>/src/__mocks__/expo-audio.ts',
     '^expo-speech$': '<rootDir>/src/__mocks__/expo-speech.ts',
     '^expo-linear-gradient$': '<rootDir>/src/__mocks__/expo-linear-gradient.ts',
     '^@expo/vector-icons$': '<rootDir>/src/__mocks__/@expo/vector-icons.ts',

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Audio, AVPlaybackStatus } from 'expo-av';
+import { createAudioPlayer, AudioPlayer, AudioStatus } from 'expo-audio';
 import * as Speech from 'expo-speech';
 import * as Haptics from 'expo-haptics';
 import { log } from '@/utils/logUtils';
@@ -55,7 +55,7 @@ export const useAudioPlayer = (
 ): AudioPlayerReturn => {
   const { prefs } = usePreferences();
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const playerRef = useRef<AudioPlayer | null>(null);
   const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isPlayingRef = useRef(false);
 
@@ -73,27 +73,27 @@ export const useAudioPlayer = (
 
   const playAudioFile = useCallback(async (url: string) => {
     try {
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
+      if (playerRef.current) {
+        playerRef.current.remove();
+        playerRef.current = null;
       }
 
       setPlaying(true);
       if (prefs.hapticsEnabled) await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       onAudioPlayCallback?.();
 
-      const { sound: newSound } = await Audio.Sound.createAsync({ uri: url });
-      soundRef.current = newSound;
+      const newPlayer = createAudioPlayer({ uri: url });
+      playerRef.current = newPlayer;
 
-      newSound.setOnPlaybackStatusUpdate((status: AVPlaybackStatus) => {
+      newPlayer.addListener('playbackStatusUpdate', (status: AudioStatus) => {
         if (status.isLoaded && status.didJustFinish) {
           setPlaying(false);
-          newSound.unloadAsync();
-          soundRef.current = null;
+          newPlayer.remove();
+          playerRef.current = null;
         }
       });
 
-      await newSound.playAsync();
+      newPlayer.play();
     } catch (e) {
       log.error('[useAudioPlayer] playAudioFile error:', e);
       setPlaying(false);
@@ -103,23 +103,23 @@ export const useAudioPlayer = (
   const playAudio = useCallback(async () => {
     if (!audioSource || isPlayingRef.current) return;
     try {
-      if (soundRef.current) {
-        await soundRef.current.unloadAsync();
-        soundRef.current = null;
+      if (playerRef.current) {
+        playerRef.current.remove();
+        playerRef.current = null;
       }
       setPlaying(true);
       if (prefs.hapticsEnabled) await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      const { sound: newSound } = await Audio.Sound.createAsync({ uri: audioSource });
-      soundRef.current = newSound;
+      const newPlayer = createAudioPlayer({ uri: audioSource });
+      playerRef.current = newPlayer;
       onAudioPlayCallback?.();
-      newSound.setOnPlaybackStatusUpdate((status: AVPlaybackStatus) => {
+      newPlayer.addListener('playbackStatusUpdate', (status: AudioStatus) => {
         if (status.isLoaded && status.didJustFinish) {
           setPlaying(false);
-          newSound.unloadAsync();
-          soundRef.current = null;
+          newPlayer.remove();
+          playerRef.current = null;
         }
       });
-      await newSound.playAsync();
+      newPlayer.play();
     } catch (e) {
       log.error('[useAudioPlayer] playAudio error:', e);
       setPlaying(false);
@@ -133,7 +133,7 @@ export const useAudioPlayer = (
 
       const { language = 'en', rate = 0.9, pitch = 1, audioUrl } = options;
 
-      // Priorité 1 : fichier audio fourni → expo-av
+      // Priorité 1 : fichier audio fourni → expo-audio
       if (audioUrl) {
         await playAudioFile(audioUrl);
         return;
@@ -176,10 +176,14 @@ export const useAudioPlayer = (
   const stopSpeech = useCallback(() => {
     clearSafetyTimer();
     Speech.stop();
-    if (soundRef.current) {
-      const sound = soundRef.current;
-      soundRef.current = null;
-      sound.stopAsync().catch(() => {});
+    if (playerRef.current) {
+      const player = playerRef.current;
+      playerRef.current = null;
+      try {
+        player.pause();
+      } catch {
+        // Le player peut déjà être libéré (playback terminé entre-temps)
+      }
     }
     setPlaying(false);
   }, []);
@@ -188,8 +192,8 @@ export const useAudioPlayer = (
     return () => {
       clearSafetyTimer();
       Speech.stop();
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
+      if (playerRef.current) {
+        playerRef.current.remove();
       }
     };
   }, []);

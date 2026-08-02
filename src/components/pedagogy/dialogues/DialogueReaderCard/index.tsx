@@ -7,7 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import { Audio } from 'expo-av';
+import { createAudioPlayer, AudioPlayer, AudioStatus } from 'expo-audio';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useTheme } from '@/themes/ThemeContext';
@@ -47,7 +47,7 @@ const DialogueReaderCard: React.FC<DialogueReaderCardProps> = ({
   const styles = createStyles(identity);
 
   const [playingBubble, setPlayingBubble] = useState<number | null>(null);
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [player, setPlayer] = useState<AudioPlayer | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
   const bubbleAnimations = useRef<Record<number, Animated.Value>>({});
 
@@ -77,38 +77,38 @@ const DialogueReaderCard: React.FC<DialogueReaderCardProps> = ({
 
   useEffect(() => {
     return () => {
-      if (sound) {
-        sound.unloadAsync();
+      if (player) {
+        player.remove();
       }
     };
-  }, [sound]);
+  }, [player]);
 
   const playBubbleAudio = useCallback(async (messageIndex: number) => {
     const message = dialogue.messages?.[messageIndex];
     // Bloque tant qu'une bulle (n'importe laquelle) joue déjà — pas seulement un second tap
-    // sur la même — pour éviter deux Audio.Sound concurrents (fuite + lecture superposée).
+    // sur la même — pour éviter deux AudioPlayer concurrents (fuite + lecture superposée).
     if (!message?.audio || playingBubble !== null) return;
 
     try {
       setPlayingBubble(messageIndex);
-      if (sound) await sound.unloadAsync();
+      if (player) player.remove();
 
-      const { sound: newSound } = await Audio.Sound.createAsync(
+      const newPlayer = createAudioPlayer(
         typeof message.audio === 'string' ? { uri: message.audio } : message.audio
       );
 
-      newSound.setOnPlaybackStatusUpdate((status) => {
+      newPlayer.addListener('playbackStatusUpdate', (status: AudioStatus) => {
         if (status.isLoaded && status.didJustFinish) {
           setPlayingBubble(null);
         }
       });
-      setSound(newSound);
-      await newSound.playAsync();
+      setPlayer(newPlayer);
+      newPlayer.play();
     } catch (error) {
       log.error('Audio playback error:', error);
       setPlayingBubble(null);
     }
-  }, [dialogue.messages, playingBubble, sound]);
+  }, [dialogue.messages, playingBubble, player]);
 
   const renderBubble = (message: Message, index: number) => {
     const position = (dialogue.characters?.findIndex(c => c.name === message.speaker) ?? 0) % 2 === 0 ? 'left' : 'right';

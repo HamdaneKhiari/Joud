@@ -7,19 +7,15 @@ import { renderHook, act } from '@testing-library/react-native';
 
 jest.useFakeTimers();
 
-const mockSound = {
-  playAsync: jest.fn().mockResolvedValue(undefined),
-  unloadAsync: jest.fn().mockResolvedValue(undefined),
-  stopAsync: jest.fn().mockResolvedValue(undefined),
-  setOnPlaybackStatusUpdate: jest.fn(),
+const mockPlayer = {
+  play: jest.fn(),
+  pause: jest.fn(),
+  remove: jest.fn(),
+  addListener: jest.fn(),
 };
 
-jest.mock('expo-av', () => ({
-  Audio: {
-    Sound: {
-      createAsync: jest.fn().mockResolvedValue({ sound: mockSound }),
-    },
-  },
+jest.mock('expo-audio', () => ({
+  createAudioPlayer: jest.fn().mockReturnValue(mockPlayer),
 }));
 jest.mock('expo-speech', () => ({
   speak: jest.fn(),
@@ -40,9 +36,9 @@ import { useAudioPlayer } from '@/components/ui/AudioButtons/hooks/useAudioPlaye
 
 beforeEach(() => {
   jest.clearAllMocks();
-  // Réinjecter le mock sound après clearAllMocks
-  const { Audio } = require('expo-av');
-  Audio.Sound.createAsync.mockResolvedValue({ sound: mockSound });
+  // Réinjecter le mock player après clearAllMocks
+  const { createAudioPlayer } = require('expo-audio');
+  createAudioPlayer.mockReturnValue(mockPlayer);
 });
 
 afterEach(() => {
@@ -68,16 +64,16 @@ describe('playAudio', () => {
   it('ne fait rien si audioSource est null', async () => {
     const { result } = renderHook(() => useAudioPlayer(null));
     await act(async () => { await result.current.playAudio(); });
-    const { Audio } = require('expo-av');
-    expect(Audio.Sound.createAsync).not.toHaveBeenCalled();
+    const { createAudioPlayer } = require('expo-audio');
+    expect(createAudioPlayer).not.toHaveBeenCalled();
   });
 
   it('crée et joue le son quand audioSource est fourni', async () => {
     const { result } = renderHook(() => useAudioPlayer('file://test.mp3'));
     await act(async () => { await result.current.playAudio(); });
-    const { Audio } = require('expo-av');
-    expect(Audio.Sound.createAsync).toHaveBeenCalled();
-    expect(mockSound.playAsync).toHaveBeenCalled();
+    const { createAudioPlayer } = require('expo-audio');
+    expect(createAudioPlayer).toHaveBeenCalledWith({ uri: 'file://test.mp3' });
+    expect(mockPlayer.play).toHaveBeenCalled();
   });
 
   it('appelle le callback onAudioPlayCallback', async () => {
@@ -97,16 +93,16 @@ describe('playAudio', () => {
       await Promise.resolve();
     });
 
-    // Simuler onPlaybackStatusUpdate avec didJustFinish=true
-    expect(mockSound.setOnPlaybackStatusUpdate).toHaveBeenCalled();
-    const statusCallback = mockSound.setOnPlaybackStatusUpdate.mock.calls[0][0];
+    // Simuler l'event playbackStatusUpdate avec didJustFinish=true
+    expect(mockPlayer.addListener).toHaveBeenCalledWith('playbackStatusUpdate', expect.any(Function));
+    const statusCallback = mockPlayer.addListener.mock.calls[0][1];
     act(() => { statusCallback({ isLoaded: true, didJustFinish: true }); });
     expect(result.current.isPlayingAudio).toBe(false);
   });
 
-  it('gère les erreurs createAsync sans crasher et logue l\'erreur', async () => {
-    const { Audio } = require('expo-av');
-    Audio.Sound.createAsync.mockRejectedValueOnce(new Error('load error'));
+  it('gère les erreurs createAudioPlayer sans crasher et logue l\'erreur', async () => {
+    const { createAudioPlayer } = require('expo-audio');
+    createAudioPlayer.mockImplementationOnce(() => { throw new Error('load error'); });
     const { result } = renderHook(() => useAudioPlayer('file://bad.mp3'));
     await act(async () => { await result.current.playAudio(); });
     expect(result.current.isPlayingAudio).toBe(false);
@@ -127,13 +123,13 @@ describe('speakText', () => {
     expect(Speech.speak).not.toHaveBeenCalled();
   });
 
-  it('utilise expo-av si audioUrl fourni', async () => {
+  it('utilise expo-audio si audioUrl fourni', async () => {
     const { result } = renderHook(() => useAudioPlayer());
     await act(async () => {
       await result.current.speakText('hello', { audioUrl: 'https://cdn.example.com/hello.mp3' });
     });
-    const { Audio } = require('expo-av');
-    expect(Audio.Sound.createAsync).toHaveBeenCalled();
+    const { createAudioPlayer } = require('expo-audio');
+    expect(createAudioPlayer).toHaveBeenCalledWith({ uri: 'https://cdn.example.com/hello.mp3' });
   });
 
   it('utilise TTS si pas d\'audioUrl', async () => {

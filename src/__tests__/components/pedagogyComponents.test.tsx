@@ -18,7 +18,7 @@ jest.mock('@/utils/logUtils', () => ({
   log: { error: jest.fn(), warn: jest.fn(), debug: jest.fn(), info: jest.fn() },
 }));
 
-// AudioButton — mock léger pour éviter la chaîne expo-av / expo-speech / useTheme interne
+// AudioButton — mock léger pour éviter la chaîne expo-audio / expo-speech / useTheme interne
 jest.mock('@/components/ui/AudioButtons/AudioButton', () => {
   const React = require('react');
   return ({ text }: { text: string }) => React.createElement('View', { testID: `audio-btn-${text}` });

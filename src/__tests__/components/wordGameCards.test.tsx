@@ -871,13 +871,13 @@ describe('DialogueReaderCard', () => {
         totalMessages={2}
       />
     );
-    const { Audio } = require('expo-av');
+    const { createAudioPlayer } = require('expo-audio');
     fireEvent.press(getByLabelText('Écouter "Hello, can I have a coffee please?"'));
     // La 2e bulle passe disabled=true dès que playingBubble n'est plus null,
-    // avant même que la 1re lecture ait fini de charger (createAsync).
+    // avant même que la 1re lecture ait fini de charger (createAudioPlayer).
     expect(getByLabelText('Écouter "Of course! Anything else?"').props.accessibilityState.disabled).toBe(true);
     fireEvent.press(getByLabelText('Écouter "Of course! Anything else?"'));
-    expect(Audio.Sound.createAsync).toHaveBeenCalledTimes(1);
+    expect(createAudioPlayer).toHaveBeenCalledTimes(1);
   });
 
   it('utilise le NavigationButtons unifié — "Suivant" en cours de dialogue, "Voir les questions" au dernier message', () => {
