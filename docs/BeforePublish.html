@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Joud — Avant publication</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #1F2937;
+    line-height: 1.55;
+    font-size: 11pt;
+    margin: 0;
+  }
+  .cover {
+    height: 250mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    page-break-after: always;
+  }
+  .cover .badge {
+    font-size: 13pt;
+    color: #6B7280;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .cover h1 {
+    font-size: 34pt;
+    margin: 0 0 12px 0;
+    color: #111827;
+  }
+  .cover .subtitle {
+    font-size: 14pt;
+    color: #4B5563;
+    max-width: 420px;
+  }
+  .cover .date {
+    margin-top: 60px;
+    font-size: 10pt;
+    color: #9CA3AF;
+  }
+  h1 { font-size: 20pt; color: #111827; border-bottom: 3px solid #34495E; padding-bottom: 8px; margin-top: 0; }
+  h2 { font-size: 14.5pt; color: #1F2937; margin-top: 28px; border-left: 4px solid #34495E; padding-left: 10px; }
+  h3 { font-size: 12pt; color: #374151; margin-top: 18px; }
+  p { margin: 8px 0; }
+  section { page-break-inside: avoid; }
+  .section-page { page-break-before: always; }
+  .callout {
+    background: #FFF7ED;
+    border: 1px solid #FDBA74;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 14px 0;
+    font-size: 10pt;
+  }
+  .callout.legal {
+    background: #FEF2F2;
+    border-color: #FCA5A5;
+  }
+  .callout strong { color: #9A3412; }
+  .callout.legal strong { color: #991B1B; }
+  .callout.info {
+    background: #EFF6FF;
+    border-color: #93C5FD;
+  }
+  .callout.info strong { color: #1E40AF; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10pt; }
+  th, td { border: 1px solid #E5E7EB; padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: #F3F4F6; font-weight: 600; }
+  .checklist { list-style: none; padding-left: 0; margin: 10px 0; }
+  .checklist li { padding: 6px 0 6px 30px; position: relative; border-bottom: 1px solid #F3F4F6; font-size: 10.5pt; }
+  .checklist li::before {
+    content: "☐";
+    position: absolute;
+    left: 0;
+    font-size: 14pt;
+    color: #9CA3AF;
+  }
+  .checklist li.done::before {
+    content: "☑";
+    color: #059669;
+  }
+  .checklist li .tag {
+    display: inline-block;
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    background: #E5E7EB;
+    color: #4B5563;
+  }
+  .checklist li .tag.legal { background: #FEE2E2; color: #991B1B; }
+  .checklist li .tag.op { background: #DBEAFE; color: #1E40AF; }
+  .checklist li .tag.code { background: #D1FAE5; color: #065F46; }
+  .checklist li .why { display: block; color: #6B7280; font-size: 9.5pt; margin-top: 2px; }
+  .toc { margin: 20px 0; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin: 6px 0; font-size: 11pt; }
+  .small { font-size: 9pt; color: #6B7280; }
+  code { background: #F3F4F6; padding: 1px 5px; border-radius: 3px; font-size: 9.5pt; }
+  .footer-note { margin-top: 40px; font-size: 9pt; color: #9CA3AF; border-top: 1px solid #E5E7EB; padding-top: 10px; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="badge">Joud — White-label English learning app</div>
+  <h1>Avant publication</h1>
+  <div class="subtitle">Politique de confidentialité (brouillon) et checklist complète avant mise en ligne sur les stores</div>
+  <div class="date">Document généré le 2 août 2026 — état du dépôt à ce jour</div>
+</div>
+
+<section>
+<h1>Sommaire</h1>
+<div class="toc">
+<ol>
+  <li>Où en est le projet aujourd'hui</li>
+  <li>Politique de confidentialité — brouillon</li>
+  <li>Checklist avant publication</li>
+  <li>Ce qui n'est volontairement pas traité maintenant</li>
+</ol>
+</div>
+
+<div class="callout info">
+  <strong>Contexte :</strong> l'objectif immédiat n'est pas la publication sur les stores, mais un test privé avec un premier groupe d'utilisateurs. Ce document sert de référence pour plus tard — rien ici n'est urgent pour lancer un test privé (TestFlight / Play Internal Testing / partage direct d'APK ne demandent ni politique de confidentialité publiée, ni compte développeur payant dans certains cas).
+</div>
+</section>
+
+<section class="section-page">
+<h1>1. Où en est le projet aujourd'hui</h1>
+
+<h2>Ce qui est fait</h2>
+<ul>
+  <li>Architecture white-label opérationnelle : 4 publics (Primaire, Collège, Lycée, Adulte), un seul code source, verrouillage par variable d'environnement au build (<code>EXPO_PUBLIC_LOCKED_AUDIENCE</code>)</li>
+  <li>6 modules pédagogiques fonctionnels avec contenu réel pour Primaire et Collège (vocabulaire, phrases, lecture, dialogues, jeux de mots, connecteurs)</li>
+  <li>Progression et données 100% locales (SQLite + AsyncStorage), aucun serveur, aucun compte</li>
+  <li>Fonctionnalité IA (Tuteur IA, BYOK) opérationnelle pour Collège/Lycée/Adulte, bloquée pour Primaire (enfants)</li>
+  <li>1203 tests automatisés, 0 erreur TypeScript, 0 problème de lint, ~88% de couverture de code</li>
+  <li>Testé manuellement sur émulateur Android — onboarding, exercices, réglages, IA : fonctionnel</li>
+</ul>
+
+<h2>Ce qui n'est pas fait</h2>
+<ul>
+  <li>Jamais testé sur un vrai téléphone Android, ni sur iOS (émulateur uniquement)</li>
+  <li>Jamais buildé via EAS (<code>eas build</code>) — seulement des builds de développement locaux</li>
+  <li>Signature de production Android non configurée (utilise encore le keystore de debug)</li>
+  <li>Icônes et écrans de démarrage spécifiques par public non fournis (structure prête, images manquantes)</li>
+  <li>Contenu réel Lycée/Adulte quasiment inexistant (en cours de préparation séparément)</li>
+  <li>Pas de politique de confidentialité rédigée/publiée</li>
+  <li>Pas de compte développeur Google Play / Apple</li>
+  <li>Pas de suivi de crash en production (Sentry ou équivalent)</li>
+</ul>
+</section>
+
+<section class="section-page">
+<h1>2. Politique de confidentialité — brouillon</h1>
+
+<div class="callout legal">
+  <strong>Important :</strong> ce texte est un brouillon technique basé sur le fonctionnement réel de l'app tel qu'audité dans le code. Ce n'est <strong>pas un document juridique validé</strong> — à faire relire par un professionnel (ou au minimum, à valider point par point avec toi) avant toute publication, surtout à cause du public enfant (COPPA aux États-Unis, RGPD volet mineurs en Europe).
+</div>
+
+<h2>Politique de confidentialité de Joud</h2>
+<p class="small">Dernière mise à jour : [à compléter à la publication]</p>
+
+<h3>Résumé</h3>
+<p>Joud est conçue pour minimiser la collecte de données. L'app ne dispose d'aucun compte utilisateur, d'aucun serveur, et ne transmet aucune donnée personnelle à Joud ou à un tiers dans son usage normal.</p>
+
+<h3>Données stockées, et où</h3>
+<table>
+  <tr><th>Donnée</th><th>Où elle est stockée</th><th>Transmise à un tiers ?</th></tr>
+  <tr><td>Prénom saisi à l'inscription</td><td>Sur l'appareil uniquement (AsyncStorage)</td><td>Non</td></tr>
+  <tr><td>Progression pédagogique (exercices faits, scores)</td><td>Sur l'appareil uniquement (base SQLite locale)</td><td>Non</td></tr>
+  <tr><td>Préférences (vibrations)</td><td>Sur l'appareil uniquement</td><td>Non</td></tr>
+  <tr><td>Clé API IA (si configurée par l'utilisateur)</td><td>Trousseau chiffré de l'appareil (Keychain iOS / Keystore Android, AES-256)</td><td>Non — jamais transmise à Joud</td></tr>
+  <tr><td>Messages envoyés au Tuteur IA (si utilisé)</td><td>Historique local (3 dernières conversations), effacé automatiquement</td><td><strong>Oui</strong> — voir section dédiée ci-dessous</td></tr>
+</table>
+
+<h3>Fonctionnalité IA (Tuteur IA) — la seule qui transmet des données</h3>
+<p>Joud propose un Tuteur IA optionnel. Cette fonctionnalité fonctionne selon un modèle "apporte ta propre clé" (BYOK) : l'utilisateur doit fournir sa propre clé API d'un fournisseur (OpenAI, Mistral ou Anthropic/Claude). Quand cette fonctionnalité est utilisée :</p>
+<ul>
+  <li>Les messages tapés par l'utilisateur sont envoyés <strong>directement depuis l'appareil vers le fournisseur choisi</strong> — Joud n'a pas de serveur intermédiaire et ne voit jamais ce contenu</li>
+  <li>Le traitement de ces données est soumis à la politique de confidentialité du fournisseur choisi (OpenAI, Mistral ou Anthropic), pas à celle de Joud</li>
+  <li><strong>Cette fonctionnalité n'est jamais accessible sur le public Primaire</strong> (enfants) — aucune donnée n'est envoyée à un tiers pour ce public, sur aucun écran de l'app</li>
+</ul>
+
+<h3>Ce que Joud ne fait pas</h3>
+<ul>
+  <li>Pas de compte, pas de connexion, pas de synchronisation cloud</li>
+  <li>Pas de publicité, pas de SDK publicitaire</li>
+  <li>Pas d'analytics ni de tracking (aucun SDK de mesure d'audience)</li>
+  <li>Pas de partage de données avec des tiers, hormis l'appel direct au fournisseur IA si l'utilisateur configure cette fonctionnalité (non disponible pour les enfants)</li>
+</ul>
+
+<h3>Permissions techniques utilisées</h3>
+<table>
+  <tr><th>Permission</th><th>Pourquoi</th></tr>
+  <tr><td>Internet</td><td>Appels au fournisseur IA (si configuré) et synthèse vocale</td></tr>
+  <tr><td>Vibration</td><td>Retour haptique dans les exercices (désactivable dans les réglages)</td></tr>
+  <tr><td>Stockage</td><td>Cache local de contenu pédagogique</td></tr>
+</table>
+<p>Aucun accès au microphone, à la caméra, aux contacts ou à la localisation.</p>
+
+<h3>Suppression des données</h3>
+<p>L'utilisateur peut effacer toute sa progression à tout moment depuis Réglages → Réinitialiser la progression. Désinstaller l'app supprime l'intégralité des données locales, y compris la clé API si configurée.</p>
+
+<h3>Public enfant (Primaire)</h3>
+<p>Le public "Primaire" est conçu pour être utilisable sans aucune donnée quittant l'appareil : pas de fonctionnalité IA, pas de compte, pas de partage. [Section à enrichir selon les exigences précises retenues — COPPA / RGPD-enfants — avant publication du build Primaire].</p>
+
+<h3>Contact</h3>
+<p>[Email de contact à définir]</p>
+</section>
+
+<section class="section-page">
+<h1>3. Checklist avant publication</h1>
+
+<h2>Test privé (ce qu'on fait en premier)</h2>
+<ul class="checklist">
+  <li>Choisir le canal de test : TestFlight (iOS), Play Internal Testing (Android), ou partage direct d'APK<span class="tag op">Opérationnel</span><span class="why">Ne nécessite ni politique de confidentialité publiée ni fiche de store complète pour un petit groupe de testeurs</span></li>
+  <li>Premier vrai build via EAS plutôt qu'un build de dev local<span class="tag code">Technique</span><span class="why">Valide que la chaîne de build de production fonctionne avant d'aller plus loin</span></li>
+  <li>Tester sur au moins un vrai téléphone Android physique<span class="tag op">Opérationnel</span></li>
+</ul>
+
+<h2>Légal / obligatoire pour publier sur les stores</h2>
+<ul class="checklist">
+  <li>Politique de confidentialité validée et hébergée sur une URL publique<span class="tag legal">Légal</span><span class="why">Obligatoire sur Google Play et App Store — voir le brouillon section 2</span></li>
+  <li>Formulaire "Data Safety" (Google Play) rempli en cohérence avec la politique de confidentialité<span class="tag legal">Légal</span></li>
+  <li>Formulaire "Privacy Nutrition Label" (App Store Connect) rempli<span class="tag legal">Légal</span></li>
+  <li>Déclaration de la tranche d'âge cible par build (notamment le build Primaire)<span class="tag legal">Légal</span><span class="why">Google Play Families Policy et Apple ont des règles spécifiques renforcées pour les apps visant les enfants</span></li>
+</ul>
+
+<h2>Comptes et accès (opérationnel, pas du code)</h2>
+<ul class="checklist">
+  <li>Compte développeur Google Play Console (frais unique)<span class="tag op">Opérationnel</span></li>
+  <li>Compte Apple Developer Program (abonnement annuel)<span class="tag op">Opérationnel</span></li>
+  <li>Connexion EAS (<code>eas login</code>) et configuration des credentials de signature<span class="tag op">Opérationnel</span></li>
+</ul>
+
+<h2>Technique</h2>
+<ul class="checklist">
+  <li>Générer un vrai keystore de production Android (remplace le keystore de debug actuel)<span class="tag code">Technique</span><span class="why">EAS peut le générer et le gérer automatiquement via `eas credentials`</span></li>
+  <li>Fournir les icônes et splash screens par public (4 variantes : Primaire/Collège/Lycée/Adulte)<span class="tag code">Technique</span><span class="why">Structure déjà prête dans le code (`assets/icon-&lt;public&gt;.png`), juste les fichiers images à fournir</span></li>
+  <li>Mettre en place un suivi de crash en production (Sentry ou équivalent)<span class="tag code">Technique</span></li>
+  <li>Premier test complet sur iOS (jamais fait à ce jour)<span class="tag code">Technique</span></li>
+</ul>
+
+<h2>Contenu</h2>
+<ul class="checklist">
+  <li>Compléter le contenu réel pour Lycée et Adulte<span class="tag code">Contenu</span><span class="why">Actuellement quasiment vide sur ces deux publics — en préparation séparée</span></li>
+</ul>
+</section>
+
+<section class="section-page">
+<h1>4. Ce qui n'est volontairement pas traité maintenant</h1>
+<p>Pour rester concentré sur l'objectif "tester avec des gens avant de publier", les points suivants ont été mis de côté à ta demande et ne sont pas des blocages pour un test privé :</p>
+<ul>
+  <li>Contenu Lycée/Adulte — traité séparément, pas prioritaire</li>
+  <li>Publication effective sur les stores — pas prévue immédiatement</li>
+  <li>Comptes développeur payants — pas nécessaires pour un test privé via partage direct ou canaux internes</li>
+</ul>
+
+<div class="footer-note">
+Document généré automatiquement à partir de l'état du code et des discussions du 2 août 2026. À mettre à jour avant toute action de publication réelle.
+</div>
+</section>
+
+</body>
+</html>
