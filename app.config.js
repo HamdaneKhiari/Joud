@@ -67,7 +67,11 @@ module.exports = {
       'expo-router',
       'expo-sqlite',
       'expo-localization',
-      'expo-audio',
+      // recordAudioAndroid: false — l'app ne fait que de la lecture audio (prononciation,
+      // dialogues), jamais d'enregistrement. Sans ce flag, le plugin ajoute RECORD_AUDIO par
+      // défaut : une permission microphone injustifiée, particulièrement mal vue pour une
+      // app destinée aux enfants (review store + confiance utilisateur).
+      ['expo-audio', { recordAudioAndroid: false }],
       [
         'expo-secure-store',
         {
