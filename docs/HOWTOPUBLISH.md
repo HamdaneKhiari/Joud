@@ -2,7 +2,7 @@
 
 Ce doc explique concrètement comment lancer un build pour un public donné, et où en est le
 sujet "langue" — à lire avant tout `eas build`. Pour la checklist légale/comptes/stores, voir
-`docs/BeforePublish.pdf`.
+`BeforePublish.pdf` (même dossier).
 
 ## Le principe : un build = un public verrouillé
 

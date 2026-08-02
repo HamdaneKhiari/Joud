@@ -3,12 +3,13 @@
 App d'apprentissage de l'anglais, white-label, React Native / Expo SDK 54.
 
 4 publics : `primary` (primaire), `college`, `lycee`, `adult`. Une seule base de code — le
-public change le contenu affiché et, en build de production, le nom/bundle/icône de l'app
-(voir [Builds verrouillés par public](#builds-verrouillés-par-public)).
+public change le contenu affiché et, en build de production, le nom/bundle/icône de l'app.
+Comment builder pour un public donné : voir [docs/HOWTOPUBLISH.md](docs/HOWTOPUBLISH.md).
 
 Pour l'historique détaillé des décisions (pourquoi telle architecture, quels bugs ont été
 trouvés et comment), voir `task.md` — ce README ne documente que le "comment faire", pas le
-"pourquoi historique".
+"pourquoi historique". Pour la checklist avant publication réelle sur les stores (politique de
+confidentialité, comptes développeur...), voir [docs/BeforePublish.pdf](docs/BeforePublish.pdf).
 
 ## Stack
 
@@ -16,6 +17,10 @@ trouvés et comment), voir `task.md` — ce README ne documente que le "comment 
 - SQLite local (`expo-sqlite`) — contenu + progression, migrations versionnées
 - AsyncStorage — cache UI (progression rapide, préférences)
 - expo-secure-store — clé API IA de l'utilisateur (BYOK)
+- expo-audio — lecture audio (prononciation, dialogues) ; synthèse vocale via `expo-speech` en
+  repli quand aucun fichier audio n'est fourni pour un mot/une phrase
+- Tuteur IA (BYOK, `OpenAI`/`Mistral`/`Claude`) — optionnel, réservé à collège/lycée/adulte,
+  jamais accessible sur le public primaire (enfants) ; voir `src/hooks/useBlockPrimaryAudience.ts`
 
 ## Développement
 
@@ -71,45 +76,23 @@ Lycée et Adulte n'ont quasiment aucun contenu réel pour l'instant (travail sé
 
 ## Builds verrouillés par public
 
-Un build de production correspond à **un seul public verrouillé** (l'utilisateur ne peut pas
-changer d'audience dans l'app). C'est piloté par la variable d'environnement
-`EXPO_PUBLIC_LOCKED_AUDIENCE`, inlinée dans le bundle par Metro au moment du build.
-
-- **`app.config.js`** lit `EXPO_PUBLIC_LOCKED_AUDIENCE` et calcule dynamiquement `name`, `slug`,
-  `ios.bundleIdentifier`, `android.package` et l'icône (`assets/icon-<audience>.png`, avec repli
-  sur `assets/icon.png` si le fichier spécifique n'existe pas encore).
-- **`eas.json`** définit un profil de build par public : `production-primary`,
-  `production-college`, `production-lycee`, `production-adult`, chacun fixant
-  `EXPO_PUBLIC_LOCKED_AUDIENCE` dans son `env`.
-- **`src/contexts/UserContext.tsx`** lit la même variable : si elle correspond à un public
-  valide, `user.audience` est forcé à cette valeur, `updateAudience()` devient un no-op, et
-  `isAudienceLocked` (exposé par le contexte) passe à `true` — ce qui masque le sélecteur de
-  public dans `app/(tabs)/settings.tsx`.
-- Sans la variable (dev, `npx expo start`, profils `development`/`preview` d'EAS), le
-  comportement est inchangé : toutes les audiences restent sélectionnables dans les Réglages.
-
-### Lancer un build
-
-```bash
-eas build --profile production-primary --platform android
-# idem avec production-college / production-lycee / production-adult, et --platform ios
-```
-
-Vérifier localement la config générée pour un public donné, sans lancer de vrai build :
-
-```bash
-EXPO_PUBLIC_LOCKED_AUDIENCE=primary npx expo config --type public
-```
+Un build de production correspond à **un seul public verrouillé** (audience fixée une fois pour
+toutes au build, pas de sélecteur dans l'app — retiré une fois les tests internes terminés).
+Piloté par la variable d'environnement `EXPO_PUBLIC_LOCKED_AUDIENCE`, inlinée dans le bundle par
+Metro au moment du build. Sans cette variable (dev normal via `npx expo start`), l'app démarre
+sur le public `college` par défaut — pour tester un autre public en dev, voir
+[docs/HOWTOPUBLISH.md](docs/HOWTOPUBLISH.md).
 
 ### Ce qui n'est pas encore prêt côté publication
 
-- **Jamais testé sur un vrai serveur EAS** — seule la génération de config a été vérifiée
-  localement (`npx expo config`), pas un build réel bout en bout.
+- **Jamais buildé via un vrai serveur EAS** — seule la génération de config a été vérifiée
+  localement (`npx expo config`), jamais un `eas build` bout en bout.
 - Icônes/splash par public : la structure (`assets/icon-<audience>.png`) est prête, les
   fichiers eux-mêmes ne sont pas encore fournis pour les 4 publics.
-- Pas de politique de confidentialité (obligatoire sur les deux stores, particulièrement
-  sensible pour le public Primaire — enfants).
 - Comptes développeur App Store Connect / Google Play Console et credentials EAS côté serveur
   à configurer (`eas login`).
-- Jamais testé en build de production réel sur device (seulement Expo Go / dev client), jamais
-  testé sur iOS.
+- Jamais testé sur un vrai téléphone, ni sur iOS (émulateur Android uniquement à ce jour).
+- Politique de confidentialité : un brouillon technique existe
+  ([docs/BeforePublish.pdf](docs/BeforePublish.pdf)), pas encore validé ni publié.
+
+Checklist complète : [docs/BeforePublish.pdf](docs/BeforePublish.pdf).
