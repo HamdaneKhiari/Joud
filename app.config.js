@@ -46,7 +46,7 @@ module.exports = {
     splash: {
       image: './assets/splash-icon.png',
       resizeMode: 'contain',
-      backgroundColor: '#ffffff',
+      backgroundColor: '#348fe2',
     },
     ios: {
       supportsTablet: true,
@@ -55,7 +55,7 @@ module.exports = {
     android: {
       adaptiveIcon: {
         foregroundImage: './assets/adaptive-icon.png',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#348fe2',
       },
       edgeToEdgeEnabled: true,
       package: androidPackage,
