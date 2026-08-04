@@ -314,6 +314,29 @@ describe('retryQuestion', () => {
     expect(result.current.isValidated).toBe(false);
     expect(result.current.selectedAnswer).toBeNull();
   });
+
+  it('ne remet pas attemptCount à zéro (sinon maxAttempts et le score ne comptent plus rien)', async () => {
+    const { result } = renderHook(() => useRevisionQuestions());
+    await act(async () => { result.current.startSession('daily'); });
+
+    // 1er essai, faux
+    act(() => { result.current.selectAnswer('banane'); }); // mauvaise réponse pour "apple"
+    await act(async () => { await result.current.validateAnswer(); });
+    expect(result.current.attemptCount).toBe(1);
+
+    act(() => { result.current.retryQuestion(); });
+    expect(result.current.attemptCount).toBe(1); // conservé, pas remis à 0
+
+    // 2e essai (retry), correct cette fois
+    act(() => { result.current.selectAnswer('pomme'); });
+    await act(async () => { await result.current.validateAnswer(); });
+    expect(result.current.attemptCount).toBe(2);
+
+    // Un seul résultat comptabilisé pour cette question (le 1er essai, faux) malgré le retry
+    expect(result.current.correctCount + result.current.incorrectCount).toBe(1);
+    expect(result.current.incorrectCount).toBe(1);
+    expect(result.current.correctCount).toBe(0);
+  });
 });
 
 // ============================================

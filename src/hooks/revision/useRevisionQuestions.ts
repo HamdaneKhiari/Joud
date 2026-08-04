@@ -230,9 +230,14 @@ export const useRevisionQuestions = (): UseRevisionQuestionsReturn => {
     }
   }, [currentIndex, totalQuestions, resetQuestionState]);
 
+  // Contrairement à resetQuestionState (nouvelle question), un retry garde attemptCount :
+  // c'est ce compteur qui fait respecter maxAttempts et qui empêche de recompter le score/SRS
+  // à chaque nouvel essai sur la même question.
   const retryQuestion = useCallback(() => {
-    resetQuestionState();
-  }, [resetQuestionState]);
+    setSelectedAnswer(null);
+    setIsValidated(false);
+    setIsCorrect(false);
+  }, []);
 
   const resetSession = useCallback(() => {
     setMode(null);

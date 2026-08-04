@@ -1,5 +1,5 @@
 /**
- * Route pour l'écran de révision
+ * Route pour l'Ã©cran de rÃ©vision
  */
 import RevisionScreen from '@/screens/RevisionScreen';
 
