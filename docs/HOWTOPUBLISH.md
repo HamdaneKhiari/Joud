@@ -103,13 +103,36 @@ code, c'est un choix assumé pour cette phase (voir `BeforePublish.pdf` pour le 
 Bundle ID/package différents par public = obligatoire pour publier 4 fiches distinctes sur les
 stores (Apple/Google n'acceptent pas deux apps avec le même identifiant).
 
-### Icônes — ce qui manque encore
+### Images de l'app (icône, icône Android, splash)
 
-Le code cherche automatiquement `assets/icon-primary.png`, `assets/icon-college.png`,
-`assets/icon-lycee.png`, `assets/icon-adult.png`. **Aucun de ces 4 fichiers n'existe
-actuellement** — tant qu'ils ne sont pas fournis, les 4 builds utilisent la même icône générique
-(`assets/icon.png`). Dès qu'un fichier `assets/icon-<public>.png` est ajouté, il est utilisé
-automatiquement au prochain build — rien d'autre à changer dans le code.
+Les fichiers actuels dans `assets/` (montgolfière blanche sur fond bleu `#348fe2`) sont **des
+images de dépannage** — posées pour avoir une vraie identité visuelle pendant la phase de test,
+pas forcément la version finale. Elles sont pensées pour être remplacées facilement, sans toucher
+au code : même nom de fichier, mêmes dossiers, le prochain build les reprend automatiquement.
+
+Specs à respecter si on les change :
+
+| Fichier                        | Rôle                                   | Taille          | Transparence |
+|---------------------------------|-----------------------------------------|------------------|--------------|
+| `assets/icon.png`               | Icône principale (iOS + fallback)       | 1024×1024 px     | **Non** — fond opaque plein cadre (Apple rejette l'alpha sur cette icône) |
+| `assets/adaptive-icon.png`      | Icône Android — couche "dessin" only    | 1024×1024 px     | **Oui** — juste la forme, fond transparent ; garder le dessin dans le carré central ~66% (~672×672 px), Android découpe le reste selon le launcher |
+| `assets/splash-icon.png`        | Écran de démarrage natif                | 1024×1024 px mini (1200×1200 pour rester net sur grand écran) | Selon le visuel — peut remplir tout le cadre comme aujourd'hui |
+| `assets/favicon.png`            | Icône navigateur (web, usage mineur)    | 48×48 px         | Peu importe |
+
+Deux couleurs de fond à garder cohérentes avec les images si elles changent, dans
+`app.config.js` :
+- `splash.backgroundColor` (actuellement `#348fe2`) — visible en letterboxing sur les écrans non
+  carrés
+- `android.adaptiveIcon.backgroundColor` (actuellement `#348fe2`) — le fond derrière le dessin
+  transparent de `adaptive-icon.png`. **Piège déjà rencontré** : si le dessin de
+  `adaptive-icon.png` est blanc et que ce fond reste blanc aussi, l'icône Android devient
+  invisible — toujours vérifier que les deux contrastent.
+
+**Icônes par public (optionnel, pas encore fait)** : le code cherche automatiquement
+`assets/icon-primary.png`, `assets/icon-college.png`, `assets/icon-lycee.png`,
+`assets/icon-adult.png` (mêmes specs que `icon.png` ci-dessus). Tant qu'ils n'existent pas, les 4
+builds utilisent `assets/icon.png`. Dès qu'un fichier `assets/icon-<public>.png` est ajouté, il
+est pris automatiquement au prochain build — rien d'autre à changer dans le code.
 
 ## Et la langue, dans tout ça ?
 
