@@ -11,6 +11,16 @@
     "preview": {
       "distribution": "internal"
     },
+    "test-primary": {
+      "distribution": "internal",
+      "android": { "buildType": "apk" },
+      "env": { "EXPO_PUBLIC_LOCKED_AUDIENCE": "primary" }
+    },
+    "test-college": {
+      "distribution": "internal",
+      "android": { "buildType": "apk" },
+      "env": { "EXPO_PUBLIC_LOCKED_AUDIENCE": "college" }
+    },
     "production-primary": {
       "autoIncrement": true,
       "env": { "EXPO_PUBLIC_LOCKED_AUDIENCE": "primary" }

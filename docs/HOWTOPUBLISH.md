@@ -58,6 +58,38 @@ Pour juste vérifier la config générée (nom, slug, bundle ID) sans rien lance
 EXPO_PUBLIC_LOCKED_AUDIENCE=primary npx expo config --type public
 ```
 
+## Faire tester l'app à des gens (avant tout store)
+
+Pas besoin d'attendre la publication pour faire installer l'app sur de vrais téléphones. EAS
+Build propose une **distribution interne** : ça génère un `.apk` (Android) directement
+installable, avec un lien de téléchargement + QR code partageable par WhatsApp/mail/Drive.
+Aucun compte Google Play ni Apple requis pour ça — juste un compte Expo/EAS gratuit.
+
+Deux profils de test sont prêts dans `eas.json`, un par public ayant du contenu réel
+aujourd'hui (Primaire, Collège — Lycée/Adulte n'ont pas encore de contenu, pas la peine de les
+tester pour l'instant) :
+
+```bash
+eas login                                            # une seule fois, compte Expo gratuit
+eas build --profile test-primary --platform android
+eas build --profile test-college --platform android
+```
+
+Le build se lance sur les serveurs Expo (quelques minutes), puis un lien apparaît dans le
+terminal (et sur [expo.dev](https://expo.dev) une fois connecté) — c'est ce lien à envoyer aux
+testeurs. Sur leur téléphone Android, ils cliquent, téléchargent le `.apk`, et l'installent
+(Android demande d'autoriser "sources inconnues" la première fois, c'est normal pour un `.apk`
+hors Play Store).
+
+**iOS n'est pas possible avec cette méthode** : Apple exige un compte développeur (99$/an,
+`eas credentials` + `eas build --platform ios`) même pour un simple test ad-hoc ou TestFlight —
+ce n'est pas une limite technique de ce doc, juste une dépendance externe pas encore mise en
+place. Tant que ce compte n'existe pas, les tests restent Android uniquement.
+
+**Accès des testeurs** : ces builds de test donnent accès à tout le contenu de l'app, sans
+restriction — il n'existe aujourd'hui aucun mécanisme de limite (temps, contenu, essai) dans le
+code, c'est un choix assumé pour cette phase (voir `BeforePublish.pdf` pour le contexte).
+
 ### Ce que chaque public change concrètement
 
 | Public     | Nom affiché      | Slug            | Bundle ID / Package                  |
