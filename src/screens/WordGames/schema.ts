@@ -24,7 +24,6 @@ export interface DefinitionQuestion extends BaseGameQuestion {
   definition: string;              // Définition correcte
   options: string[];               // 4 options de réponse
   correctAnswer: string;           // La bonne réponse (doit être dans options)
-  image?: string;                  // Emoji ou URL d'image (ex: "🥐")
   context?: string;                // Phrase d'exemple (optionnel)
 }
 
