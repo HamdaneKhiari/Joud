@@ -237,7 +237,7 @@ export default createMigration(
       ('primary', 'exercise',   'incorrect_attempt_2','🎯', 'Dernier essai !', 'Concentre-toi bien !'),
       ('primary', 'wordgames',  'incorrect_attempt_2','🎯', 'Dernier essai !', 'Concentre-toi bien !'),
       ('primary', 'exercise',   'skip',               '📖', 'Réponse',           'Voici la bonne réponse pour t''aider.'),
-      ('primary', 'wordgames',  'skip',               '💡', 'La réponse',        'Ne t''inquiète pas, tu feras mieux la prochaine fois !'),
+      ('primary', 'wordgames',  'skip',               '💡', 'La réponse',        'Ne t''inquiète pas, c''est en se trompant qu''on apprend !'),
 
       -- COLLEGE
       ('college', 'exercise',   'correct',            '✓', 'Correct !',          'Bonne réponse, bien joué !'),
@@ -248,7 +248,7 @@ export default createMigration(
       ('college', 'exercise',   'incorrect_attempt_2','!', 'Dernier essai',      'Concentre-toi bien.'),
       ('college', 'wordgames',  'incorrect_attempt_2','!', 'Dernier essai',      'Concentre-toi bien et réessaie.'),
       ('college', 'exercise',   'skip',               'ℹ', 'Réponse',            'Voici la bonne réponse.'),
-      ('college', 'wordgames',  'skip',               'ℹ', 'Solution',           'Pas de problème, tu progresseras !'),
+      ('college', 'wordgames',  'skip',               'ℹ', 'Solution',           'C''est en faisant des erreurs qu''on progresse.'),
 
       -- LYCEE
       ('lycee', 'exercise',   'correct',            '✓', 'Correct',          'Réponse exacte, bon travail.'),
@@ -259,7 +259,7 @@ export default createMigration(
       ('lycee', 'exercise',   'incorrect_attempt_2','!', 'Dernier essai',  'Concentre-toi bien.'),
       ('lycee', 'wordgames',  'incorrect_attempt_2','!', 'Dernier essai',  'Concentre-toi bien.'),
       ('lycee', 'exercise',   'skip',               'ℹ', 'Réponse correcte', 'Étudie cette solution.'),
-      ('lycee', 'wordgames',  'skip',               'ℹ', 'Solution',         'Retiens bien pour la prochaine fois.'),
+      ('lycee', 'wordgames',  'skip',               'ℹ', 'Solution',         'C''est en faisant des erreurs qu''on progresse.'),
 
       -- ADULT (vouvoiement — seul public professionnel, se distingue du tutoiement étudiant)
       ('adult', 'exercise',   'correct',            '✓', 'Correct',            'Exact, bien joué.'),
@@ -270,7 +270,7 @@ export default createMigration(
       ('adult', 'exercise',   'incorrect_attempt_2','!', 'Dernier essai',      'Concentrez-vous.'),
       ('adult', 'wordgames',  'incorrect_attempt_2','!', 'Dernier essai',      'Prenez le temps de bien vérifier.'),
       ('adult', 'exercise',   'skip',               'ℹ', 'Réponse',            'Voici la bonne réponse.'),
-      ('adult', 'wordgames',  'skip',               'ℹ', 'Solution',           'À retenir pour la prochaine fois.');
+      ('adult', 'wordgames',  'skip',               'ℹ', 'Solution',           'Ne vous inquiétez pas, l''erreur fait partie de l''apprentissage.');
     `);
 
     // ============================================
