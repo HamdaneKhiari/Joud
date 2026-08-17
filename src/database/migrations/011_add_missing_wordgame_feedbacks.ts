@@ -12,9 +12,9 @@ export default createMigration(
   async (db: SQLite.SQLiteDatabase) => {
     await db.execAsync(`
       INSERT OR REPLACE INTO feedback_messages (identity_id, context, state, icon, title, message) VALUES
-      ('primary', 'wordgames', 'incorrect_attempt_2', '🎯', 'Dernier essai !', 'Concentre-toi bien et tente ta chance !'),
-      ('college', 'wordgames', 'incorrect_attempt_2', '!', 'Dernier essai',  'Analyse bien les indices avant de répondre.'),
-      ('lycee',   'wordgames', 'incorrect_attempt_2', '!', 'Dernier essai',  'Observe bien la question et tente ta chance.'),
+      ('primary', 'wordgames', 'incorrect_attempt_2', '🎯', 'Dernier essai !', 'Concentre-toi bien !'),
+      ('college', 'wordgames', 'incorrect_attempt_2', '!', 'Dernier essai',  'Concentre-toi bien et réessaie.'),
+      ('lycee',   'wordgames', 'incorrect_attempt_2', '!', 'Dernier essai',  'Concentre-toi bien.'),
       ('adult',   'wordgames', 'incorrect_attempt_2', '!', 'Dernier essai',  'Prenez le temps de bien vérifier.');
     `);
 

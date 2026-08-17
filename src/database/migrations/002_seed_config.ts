@@ -234,8 +234,8 @@ export default createMigration(
       ('primary', 'vocabulary', 'correct',            '✨', 'Excellent !',       'Tu connais bien ce mot !'),
       ('primary', 'exercise',   'incorrect_attempt_1','💪', 'Pas encore...',     'Essaie encore, tu peux le faire !'),
       ('primary', 'wordgames',  'incorrect_attempt_1','🤔', 'Oups !',            'Réfléchis bien et réessaie !'),
-      ('primary', 'exercise',   'incorrect_attempt_2','🎯', 'Dernier essai !', 'Prends ton temps pour répondre.'),
-      ('primary', 'wordgames',  'incorrect_attempt_2','🎯', 'Dernier essai !', 'Concentre-toi bien et tente ta chance !'),
+      ('primary', 'exercise',   'incorrect_attempt_2','🎯', 'Dernier essai !', 'Concentre-toi bien !'),
+      ('primary', 'wordgames',  'incorrect_attempt_2','🎯', 'Dernier essai !', 'Concentre-toi bien !'),
       ('primary', 'exercise',   'skip',               '📖', 'Réponse',           'Voici la bonne réponse pour t''aider.'),
       ('primary', 'wordgames',  'skip',               '💡', 'La réponse',        'Ne t''inquiète pas, tu feras mieux la prochaine fois !'),
 
@@ -245,8 +245,8 @@ export default createMigration(
       ('college', 'vocabulary', 'correct',            '✓', 'Parfait !',          'Excellente réponse !'),
       ('college', 'exercise',   'incorrect_attempt_1','→', 'Pas tout à fait',    'Essaie à nouveau, tu y es presque.'),
       ('college', 'wordgames',  'incorrect_attempt_1','?', 'Incorrect',          'Réfléchis bien et réessaie.'),
-      ('college', 'exercise',   'incorrect_attempt_2','!', 'Dernière tentative', 'Concentre-toi bien.'),
-      ('college', 'wordgames',  'incorrect_attempt_2','!', 'Dernier essai',  'Analyse bien les indices avant de répondre.'),
+      ('college', 'exercise',   'incorrect_attempt_2','!', 'Dernier essai',      'Concentre-toi bien.'),
+      ('college', 'wordgames',  'incorrect_attempt_2','!', 'Dernier essai',      'Concentre-toi bien et réessaie.'),
       ('college', 'exercise',   'skip',               'ℹ', 'Réponse',            'Voici la bonne réponse.'),
       ('college', 'wordgames',  'skip',               'ℹ', 'Solution',           'Pas de problème, tu progresseras !'),
 
@@ -256,8 +256,8 @@ export default createMigration(
       ('lycee', 'vocabulary', 'correct',            '✓', 'Excellent',        'Vocabulaire bien assimilé.'),
       ('lycee', 'exercise',   'incorrect_attempt_1','×', 'Incorrect',        'Revois ta réponse.'),
       ('lycee', 'wordgames',  'incorrect_attempt_1','×', 'Faux',             'Réessaie avec attention.'),
-      ('lycee', 'exercise',   'incorrect_attempt_2','!', 'Dernier essai',  'Analyse bien la question.'),
-      ('lycee', 'wordgames',  'incorrect_attempt_2','!', 'Dernier essai',  'Observe bien la question et tente ta chance.'),
+      ('lycee', 'exercise',   'incorrect_attempt_2','!', 'Dernier essai',  'Concentre-toi bien.'),
+      ('lycee', 'wordgames',  'incorrect_attempt_2','!', 'Dernier essai',  'Concentre-toi bien.'),
       ('lycee', 'exercise',   'skip',               'ℹ', 'Réponse correcte', 'Étudie cette solution.'),
       ('lycee', 'wordgames',  'skip',               'ℹ', 'Solution',         'Retiens bien pour la prochaine fois.'),
 
@@ -267,8 +267,8 @@ export default createMigration(
       ('adult', 'vocabulary', 'correct',            '✓', 'Parfait',            'Bien joué.'),
       ('adult', 'exercise',   'incorrect_attempt_1','×', 'Incorrect',          'Réessayez.'),
       ('adult', 'wordgames',  'incorrect_attempt_1','×', 'Incorrect',          'Prenez le temps de réfléchir.'),
-      ('adult', 'exercise',   'incorrect_attempt_2','!', 'Dernière tentative', 'Concentrez-vous.'),
-      ('adult', 'wordgames',  'incorrect_attempt_2','!', 'Dernier essai',  'Prenez le temps de bien vérifier.'),
+      ('adult', 'exercise',   'incorrect_attempt_2','!', 'Dernier essai',      'Concentrez-vous.'),
+      ('adult', 'wordgames',  'incorrect_attempt_2','!', 'Dernier essai',      'Prenez le temps de bien vérifier.'),
       ('adult', 'exercise',   'skip',               'ℹ', 'Réponse',            'Voici la bonne réponse.'),
       ('adult', 'wordgames',  'skip',               'ℹ', 'Solution',           'À retenir pour la prochaine fois.');
     `);

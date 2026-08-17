@@ -43,7 +43,15 @@ export const getDefaultFeedback = (
   if (!showFeedback) return null;
 
   // Si un message personnalisé est fourni, on le priorise
-  if (customFeedback) return customFeedback;
+  if (customFeedback) {
+    if (state === 'skip' && correctAnswer && !customFeedback.message.includes(correctAnswer)) {
+      return {
+        ...customFeedback,
+        message: `La bonne réponse était "${correctAnswer}". ${customFeedback.message}`,
+      };
+    }
+    return customFeedback;
+  }
 
   switch (state) {
     case 'correct': {
@@ -55,9 +63,9 @@ export const getDefaultFeedback = (
 
     case 'skip': {
       return {
-        title: 'RÉPONSE',
+        title: 'SOLUTION',
         message: correctAnswer
-          ? `La bonne réponse était "${correctAnswer}"`
+          ? `La bonne réponse était "${correctAnswer}".`
           : 'Passe à la suite',
       };
     }
@@ -72,7 +80,7 @@ export const getDefaultFeedback = (
 
       return {
         title: 'DERNIER ESSAI',
-        message: 'Prends ton temps',
+        message: 'Concentre-toi bien',
       };
     }
 
