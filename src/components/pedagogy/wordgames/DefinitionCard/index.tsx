@@ -57,7 +57,7 @@ const DefinitionCard: React.FC<DefinitionCardProps> = ({
         <View style={styles.colorBar} />
 
         <View style={styles.titleSection}>
-          <Text style={styles.titleIcon}>{question.image || '📖'}</Text>
+          <Text style={styles.titleIcon}>📖</Text>
           <Text style={styles.titleText}>What is this?</Text>
         </View>
 
