@@ -20,7 +20,25 @@ const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ feedback, state }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
+  const isVisibleRef = useRef(false);
+  const prevStateRef = useRef<string | null>(null);
+
   useEffect(() => {
+    if (!feedback) {
+      isVisibleRef.current = false;
+      prevStateRef.current = null;
+      return;
+    }
+
+    const stateChanged = prevStateRef.current !== state;
+    prevStateRef.current = state;
+
+    if (isVisibleRef.current && !stateChanged) {
+      return;
+    }
+
+    isVisibleRef.current = true;
+
     if (reducedMotion) {
       slideAnim.setValue(0);
       fadeAnim.setValue(1);
@@ -46,7 +64,7 @@ const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ feedback, state }) => {
         useNativeDriver: true,
       }),
     ]).start();
-  }, [feedback, slideAnim, fadeAnim, scaleAnim, reducedMotion]);
+  }, [feedback, state, slideAnim, fadeAnim, scaleAnim, reducedMotion]);
 
   if (!feedback) return null;
 

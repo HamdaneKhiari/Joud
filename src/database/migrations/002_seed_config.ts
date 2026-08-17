@@ -234,7 +234,7 @@ export default createMigration(
       ('primary', 'vocabulary', 'correct',            '✨', 'Excellent !',       'Tu connais bien ce mot !'),
       ('primary', 'exercise',   'incorrect_attempt_1','💪', 'Pas encore...',     'Essaie encore, tu peux le faire !'),
       ('primary', 'wordgames',  'incorrect_attempt_1','🤔', 'Oups !',            'Réfléchis bien et réessaie !'),
-      ('primary', 'exercise',   'incorrect_attempt_2','🎯', 'Dernière chance !', 'Prends ton temps pour répondre.'),
+      ('primary', 'exercise',   'incorrect_attempt_2','🎯', 'Dernier essai !', 'Prends ton temps pour répondre.'),
       ('primary', 'exercise',   'skip',               '📖', 'Réponse',           'Voici la bonne réponse pour t''aider.'),
       ('primary', 'wordgames',  'skip',               '💡', 'La réponse',        'Ne t''inquiète pas, tu feras mieux la prochaine fois !'),
 
@@ -254,7 +254,7 @@ export default createMigration(
       ('lycee', 'vocabulary', 'correct',            '✓', 'Excellent',        'Vocabulaire bien assimilé.'),
       ('lycee', 'exercise',   'incorrect_attempt_1','×', 'Incorrect',        'Revois ta réponse.'),
       ('lycee', 'wordgames',  'incorrect_attempt_1','×', 'Faux',             'Réessaie avec attention.'),
-      ('lycee', 'exercise',   'incorrect_attempt_2','!', 'Dernière chance',  'Analyse bien la question.'),
+      ('lycee', 'exercise',   'incorrect_attempt_2','!', 'Dernier essai',  'Analyse bien la question.'),
       ('lycee', 'exercise',   'skip',               'ℹ', 'Réponse correcte', 'Étudie cette solution.'),
       ('lycee', 'wordgames',  'skip',               'ℹ', 'Solution',         'Retiens bien pour la prochaine fois.'),
 

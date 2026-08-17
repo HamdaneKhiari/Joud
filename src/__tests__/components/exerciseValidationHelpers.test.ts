@@ -118,9 +118,9 @@ describe('getDefaultFeedback', () => {
     expect(result?.title).toBe('ESSAIE ENCORE');
   });
 
-  it('incorrect + attemptCount=1 → dernière chance', () => {
+  it('incorrect + attemptCount=1 → dernier essai', () => {
     const result = getDefaultFeedback('incorrect', true, null, false, null, 1);
-    expect(result?.title).toBe('DERNIÈRE CHANCE');
+    expect(result?.title).toBe('DERNIER ESSAI');
   });
 
   // ─── État initial ─────────────────────────────────────────────────────────────

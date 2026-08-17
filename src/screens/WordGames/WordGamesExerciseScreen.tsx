@@ -96,30 +96,6 @@ const WordGamesExerciseScreen: React.FC = () => {
 
   useExerciseSaveOnUnmount();
 
-  useEffect(() => {
-    if (!family || currentQuestionIndex < 0) return;
-    const currentState = getCurrentState();
-    if (!currentState) return;
-
-    const canSkip = currentState.attemptCount >= MAX_ATTEMPTS && !currentState.isCorrect;
-    if (currentState.isValidated && (currentState.isCorrect || canSkip)) {
-      trackItemCompletion(numLevelId, EXERCISE_TYPE, familyId, currentQuestionIndex, totalQuestions);
-    }
-  }, [
-    gameStates.definitionState,
-    gameStates.blanksState,
-    gameStates.sentenceState,
-    gameStates.detectiveState,
-    gameStates.replyState,
-    gameStates.transformerState,
-    currentQuestionIndex,
-    family,
-    numLevelId,
-    familyId,
-    totalQuestions,
-    trackItemCompletion,
-    getCurrentState,
-  ]);
 
   if (isLoading) {
     return <ExerciseLoadingState onBack={() => { safeGoBack.navigate(); }} />;

@@ -71,7 +71,7 @@ export const getDefaultFeedback = (
       }
 
       return {
-        title: 'DERNIÈRE CHANCE',
+        title: 'DERNIER ESSAI',
         message: 'Prends ton temps',
       };
     }
