@@ -1,0 +1,745 @@
+diff --git a/app/(tabs)/index.tsx b/app/(tabs)/index.tsx
+index c00c952..580ee17 100644
+--- a/app/(tabs)/index.tsx
++++ b/app/(tabs)/index.tsx
+@@ -5,15 +5,21 @@ import Dashboard from '../../src/screens/Dashboard/Dashboard';
+ 
+ export default function Page() {
+   const router = useRouter();
+-  const { isOnboarded, loading } = useUser();
++  const { isOnboarded, loading, profiles, hasPickedProfileThisSession } = useUser();
+ 
+   useEffect(() => {
+-    if (!loading && !isOnboarded) {
++    if (loading) return;
++    if (!isOnboarded) {
+       router.replace('/onboarding');
++      return;
+     }
+-  }, [loading, isOnboarded, router]);
++    if (profiles.length > 1 && !hasPickedProfileThisSession) {
++      router.replace('/profile-picker');
++    }
++  }, [loading, isOnboarded, profiles.length, hasPickedProfileThisSession, router]);
+ 
+   if (!isOnboarded) return null;
++  if (profiles.length > 1 && !hasPickedProfileThisSession) return null;
+ 
+   return <Dashboard />;
+ }
+\ No newline at end of file
+diff --git a/app/(tabs)/settings.tsx b/app/(tabs)/settings.tsx
+index 0dbc3e9..2a1f55d 100644
+--- a/app/(tabs)/settings.tsx
++++ b/app/(tabs)/settings.tsx
+@@ -135,7 +135,7 @@ const rowStyles = StyleSheet.create({
+ 
+ export default function SettingsScreen() {
+   const { identity } = useTheme();
+-  const { user, updateUser } = useUser();
++  const { user, updateUser, profiles } = useUser();
+   const { resetProgress } = useProgress();
+   const { prefs, updatePref } = usePreferences();
+   const router = useRouter();
+@@ -222,6 +222,18 @@ export default function SettingsScreen() {
+           </View>
+         </View>
+ 
++        {/* Section Profils (multi-profils, ex: plusieurs enfants sur le même appareil) */}
++        <Section title="Profils" identity={identity}>
++          <Row
++            icon="👥"
++            label="Changer / gérer les profils"
++            sublabel={profiles.length > 1 ? `${profiles.length} profils sur cet appareil` : 'Ajouter un profil'}
++            identity={identity}
++            onPress={() => router.push('/profile-picker?from=settings' as Href)}
++            separator={false}
++          />
++        </Section>
++
+         {/* Section Préférences */}
+         <Section title="Préférences" identity={identity}>
+           <Row
+diff --git a/app/_layout.tsx b/app/_layout.tsx
+index 7ee7d0d..186465c 100644
+--- a/app/_layout.tsx
++++ b/app/_layout.tsx
+@@ -64,6 +64,9 @@ export default function RootLayout() {
+             {/* 0. Onboarding (premier lancement) */}
+             <Stack.Screen name="onboarding" options={{ headerShown: false, presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
+ 
++            {/* 0bis. Sélection de profil ("Qui joue ?") — si plusieurs profils existent */}
++            <Stack.Screen name="profile-picker" options={{ headerShown: false, presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
++
+             {/* 1. Dashboard (Menu principal) */}
+             <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'fade' }} />
+ 
+diff --git a/app/profile-picker.tsx b/app/profile-picker.tsx
+new file mode 100644
+index 0000000..1b29b1d
+--- /dev/null
++++ b/app/profile-picker.tsx
+@@ -0,0 +1,5 @@
++import ProfilePickerScreen from '../src/screens/ProfilePicker/ProfilePickerScreen';
++
++export default function Page() {
++  return <ProfilePickerScreen />;
++}
+diff --git a/src/__tests__/contexts/UserContext.test.tsx b/src/__tests__/contexts/UserContext.test.tsx
+index 4475c56..d67e32b 100644
+--- a/src/__tests__/contexts/UserContext.test.tsx
++++ b/src/__tests__/contexts/UserContext.test.tsx
+@@ -30,6 +30,8 @@ jest.mock('@/utils/logUtils', () => ({
+ }));
+ 
+ const STORAGE_KEY = 'JOUD_USER_PROFILE';
++const STORAGE_KEY_PROFILES = 'JOUD_USER_PROFILES';
++const STORAGE_KEY_ACTIVE_PROFILE_ID = 'JOUD_ACTIVE_PROFILE_ID';
+ 
+ function wrapper({ children }: { children: React.ReactNode }) {
+   return <UserProvider>{children}</UserProvider>;
+@@ -114,7 +116,7 @@ describe('UserContext', () => {
+ 
+   describe('updateUser', () => {
+ 
+-    it('met à jour le state ET persiste dans AsyncStorage', async () => {
++    it('met à jour le state ET persiste dans AsyncStorage (nouvelle clé JOUD_USER_PROFILES)', async () => {
+       const storedUser = { id: 'user_01', firstName: '', audience: 'college', isOnboarded: false };
+       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(storedUser));
+ 
+@@ -129,9 +131,13 @@ describe('UserContext', () => {
+       expect(result.current.user?.audience).toBe('lycee');
+       expect(result.current.user?.isOnboarded).toBe(true); // toujours forcé à true
+ 
+-      const persisted = JSON.parse(await AsyncStorage.getItem(STORAGE_KEY) ?? '{}');
+-      expect(persisted.firstName).toBe('Marie');
+-      expect(persisted.isOnboarded).toBe(true);
++      const persisted = JSON.parse(await AsyncStorage.getItem(STORAGE_KEY_PROFILES) ?? '[]');
++      expect(persisted[0].firstName).toBe('Marie');
++      expect(persisted[0].isOnboarded).toBe(true);
++
++      // La clé legacy n'est jamais réécrite après la migration initiale.
++      const legacy = JSON.parse(await AsyncStorage.getItem(STORAGE_KEY) ?? '{}');
++      expect(legacy.firstName).toBe('');
+     });
+ 
+     it('force isOnboarded = true quel que soit le payload', async () => {
+@@ -168,4 +174,137 @@ describe('UserContext', () => {
+       expect(result.current.isOnboarded).toBe(false);
+     });
+   });
++
++  describe('multi-profils', () => {
++
++    it('migre un profil legacy unique en liste de 1 profil au premier chargement', async () => {
++      const storedUser = { id: 'user_01', firstName: 'Alice', audience: 'college', isOnboarded: true };
++      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(storedUser));
++
++      const { result } = renderHook(() => useUser(), { wrapper });
++      await act(flushPromises);
++
++      expect(result.current.profiles).toHaveLength(1);
++      expect(result.current.profiles[0].firstName).toBe('Alice');
++      expect(result.current.user?.firstName).toBe('Alice');
++
++      const persisted = JSON.parse(await AsyncStorage.getItem(STORAGE_KEY_PROFILES) ?? '[]');
++      expect(persisted).toHaveLength(1);
++      expect(persisted[0].firstName).toBe('Alice');
++    });
++
++    it('charge directement depuis JOUD_USER_PROFILES si déjà migré (pas de re-migration)', async () => {
++      const profiles = [
++        { id: 'user_01', firstName: 'Alice', audience: 'college', course: 'fr-en', isOnboarded: true },
++        { id: 'user_99', firstName: 'Bob', audience: 'college', course: 'fr-en', isOnboarded: true },
++      ];
++      await AsyncStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(profiles));
++      await AsyncStorage.setItem(STORAGE_KEY_ACTIVE_PROFILE_ID, 'user_99');
++
++      const { result } = renderHook(() => useUser(), { wrapper });
++      await act(flushPromises);
++
++      expect(result.current.profiles).toHaveLength(2);
++      expect(result.current.user?.firstName).toBe('Bob'); // le profil actif persisté
++    });
++
++    it('addProfile crée un nouveau profil, le rend actif, et respecte le plafond', async () => {
++      const { result } = renderHook(() => useUser(), { wrapper });
++      await act(flushPromises);
++
++      let secondProfile: { id: string; firstName: string } | undefined;
++      await act(async () => {
++        secondProfile = await result.current.addProfile('Léo');
++      });
++
++      expect(result.current.profiles).toHaveLength(2);
++      expect(result.current.user?.id).toBe(secondProfile?.id);
++      expect(result.current.user?.firstName).toBe('Léo');
++      expect(result.current.user?.isOnboarded).toBe(true); // pas besoin de re-onboarder
++
++      // Persisté comme profil actif, pas juste en mémoire
++      const activeId = await AsyncStorage.getItem(STORAGE_KEY_ACTIVE_PROFILE_ID);
++      expect(activeId).toBe(secondProfile?.id);
++    });
++
++    it('addProfile rejette au-delà du plafond de profils', async () => {
++      const { result } = renderHook(() => useUser(), { wrapper });
++      await act(flushPromises);
++
++      // 1 profil par défaut + 3 ajoutés = 4 (le plafond) — chaque addProfile dans son
++      // propre act() pour que result.current se rafraîchisse entre chaque appel.
++      await act(async () => {
++        await result.current.addProfile('Léo');
++      });
++      await act(async () => {
++        await result.current.addProfile('Nora');
++      });
++      await act(async () => {
++        await result.current.addProfile('Sam');
++      });
++      expect(result.current.profiles).toHaveLength(4);
++      expect(result.current.canAddProfile).toBe(false);
++
++      await expect(
++        act(async () => {
++          await result.current.addProfile('Trop');
++        })
++      ).rejects.toThrow(/maximum/i);
++      expect(result.current.profiles).toHaveLength(4);
++    });
++
++    it('switchProfile change le profil actif et le persiste', async () => {
++      const profiles = [
++        { id: 'user_01', firstName: 'Alice', audience: 'college', course: 'fr-en', isOnboarded: true },
++        { id: 'user_99', firstName: 'Bob', audience: 'college', course: 'fr-en', isOnboarded: true },
++      ];
++      await AsyncStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(profiles));
++      await AsyncStorage.setItem(STORAGE_KEY_ACTIVE_PROFILE_ID, 'user_01');
++
++      const { result } = renderHook(() => useUser(), { wrapper });
++      await act(flushPromises);
++      expect(result.current.user?.firstName).toBe('Alice');
++
++      act(() => {
++        result.current.switchProfile('user_99');
++      });
++      await act(flushPromises);
++
++      expect(result.current.user?.firstName).toBe('Bob');
++      const activeId = await AsyncStorage.getItem(STORAGE_KEY_ACTIVE_PROFILE_ID);
++      expect(activeId).toBe('user_99');
++    });
++
++    it('switchProfile ignore un id inconnu (pas de crash, pas de changement)', async () => {
++      const { result } = renderHook(() => useUser(), { wrapper });
++      await act(flushPromises);
++      const originalId = result.current.user?.id;
++
++      act(() => {
++        result.current.switchProfile('id_qui_nexiste_pas');
++      });
++      await act(flushPromises);
++
++      expect(result.current.user?.id).toBe(originalId);
++    });
++
++    it('updateUser ne modifie que le profil actif, pas les autres', async () => {
++      const profiles = [
++        { id: 'user_01', firstName: 'Alice', audience: 'college', course: 'fr-en', isOnboarded: true },
++        { id: 'user_99', firstName: 'Bob', audience: 'college', course: 'fr-en', isOnboarded: true },
++      ];
++      await AsyncStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(profiles));
++      await AsyncStorage.setItem(STORAGE_KEY_ACTIVE_PROFILE_ID, 'user_01');
++
++      const { result } = renderHook(() => useUser(), { wrapper });
++      await act(flushPromises);
++
++      await act(async () => {
++        await result.current.updateUser({ firstName: 'Alicia' });
++      });
++
++      expect(result.current.profiles.find((p) => p.id === 'user_01')?.firstName).toBe('Alicia');
++      expect(result.current.profiles.find((p) => p.id === 'user_99')?.firstName).toBe('Bob');
++    });
++  });
+ });
+diff --git a/src/contexts/UserContext.tsx b/src/contexts/UserContext.tsx
+index 13f2af7..464f333 100644
+--- a/src/contexts/UserContext.tsx
++++ b/src/contexts/UserContext.tsx
+@@ -20,12 +20,27 @@ interface User {
+ interface UserContextType {
+   db: SQLiteDatabase | null;
+   user: User | null;
++  profiles: User[];
+   loading: boolean;
+   isOnboarded: boolean;
++  canAddProfile: boolean;
++  hasPickedProfileThisSession: boolean;
+   updateUser: (partial: Partial<Omit<User, 'id'>>) => void;
++  addProfile: (firstName: string) => Promise<User>;
++  switchProfile: (id: string) => void;
++  acknowledgeProfilePicked: () => void;
+ }
+ 
+-const STORAGE_KEY_USER = 'JOUD_USER_PROFILE';
++// Legacy : ancienne clé mono-profil, conservée pour la migration automatique des
++// installations existantes — jamais réécrite après la migration.
++const STORAGE_KEY_USER_LEGACY = 'JOUD_USER_PROFILE';
++const STORAGE_KEY_PROFILES = 'JOUD_USER_PROFILES';
++const STORAGE_KEY_ACTIVE_PROFILE_ID = 'JOUD_ACTIVE_PROFILE_ID';
++
++// Pas de vérification d'achat (aucun système d'IAP dans le projet) — un plafond
++// raisonnable suffit à couvrir l'usage familial visé (pack "2 enfants") avec de la
++// marge, sans construire de logique de paiement pour une app locale sans compte.
++const MAX_PROFILES = 4;
+ 
+ const VALID_AUDIENCES: User['audience'][] = ['primary', 'college', 'lycee', 'adult'];
+ 
+@@ -44,14 +59,35 @@ const DEFAULT_USER: User = {
+   isOnboarded: false,
+ };
+ 
++function migrateLegacyUser(parsed: User): User {
++  // Migration: anciens profils sans isOnboarded
++  if (parsed.isOnboarded === undefined) {
++    parsed.isOnboarded = !!parsed.firstName && parsed.firstName !== '';
++  }
++  // Migration: anciens profils sans course (avant l'ajout du modèle multi-langue)
++  if (!parsed.course) {
++    parsed.course = 'fr-en';
++  }
++  // Build mono-public : l'audience stockée ne fait pas foi, ce build ne sert qu'un public
++  if (LOCKED_AUDIENCE) {
++    parsed.audience = LOCKED_AUDIENCE;
++  }
++  return parsed;
++}
++
+ const UserContext = createContext<UserContextType | undefined>(undefined);
+ 
+ export const UserProvider = ({ children }: { children: ReactNode }) => {
+   const [db, setDb] = useState<SQLiteDatabase | null>(null);
+   const [loading, setLoading] = useState(true);
+-  const [user, setUser] = useState<User | null>(null);
++  const [profiles, setProfiles] = useState<User[]>([]);
++  const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
++  // En mémoire seulement, jamais persisté : se remet à false à chaque lancement
++  // (cold start) pour redemander "qui joue ?" si plusieurs profils existent — mais
++  // reste true tant que l'app tourne, pour ne pas redemander à chaque navigation.
++  const [hasPickedProfileThisSession, setHasPickedProfileThisSession] = useState(false);
+ 
+-  // 1. Charger le profil utilisateur depuis AsyncStorage
++  // 1. Charger la liste des profils (ou migrer l'ancien profil unique) depuis AsyncStorage
+   useEffect(() => {
+     const loadUserAndDB = async () => {
+       try {
+@@ -59,32 +95,41 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
+         // au cas où l'app vient d'être réinstallée sur un appareil ayant déjà servi.
+         await secureStorage.purgeIfStaleInstall();
+ 
+-        const storedUser = await AsyncStorage.getItem(STORAGE_KEY_USER);
+-        if (storedUser) {
+-          const parsed = JSON.parse(storedUser) as User;
+-          // Migration: anciens profils sans isOnboarded
+-          if (parsed.isOnboarded === undefined) {
+-            parsed.isOnboarded = !!parsed.firstName && parsed.firstName !== '';
+-          }
+-          // Migration: anciens profils sans course (avant l'ajout du modèle multi-langue)
+-          if (!parsed.course) {
+-            parsed.course = 'fr-en';
+-          }
+-          // Build mono-public : l'audience stockée ne fait pas foi, ce build ne sert qu'un public
+-          if (LOCKED_AUDIENCE) {
+-            parsed.audience = LOCKED_AUDIENCE;
+-          }
+-          setUser(parsed);
++        let loadedProfiles: User[];
++        let loadedActiveId: string;
++
++        const storedProfiles = await AsyncStorage.getItem(STORAGE_KEY_PROFILES);
++        if (storedProfiles) {
++          loadedProfiles = (JSON.parse(storedProfiles) as User[]).map(migrateLegacyUser);
++          const storedActiveId = await AsyncStorage.getItem(STORAGE_KEY_ACTIVE_PROFILE_ID);
++          loadedActiveId =
++            storedActiveId && loadedProfiles.some((p) => p.id === storedActiveId)
++              ? storedActiveId
++              : loadedProfiles[0]?.id ?? DEFAULT_USER.id;
+         } else {
+-          // Premier lancement
+-          setUser(DEFAULT_USER);
++          // Pas de liste de profils : soit une installation legacy mono-profil à
++          // migrer, soit un tout premier lancement.
++          const legacyStored = await AsyncStorage.getItem(STORAGE_KEY_USER_LEGACY);
++          const singleUser = legacyStored
++            ? migrateLegacyUser(JSON.parse(legacyStored) as User)
++            : DEFAULT_USER;
++          loadedProfiles = [singleUser];
++          loadedActiveId = singleUser.id;
++          // Écrit tout de suite le nouveau format — la clé legacy reste en place,
++          // jamais réécrite, elle ne sert plus qu'à cette migration ponctuelle.
++          await AsyncStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(loadedProfiles));
++          await AsyncStorage.setItem(STORAGE_KEY_ACTIVE_PROFILE_ID, loadedActiveId);
+         }
+ 
++        setProfiles(loadedProfiles);
++        setActiveProfileId(loadedActiveId);
++
+         const database = await initDatabase();
+         setDb(database);
+       } catch (e) {
+         log.error('[UserContext] Init error:', e);
+-        setUser(DEFAULT_USER);
++        setProfiles([DEFAULT_USER]);
++        setActiveProfileId(DEFAULT_USER.id);
+       } finally {
+         setLoading(false);
+       }
+@@ -93,23 +138,99 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
+     loadUserAndDB();
+   }, []);
+ 
+-  // Mettre a jour le profil utilisateur (et persister)
+-  const updateUser = useCallback(async (partial: Partial<Omit<User, 'id'>>) => {
+-    if (!user) return;
+-    const updated = { ...user, ...partial, isOnboarded: true };
+-    setUser(updated);
++  const persistProfiles = useCallback(async (next: User[]) => {
++    setProfiles(next);
+     try {
+-      await AsyncStorage.setItem(STORAGE_KEY_USER, JSON.stringify(updated));
++      await AsyncStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(next));
+     } catch (e) {
+-      log.warn('[UserContext] updateUser persist error:', e);
++      log.warn('[UserContext] persistProfiles error:', e);
+     }
+-  }, [user]);
++  }, []);
++
++  // Met à jour le profil ACTIF (et persiste toute la liste, pas juste ce profil).
++  const updateUser = useCallback(
++    async (partial: Partial<Omit<User, 'id'>>) => {
++      if (!activeProfileId) return;
++      const next = profiles.map((p) =>
++        p.id === activeProfileId ? { ...p, ...partial, isOnboarded: true } : p
++      );
++      await persistProfiles(next);
++    },
++    [activeProfileId, profiles, persistProfiles]
++  );
++
++  // Ajoute un nouveau profil (ex: un deuxième enfant) — reprend l'audience/course du
++  // build actuel (comme DEFAULT_USER), jamais celles d'un autre profil existant.
++  const addProfile = useCallback(
++    async (firstName: string) => {
++      if (profiles.length >= MAX_PROFILES) {
++        throw new Error(`Nombre maximum de profils atteint (${MAX_PROFILES}).`);
++      }
++      const newProfile: User = {
++        id: `user_${Date.now()}`,
++        firstName: firstName.trim(),
++        audience: LOCKED_AUDIENCE || 'college',
++        course: 'fr-en',
++        isOnboarded: true,
++      };
++      await persistProfiles([...profiles, newProfile]);
++      setActiveProfileId(newProfile.id);
++      await AsyncStorage.setItem(STORAGE_KEY_ACTIVE_PROFILE_ID, newProfile.id);
++      return newProfile;
++    },
++    [profiles, persistProfiles]
++  );
++
++  const switchProfile = useCallback(
++    (id: string) => {
++      if (!profiles.some((p) => p.id === id)) return;
++      setActiveProfileId(id);
++      AsyncStorage.setItem(STORAGE_KEY_ACTIVE_PROFILE_ID, id).catch((e) =>
++        log.warn('[UserContext] switchProfile persist error:', e)
++      );
++    },
++    [profiles]
++  );
++
++  const acknowledgeProfilePicked = useCallback(() => {
++    setHasPickedProfileThisSession(true);
++  }, []);
++
++  const user = useMemo(
++    () => profiles.find((p) => p.id === activeProfileId) ?? profiles[0] ?? null,
++    [profiles, activeProfileId]
++  );
+ 
+   const isOnboarded = user?.isOnboarded ?? false;
++  const canAddProfile = profiles.length < MAX_PROFILES;
+ 
+   const contextValue = useMemo(
+-    () => ({ db, user, loading, isOnboarded, updateUser }),
+-    [db, user, loading, isOnboarded, updateUser]
++    () => ({
++      db,
++      user,
++      profiles,
++      loading,
++      isOnboarded,
++      canAddProfile,
++      hasPickedProfileThisSession,
++      updateUser,
++      addProfile,
++      switchProfile,
++      acknowledgeProfilePicked,
++    }),
++    [
++      db,
++      user,
++      profiles,
++      loading,
++      isOnboarded,
++      canAddProfile,
++      hasPickedProfileThisSession,
++      updateUser,
++      addProfile,
++      switchProfile,
++      acknowledgeProfilePicked,
++    ]
+   );
+ 
+   if (loading) {
+diff --git a/src/screens/ProfilePicker/ProfilePickerScreen.tsx b/src/screens/ProfilePicker/ProfilePickerScreen.tsx
+new file mode 100644
+index 0000000..71f800b
+--- /dev/null
++++ b/src/screens/ProfilePicker/ProfilePickerScreen.tsx
+@@ -0,0 +1,233 @@
++// "Qui joue ?" — sélection/gestion des profils (multi-enfants sur le même appareil,
++// même public). Affiché au lancement si plusieurs profils existent, ou depuis les
++// réglages ("Changer / gérer les profils") à tout moment.
++import { log } from '@/utils/logUtils';
++import React, { useState } from 'react';
++import {
++  View,
++  Text,
++  TextInput,
++  TouchableOpacity,
++  StyleSheet,
++  KeyboardAvoidingView,
++  Platform,
++  FlatList,
++} from 'react-native';
++import { SafeAreaView } from 'react-native-safe-area-context';
++import { useRouter } from 'expo-router';
++import { MaterialCommunityIcons } from '@expo/vector-icons';
++import { useUser } from '@/contexts/UserContext';
++import { baseColors } from '@/themes/colors';
++
++const AVATAR_COLORS = [baseColors.blue500, '#F39C12', '#9B59B6', '#1ABC9C'];
++
++function avatarColorFor(id: string): string {
++  let hash = 0;
++  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
++  return AVATAR_COLORS[hash % AVATAR_COLORS.length];
++}
++
++const ProfilePickerScreen: React.FC = () => {
++  const router = useRouter();
++  const { profiles, user, switchProfile, addProfile, canAddProfile, acknowledgeProfilePicked } =
++    useUser();
++
++  const [addingProfile, setAddingProfile] = useState(false);
++  const [newName, setNewName] = useState('');
++  const [isSubmitting, setIsSubmitting] = useState(false);
++
++  const goToDashboard = () => {
++    acknowledgeProfilePicked();
++    router.replace('/');
++  };
++
++  const handlePick = (id: string) => {
++    switchProfile(id);
++    goToDashboard();
++  };
++
++  const handleAddProfile = async () => {
++    if (!newName.trim() || isSubmitting) return;
++    setIsSubmitting(true);
++    try {
++      await addProfile(newName.trim());
++      goToDashboard();
++    } catch (e) {
++      log.error('[ProfilePicker] addProfile error:', e);
++      setIsSubmitting(false);
++    }
++  };
++
++  return (
++    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
++      <KeyboardAvoidingView
++        style={styles.keyboardView}
++        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
++      >
++        <Text style={styles.title}>Qui joue ?</Text>
++        <Text style={styles.subtitle}>Choisis ton profil</Text>
++
++        {addingProfile ? (
++          <View style={styles.addForm}>
++            <TextInput
++              style={styles.nameInput}
++              placeholder="Prénom..."
++              placeholderTextColor={baseColors.gray400}
++              value={newName}
++              onChangeText={setNewName}
++              autoFocus
++              maxLength={30}
++              returnKeyType="done"
++              onSubmitEditing={handleAddProfile}
++              autoCapitalize="words"
++              autoCorrect={false}
++              accessibilityLabel="Prénom du nouveau profil"
++            />
++            <TouchableOpacity
++              style={[styles.primaryButton, !newName.trim() && styles.buttonDisabled]}
++              onPress={handleAddProfile}
++              disabled={!newName.trim() || isSubmitting}
++              activeOpacity={0.8}
++              accessibilityRole="button"
++              accessibilityLabel={isSubmitting ? 'Création...' : 'Créer le profil'}
++            >
++              <Text style={styles.primaryButtonText}>
++                {isSubmitting ? 'Création...' : 'Créer le profil'}
++              </Text>
++            </TouchableOpacity>
++            <TouchableOpacity onPress={() => setAddingProfile(false)} style={styles.cancelLink}>
++              <Text style={styles.cancelLinkText}>Annuler</Text>
++            </TouchableOpacity>
++          </View>
++        ) : (
++          <FlatList
++            data={profiles}
++            keyExtractor={(p) => p.id}
++            numColumns={2}
++            contentContainerStyle={styles.grid}
++            columnWrapperStyle={styles.gridRow}
++            ListFooterComponent={
++              canAddProfile ? (
++                <TouchableOpacity
++                  style={styles.tile}
++                  onPress={() => setAddingProfile(true)}
++                  activeOpacity={0.8}
++                  accessibilityRole="button"
++                  accessibilityLabel="Ajouter un profil"
++                >
++                  <View style={[styles.avatar, styles.avatarAdd]}>
++                    <MaterialCommunityIcons name="plus" size={32} color={baseColors.gray400} />
++                  </View>
++                  <Text style={styles.tileLabel}>Ajouter</Text>
++                </TouchableOpacity>
++              ) : null
++            }
++            renderItem={({ item }) => (
++              <TouchableOpacity
++                style={styles.tile}
++                onPress={() => handlePick(item.id)}
++                activeOpacity={0.8}
++                accessibilityRole="button"
++                accessibilityLabel={`Profil de ${item.firstName || 'sans nom'}`}
++              >
++                <View style={[styles.avatar, { backgroundColor: avatarColorFor(item.id) }]}>
++                  <Text style={styles.avatarText}>
++                    {(item.firstName || '?').trim().slice(0, 1).toUpperCase()}
++                  </Text>
++                  {item.id === user?.id && (
++                    <View style={styles.activeBadge}>
++                      <MaterialCommunityIcons name="check" size={14} color="#FFF" />
++                    </View>
++                  )}
++                </View>
++                <Text style={styles.tileLabel} numberOfLines={1}>
++                  {item.firstName || 'Sans nom'}
++                </Text>
++              </TouchableOpacity>
++            )}
++          />
++        )}
++      </KeyboardAvoidingView>
++    </SafeAreaView>
++  );
++};
++
++const styles = StyleSheet.create({
++  container: { flex: 1, backgroundColor: '#FAFBFC' },
++  keyboardView: { flex: 1, paddingHorizontal: 24, paddingTop: 32 },
++  title: {
++    fontSize: 28,
++    fontWeight: '700',
++    color: baseColors.gray800,
++    textAlign: 'center',
++    marginBottom: 8,
++  },
++  subtitle: {
++    fontSize: 17,
++    fontWeight: '500',
++    color: baseColors.gray500,
++    textAlign: 'center',
++    marginBottom: 32,
++  },
++  grid: { paddingBottom: 24 },
++  gridRow: { justifyContent: 'center', gap: 20, marginBottom: 20 },
++  tile: { alignItems: 'center', width: 110 },
++  avatar: {
++    width: 88,
++    height: 88,
++    borderRadius: 44,
++    alignItems: 'center',
++    justifyContent: 'center',
++    marginBottom: 8,
++  },
++  avatarAdd: {
++    backgroundColor: '#FFF',
++    borderWidth: 2,
++    borderColor: baseColors.gray200,
++    borderStyle: 'dashed',
++  },
++  avatarText: { fontSize: 32, fontWeight: '700', color: '#FFF' },
++  activeBadge: {
++    position: 'absolute',
++    bottom: -2,
++    right: -2,
++    width: 24,
++    height: 24,
++    borderRadius: 12,
++    backgroundColor: '#2ECC71',
++    borderWidth: 2,
++    borderColor: '#FAFBFC',
++    alignItems: 'center',
++    justifyContent: 'center',
++  },
++  tileLabel: { fontSize: 15, fontWeight: '600', color: baseColors.gray800, textAlign: 'center' },
++  addForm: { alignItems: 'center', paddingTop: 16 },
++  nameInput: {
++    width: '100%',
++    height: 56,
++    borderRadius: 16,
++    borderWidth: 2,
++    borderColor: baseColors.gray200,
++    paddingHorizontal: 20,
++    fontSize: 18,
++    fontWeight: '500',
++    color: baseColors.gray800,
++    backgroundColor: '#FFF',
++    marginBottom: 16,
++    textAlign: 'center',
++  },
++  primaryButton: {
++    width: '100%',
++    height: 56,
++    borderRadius: 16,
++    backgroundColor: baseColors.blue500,
++    alignItems: 'center',
++    justifyContent: 'center',
++  },
++  buttonDisabled: { opacity: 0.4 },
++  primaryButtonText: { fontSize: 17, fontWeight: '700', color: '#FFF' },
++  cancelLink: { marginTop: 16, padding: 8 },
++  cancelLinkText: { fontSize: 15, fontWeight: '600', color: baseColors.gray500 },
++});
++
++export default ProfilePickerScreen;

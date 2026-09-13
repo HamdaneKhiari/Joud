@@ -30,6 +30,8 @@ jest.mock('@/utils/logUtils', () => ({
 }));
 
 const STORAGE_KEY = 'JOUD_USER_PROFILE';
+const STORAGE_KEY_PROFILES = 'JOUD_USER_PROFILES';
+const STORAGE_KEY_ACTIVE_PROFILE_ID = 'JOUD_ACTIVE_PROFILE_ID';
 
 function wrapper({ children }: { children: React.ReactNode }) {
   return <UserProvider>{children}</UserProvider>;
@@ -114,7 +116,7 @@ describe('UserContext', () => {
 
   describe('updateUser', () => {
 
-    it('met à jour le state ET persiste dans AsyncStorage', async () => {
+    it('met à jour le state ET persiste dans AsyncStorage (nouvelle clé JOUD_USER_PROFILES)', async () => {
       const storedUser = { id: 'user_01', firstName: '', audience: 'college', isOnboarded: false };
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(storedUser));
 
@@ -129,9 +131,13 @@ describe('UserContext', () => {
       expect(result.current.user?.audience).toBe('lycee');
       expect(result.current.user?.isOnboarded).toBe(true); // toujours forcé à true
 
-      const persisted = JSON.parse(await AsyncStorage.getItem(STORAGE_KEY) ?? '{}');
-      expect(persisted.firstName).toBe('Marie');
-      expect(persisted.isOnboarded).toBe(true);
+      const persisted = JSON.parse(await AsyncStorage.getItem(STORAGE_KEY_PROFILES) ?? '[]');
+      expect(persisted[0].firstName).toBe('Marie');
+      expect(persisted[0].isOnboarded).toBe(true);
+
+      // La clé legacy n'est jamais réécrite après la migration initiale.
+      const legacy = JSON.parse(await AsyncStorage.getItem(STORAGE_KEY) ?? '{}');
+      expect(legacy.firstName).toBe('');
     });
 
     it('force isOnboarded = true quel que soit le payload', async () => {
@@ -166,6 +172,139 @@ describe('UserContext', () => {
       await act(flushPromises);
 
       expect(result.current.isOnboarded).toBe(false);
+    });
+  });
+
+  describe('multi-profils', () => {
+
+    it('migre un profil legacy unique en liste de 1 profil au premier chargement', async () => {
+      const storedUser = { id: 'user_01', firstName: 'Alice', audience: 'college', isOnboarded: true };
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(storedUser));
+
+      const { result } = renderHook(() => useUser(), { wrapper });
+      await act(flushPromises);
+
+      expect(result.current.profiles).toHaveLength(1);
+      expect(result.current.profiles[0].firstName).toBe('Alice');
+      expect(result.current.user?.firstName).toBe('Alice');
+
+      const persisted = JSON.parse(await AsyncStorage.getItem(STORAGE_KEY_PROFILES) ?? '[]');
+      expect(persisted).toHaveLength(1);
+      expect(persisted[0].firstName).toBe('Alice');
+    });
+
+    it('charge directement depuis JOUD_USER_PROFILES si déjà migré (pas de re-migration)', async () => {
+      const profiles = [
+        { id: 'user_01', firstName: 'Alice', audience: 'college', course: 'fr-en', isOnboarded: true },
+        { id: 'user_99', firstName: 'Bob', audience: 'college', course: 'fr-en', isOnboarded: true },
+      ];
+      await AsyncStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(profiles));
+      await AsyncStorage.setItem(STORAGE_KEY_ACTIVE_PROFILE_ID, 'user_99');
+
+      const { result } = renderHook(() => useUser(), { wrapper });
+      await act(flushPromises);
+
+      expect(result.current.profiles).toHaveLength(2);
+      expect(result.current.user?.firstName).toBe('Bob'); // le profil actif persisté
+    });
+
+    it('addProfile crée un nouveau profil, le rend actif, et respecte le plafond', async () => {
+      const { result } = renderHook(() => useUser(), { wrapper });
+      await act(flushPromises);
+
+      let secondProfile: { id: string; firstName: string } | undefined;
+      await act(async () => {
+        secondProfile = await result.current.addProfile('Léo');
+      });
+
+      expect(result.current.profiles).toHaveLength(2);
+      expect(result.current.user?.id).toBe(secondProfile?.id);
+      expect(result.current.user?.firstName).toBe('Léo');
+      expect(result.current.user?.isOnboarded).toBe(true); // pas besoin de re-onboarder
+
+      // Persisté comme profil actif, pas juste en mémoire
+      const activeId = await AsyncStorage.getItem(STORAGE_KEY_ACTIVE_PROFILE_ID);
+      expect(activeId).toBe(secondProfile?.id);
+    });
+
+    it('addProfile rejette au-delà du plafond de profils', async () => {
+      const { result } = renderHook(() => useUser(), { wrapper });
+      await act(flushPromises);
+
+      // 1 profil par défaut + 3 ajoutés = 4 (le plafond) — chaque addProfile dans son
+      // propre act() pour que result.current se rafraîchisse entre chaque appel.
+      await act(async () => {
+        await result.current.addProfile('Léo');
+      });
+      await act(async () => {
+        await result.current.addProfile('Nora');
+      });
+      await act(async () => {
+        await result.current.addProfile('Sam');
+      });
+      expect(result.current.profiles).toHaveLength(4);
+      expect(result.current.canAddProfile).toBe(false);
+
+      await expect(
+        act(async () => {
+          await result.current.addProfile('Trop');
+        })
+      ).rejects.toThrow(/maximum/i);
+      expect(result.current.profiles).toHaveLength(4);
+    });
+
+    it('switchProfile change le profil actif et le persiste', async () => {
+      const profiles = [
+        { id: 'user_01', firstName: 'Alice', audience: 'college', course: 'fr-en', isOnboarded: true },
+        { id: 'user_99', firstName: 'Bob', audience: 'college', course: 'fr-en', isOnboarded: true },
+      ];
+      await AsyncStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(profiles));
+      await AsyncStorage.setItem(STORAGE_KEY_ACTIVE_PROFILE_ID, 'user_01');
+
+      const { result } = renderHook(() => useUser(), { wrapper });
+      await act(flushPromises);
+      expect(result.current.user?.firstName).toBe('Alice');
+
+      act(() => {
+        result.current.switchProfile('user_99');
+      });
+      await act(flushPromises);
+
+      expect(result.current.user?.firstName).toBe('Bob');
+      const activeId = await AsyncStorage.getItem(STORAGE_KEY_ACTIVE_PROFILE_ID);
+      expect(activeId).toBe('user_99');
+    });
+
+    it('switchProfile ignore un id inconnu (pas de crash, pas de changement)', async () => {
+      const { result } = renderHook(() => useUser(), { wrapper });
+      await act(flushPromises);
+      const originalId = result.current.user?.id;
+
+      act(() => {
+        result.current.switchProfile('id_qui_nexiste_pas');
+      });
+      await act(flushPromises);
+
+      expect(result.current.user?.id).toBe(originalId);
+    });
+
+    it('updateUser ne modifie que le profil actif, pas les autres', async () => {
+      const profiles = [
+        { id: 'user_01', firstName: 'Alice', audience: 'college', course: 'fr-en', isOnboarded: true },
+        { id: 'user_99', firstName: 'Bob', audience: 'college', course: 'fr-en', isOnboarded: true },
+      ];
+      await AsyncStorage.setItem(STORAGE_KEY_PROFILES, JSON.stringify(profiles));
+      await AsyncStorage.setItem(STORAGE_KEY_ACTIVE_PROFILE_ID, 'user_01');
+
+      const { result } = renderHook(() => useUser(), { wrapper });
+      await act(flushPromises);
+
+      await act(async () => {
+        await result.current.updateUser({ firstName: 'Alicia' });
+      });
+
+      expect(result.current.profiles.find((p) => p.id === 'user_01')?.firstName).toBe('Alicia');
+      expect(result.current.profiles.find((p) => p.id === 'user_99')?.firstName).toBe('Bob');
     });
   });
 });

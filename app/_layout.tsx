@@ -64,6 +64,9 @@ export default function RootLayout() {
             {/* 0. Onboarding (premier lancement) */}
             <Stack.Screen name="onboarding" options={{ headerShown: false, presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
 
+            {/* 0bis. Sélection de profil ("Qui joue ?") — si plusieurs profils existent */}
+            <Stack.Screen name="profile-picker" options={{ headerShown: false, presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
+
             {/* 1. Dashboard (Menu principal) */}
             <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'fade' }} />
 

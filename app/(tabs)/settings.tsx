@@ -135,7 +135,7 @@ const rowStyles = StyleSheet.create({
 
 export default function SettingsScreen() {
   const { identity } = useTheme();
-  const { user, updateUser } = useUser();
+  const { user, updateUser, profiles } = useUser();
   const { resetProgress } = useProgress();
   const { prefs, updatePref } = usePreferences();
   const router = useRouter();
@@ -221,6 +221,18 @@ export default function SettingsScreen() {
             <Text style={[styles.profileAudience, { color: identity.text.secondary }]}>{audienceLabel}</Text>
           </View>
         </View>
+
+        {/* Section Profils (multi-profils, ex: plusieurs enfants sur le même appareil) */}
+        <Section title="Profils" identity={identity}>
+          <Row
+            icon="👥"
+            label="Changer / gérer les profils"
+            sublabel={profiles.length > 1 ? `${profiles.length} profils sur cet appareil` : 'Ajouter un profil'}
+            identity={identity}
+            onPress={() => router.push('/profile-picker?from=settings' as Href)}
+            separator={false}
+          />
+        </Section>
 
         {/* Section Préférences */}
         <Section title="Préférences" identity={identity}>

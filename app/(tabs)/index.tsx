@@ -5,15 +5,21 @@ import Dashboard from '../../src/screens/Dashboard/Dashboard';
 
 export default function Page() {
   const router = useRouter();
-  const { isOnboarded, loading } = useUser();
+  const { isOnboarded, loading, profiles, hasPickedProfileThisSession } = useUser();
 
   useEffect(() => {
-    if (!loading && !isOnboarded) {
+    if (loading) return;
+    if (!isOnboarded) {
       router.replace('/onboarding');
+      return;
     }
-  }, [loading, isOnboarded, router]);
+    if (profiles.length > 1 && !hasPickedProfileThisSession) {
+      router.replace('/profile-picker');
+    }
+  }, [loading, isOnboarded, profiles.length, hasPickedProfileThisSession, router]);
 
   if (!isOnboarded) return null;
+  if (profiles.length > 1 && !hasPickedProfileThisSession) return null;
 
   return <Dashboard />;
 }
