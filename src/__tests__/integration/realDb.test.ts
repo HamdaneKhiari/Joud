@@ -60,10 +60,10 @@ describe('Intégration DB réelle — migrations', () => {
     await testDb.db.closeAsync?.();
   });
 
-  it('les 10 migrations s\'exécutent sans erreur et sont enregistrées', async () => {
+  it('les 12 migrations s\'exécutent sans erreur et sont enregistrées', async () => {
     const versions = testDb.raw.exec('SELECT version FROM schema_migrations ORDER BY version');
     const applied = versions[0]?.values.map((row) => row[0]) ?? [];
-    expect(applied).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    expect(applied).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
   });
 
   it('le module "assessment" n\'existe plus après la migration 005', async () => {

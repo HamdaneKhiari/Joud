@@ -15,6 +15,7 @@ import migration008 from './migrations/008_add_course_column';
 import migration009 from './migrations/009_add_user_id_to_activity_log';
 import migration010 from './migrations/010_backfill_vocab_example_translation';
 import migration011 from './migrations/011_add_missing_wordgame_feedbacks';
+import migration012 from './migrations/012_add_consecutive_correct';
 
 // Une seule initialisation simultanée : évite la double-invocation de React 18 Strict Mode
 let _initPromise: Promise<SQLite.SQLiteDatabase> | null = null;
@@ -55,6 +56,7 @@ const _doInit = async (): Promise<SQLite.SQLiteDatabase> => {
       migration009, // user_id sur activity_log (jours actifs/dernière activité scopés par profil)
       migration010, // Backfill exampleTranslation vocab (perdu à l'import 007, retrouvé dans le fichier source)
       migration011, // Ajout des feedbacks manquants wordgames / incorrect_attempt_2 pour toutes les identités
+      migration012, // consecutive_correct sur spaced_repetition (corrige le calcul d'intervalle)
     ];
 
     console.log('[JanaCore] 🚀 Running migrations...');

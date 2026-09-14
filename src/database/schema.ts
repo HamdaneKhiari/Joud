@@ -175,6 +175,10 @@ export interface SpacedRepetition {
   ease_factor: number;
   review_count: number;
   correct_count: number;
+  // Série de bonnes réponses consécutives — remise à 0 à la moindre mauvaise réponse.
+  // Distinct de correct_count (total cumulé depuis le début, jamais remis à 0), utilisé
+  // pour le calcul de l'intervalle de révision (voir updateSpacedRepetitionResult).
+  consecutive_correct: number;
 }
 
 export interface UserMetrics {

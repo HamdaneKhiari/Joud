@@ -597,14 +597,20 @@ export const addWordToSRS = async (
 
   await db.runAsync(
     `INSERT OR IGNORE INTO spaced_repetition
-     (user_id, content_id, content_type, last_review_date, next_review_date, ease_factor, review_count, correct_count)
-     VALUES (?, ?, 'word', ?, ?, 2.5, 0, 0)`,
+     (user_id, content_id, content_type, last_review_date, next_review_date, ease_factor, review_count, correct_count, consecutive_correct)
+     VALUES (?, ?, 'word', ?, ?, 2.5, 0, 0, 0)`,
     [userId, contentId, today, today]
   );
 };
 
 /**
  * Algorithme SM-2 simplifié.
+ *
+ * L'intervalle (au-delà des 2 premiers paliers) se calcule sur `consecutive_correct` — la
+ * série de bonnes réponses D'AFFILÉE, remise à 0 à la moindre erreur — jamais sur
+ * `review_count` (le total de tentatives, bonnes et mauvaises confondues). Un mot raté
+ * plusieurs fois avant d'être enfin maîtrisé ne doit pas hériter d'un grand intervalle sous
+ * prétexte qu'il a déjà été vu souvent : sa vraie maîtrise ne date que de sa série en cours.
  */
 export const updateSpacedRepetitionResult = async (
   db: SQLiteDatabase,
@@ -626,21 +632,24 @@ export const updateSpacedRepetitionResult = async (
 
   let newEaseFactor: number;
   let intervalDays: number;
+  let newConsecutiveCorrect: number;
 
   if (wasCorrect) {
+    newConsecutiveCorrect = current.consecutive_correct + 1;
     // Augmenter la difficulté
     newEaseFactor = Math.min(3, current.ease_factor + 0.1);
 
-    // Calculer l'intervalle selon le nombre de révisions
-    if (current.review_count === 0) {
+    // Calculer l'intervalle selon la série de bonnes réponses consécutives
+    if (newConsecutiveCorrect === 1) {
       intervalDays = 1;
-    } else if (current.review_count === 1) {
+    } else if (newConsecutiveCorrect === 2) {
       intervalDays = 3;
     } else {
-      intervalDays = Math.round(current.review_count * newEaseFactor);
+      intervalDays = Math.round(newConsecutiveCorrect * newEaseFactor);
     }
   } else {
-    // Diminuer la difficulté et recommencer
+    // Diminuer la difficulté, recommencer la série et l'intervalle
+    newConsecutiveCorrect = 0;
     newEaseFactor = Math.max(1.3, current.ease_factor - 0.2);
     intervalDays = 1;
   }
@@ -658,12 +667,14 @@ export const updateSpacedRepetitionResult = async (
      SET ease_factor = ?,
          review_count = review_count + 1,
          correct_count = correct_count + ?,
+         consecutive_correct = ?,
          last_review_date = ?,
          next_review_date = ?
      WHERE user_id = ? AND content_id = ?`,
     [
       newEaseFactor,
       wasCorrect ? 1 : 0,
+      newConsecutiveCorrect,
       today,
       nextReviewDateStr,
       userId,

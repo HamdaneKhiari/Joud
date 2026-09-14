@@ -799,7 +799,7 @@ describe('updateSpacedRepetitionResult', () => {
   });
 
   it('réponse correcte → augmente ease_factor, calcule intervalle', async () => {
-    const current = { user_id: 'u1', content_id: 42, ease_factor: 2.5, review_count: 2, correct_count: 2 };
+    const current = { user_id: 'u1', content_id: 42, ease_factor: 2.5, review_count: 2, correct_count: 2, consecutive_correct: 2 };
     (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(current);
     (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
     await updateSpacedRepetitionResult(db, 'u1', 42, true);
@@ -808,30 +808,59 @@ describe('updateSpacedRepetitionResult', () => {
     expect(newEaseFactor).toBeGreaterThan(2.5);
   });
 
-  it('réponse incorrecte → diminue ease_factor, intervalle=1', async () => {
-    const current = { user_id: 'u1', content_id: 42, ease_factor: 2.5, review_count: 3, correct_count: 2 };
+  it('réponse incorrecte → diminue ease_factor, intervalle=1, remet consecutive_correct à 0', async () => {
+    const current = { user_id: 'u1', content_id: 42, ease_factor: 2.5, review_count: 3, correct_count: 2, consecutive_correct: 3 };
     (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(current);
     (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
     await updateSpacedRepetitionResult(db, 'u1', 42, false);
     const [, params] = (db.runAsync as jest.Mock).mock.calls[0];
     const newEaseFactor = params[0];
+    const newConsecutiveCorrect = params[2];
     expect(newEaseFactor).toBeLessThan(2.5);
+    expect(newConsecutiveCorrect).toBe(0);
   });
 
-  it('review_count=0 (premier révision correcte) → intervalle=1', async () => {
-    const current = { user_id: 'u1', content_id: 5, ease_factor: 2.5, review_count: 0, correct_count: 0 };
+  it('consecutive_correct=0 (première bonne réponse) → intervalle=1', async () => {
+    const current = { user_id: 'u1', content_id: 5, ease_factor: 2.5, review_count: 0, correct_count: 0, consecutive_correct: 0 };
     (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(current);
     (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
     await updateSpacedRepetitionResult(db, 'u1', 5, true);
     expect(db.runAsync).toHaveBeenCalled();
   });
 
-  it('review_count=1 (deuxième révision correcte) → intervalle=3', async () => {
-    const current = { user_id: 'u1', content_id: 6, ease_factor: 2.5, review_count: 1, correct_count: 1 };
+  it('consecutive_correct=1 (deuxième bonne réponse d\'affilée) → intervalle=3', async () => {
+    const current = { user_id: 'u1', content_id: 6, ease_factor: 2.5, review_count: 1, correct_count: 1, consecutive_correct: 1 };
     (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(current);
     (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
     await updateSpacedRepetitionResult(db, 'u1', 6, true);
     expect(db.runAsync).toHaveBeenCalled();
+  });
+
+  it('régression : un mot beaucoup raté (review_count élevé, consecutive_correct bas) ne doit PAS hériter d\'un grand intervalle', async () => {
+    // Mot vu 11 fois au total (review_count), mais une seule bonne réponse d'affilée
+    // en cours (consecutive_correct=0, sur le point de devenir 1) — le bug corrigé
+    // aurait calculé round(11 * ease) au lieu de se baser sur la vraie série en cours.
+    const current = { user_id: 'u1', content_id: 7, ease_factor: 1.5, review_count: 11, correct_count: 3, consecutive_correct: 0 };
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(current);
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
+    await updateSpacedRepetitionResult(db, 'u1', 7, true);
+    const [, params] = (db.runAsync as jest.Mock).mock.calls[0];
+    const newConsecutiveCorrect = params[2];
+    const nextReviewDateStr = params[4] as string;
+    expect(newConsecutiveCorrect).toBe(1);
+    // Palier "1ère bonne réponse d'affilée" → intervalle de 1 jour, pas 11 jours ou plus.
+    const expectedDate = new Date();
+    expectedDate.setDate(expectedDate.getDate() + 1);
+    expect(nextReviewDateStr).toBe(expectedDate.toISOString().split('T')[0]);
+  });
+
+  it('review_count s\'incrémente sur une réponse fausse (compteur lifetime, pas la série)', async () => {
+    const current = { user_id: 'u1', content_id: 8, ease_factor: 2.0, review_count: 4, correct_count: 2, consecutive_correct: 2 };
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(current);
+    (db.runAsync as jest.Mock).mockResolvedValueOnce(undefined);
+    await updateSpacedRepetitionResult(db, 'u1', 8, false);
+    const [query] = (db.runAsync as jest.Mock).mock.calls[0];
+    expect(query).toEqual(expect.stringContaining('review_count = review_count + 1'));
   });
 });
 

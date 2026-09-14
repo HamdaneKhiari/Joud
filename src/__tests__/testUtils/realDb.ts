@@ -113,6 +113,7 @@ export const createMigratedRealDb = async (): Promise<RealTestDb> => {
     require('@/database/migrations/009_add_user_id_to_activity_log').default,
     require('@/database/migrations/010_backfill_vocab_example_translation').default,
     require('@/database/migrations/011_add_missing_wordgame_feedbacks').default,
+    require('@/database/migrations/012_add_consecutive_correct').default,
   ];
 
   await runner.runMigrations(migrationModules);
