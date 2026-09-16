@@ -1,0 +1,396 @@
+diff --git a/app.config.js b/app.config.js
+index 37a89d7..25ca628 100644
+--- a/app.config.js
++++ b/app.config.js
+@@ -14,6 +14,17 @@ const AUDIENCE_CONFIG = {
+ 
+ const cfg = audience ? AUDIENCE_CONFIG[audience] : null;
+ 
++// Échec explicite plutôt que repli silencieux : une variable mal orthographiée
++// (ex: "colleg" au lieu de "college") ne doit jamais produire silencieusement un build
++// générique "Joud" — c'est exactement le genre d'erreur de config qu'on veut voir
++// exploser à la compilation, pas découvrir après soumission au store.
++if (audience && !cfg) {
++  throw new Error(
++    `EXPO_PUBLIC_LOCKED_AUDIENCE="${audience}" invalide. ` +
++    `Valeurs acceptées : ${Object.keys(AUDIENCE_CONFIG).join(', ')}.`
++  );
++}
++
+ const BASE_IOS_ID = 'com.hamdanek.Joud';
+ const BASE_ANDROID_PACKAGE = 'com.hamdanek.Joud';
+ 
+diff --git a/src/__tests__/integration/queries.test.ts b/src/__tests__/integration/queries.test.ts
+index db2c356..7d9187e 100644
+--- a/src/__tests__/integration/queries.test.ts
++++ b/src/__tests__/integration/queries.test.ts
+@@ -326,16 +326,26 @@ describe('getModuleLabelWithFallback', () => {
+ // ============================================
+ 
+ describe('getLevelLabel', () => {
+-  it('appelle getFirstAsync avec level_number et identity_id', async () => {
++  it('sans familyId : filtre sur family_id IS NULL (label générique)', async () => {
+     (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(null);
+     await getLevelLabel(db, 1, 'primary');
+ 
+     expect(db.getFirstAsync).toHaveBeenCalledWith(
+-      expect.stringContaining('WHERE level_number = ? AND identity_id = ?'),
++      expect.stringContaining('family_id IS NULL'),
+       [1, 'primary']
+     );
+   });
+ 
++  it('avec familyId : filtre sur family_id = ? (label spécifique à une famille)', async () => {
++    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(null);
++    await getLevelLabel(db, 1, 'primary', 42);
++
++    expect(db.getFirstAsync).toHaveBeenCalledWith(
++      expect.stringContaining('family_id = ?'),
++      [1, 'primary', 42]
++    );
++  });
++
+   it('retourne le label trouvé', async () => {
+     const mockLabel = { id: 1, level_number: 1, identity_id: 'primary', display_title: 'Les Bases' };
+     (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(mockLabel);
+@@ -594,19 +604,19 @@ describe('getBrandingById', () => {
+ // ============================================
+ 
+ describe('getRecentActivity', () => {
+-  it('utilise la limite par défaut 10', async () => {
++  it('filtre par user_id et utilise la limite par défaut 10', async () => {
+     (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
+-    await getRecentActivity(db);
++    await getRecentActivity(db, 'u1');
+     expect(db.getAllAsync).toHaveBeenCalledWith(
+-      expect.stringContaining('LIMIT ?'),
+-      [10]
++      expect.stringContaining('WHERE user_id = ?'),
++      ['u1', 10]
+     );
+   });
+ 
+   it('utilise la limite personnalisée', async () => {
+     (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
+-    await getRecentActivity(db, 5);
+-    expect(db.getAllAsync).toHaveBeenCalledWith(expect.any(String), [5]);
++    await getRecentActivity(db, 'u1', 5);
++    expect(db.getAllAsync).toHaveBeenCalledWith(expect.any(String), ['u1', 5]);
+   });
+ });
+ 
+diff --git a/src/__tests__/integration/realDb.test.ts b/src/__tests__/integration/realDb.test.ts
+index eb546a0..b2ae97d 100644
+--- a/src/__tests__/integration/realDb.test.ts
++++ b/src/__tests__/integration/realDb.test.ts
+@@ -10,7 +10,7 @@
+  */
+ 
+ import { createMigratedRealDb, createRealDb, type RealTestDb } from '../testUtils/realDb';
+-import { MigrationRunner } from '@/database/migrations/runner';
++import { MigrationRunner, createMigration } from '@/database/migrations/runner';
+ import migration001 from '@/database/migrations/001_schema';
+ import migration002 from '@/database/migrations/002_seed_config';
+ import migration003 from '@/database/migrations/003_seed_subfamily_labels';
+@@ -33,6 +33,7 @@ import {
+   getBrandingById,
+   getIdentityPalette,
+   calculateUserMetrics,
++  getRecentActivity,
+ } from '@/database/queries';
+ import { getSubFamiliesByFamily } from '@/services/subfamilyService';
+ 
+@@ -355,6 +356,23 @@ describe('Intégration DB réelle — activity_log scopé par utilisateur (migra
+     expect(metricsB.current_streak).toBe(2);
+   });
+ 
++  it('getRecentActivity ne renvoie que les lignes du user demandé', async () => {
++    testDb.raw.run(
++      `INSERT INTO activity_log (user_id, module_slug, family_id, subfamily_id, level, family_name, icon, progress, timestamp)
++       VALUES ('recent-a', 'vocab', 50, 0, 1, 'Sport', '⚽', 100, ?)`,
++      [Date.now()]
++    );
++    testDb.raw.run(
++      `INSERT INTO activity_log (user_id, module_slug, family_id, subfamily_id, level, family_name, icon, progress, timestamp)
++       VALUES ('recent-b', 'vocab', 51, 0, 1, 'École', '🎒', 100, ?)`,
++      [Date.now()]
++    );
++
++    const activityA = await getRecentActivity(testDb.db, 'recent-a');
++    expect(activityA).toHaveLength(1);
++    expect((activityA[0] as { user_id: string }).user_id).toBe('recent-a');
++  });
++
+   it('backfille les lignes pré-existantes (avant la migration) avec user_id = \'\'', async () => {
+     // Reproduit l'état d'une base pré-009 : migrations 1 à 8 seulement, puis une ligne insérée
+     // à l'ancien format (sans user_id), avant que la migration 009 ne tourne.
+@@ -430,6 +448,53 @@ describe('Intégration DB réelle — modules par audience', () => {
+   });
+ });
+ 
++describe('Intégration DB réelle — atomicité des migrations', () => {
++  it('une migration qui échoue à mi-chemin annule tout (rollback) au lieu de laisser des données partielles', async () => {
++    const testDb = await createMigratedRealDb();
++    const runner = new MigrationRunner(testDb.db);
++
++    const failingMigration = createMigration(9999, 'test_atomicity', async (db) => {
++      await db.execAsync(`CREATE TABLE IF NOT EXISTS test_atomicity (id INTEGER)`);
++      await db.runAsync(`INSERT INTO test_atomicity (id) VALUES (1)`);
++      throw new Error('Échec simulé à mi-chemin');
++    });
++
++    await expect(runner.runMigration(failingMigration)).rejects.toThrow('Échec simulé à mi-chemin');
++
++    // La CREATE TABLE elle-même doit être annulée (DDL transactionnel sous SQLite) —
++    // sans ça, la table existerait mais vide, ce qui serait déjà un signe de fuite.
++    const tableExists = testDb.raw.exec(
++      `SELECT name FROM sqlite_master WHERE type='table' AND name='test_atomicity'`
++    );
++    expect(tableExists[0]?.values ?? []).toEqual([]);
++
++    // La migration ne doit PAS être enregistrée comme exécutée — sinon elle ne serait
++    // jamais rejouée au prochain lancement, alors qu'elle n'a jamais réellement réussi.
++    const isExecuted = await runner.isMigrationExecuted(9999);
++    expect(isExecuted).toBe(false);
++
++    await testDb.db.closeAsync?.();
++  });
++
++  it('une migration qui réussit reste bien enregistrée après (comportement normal préservé)', async () => {
++    const testDb = await createMigratedRealDb();
++    const runner = new MigrationRunner(testDb.db);
++
++    const okMigration = createMigration(9998, 'test_atomicity_ok', async (db) => {
++      await db.execAsync(`CREATE TABLE IF NOT EXISTS test_atomicity_ok (id INTEGER)`);
++      await db.runAsync(`INSERT INTO test_atomicity_ok (id) VALUES (1)`);
++    });
++
++    await runner.runMigration(okMigration);
++
++    const rows = testDb.raw.exec(`SELECT id FROM test_atomicity_ok`);
++    expect(rows[0]?.values ?? []).toEqual([[1]]);
++    expect(await runner.isMigrationExecuted(9998)).toBe(true);
++
++    await testDb.db.closeAsync?.();
++  });
++});
++
+ describe('Intégration DB réelle — flux famille → contenu → progression', () => {
+   let testDb: RealTestDb;
+ 
+@@ -498,4 +563,25 @@ describe('Intégration DB réelle — flux famille → contenu → progression',
+     const aggregated = await getAggregatedFamilyProgress(testDb.db, 'u3', familyId, 2);
+     expect(aggregated).toEqual({ completed: 9, total: 20 });
+   });
++
++  it('calculateUserMetrics: words_learned ne compte que les mots du NIVEAU complété, pas toute la famille', async () => {
++    // Régression : la jointure comptait tous les mots de la famille dès qu'UN niveau était
++    // complété, peu importe lequel. Famille à 2 niveaux, seul le niveau 1 est complété.
++    const familyId = seedFamily(testDb, 'vocab', 'Metrics Words Family');
++
++    await insertContent(testDb.db, { family_id: familyId, level: 1, content_type: 'word', data: JSON.stringify({ word: 'cat' }), course: 'fr-en' });
++    await insertContent(testDb.db, { family_id: familyId, level: 1, content_type: 'word', data: JSON.stringify({ word: 'dog' }), course: 'fr-en' });
++    await insertContent(testDb.db, { family_id: familyId, level: 2, content_type: 'word', data: JSON.stringify({ word: 'elephant' }), course: 'fr-en' });
++    await insertContent(testDb.db, { family_id: familyId, level: 2, content_type: 'word', data: JSON.stringify({ word: 'giraffe' }), course: 'fr-en' });
++
++    await upsertProgress(testDb.db, {
++      user_id: 'metrics_words_user', family_id: familyId, subfamily_id: 0, level: 1, completed: 2, total: 2, score: 100,
++    });
++    // Niveau 2 jamais commencé : pas de ligne progress pour ce niveau.
++
++    const metrics = await calculateUserMetrics(testDb.db, 'metrics_words_user');
++
++    // Attendu : 2 (niveau 1 seulement) — l'ancien bug aurait renvoyé 4 (toute la famille).
++    expect(metrics.words_learned).toBe(2);
++  });
+ });
+diff --git a/src/__tests__/unit/aiTutorHelpers.test.ts b/src/__tests__/unit/aiTutorHelpers.test.ts
+index 6a4b63b..6d748b3 100644
+--- a/src/__tests__/unit/aiTutorHelpers.test.ts
++++ b/src/__tests__/unit/aiTutorHelpers.test.ts
+@@ -98,6 +98,13 @@ describe('buildLevelAdaptedSystemPrompt', () => {
+     const result = buildLevelAdaptedSystemPrompt(99);
+     expect(result.content).toContain('intermediate');
+   });
++
++  it('contient la clause de cadrage/sécurité (redirection sur sujet hors anglais)', () => {
++    const result = buildLevelAdaptedSystemPrompt(2);
++    expect(result.content).toContain('mineur');
++    expect(result.content).toContain('sensible');
++    expect(result.content.toLowerCase()).toContain('redirige');
++  });
+ });
+ 
+ // ============================================
+@@ -193,4 +200,12 @@ describe('buildDomainSystemPrompt', () => {
+     const result = buildDomainSystemPrompt(domain, 1);
+     expect(result.content).not.toContain('Erreurs récentes');
+   });
++
++  it('contient la clause de cadrage/sécurité (redirection sur sujet hors anglais)', () => {
++    const domain = baseDomain({});
++    const result = buildDomainSystemPrompt(domain, 1);
++    expect(result.content).toContain('mineur');
++    expect(result.content).toContain('sensible');
++    expect(result.content.toLowerCase()).toContain('redirige');
++  });
+ });
+diff --git a/src/contexts/UserContext.tsx b/src/contexts/UserContext.tsx
+index 464f333..0d30bf7 100644
+--- a/src/contexts/UserContext.tsx
++++ b/src/contexts/UserContext.tsx
+@@ -47,9 +47,19 @@ const VALID_AUDIENCES: User['audience'][] = ['primary', 'college', 'lycee', 'adu
+ // Verrouille l'audience pour les builds mono-public (défini par profil dans eas.json,
+ // EXPO_PUBLIC_* est inliné dans le bundle par Metro au build). Absent en dev/preview
+ // interne : l'audience reste sélectionnable comme aujourd'hui.
+-const LOCKED_AUDIENCE = VALID_AUDIENCES.includes(process.env.EXPO_PUBLIC_LOCKED_AUDIENCE as User['audience'])
+-  ? (process.env.EXPO_PUBLIC_LOCKED_AUDIENCE as User['audience'])
+-  : null;
++//
++// Échec explicite si la variable est définie mais invalide (faute de frappe, etc.) —
++// même principe que app.config.js : un repli silencieux masquerait une erreur de config
++// (le build tournerait "déverrouillé" sans que personne ne s'en aperçoive) au lieu de la
++// faire remonter immédiatement.
++const RAW_LOCKED_AUDIENCE = process.env.EXPO_PUBLIC_LOCKED_AUDIENCE;
++if (RAW_LOCKED_AUDIENCE && !VALID_AUDIENCES.includes(RAW_LOCKED_AUDIENCE as User['audience'])) {
++  throw new Error(
++    `EXPO_PUBLIC_LOCKED_AUDIENCE="${RAW_LOCKED_AUDIENCE}" invalide. ` +
++    `Valeurs acceptées : ${VALID_AUDIENCES.join(', ')}.`
++  );
++}
++const LOCKED_AUDIENCE = (RAW_LOCKED_AUDIENCE as User['audience']) || null;
+ 
+ const DEFAULT_USER: User = {
+   id: 'user_01',
+diff --git a/src/database/migrations/runner.ts b/src/database/migrations/runner.ts
+index 9f5fb72..ca28aee 100644
+--- a/src/database/migrations/runner.ts
++++ b/src/database/migrations/runner.ts
+@@ -70,8 +70,15 @@ export class MigrationRunner {
+     console.log(`[Migration] ▶ Running ${migration.version}_${migration.name}...`);
+ 
+     try {
+-      await migration.up(this.db);
+-      await this.recordMigration(migration);
++      // Atomique : si up() échoue à mi-chemin (ex: migration 007 et ses centaines d'INSERT
++      // séquentiels), tout est annulé — sans ça, les lignes déjà insérées restaient en base
++      // alors que la migration n'était jamais enregistrée comme exécutée, donc rejouée
++      // entièrement au prochain lancement (et sans protection OR IGNORE sur `content`,
++      // ça aurait dupliqué tout ce qui avait déjà été inséré avant l'échec).
++      await this.db.withTransactionAsync(async () => {
++        await migration.up(this.db);
++        await this.recordMigration(migration);
++      });
+       console.log(`[Migration] ✓ ${migration.version}_${migration.name} completed`);
+     } catch (error) {
+       console.error(`[Migration] ✗ ${migration.version}_${migration.name} failed:`, error);
+diff --git a/src/database/queries.ts b/src/database/queries.ts
+index 7492dff..21e1960 100644
+--- a/src/database/queries.ts
++++ b/src/database/queries.ts
+@@ -225,10 +225,21 @@ export const getModuleLabelWithFallback = async (
+ export const getLevelLabel = async (
+   db: SQLiteDatabase,
+   levelNumber: number,
+-  identityId: string
++  identityId: string,
++  familyId?: number
+ ): Promise<LevelLabel | null> => {
++  // family_id est nullable dans level_labels (UNIQUE(level_number, identity_id, family_id)) :
++  // un label peut être générique (family_id IS NULL) ou spécifique à une famille. Distinguer
++  // explicitement les deux cas, plutôt que d'ignorer family_id, pour ne pas remonter une ligne
++  // au hasard le jour où plusieurs lignes existeront pour le même niveau/identité.
++  if (familyId !== undefined) {
++    return await db.getFirstAsync<LevelLabel>(
++      `SELECT * FROM level_labels WHERE level_number = ? AND identity_id = ? AND family_id = ?`,
++      [levelNumber, identityId, familyId]
++    );
++  }
+   return await db.getFirstAsync<LevelLabel>(
+-    `SELECT * FROM level_labels WHERE level_number = ? AND identity_id = ?`,
++    `SELECT * FROM level_labels WHERE level_number = ? AND identity_id = ? AND family_id IS NULL`,
+     [levelNumber, identityId]
+   );
+ };
+@@ -315,10 +326,14 @@ export const isModuleAvailable = async (
+   return (result?.count || 0) > 0;
+ };
+ 
+-export const getRecentActivity = async (db: SQLiteDatabase, limit: number = 10): Promise<Record<string, unknown>[]> => {
++export const getRecentActivity = async (
++  db: SQLiteDatabase,
++  userId: string,
++  limit: number = 10
++): Promise<Record<string, unknown>[]> => {
+   return await db.getAllAsync(
+-    `SELECT * FROM activity_log ORDER BY timestamp DESC LIMIT ?`,
+-    [limit]
++    `SELECT * FROM activity_log WHERE user_id = ? ORDER BY timestamp DESC LIMIT ?`,
++    [userId, limit]
+   );
+ };
+ 
+@@ -469,11 +484,16 @@ export const calculateUserMetrics = async (
+   db: SQLiteDatabase,
+   userId: string
+ ): Promise<UserMetrics> => {
+-  // Mots appris = nombre de contenus de type 'word' complétés (cumul depuis le début, jamais décroissant)
++  // Mots appris = nombre de contenus de type 'word' complétés (cumul depuis le début, jamais
++  // décroissant). Jointure sur family_id ET level (pas family_id seul) : sinon, compléter le
++  // niveau 1 d'une famille de 4 niveaux comptait à tort tous les mots des 4 niveaux comme
++  // "appris" — la progression est suivie par niveau (progress.level), le contenu aussi
++  // (content.level), il faut les deux dans la jointure pour rester fidèle à ce que
++  // l'utilisateur a réellement complété.
+   const wordsResult = await db.getFirstAsync<{ count: number }>(
+     `SELECT COUNT(DISTINCT c.id) as count
+      FROM content c
+-     INNER JOIN progress p ON c.family_id = p.family_id
++     INNER JOIN progress p ON c.family_id = p.family_id AND c.level = p.level
+      WHERE p.user_id = ? AND p.completed > 0 AND c.content_type = 'word'`,
+     [userId]
+   );
+diff --git a/src/screens/AITutor/helpers.ts b/src/screens/AITutor/helpers.ts
+index 71b51de..e26432f 100644
+--- a/src/screens/AITutor/helpers.ts
++++ b/src/screens/AITutor/helpers.ts
+@@ -43,6 +43,19 @@ export const getLevelWelcomeMessage = (level: number): string => {
+   }
+ };
+ 
++// Clause de sécurité commune aux deux prompts système du Tuteur IA — l'input utilisateur
++// n'est volontairement PAS filtré par contenu (voir inputSanitizer.ts), la consigne de
++// cadrage doit donc vivre ici. Public concerné : collège/lycée/adulte uniquement (le
++// primaire est bloqué en amont par useBlockPrimaryAudience), mais reste en grande partie
++// mineur — le cadrage doit tenir même sans ce garde-fou d'âge.
++const SAFETY_SCOPE_CLAUSE =
++  "Tu t'adresses à un élève, potentiellement mineur. Reste strictement dans le cadre de " +
++  "l'apprentissage de l'anglais (vocabulaire, grammaire, conversation, culture liée à la " +
++  "langue). Si l'élève pose une question hors de ce cadre, ou sur un sujet sensible, violent, " +
++  "à caractère sexuel, ou inapproprié pour un public scolaire, ne réponds pas sur le fond : " +
++  "redirige poliment et brièvement vers l'apprentissage de l'anglais, sans reformuler ni " +
++  'détailler ce qui a été demandé.';
++
+ export const buildLevelAdaptedSystemPrompt = (
+   level: number
+ ): { role: 'system' | 'user' | 'assistant'; content: string } => {
+@@ -59,7 +72,9 @@ export const buildLevelAdaptedSystemPrompt = (
+ Tone adaptation:
+ ${baseTone[level] || baseTone[2]}
+ 
+-IMPORTANT: If you detect that the question is about vocabulary that exists in Joud's lesson data, mention it so the student knows it's certified content.`
++IMPORTANT: If you detect that the question is about vocabulary that exists in Joud's lesson data, mention it so the student knows it's certified content.
++
++${SAFETY_SCOPE_CLAUSE}`
+   );
+ };
+ 
+@@ -106,6 +121,7 @@ export const buildDomainSystemPrompt = (
+   return aiService.buildSystemMessage(
+     `Tu es un coach d'anglais bienveillant et concis. L'élève est niveau ${level}/4.\n` +
+     `Domaine : ${domain.label}.${errorContext}\n` +
+-    `Réponds en français. Sois concis (max 100 mots). Propose des exercices interactifs adaptés au domaine.`
++    `Réponds en français. Sois concis (max 100 mots). Propose des exercices interactifs adaptés au domaine.\n\n` +
++    SAFETY_SCOPE_CLAUSE
+   );
+ };
+\ No newline at end of file

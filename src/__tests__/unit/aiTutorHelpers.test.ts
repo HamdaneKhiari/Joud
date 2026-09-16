@@ -98,6 +98,13 @@ describe('buildLevelAdaptedSystemPrompt', () => {
     const result = buildLevelAdaptedSystemPrompt(99);
     expect(result.content).toContain('intermediate');
   });
+
+  it('contient la clause de cadrage/sécurité (redirection sur sujet hors anglais)', () => {
+    const result = buildLevelAdaptedSystemPrompt(2);
+    expect(result.content).toContain('mineur');
+    expect(result.content).toContain('sensible');
+    expect(result.content.toLowerCase()).toContain('redirige');
+  });
 });
 
 // ============================================
@@ -192,5 +199,13 @@ describe('buildDomainSystemPrompt', () => {
     const domain = baseDomain({});
     const result = buildDomainSystemPrompt(domain, 1);
     expect(result.content).not.toContain('Erreurs récentes');
+  });
+
+  it('contient la clause de cadrage/sécurité (redirection sur sujet hors anglais)', () => {
+    const domain = baseDomain({});
+    const result = buildDomainSystemPrompt(domain, 1);
+    expect(result.content).toContain('mineur');
+    expect(result.content).toContain('sensible');
+    expect(result.content.toLowerCase()).toContain('redirige');
   });
 });

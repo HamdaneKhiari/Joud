@@ -43,6 +43,19 @@ export const getLevelWelcomeMessage = (level: number): string => {
   }
 };
 
+// Clause de sécurité commune aux deux prompts système du Tuteur IA — l'input utilisateur
+// n'est volontairement PAS filtré par contenu (voir inputSanitizer.ts), la consigne de
+// cadrage doit donc vivre ici. Public concerné : collège/lycée/adulte uniquement (le
+// primaire est bloqué en amont par useBlockPrimaryAudience), mais reste en grande partie
+// mineur — le cadrage doit tenir même sans ce garde-fou d'âge.
+const SAFETY_SCOPE_CLAUSE =
+  "Tu t'adresses à un élève, potentiellement mineur. Reste strictement dans le cadre de " +
+  "l'apprentissage de l'anglais (vocabulaire, grammaire, conversation, culture liée à la " +
+  "langue). Si l'élève pose une question hors de ce cadre, ou sur un sujet sensible, violent, " +
+  "à caractère sexuel, ou inapproprié pour un public scolaire, ne réponds pas sur le fond : " +
+  "redirige poliment et brièvement vers l'apprentissage de l'anglais, sans reformuler ni " +
+  'détailler ce qui a été demandé.';
+
 export const buildLevelAdaptedSystemPrompt = (
   level: number
 ): { role: 'system' | 'user' | 'assistant'; content: string } => {
@@ -59,7 +72,9 @@ export const buildLevelAdaptedSystemPrompt = (
 Tone adaptation:
 ${baseTone[level] || baseTone[2]}
 
-IMPORTANT: If you detect that the question is about vocabulary that exists in Joud's lesson data, mention it so the student knows it's certified content.`
+IMPORTANT: If you detect that the question is about vocabulary that exists in Joud's lesson data, mention it so the student knows it's certified content.
+
+${SAFETY_SCOPE_CLAUSE}`
   );
 };
 
@@ -106,6 +121,7 @@ export const buildDomainSystemPrompt = (
   return aiService.buildSystemMessage(
     `Tu es un coach d'anglais bienveillant et concis. L'élève est niveau ${level}/4.\n` +
     `Domaine : ${domain.label}.${errorContext}\n` +
-    `Réponds en français. Sois concis (max 100 mots). Propose des exercices interactifs adaptés au domaine.`
+    `Réponds en français. Sois concis (max 100 mots). Propose des exercices interactifs adaptés au domaine.\n\n` +
+    SAFETY_SCOPE_CLAUSE
   );
 };
