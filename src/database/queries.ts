@@ -225,10 +225,21 @@ export const getModuleLabelWithFallback = async (
 export const getLevelLabel = async (
   db: SQLiteDatabase,
   levelNumber: number,
-  identityId: string
+  identityId: string,
+  familyId?: number
 ): Promise<LevelLabel | null> => {
+  // family_id est nullable dans level_labels (UNIQUE(level_number, identity_id, family_id)) :
+  // un label peut être générique (family_id IS NULL) ou spécifique à une famille. Distinguer
+  // explicitement les deux cas, plutôt que d'ignorer family_id, pour ne pas remonter une ligne
+  // au hasard le jour où plusieurs lignes existeront pour le même niveau/identité.
+  if (familyId !== undefined) {
+    return await db.getFirstAsync<LevelLabel>(
+      `SELECT * FROM level_labels WHERE level_number = ? AND identity_id = ? AND family_id = ?`,
+      [levelNumber, identityId, familyId]
+    );
+  }
   return await db.getFirstAsync<LevelLabel>(
-    `SELECT * FROM level_labels WHERE level_number = ? AND identity_id = ?`,
+    `SELECT * FROM level_labels WHERE level_number = ? AND identity_id = ? AND family_id IS NULL`,
     [levelNumber, identityId]
   );
 };
@@ -315,10 +326,14 @@ export const isModuleAvailable = async (
   return (result?.count || 0) > 0;
 };
 
-export const getRecentActivity = async (db: SQLiteDatabase, limit: number = 10): Promise<Record<string, unknown>[]> => {
+export const getRecentActivity = async (
+  db: SQLiteDatabase,
+  userId: string,
+  limit: number = 10
+): Promise<Record<string, unknown>[]> => {
   return await db.getAllAsync(
-    `SELECT * FROM activity_log ORDER BY timestamp DESC LIMIT ?`,
-    [limit]
+    `SELECT * FROM activity_log WHERE user_id = ? ORDER BY timestamp DESC LIMIT ?`,
+    [userId, limit]
   );
 };
 
@@ -469,11 +484,16 @@ export const calculateUserMetrics = async (
   db: SQLiteDatabase,
   userId: string
 ): Promise<UserMetrics> => {
-  // Mots appris = nombre de contenus de type 'word' complétés (cumul depuis le début, jamais décroissant)
+  // Mots appris = nombre de contenus de type 'word' complétés (cumul depuis le début, jamais
+  // décroissant). Jointure sur family_id ET level (pas family_id seul) : sinon, compléter le
+  // niveau 1 d'une famille de 4 niveaux comptait à tort tous les mots des 4 niveaux comme
+  // "appris" — la progression est suivie par niveau (progress.level), le contenu aussi
+  // (content.level), il faut les deux dans la jointure pour rester fidèle à ce que
+  // l'utilisateur a réellement complété.
   const wordsResult = await db.getFirstAsync<{ count: number }>(
     `SELECT COUNT(DISTINCT c.id) as count
      FROM content c
-     INNER JOIN progress p ON c.family_id = p.family_id
+     INNER JOIN progress p ON c.family_id = p.family_id AND c.level = p.level
      WHERE p.user_id = ? AND p.completed > 0 AND c.content_type = 'word'`,
     [userId]
   );

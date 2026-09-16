@@ -326,13 +326,23 @@ describe('getModuleLabelWithFallback', () => {
 // ============================================
 
 describe('getLevelLabel', () => {
-  it('appelle getFirstAsync avec level_number et identity_id', async () => {
+  it('sans familyId : filtre sur family_id IS NULL (label générique)', async () => {
     (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(null);
     await getLevelLabel(db, 1, 'primary');
 
     expect(db.getFirstAsync).toHaveBeenCalledWith(
-      expect.stringContaining('WHERE level_number = ? AND identity_id = ?'),
+      expect.stringContaining('family_id IS NULL'),
       [1, 'primary']
+    );
+  });
+
+  it('avec familyId : filtre sur family_id = ? (label spécifique à une famille)', async () => {
+    (db.getFirstAsync as jest.Mock).mockResolvedValueOnce(null);
+    await getLevelLabel(db, 1, 'primary', 42);
+
+    expect(db.getFirstAsync).toHaveBeenCalledWith(
+      expect.stringContaining('family_id = ?'),
+      [1, 'primary', 42]
     );
   });
 
@@ -594,19 +604,19 @@ describe('getBrandingById', () => {
 // ============================================
 
 describe('getRecentActivity', () => {
-  it('utilise la limite par défaut 10', async () => {
+  it('filtre par user_id et utilise la limite par défaut 10', async () => {
     (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
-    await getRecentActivity(db);
+    await getRecentActivity(db, 'u1');
     expect(db.getAllAsync).toHaveBeenCalledWith(
-      expect.stringContaining('LIMIT ?'),
-      [10]
+      expect.stringContaining('WHERE user_id = ?'),
+      ['u1', 10]
     );
   });
 
   it('utilise la limite personnalisée', async () => {
     (db.getAllAsync as jest.Mock).mockResolvedValueOnce([]);
-    await getRecentActivity(db, 5);
-    expect(db.getAllAsync).toHaveBeenCalledWith(expect.any(String), [5]);
+    await getRecentActivity(db, 'u1', 5);
+    expect(db.getAllAsync).toHaveBeenCalledWith(expect.any(String), ['u1', 5]);
   });
 });
 

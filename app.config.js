@@ -14,6 +14,17 @@ const AUDIENCE_CONFIG = {
 
 const cfg = audience ? AUDIENCE_CONFIG[audience] : null;
 
+// Échec explicite plutôt que repli silencieux : une variable mal orthographiée
+// (ex: "colleg" au lieu de "college") ne doit jamais produire silencieusement un build
+// générique "Joud" — c'est exactement le genre d'erreur de config qu'on veut voir
+// exploser à la compilation, pas découvrir après soumission au store.
+if (audience && !cfg) {
+  throw new Error(
+    `EXPO_PUBLIC_LOCKED_AUDIENCE="${audience}" invalide. ` +
+    `Valeurs acceptées : ${Object.keys(AUDIENCE_CONFIG).join(', ')}.`
+  );
+}
+
 const BASE_IOS_ID = 'com.hamdanek.Joud';
 const BASE_ANDROID_PACKAGE = 'com.hamdanek.Joud';
 

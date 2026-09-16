@@ -47,9 +47,19 @@ const VALID_AUDIENCES: User['audience'][] = ['primary', 'college', 'lycee', 'adu
 // Verrouille l'audience pour les builds mono-public (défini par profil dans eas.json,
 // EXPO_PUBLIC_* est inliné dans le bundle par Metro au build). Absent en dev/preview
 // interne : l'audience reste sélectionnable comme aujourd'hui.
-const LOCKED_AUDIENCE = VALID_AUDIENCES.includes(process.env.EXPO_PUBLIC_LOCKED_AUDIENCE as User['audience'])
-  ? (process.env.EXPO_PUBLIC_LOCKED_AUDIENCE as User['audience'])
-  : null;
+//
+// Échec explicite si la variable est définie mais invalide (faute de frappe, etc.) —
+// même principe que app.config.js : un repli silencieux masquerait une erreur de config
+// (le build tournerait "déverrouillé" sans que personne ne s'en aperçoive) au lieu de la
+// faire remonter immédiatement.
+const RAW_LOCKED_AUDIENCE = process.env.EXPO_PUBLIC_LOCKED_AUDIENCE;
+if (RAW_LOCKED_AUDIENCE && !VALID_AUDIENCES.includes(RAW_LOCKED_AUDIENCE as User['audience'])) {
+  throw new Error(
+    `EXPO_PUBLIC_LOCKED_AUDIENCE="${RAW_LOCKED_AUDIENCE}" invalide. ` +
+    `Valeurs acceptées : ${VALID_AUDIENCES.join(', ')}.`
+  );
+}
+const LOCKED_AUDIENCE = (RAW_LOCKED_AUDIENCE as User['audience']) || null;
 
 const DEFAULT_USER: User = {
   id: 'user_01',

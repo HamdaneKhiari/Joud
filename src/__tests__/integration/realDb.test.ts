@@ -10,7 +10,7 @@
  */
 
 import { createMigratedRealDb, createRealDb, type RealTestDb } from '../testUtils/realDb';
-import { MigrationRunner } from '@/database/migrations/runner';
+import { MigrationRunner, createMigration } from '@/database/migrations/runner';
 import migration001 from '@/database/migrations/001_schema';
 import migration002 from '@/database/migrations/002_seed_config';
 import migration003 from '@/database/migrations/003_seed_subfamily_labels';
@@ -33,6 +33,7 @@ import {
   getBrandingById,
   getIdentityPalette,
   calculateUserMetrics,
+  getRecentActivity,
 } from '@/database/queries';
 import { getSubFamiliesByFamily } from '@/services/subfamilyService';
 
@@ -355,6 +356,23 @@ describe('Intégration DB réelle — activity_log scopé par utilisateur (migra
     expect(metricsB.current_streak).toBe(2);
   });
 
+  it('getRecentActivity ne renvoie que les lignes du user demandé', async () => {
+    testDb.raw.run(
+      `INSERT INTO activity_log (user_id, module_slug, family_id, subfamily_id, level, family_name, icon, progress, timestamp)
+       VALUES ('recent-a', 'vocab', 50, 0, 1, 'Sport', '⚽', 100, ?)`,
+      [Date.now()]
+    );
+    testDb.raw.run(
+      `INSERT INTO activity_log (user_id, module_slug, family_id, subfamily_id, level, family_name, icon, progress, timestamp)
+       VALUES ('recent-b', 'vocab', 51, 0, 1, 'École', '🎒', 100, ?)`,
+      [Date.now()]
+    );
+
+    const activityA = await getRecentActivity(testDb.db, 'recent-a');
+    expect(activityA).toHaveLength(1);
+    expect((activityA[0] as { user_id: string }).user_id).toBe('recent-a');
+  });
+
   it('backfille les lignes pré-existantes (avant la migration) avec user_id = \'\'', async () => {
     // Reproduit l'état d'une base pré-009 : migrations 1 à 8 seulement, puis une ligne insérée
     // à l'ancien format (sans user_id), avant que la migration 009 ne tourne.
@@ -430,6 +448,53 @@ describe('Intégration DB réelle — modules par audience', () => {
   });
 });
 
+describe('Intégration DB réelle — atomicité des migrations', () => {
+  it('une migration qui échoue à mi-chemin annule tout (rollback) au lieu de laisser des données partielles', async () => {
+    const testDb = await createMigratedRealDb();
+    const runner = new MigrationRunner(testDb.db);
+
+    const failingMigration = createMigration(9999, 'test_atomicity', async (db) => {
+      await db.execAsync(`CREATE TABLE IF NOT EXISTS test_atomicity (id INTEGER)`);
+      await db.runAsync(`INSERT INTO test_atomicity (id) VALUES (1)`);
+      throw new Error('Échec simulé à mi-chemin');
+    });
+
+    await expect(runner.runMigration(failingMigration)).rejects.toThrow('Échec simulé à mi-chemin');
+
+    // La CREATE TABLE elle-même doit être annulée (DDL transactionnel sous SQLite) —
+    // sans ça, la table existerait mais vide, ce qui serait déjà un signe de fuite.
+    const tableExists = testDb.raw.exec(
+      `SELECT name FROM sqlite_master WHERE type='table' AND name='test_atomicity'`
+    );
+    expect(tableExists[0]?.values ?? []).toEqual([]);
+
+    // La migration ne doit PAS être enregistrée comme exécutée — sinon elle ne serait
+    // jamais rejouée au prochain lancement, alors qu'elle n'a jamais réellement réussi.
+    const isExecuted = await runner.isMigrationExecuted(9999);
+    expect(isExecuted).toBe(false);
+
+    await testDb.db.closeAsync?.();
+  });
+
+  it('une migration qui réussit reste bien enregistrée après (comportement normal préservé)', async () => {
+    const testDb = await createMigratedRealDb();
+    const runner = new MigrationRunner(testDb.db);
+
+    const okMigration = createMigration(9998, 'test_atomicity_ok', async (db) => {
+      await db.execAsync(`CREATE TABLE IF NOT EXISTS test_atomicity_ok (id INTEGER)`);
+      await db.runAsync(`INSERT INTO test_atomicity_ok (id) VALUES (1)`);
+    });
+
+    await runner.runMigration(okMigration);
+
+    const rows = testDb.raw.exec(`SELECT id FROM test_atomicity_ok`);
+    expect(rows[0]?.values ?? []).toEqual([[1]]);
+    expect(await runner.isMigrationExecuted(9998)).toBe(true);
+
+    await testDb.db.closeAsync?.();
+  });
+});
+
 describe('Intégration DB réelle — flux famille → contenu → progression', () => {
   let testDb: RealTestDb;
 
@@ -497,5 +562,26 @@ describe('Intégration DB réelle — flux famille → contenu → progression',
 
     const aggregated = await getAggregatedFamilyProgress(testDb.db, 'u3', familyId, 2);
     expect(aggregated).toEqual({ completed: 9, total: 20 });
+  });
+
+  it('calculateUserMetrics: words_learned ne compte que les mots du NIVEAU complété, pas toute la famille', async () => {
+    // Régression : la jointure comptait tous les mots de la famille dès qu'UN niveau était
+    // complété, peu importe lequel. Famille à 2 niveaux, seul le niveau 1 est complété.
+    const familyId = seedFamily(testDb, 'vocab', 'Metrics Words Family');
+
+    await insertContent(testDb.db, { family_id: familyId, level: 1, content_type: 'word', data: JSON.stringify({ word: 'cat' }), course: 'fr-en' });
+    await insertContent(testDb.db, { family_id: familyId, level: 1, content_type: 'word', data: JSON.stringify({ word: 'dog' }), course: 'fr-en' });
+    await insertContent(testDb.db, { family_id: familyId, level: 2, content_type: 'word', data: JSON.stringify({ word: 'elephant' }), course: 'fr-en' });
+    await insertContent(testDb.db, { family_id: familyId, level: 2, content_type: 'word', data: JSON.stringify({ word: 'giraffe' }), course: 'fr-en' });
+
+    await upsertProgress(testDb.db, {
+      user_id: 'metrics_words_user', family_id: familyId, subfamily_id: 0, level: 1, completed: 2, total: 2, score: 100,
+    });
+    // Niveau 2 jamais commencé : pas de ligne progress pour ce niveau.
+
+    const metrics = await calculateUserMetrics(testDb.db, 'metrics_words_user');
+
+    // Attendu : 2 (niveau 1 seulement) — l'ancien bug aurait renvoyé 4 (toute la famille).
+    expect(metrics.words_learned).toBe(2);
   });
 });

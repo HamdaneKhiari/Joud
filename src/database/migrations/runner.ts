@@ -70,8 +70,15 @@ export class MigrationRunner {
     console.log(`[Migration] ▶ Running ${migration.version}_${migration.name}...`);
 
     try {
-      await migration.up(this.db);
-      await this.recordMigration(migration);
+      // Atomique : si up() échoue à mi-chemin (ex: migration 007 et ses centaines d'INSERT
+      // séquentiels), tout est annulé — sans ça, les lignes déjà insérées restaient en base
+      // alors que la migration n'était jamais enregistrée comme exécutée, donc rejouée
+      // entièrement au prochain lancement (et sans protection OR IGNORE sur `content`,
+      // ça aurait dupliqué tout ce qui avait déjà été inséré avant l'échec).
+      await this.db.withTransactionAsync(async () => {
+        await migration.up(this.db);
+        await this.recordMigration(migration);
+      });
       console.log(`[Migration] ✓ ${migration.version}_${migration.name} completed`);
     } catch (error) {
       console.error(`[Migration] ✗ ${migration.version}_${migration.name} failed:`, error);
