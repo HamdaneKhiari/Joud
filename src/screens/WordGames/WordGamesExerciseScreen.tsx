@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, {useCallback } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import ExerciseLayout from '@/components/layout/ExerciceLayout/ExerciseLayout';
 import GameCardRenderer from '@/components/pedagogy/wordgames/GameCardRendered';
@@ -20,7 +20,6 @@ import { useGameState } from './hooks/useGameState';
 import { useGameHandlers } from './hooks/useGameHandlers';
 
 const EXERCISE_TYPE = 'word_games';
-const MAX_ATTEMPTS = 2;
 
 interface WordGamesExerciseParams {
   familyId: string;
@@ -60,7 +59,7 @@ const WordGamesExerciseScreen: React.FC = () => {
   const gameType = currentQuestion?.type || 'definition';
 
   const gameStates = useGameState(gameType);
-  const { getCurrentState } = gameStates;
+
 
   const handleComplete = useCallback(() => {
     trackItemCompletion(numLevelId, EXERCISE_TYPE, familyId, currentQuestionIndex, totalQuestions);

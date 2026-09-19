@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent, act } from '@testing-library/react-native';
 import WordGamesExerciseScreen from '@/screens/WordGames/WordGamesExerciseScreen';
-import { tokens } from '@/themes/tokens';
+
 
 // ============================================
 // Mocks — Contexts
