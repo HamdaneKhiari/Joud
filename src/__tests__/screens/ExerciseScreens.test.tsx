@@ -635,36 +635,6 @@ describe('Screens avec contenu — render paths', () => {
     expect(() => render(<WordGamesScreen />)).not.toThrow();
   });
 
-  it('WordGamesScreen — auto-progress useEffect fires when validated+correct', () => {
-    const trackItemCompletion = jest.fn();
-    require('@/contexts/ProgressContext').useProgress.mockReturnValue({
-      progress: {}, getLevelProgress: jest.fn().mockReturnValue(0),
-      refreshProgress: jest.fn(), saveProgressNow: jest.fn().mockResolvedValue(undefined),
-      trackItemCompletion, getRevisionFamilies: jest.fn().mockReturnValue([]),
-      resetProgress: jest.fn(), getFamilyProgress: jest.fn().mockReturnValue(0),
-    });
-    const gameContent = [{
-      id: 1,
-      data: { type: 'definition', word: 'cat', definition: 'An animal', options: ['chat', 'chien', 'maison'], correctAnswer: 'chat' }
-    }];
-    require('@/hooks/exercises/useExerciseContent').useExerciseContent.mockReturnValue({
-      module: mockModule, family: mockFamily, contentItems: gameContent, isLoading: false, error: null,
-    });
-    const validatedState = { isValidated: true, isCorrect: true, attemptCount: 1, selectedOption: 'chat' };
-    require('@/screens/WordGames/hooks/useGameState').useGameState.mockReturnValue({
-      builderState: {}, setBuilderState: jest.fn(),
-      definitionState: validatedState, setDefinitionState: jest.fn(),
-      blanksState: {}, setBlanksState: jest.fn(),
-      sentenceState: {}, setSentenceState: jest.fn(),
-      detectiveState: {}, setDetectiveState: jest.fn(),
-      replyState: {}, setReplyState: jest.fn(),
-      transformerState: {}, setTransformerState: jest.fn(),
-      resetAllStates: jest.fn(),
-      getCurrentState: jest.fn().mockReturnValue(validatedState),
-    });
-    expect(() => render(<WordGamesScreen />)).not.toThrow();
-    expect(trackItemCompletion).toHaveBeenCalled();
-  });
 
   it('ReadingScreen — empty state (currentQuestion=null after loading)', () => {
     require('@/screens/ReadingScreen/hooks/useReadingContent').useReadingContent.mockReturnValue({

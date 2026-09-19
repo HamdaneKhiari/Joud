@@ -100,13 +100,13 @@ describe('getDefaultFeedback', () => {
 
   it('skip + correctAnswer → message contient la bonne réponse', () => {
     const result = getDefaultFeedback('skip', true, null, true, 'house', 2);
-    expect(result?.title).toBe('RÉPONSE');
+    expect(result?.title).toBe('SOLUTION');
     expect(result?.message).toContain('house');
   });
 
   it('skip sans correctAnswer → message générique', () => {
     const result = getDefaultFeedback('skip', true, null, true, null, 2);
-    expect(result?.title).toBe('RÉPONSE');
+    expect(result?.title).toBe('SOLUTION');
     expect(result?.message).not.toContain('undefined');
     expect(result?.message).not.toContain('null');
   });
